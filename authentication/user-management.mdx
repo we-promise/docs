@@ -1,0 +1,478 @@
+---
+title: User management
+description: Manage users, connected accounts, and SSO authentication settings
+---
+
+## Overview
+
+The user management interface provides administrators with comprehensive tools to manage users, their connected SSO accounts, roles, and authentication settings. This includes viewing user details, managing connected accounts, manually adjusting roles, and troubleshooting authentication issues.
+
+## Accessing user management
+
+Navigate to the user management page in your admin dashboard:
+
+```
+https://your-domain.com/admin/users
+```
+
+## User list
+
+The user list displays all users in the application with key information:
+
+| Column | Description |
+|--------|-------------|
+| Name | User's display name |
+| Email | User's email address |
+| Roles | Assigned application roles |
+| Auth method | How the user authenticates (SSO provider or local) |
+| Last login | Timestamp of most recent login |
+| Status | Active, inactive, or suspended |
+| Created | Account creation date |
+
+### Filtering and search
+
+Use the search and filter tools to find specific users:
+
+- **Search**: Search by name, email, or username
+- **Filter by role**: Show only users with specific roles
+- **Filter by auth method**: Show users by authentication provider
+- **Filter by status**: Show active, inactive, or suspended users
+- **Sort**: Sort by any column (name, email, last login, etc.)
+
+## User details
+
+Click on a user to view detailed information:
+
+### Basic information
+
+- Full name
+- Email address
+- Username (if applicable)
+- Profile picture
+- Account creation date
+- Last login timestamp
+- Account status
+
+### Connected accounts
+
+View all SSO providers the user has connected:
+
+| Provider | Connected | Last used | Actions |
+|----------|-----------|-----------|---------|
+| Google | Yes | 2 hours ago | Disconnect |
+| Okta SAML | Yes | 1 day ago | Disconnect |
+| GitHub | No | - | - |
+
+<Note>
+Users can have multiple connected accounts from different SSO providers. They can log in using any connected provider.
+</Note>
+
+### Roles and permissions
+
+View and manage the user's assigned roles:
+
+- Current roles
+- Role source (default, group mapping, or manual)
+- Last role sync timestamp
+- Manual role adjustments
+
+### Authentication history
+
+View recent authentication events:
+
+- Login attempts (successful and failed)
+- Provider used
+- IP address
+- Timestamp
+- User agent
+
+## Managing connected accounts
+
+### Viewing connected accounts
+
+For each user, you can see:
+- Which SSO providers they've connected
+- When each account was first connected
+- When each account was last used for authentication
+- Provider-specific user identifiers
+
+### Disconnecting accounts
+
+<Warning>
+Disconnecting a user's only authentication method will prevent them from logging in. Ensure they have an alternative login method before disconnecting.
+</Warning>
+
+To disconnect an SSO account:
+
+<Steps>
+  <Step title="Navigate to user details">
+    Select the user from the user list
+  </Step>
+  
+  <Step title="Go to connected accounts">
+    View the "Connected Accounts" section
+  </Step>
+  
+  <Step title="Click disconnect">
+    Click "Disconnect" next to the provider you want to remove
+  </Step>
+  
+  <Step title="Confirm action">
+    Confirm the disconnection in the dialog
+  </Step>
+</Steps>
+
+The user will no longer be able to log in using that provider.
+
+### Forcing reconnection
+
+If a user is experiencing authentication issues with a specific provider:
+
+1. Disconnect the problematic account
+2. Ask the user to log in again using that provider
+3. The account will be reconnected with fresh credentials
+
+## Managing user roles
+
+### Viewing role assignments
+
+For each user, you can see:
+- **Current roles**: All roles currently assigned
+- **Role source**: How each role was assigned
+  - `default`: From provider's default roles
+  - `group_mapping`: From IdP group-to-role mapping
+  - `manual`: Manually assigned by an administrator
+- **Last sync**: When roles were last synchronized from IdP
+
+### Manual role assignment
+
+Override or supplement automatic role assignment:
+
+<Steps>
+  <Step title="Navigate to user details">
+    Select the user from the user list
+  </Step>
+  
+  <Step title="Go to roles section">
+    View the "Roles & Permissions" section
+  </Step>
+  
+  <Step title="Click edit roles">
+    Click "Edit Roles" button
+  </Step>
+  
+  <Step title="Add or remove roles">
+    Select roles to add or remove from the user
+  </Step>
+  
+  <Step title="Save changes">
+    Click "Save" to apply the role changes
+  </Step>
+</Steps>
+
+<Note>
+Manually assigned roles persist across logins and are not affected by role synchronization from IdP groups.
+</Note>
+
+### Syncing roles from IdP
+
+Force a role synchronization from the identity provider:
+
+<Steps>
+  <Step title="Navigate to user details">
+    Select the user from the user list
+  </Step>
+  
+  <Step title="Click sync roles">
+    Click "Sync Roles from SSO" button
+  </Step>
+  
+  <Step title="Confirm sync">
+    Confirm the synchronization action
+  </Step>
+</Steps>
+
+This fetches the latest group information from the user's identity provider and updates their roles based on current group-to-role mappings.
+
+## User actions
+
+### Suspending users
+
+Temporarily disable a user's access:
+
+<Steps>
+  <Step title="Select user">
+    Navigate to the user's detail page
+  </Step>
+  
+  <Step title="Click suspend">
+    Click "Suspend User" button
+  </Step>
+  
+  <Step title="Confirm suspension">
+    Confirm the action in the dialog
+  </Step>
+</Steps>
+
+Suspended users cannot log in until their account is reactivated.
+
+### Reactivating users
+
+Restore access for a suspended user:
+
+<Steps>
+  <Step title="Select user">
+    Navigate to the suspended user's detail page
+  </Step>
+  
+  <Step title="Click reactivate">
+    Click "Reactivate User" button
+  </Step>
+  
+  <Step title="Confirm reactivation">
+    Confirm the action
+  </Step>
+</Steps>
+
+### Deleting users
+
+<Warning>
+Deleting a user is permanent and cannot be undone. All user data, including connected accounts and activity history, will be removed.
+</Warning>
+
+To delete a user:
+
+<Steps>
+  <Step title="Select user">
+    Navigate to the user's detail page
+  </Step>
+  
+  <Step title="Click delete">
+    Click "Delete User" button
+  </Step>
+  
+  <Step title="Confirm deletion">
+    Type the user's email to confirm deletion
+  </Step>
+</Steps>
+
+## User security settings
+
+### Connected accounts in user settings
+
+Users can manage their own connected accounts from their security settings:
+
+```
+https://your-domain.com/settings/security
+```
+
+From this page, users can:
+- View all connected SSO providers
+- Connect additional SSO providers
+- Disconnect SSO providers (if they have alternative login methods)
+- See when each account was last used
+
+### User-initiated connections
+
+Users can connect additional SSO providers:
+
+<Steps>
+  <Step title="Navigate to security settings">
+    User goes to Settings → Security
+  </Step>
+  
+  <Step title="View available providers">
+    See list of available SSO providers
+  </Step>
+  
+  <Step title="Click connect">
+    Click "Connect" next to the desired provider
+  </Step>
+  
+  <Step title="Authenticate">
+    Complete the SSO authentication flow
+  </Step>
+  
+  <Step title="Confirm connection">
+    The provider is now connected to their account
+  </Step>
+</Steps>
+
+## Bulk operations
+
+### Bulk role assignment
+
+Assign roles to multiple users at once:
+
+<Steps>
+  <Step title="Select users">
+    Check the boxes next to users in the user list
+  </Step>
+  
+  <Step title="Click bulk actions">
+    Click "Bulk Actions" dropdown
+  </Step>
+  
+  <Step title="Select assign roles">
+    Choose "Assign Roles"
+  </Step>
+  
+  <Step title="Choose roles">
+    Select roles to assign to all selected users
+  </Step>
+  
+  <Step title="Confirm action">
+    Confirm the bulk role assignment
+  </Step>
+</Steps>
+
+### Bulk suspension
+
+Suspend multiple users at once:
+
+<Steps>
+  <Step title="Select users">
+    Check the boxes next to users to suspend
+  </Step>
+  
+  <Step title="Click bulk actions">
+    Click "Bulk Actions" dropdown
+  </Step>
+  
+  <Step title="Select suspend">
+    Choose "Suspend Users"
+  </Step>
+  
+  <Step title="Confirm action">
+    Confirm the bulk suspension
+  </Step>
+</Steps>
+
+## Troubleshooting user issues
+
+### User can't log in
+
+**Problem**: User reports they cannot log in
+
+**Steps to diagnose**:
+1. Check user status (active, suspended, or deleted)
+2. Review connected accounts - ensure they have at least one
+3. Check authentication history for failed login attempts
+4. Review audit logs for specific error messages
+5. Verify the SSO provider is enabled and configured correctly
+
+### User has wrong roles
+
+**Problem**: User doesn't have expected permissions
+
+**Steps to diagnose**:
+1. Review current role assignments
+2. Check role source (default, group mapping, or manual)
+3. Verify group-to-role mappings in provider configuration
+4. Check user's groups in the identity provider
+5. Try syncing roles from SSO
+6. Review audit logs for role change events
+
+### Duplicate accounts
+
+**Problem**: User has multiple accounts with different email addresses
+
+**Solution**:
+1. Identify the primary account to keep
+2. Manually transfer any necessary data or permissions
+3. Delete the duplicate account
+4. Update the user's email in the identity provider if needed
+
+### Connected account not working
+
+**Problem**: User can't log in with a specific SSO provider
+
+**Steps to diagnose**:
+1. Check if the provider is enabled
+2. Review provider configuration
+3. Check authentication history for error messages
+4. Try disconnecting and reconnecting the account
+5. Verify the provider works for other users
+6. Review audit logs for provider-specific errors
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Regular audits">
+    Periodically review user accounts, roles, and connected accounts to ensure they align with your security policies.
+  </Accordion>
+  
+  <Accordion title="Principle of least privilege">
+    Assign users the minimum roles necessary for their job functions. Use group-based role assignment when possible.
+  </Accordion>
+  
+  <Accordion title="Monitor authentication">
+    Regularly review authentication history and failed login attempts to detect potential security issues.
+  </Accordion>
+  
+  <Accordion title="Document manual changes">
+    Keep notes when manually adjusting user roles or disconnecting accounts for future reference.
+  </Accordion>
+  
+  <Accordion title="Offboarding process">
+    Establish a clear process for suspending or deleting user accounts when employees leave.
+  </Accordion>
+</AccordionGroup>
+
+## Reporting
+
+### User statistics
+
+View aggregate statistics about your users:
+
+- Total users
+- Active users (logged in within last 30 days)
+- Users by authentication method
+- Users by role
+- New users (created in last 30 days)
+
+### Export user data
+
+Export user information for reporting or compliance:
+
+<Steps>
+  <Step title="Navigate to user list">
+    Go to Admin → Users
+  </Step>
+  
+  <Step title="Apply filters">
+    Filter users as needed (optional)
+  </Step>
+  
+  <Step title="Click export">
+    Click "Export" button
+  </Step>
+  
+  <Step title="Choose format">
+    Select CSV or JSON format
+  </Step>
+  
+  <Step title="Download file">
+    Download the exported user data
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Role mapping" icon="users" href="/authentication/role-mapping">
+    Configure automatic role assignment from IdP groups
+  </Card>
+  
+  <Card title="Audit logging" icon="list" href="/authentication/audit-logging">
+    Monitor user authentication and account changes
+  </Card>
+  
+  <Card title="Admin UI" icon="gear" href="/authentication/admin-ui">
+    Manage SSO providers and configuration
+  </Card>
+  
+  <Card title="OIDC setup" icon="key" href="/authentication/oidc">
+    Configure OIDC authentication providers
+  </Card>
+</CardGroup>
