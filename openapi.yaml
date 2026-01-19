@@ -11,10 +11,10 @@ servers:
   description: Local development
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key      
   schemas:
     Pagination:
       type: object
@@ -602,14 +602,14 @@ paths:
       tags:
       - Categories
       security:
-      - bearerAuth: []
+      - apiKeyAuth: []
       parameters:
-      - name: Authorization
+      - name: X-Api-Key
         in: header
         required: true
         schema:
           type: string
-        description: Bearer token with read scope
+        description: API key
       - name: page
         in: query
         required: false
