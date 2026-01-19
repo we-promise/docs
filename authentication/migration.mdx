@@ -1,0 +1,372 @@
+---
+title: Migration to database-backed providers
+description: Migrate from YAML-based to database-backed SSO provider configuration
+---
+
+## Overview
+
+Database-backed provider configuration offers significant advantages over YAML-based configuration:
+
+- **No server restarts**: Update providers without downtime
+- **Admin UI management**: Configure providers through a web interface
+- **Dynamic updates**: Changes take effect immediately
+- **Audit trail**: Track all configuration changes
+- **Multi-instance support**: Share configuration across multiple application instances
+
+This guide walks you through migrating from YAML-based to database-backed provider configuration.
+
+## Prerequisites
+
+- Admin access to the application
+- Access to your current YAML configuration files
+- Database backup (recommended)
+- Ability to set environment variables
+
+## Migration process
+
+<Steps>
+  <Step title="Backup current configuration">
+    Before starting, backup your current YAML configuration files:
+    ```bash
+    cp config/auth-providers.yml config/auth-providers.yml.backup
+    ```
+  </Step>
+  
+  <Step title="Set environment variable">
+    Add the `AUTH_PROVIDERS_SOURCE` environment variable:
+    ```bash
+    AUTH_PROVIDERS_SOURCE=database
+    ```
+  </Step>
+  
+  <Step title="Restart the application">
+    Restart your application to enable database-backed providers:
+    ```bash
+    # Docker
+    docker-compose restart
+    
+    # Systemd
+    sudo systemctl restart your-app
+    
+    # PM2
+    pm2 restart your-app
+    ```
+  </Step>
+  
+  <Step title="Access admin UI">
+    Navigate to Admin → SSO Providers in your dashboard
+  </Step>
+  
+  <Step title="Migrate each provider">
+    For each provider in your YAML configuration, create a corresponding provider in the admin UI
+  </Step>
+  
+  <Step title="Test authentication">
+    Test login with each migrated provider to ensure it works correctly
+  </Step>
+  
+  <Step title="Remove YAML configuration">
+    Once all providers are migrated and tested, you can remove the YAML configuration files (optional)
+  </Step>
+</Steps>
+
+## YAML to admin UI mapping
+
+### OIDC provider example
+
+**YAML configuration:**
+```yaml
+providers:
+  - id: google
+    name: Google Workspace
+    type: oidc
+    enabled: true
+    config:
+      issuer: https://accounts.google.com
+      clientId: your-client-id.apps.googleusercontent.com
+      clientSecret: your-client-secret
+      scopes: openid profile email
+    roleMapping:
+      defaultRoles:
+        - viewer
+      groupMappings:
+        - group: admin@company.com
+          role: admin
+```
+
+**Admin UI configuration:**
+
+1. Provider type: OIDC
+2. Basic settings:
+   - Provider name: `Google Workspace`
+   - Provider ID: `google`
+   - Enabled: `Yes`
+3. OIDC settings:
+   - Issuer URL: `https://accounts.google.com`
+   - Client ID: `your-client-id.apps.googleusercontent.com`
+   - Client secret: `your-client-secret`
+   - Scopes: `openid profile email`
+4. Role mapping:
+   - Default roles: `viewer`
+   - Group mappings:
+     - Group: `admin@company.com` → Role: `admin`
+
+### SAML provider example
+
+**YAML configuration:**
+```yaml
+providers:
+  - id: okta-saml
+    name: Okta SAML
+    type: saml
+    enabled: true
+    config:
+      ssoUrl: https://your-domain.okta.com/app/abc123/sso/saml
+      entityId: http://www.okta.com/abc123
+      certificate: |
+        -----BEGIN CERTIFICATE-----
+        MIIDpDCCAoygAwIBAgIGAXoTp...
+        -----END CERTIFICATE-----
+      signRequests: false
+    roleMapping:
+      defaultRoles:
+        - user
+      attributeMappings:
+        - attribute: groups
+          mappings:
+            - value: Administrators
+              role: admin
+```
+
+**Admin UI configuration:**
+
+1. Provider type: SAML 2.0
+2. Basic settings:
+   - Provider name: `Okta SAML`
+   - Provider ID: `okta-saml`
+   - Enabled: `Yes`
+3. SAML settings:
+   - SSO URL: `https://your-domain.okta.com/app/abc123/sso/saml`
+   - Entity ID: `http://www.okta.com/abc123`
+   - Certificate: `[paste certificate]`
+   - Sign requests: `No`
+4. Role mapping:
+   - Default roles: `user`
+   - Attribute: `groups`
+   - Mappings:
+     - Value: `Administrators` → Role: `admin`
+
+### OAuth2 provider example
+
+**YAML configuration:**
+```yaml
+providers:
+  - id: github
+    name: GitHub
+    type: oauth2
+    enabled: true
+    config:
+      authorizationUrl: https://github.com/login/oauth/authorize
+      tokenUrl: https://github.com/login/oauth/access_token
+      userInfoUrl: https://api.github.com/user
+      clientId: your-client-id
+      clientSecret: your-client-secret
+      scopes: user:email
+    attributeMapping:
+      email: email
+      name: name
+      avatar: avatar_url
+```
+
+**Admin UI configuration:**
+
+1. Provider type: OAuth2
+2. Basic settings:
+   - Provider name: `GitHub`
+   - Provider ID: `github`
+   - Enabled: `Yes`
+3. OAuth2 settings:
+   - Authorization URL: `https://github.com/login/oauth/authorize`
+   - Token URL: `https://github.com/login/oauth/access_token`
+   - User info URL: `https://api.github.com/user`
+   - Client ID: `your-client-id`
+   - Client secret: `your-client-secret`
+   - Scopes: `user:email`
+4. Attribute mapping:
+   - Email: `email`
+   - Name: `name`
+   - Avatar: `avatar_url`
+
+## Configuration field mapping
+
+| YAML Field | Admin UI Field | Notes |
+|------------|----------------|-------|
+| `id` | Provider ID | Must be unique and lowercase |
+| `name` | Provider name | Display name for login button |
+| `type` | Provider type | `oidc`, `oauth2`, or `saml` |
+| `enabled` | Enabled toggle | Enable/disable provider |
+| `config.issuer` | Issuer URL | OIDC only |
+| `config.clientId` | Client ID | OIDC/OAuth2 |
+| `config.clientSecret` | Client secret | OIDC/OAuth2 |
+| `config.scopes` | Scopes | OIDC/OAuth2 |
+| `config.ssoUrl` | SSO URL | SAML only |
+| `config.entityId` | Entity ID | SAML only |
+| `config.certificate` | Certificate | SAML only |
+| `roleMapping.defaultRoles` | Default roles | Array of role names |
+| `roleMapping.groupMappings` | Group mappings | Group-to-role mappings |
+
+## Handling secrets
+
+<Warning>
+Client secrets and private keys are sensitive. Ensure they're handled securely during migration.
+</Warning>
+
+### Best practices
+
+1. **Use environment variables**: Store secrets in environment variables during migration
+2. **Rotate secrets**: Consider rotating secrets after migration
+3. **Secure transmission**: Use HTTPS when accessing the admin UI
+4. **Audit access**: Review who has access to the admin UI
+5. **Delete backups**: Securely delete YAML backups containing secrets after migration
+
+## Rollback procedure
+
+If you need to rollback to YAML-based configuration:
+
+<Steps>
+  <Step title="Stop the application">
+    Stop your application to prevent configuration conflicts
+  </Step>
+  
+  <Step title="Remove environment variable">
+    Remove or comment out `AUTH_PROVIDERS_SOURCE`:
+    ```bash
+    # AUTH_PROVIDERS_SOURCE=database
+    ```
+  </Step>
+  
+  <Step title="Restore YAML configuration">
+    Ensure your YAML configuration files are in place:
+    ```bash
+    cp config/auth-providers.yml.backup config/auth-providers.yml
+    ```
+  </Step>
+  
+  <Step title="Restart the application">
+    Restart your application to use YAML-based providers
+  </Step>
+</Steps>
+
+<Note>
+Database-backed provider configurations are preserved even after rollback. You can switch back to database mode at any time.
+</Note>
+
+## Hybrid mode (not recommended)
+
+While technically possible to run both YAML and database-backed providers simultaneously, this is **not recommended** because:
+
+- Configuration becomes difficult to manage
+- Unclear which configuration takes precedence
+- Increased risk of configuration conflicts
+- Harder to audit and troubleshoot
+
+Choose one configuration method and stick with it.
+
+## Troubleshooting
+
+### Providers not appearing after migration
+
+**Problem**: Providers configured in admin UI don't appear on login page
+
+**Solution**:
+- Verify `AUTH_PROVIDERS_SOURCE=database` is set
+- Restart the application after setting the environment variable
+- Check that providers are enabled in the admin UI
+- Review application logs for errors
+
+### Authentication fails after migration
+
+**Problem**: Users can't log in with migrated providers
+
+**Solution**:
+- Verify all configuration fields are correctly copied
+- Check that client secrets are entered correctly (no extra spaces)
+- Ensure redirect URIs haven't changed
+- Test with a fresh browser session (clear cookies)
+- Review audit logs for specific error messages
+
+### Missing role mappings
+
+**Problem**: Users don't receive expected roles after migration
+
+**Solution**:
+- Verify role mapping configuration in admin UI
+- Check that role names match exactly (case-sensitive)
+- Ensure group attribute names are correct
+- Test with a user account that has known group memberships
+
+### Environment variable not recognized
+
+**Problem**: Application still uses YAML configuration
+
+**Solution**:
+- Verify environment variable is set correctly
+- Check for typos: `AUTH_PROVIDERS_SOURCE` (not `AUTH_PROVIDER_SOURCE`)
+- Ensure the variable is available to the application process
+- Restart the application after setting the variable
+- Check application logs for configuration source
+
+## Post-migration tasks
+
+<AccordionGroup>
+  <Accordion title="Update documentation">
+    Update your internal documentation to reflect the new configuration method and admin UI location.
+  </Accordion>
+  
+  <Accordion title="Train administrators">
+    Ensure administrators know how to use the admin UI for managing SSO providers.
+  </Accordion>
+  
+  <Accordion title="Set up monitoring">
+    Configure monitoring for SSO authentication events and provider configuration changes.
+  </Accordion>
+  
+  <Accordion title="Review access controls">
+    Ensure only authorized users have access to the SSO provider admin UI.
+  </Accordion>
+  
+  <Accordion title="Clean up YAML files">
+    After confirming everything works, securely delete YAML configuration backups containing secrets.
+  </Accordion>
+</AccordionGroup>
+
+## Benefits of database-backed providers
+
+After migration, you'll benefit from:
+
+- **Zero-downtime updates**: Add or modify providers without restarting
+- **Easier management**: Use the admin UI instead of editing YAML files
+- **Better audit trail**: Track who changed what and when
+- **Reduced errors**: UI validation prevents configuration mistakes
+- **Faster testing**: Test provider changes immediately
+- **Multi-instance support**: Configuration automatically syncs across instances
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Admin UI management" icon="gear" href="/authentication/admin-ui">
+    Learn how to manage providers through the admin interface
+  </Card>
+  
+  <Card title="User management" icon="user-gear" href="/authentication/user-management">
+    Manage users and their connected accounts
+  </Card>
+  
+  <Card title="Audit logging" icon="list" href="/authentication/audit-logging">
+    Monitor SSO configuration changes and authentication events
+  </Card>
+  
+  <Card title="Role mapping" icon="users" href="/authentication/role-mapping">
+    Configure just-in-time provisioning and role assignments
+  </Card>
+</CardGroup>
