@@ -16,9 +16,9 @@
           {
             "group": "Getting started",
             "pages": [
-              "index",
               "quickstart",
-              "development"
+              "guide",
+              "self-hosting"
             ]
           },
           {
