@@ -82,16 +82,20 @@
             "group": "Sure API",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /accounts",
-              "POST /accounts",
-              "GET /accounts/{id}",
-              "PATCH /accounts/{id}",
-              "DELETE /accounts/{id}",
-              "GET /transactions",
-              "POST /transactions",
-              "GET /transactions/{id}",
-              "PATCH /transactions/{id}",
-              "DELETE /transactions/{id}"
+              "GET /api/v1/categories",
+              "GET /api/v1/categories/{id}",
+              "GET /api/v1/chats",
+              "POST /api/v1/chats",
+              "GET /api/v1/chats/{id}",
+              "PATCH /api/v1/chats/{id}",
+              "DELETE /api/v1/chats/{id}",
+              "POST /api/v1/chats/{chat_id}/messages",
+              "POST /api/v1/chats/{chat_id}/messages/retry",
+              "GET /api/v1/transactions",
+              "POST /api/v1/transactions",
+              "GET /api/v1/transactions/{id}",
+              "PATCH /api/v1/transactions/{id}",
+              "DELETE /api/v1/transactions/{id}"
             ]
           }
         ]
