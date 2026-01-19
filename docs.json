@@ -30,17 +30,25 @@
         "tab": "Guides",
         "groups": [
           {
-            "group": "Knowledge Base",
-            "pages": [
-              "guides/knowledge-base/troubleshooting"
-            ]
-          },
-          {
             "group": "Getting started",
             "pages": [
               "quickstart",
               "guide",
               "self-hosting"
+            ]
+          },
+          {
+            "group": "App features",
+            "pages": [
+              "features/recurring-transactions"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "llm-support",
+              "evals",
+              "development/rails-provider-generator"
             ]
           },
           {
@@ -63,17 +71,9 @@
             ]
           },
           {
-            "group": "App features",
+            "group": "Knowledge Base",
             "pages": [
-              "features/recurring-transactions"
-            ]
-          },
-          {
-            "group": "Development",
-            "pages": [
-              "llm-support",
-              "evals",
-              "development/rails-provider-generator"
+              "guides/knowledge-base/troubleshooting"
             ]
           }
         ]
