@@ -1,10 +1,10 @@
 ---
-title: LLM support
-description: Configure AI features with local or cloud models
+title: "LLM support"
+description: "Configure AI features with local or cloud models"
 ---
 
 <Note>
-LLM usage is optional and must be explicitly configured. You maintain full control by running local models on your own systems through Ollama, LM Studio, or similar tools. No data is sent to external services unless you configure a cloud provider.
+  LLM usage is optional and must be explicitly configured. You can maintain full control by running local models on your own systems through Ollama, LM Studio, or similar tools. No data is sent to external services unless you configure a cloud provider.
 </Note>
 
 ## Configuration via settings
@@ -38,6 +38,7 @@ OPENAI_ACCESS_TOKEN=sk-proj-...
 ```
 
 Recommended models:
+
 - `gpt-4.1` - Default, best balance of speed and quality
 - `gpt-5` - Latest model, highest quality
 - `gpt-4o-mini` - Cheaper, good quality
@@ -95,6 +96,7 @@ OPENAI_MODEL=google/gemini-2.0-flash-exp
 ```
 
 Recommended models:
+
 - `google/gemini-2.5-flash` - Fast and capable
 - `anthropic/claude-sonnet-4.5` - Excellent reasoning
 - `anthropic/claude-haiku-4.5` - Fast and cost-effective
@@ -104,6 +106,7 @@ Recommended models:
 Test and compare different LLMs for your specific use case. The eval system helps you benchmark models for transaction categorization, merchant detection, and chat assistant functionality.
 
 See the [evaluation framework](/evals) documentation for details on:
+
 - Running evaluations
 - Comparing models
 - Creating custom datasets
