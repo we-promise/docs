@@ -55,6 +55,12 @@
               "providers/plaid",
               "providers/coinstats"
             ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "evals"
+            ]
           }
         ]
       },
