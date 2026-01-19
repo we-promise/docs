@@ -1,0 +1,224 @@
+---
+title: Evaluation framework
+description: Test and compare different LLMs for your use case
+---
+
+The eval system helps you benchmark different LLMs for transaction categorization, merchant detection, and chat assistant functionality.
+
+## Quick start
+
+### Import a dataset
+
+```bash
+bin/rails 'evals:import_dataset[db/eval_data/categorization_golden_v1.yml]'
+```
+
+### Run an evaluation
+
+```bash
+bin/rails 'evals:run[categorization_golden_v1,openai,gpt-4.1]'
+```
+
+### Compare models
+
+```bash
+MODELS=gpt-4.1,gpt-4o-mini rake evals:compare[categorization_golden_v1]
+```
+
+## Available commands
+
+### Dataset management
+
+```bash
+# List all datasets
+rake evals:list_datasets
+
+# Import dataset from YAML
+rake evals:import_dataset[path/to/file.yml]
+
+# Export manually categorized transactions
+rake evals:export_manual_categories[family-uuid]
+```
+
+### Running evaluations
+
+```bash
+# Run evaluation
+rake evals:run[dataset_name,provider,model]
+
+# Compare multiple models
+MODELS=model1,model2 rake evals:compare[dataset_name]
+
+# Quick smoke test
+rake evals:smoke_test
+
+# CI regression test
+rake evals:ci_regression[dataset,provider,model,threshold]
+```
+
+### Viewing results
+
+```bash
+# List recent runs
+rake evals:list_runs
+
+# Show detailed report
+rake evals:show_run[run_id]
+
+# Generate comparison report
+rake evals:report[run_ids]
+```
+
+## Langfuse integration
+
+Track experiments in Langfuse for side-by-side comparison and analysis.
+
+### Setup
+
+```bash
+export LANGFUSE_PUBLIC_KEY="pk-..."
+export LANGFUSE_SECRET_KEY="sk-..."
+export LANGFUSE_REGION="eu"  # Optional, defaults to eu
+```
+
+### Commands
+
+```bash
+# Check connection
+bin/rails 'evals:langfuse:check'
+
+# Upload dataset
+bin/rails 'evals:langfuse:upload_dataset[categorization_golden_v1]'
+
+# Run experiment
+bin/rails 'evals:langfuse:run_experiment[categorization_golden_v1,gpt-4.1]'
+
+# List datasets in Langfuse
+bin/rails 'evals:langfuse:list_datasets'
+```
+
+### What gets created
+
+When you run a Langfuse experiment, the system creates:
+
+- **Dataset** - Named `eval_<your_dataset_name>` with all samples
+- **Traces** - One per sample showing input/output
+- **Scores** - Accuracy scores (0.0 or 1.0) for each trace
+- **Dataset Runs** - Links traces to dataset items for comparison
+
+In the Langfuse UI you can:
+- Compare runs side-by-side
+- Filter by score, model, or metadata
+- Track accuracy over time
+- Analyze per-sample results
+
+## Evaluation types
+
+### Categorization
+
+Tests transaction categorization accuracy across difficulty levels.
+
+**Metrics:**
+- Accuracy
+- Precision, recall, F1 score
+- Null accuracy (correctly returning null for ambiguous transactions)
+- Hierarchical accuracy (matching parent categories)
+- Per-difficulty breakdown
+
+**Datasets:**
+- `categorization_golden_v1` - 100 samples, US merchants
+- `categorization_golden_v1_light` - 50 samples, quick testing
+- `categorization_golden_v2` - 200 samples, US and European merchants
+
+### Merchant detection
+
+Tests business name and URL detection from transaction descriptions.
+
+**Metrics:**
+- Name accuracy (exact match)
+- Fuzzy name accuracy (similarity threshold)
+- URL accuracy
+- False positive/negative rates
+- Average fuzzy score
+
+**Datasets:**
+- `merchant_detection_golden_v1` - 90 samples
+
+### Chat assistant
+
+Tests function calling and response quality for the AI assistant.
+
+**Metrics:**
+- Function selection accuracy
+- Parameter accuracy
+- Response relevance
+- Exact match rate
+- Error rate
+
+**Datasets:**
+- `chat_golden_v1` - 50 samples
+
+## Creating custom datasets
+
+Export your manually categorized transactions as a golden dataset:
+
+```bash
+# Basic usage
+rake evals:export_manual_categories[family-uuid]
+
+# With options
+FAMILY_ID=uuid OUTPUT=custom.yml LIMIT=1000 rake evals:export_manual_categories
+```
+
+This exports transactions where:
+- Category was manually set by the user
+- Category was NOT set by AI, rules, or data enrichment
+
+The output matches the standard dataset format and can be imported with `rake evals:import_dataset[path]`.
+
+## JSON mode configuration
+
+Control how the LLM outputs structured data. Configure via environment variable or Settings UI.
+
+**Modes:**
+- `auto` - Tries strict first, falls back to none if >50% fail (recommended)
+- `strict` - Best for thinking models (qwen-thinking, deepseek-reasoner)
+- `none` - Best for standard models (llama, mistral, gpt-oss)
+- `json_object` - Middle ground, broader compatibility
+
+```bash
+# Set via environment
+LLM_JSON_MODE=none bin/rails 'evals:run[...]'
+
+# Or configure in Settings → Self-Hosting → AI Provider
+```
+
+## Example output
+
+```
+================================================================================
+Evaluation Complete
+================================================================================
+  Status: completed
+  Duration: 150.1s
+  Run ID: 66c70614-72f4-49cb-8183-46103fb554f2
+
+Metrics:
+  accuracy: 76.0
+  precision: 78.75
+  recall: 90.0
+  f1_score: 84.0
+  null_accuracy: 100.0
+  hierarchical_accuracy: 68.0
+  samples_processed: 100
+  samples_correct: 76
+  avg_latency_ms: 1494
+  total_cost: 0.0
+  cost_per_sample: 0.0
+
+By Difficulty:
+  easy: 80.0% accuracy (28/35)
+  medium: 70.59% accuracy (24/34)
+  hard: 63.16% accuracy (12/19)
+  edge_case: 100.0% accuracy (12/12)
+```
