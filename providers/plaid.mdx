@@ -1,0 +1,170 @@
+---
+title: Plaid
+description: Connect US bank accounts with advanced technical setup
+---
+
+<Warning>
+Using Plaid for personal use might be against their terms of service. This integration is intended for technically savvy users who understand the implications and requirements.
+</Warning>
+
+<Warning>
+Plaid integration currently only works for Western users. Plaid Production support is not available to European users.
+</Warning>
+
+<Note>
+For Plaid integration, your Sure instance needs to be accessible from the internet behind a domain with working SSL. See additional context in [maybe-finance/maybe#2419](https://github.com/maybe-finance/maybe/pull/2419).
+</Note>
+
+Plaid is a US-focused banking provider that offers comprehensive account connectivity. However, it requires significant technical setup and may not be suitable for personal use according to their terms of service.
+
+## Prerequisites
+
+Before setting up Plaid:
+
+- Your Sure instance must be publicly accessible via HTTPS
+- You need a valid domain with working SSL certificate
+- You must be comfortable with technical configuration
+- You should review Plaid's terms of service for personal use
+
+## Creating a Plaid account
+
+1. Go to [dashboard.plaid.com](https://dashboard.plaid.com) and register for a new account
+2. Complete the registration process
+3. Request production access based on your bank type (see below)
+
+## Requesting production access
+
+The process differs depending on whether your bank requires OAuth authentication.
+
+### For banks without OAuth
+
+1. On the Home page, find "Learn how to build with Plaid" and click **Unlock real data**
+2. Enter your real name and phone number
+3. In the description box, write:
+   > This is for personal use only on a self-hosted version of the Sure Finance software. I am only using it to manage my finances, sync my bank accounts, track my spending, and create a budget.
+4. Leave "Additional products" **unchecked**
+5. Click **Request Access**
+6. Wait for approval (may take more than 24 hours)
+
+### For banks with OAuth
+
+<Note>
+Per Plaid Support as of July 2025, certain banks have extended OAuth approval timelines:
+- **Chase Bank**: 3-4 months
+- **Schwab**: Up to 2 months
+</Note>
+
+1. In the left sidebar, click **Get production access**
+2. Enter your real address
+3. For business profile, write:
+   > This is for personal use only on a self-hosted version of the Sure Finance software. I am only using it to manage my finances, sync my bank accounts, track my spending, and create a budget.
+4. Leave company website **blank**
+5. Enter your real name, phone number, email, and date of birth
+6. Click **Next**
+7. Indicate:
+   - 0 employees
+   - Your country of data access
+   - You do not sell data
+   - No security breach in past 12 months
+8. Click **Next**
+9. Select industry: **Budgeting and financial management tools**
+10. Click **Next**
+11. Enter any name for your application
+12. Upload a logo (1024x1024px, under 4MB)
+13. Leave brand color as **#22CCEE**
+14. Set Website URL to: `https://github.com/we-promise/sure`
+15. In "Reason for data access", enter:
+    > This is for personal use only on a self-hosted version of the Sure Finance software. I am only using it to manage my finances, sync my bank accounts, track my spending, and create a budget.
+16. Enter your real email as support email
+17. Click **Next**
+18. Enter your country for "Where do you want to launch?"
+19. For products:
+    - **Payments**: Check only **Auth** and **Balance**
+    - **Credit Underwriting**: Leave all unchecked
+    - **Fraud & Compliance**: Leave all unchecked
+    - **Financial Management**: Check **all products**
+20. Click **Next**
+21. For use cases:
+    - **Payments**: Select **Consumer bill pay**
+    - **Financial Management**: Select **Personal budgeting and financial advice** for all products
+22. Click **Next**
+23. Select **Pay As You Go** plan
+24. Click **Next**
+25. Enter billing details and check agreement boxes
+26. Click **Next**
+27. Click **Start Security Practices Questionnaire**
+28. For each question:
+    - Select **Other - please see comments**
+    - Write in notes:
+      > This is for personal use only on a self-hosted version of the Sure Finance software. I am only using it to manage my finances, sync my bank accounts, track my spending, and create a budget.
+29. Continue through all sections, repeating step 28
+30. Click **Submit**
+31. Wait for approval (may take more than 24 hours)
+
+## Configuring Sure
+
+After your Plaid account is approved:
+
+1. Go to [dashboard.plaid.com/developers/api](https://dashboard.plaid.com/developers/api) or click **Developers > API**
+2. Click **Configure** next to Allowed redirect URIs
+3. Click **Add new URI**
+4. Enter your domain with `/accounts` appended (e.g., `https://budget.yourdomain.com/accounts`)
+5. Click **Save changes**
+6. Go to [dashboard.plaid.com/developers/keys](https://dashboard.plaid.com/developers/keys) or click **Developers > Keys**
+7. Copy your `client_id` and Production `secret` key
+
+### Docker Compose configuration
+
+In your `docker-compose.yml` file, add these environment variables:
+
+```yaml
+PLAID_CLIENT_ID: ${PLAID_CLIENT_ID}
+PLAID_SECRET: ${PLAID_SECRET}
+PLAID_ENV: ${PLAID_ENV}
+```
+
+### Environment variables
+
+In your `.env` file, add:
+
+```bash
+PLAID_CLIENT_ID=ENTER_CLIENT_ID_FROM_PLAID_HERE
+PLAID_SECRET=ENTER_SECRET_KEY_FROM_PLAID_HERE
+PLAID_ENV=production  # Use 'production' for Full/Limited Production Access, or 'sandbox' for Sandbox Access
+```
+
+### Restart Sure
+
+After updating your configuration, restart your Sure instance. You should now see the **Link account** option in the Sure UI.
+
+## Features
+
+- **US bank coverage**: Comprehensive support for US financial institutions
+- **Real-time data**: Access to account balances and transactions
+- **OAuth support**: Secure authentication for supported banks
+- **Multiple accounts**: Connect accounts from different institutions
+
+## Pricing
+
+Plaid uses a pay-as-you-go pricing model. Check [plaid.com/pricing](https://plaid.com/pricing/) for current rates.
+
+## Limitations
+
+- **US-focused**: Primarily supports US institutions, not available for European users
+- **Complex setup**: Requires significant technical configuration
+- **TOS concerns**: Personal use may violate Plaid's terms of service
+- **Public accessibility**: Requires publicly accessible HTTPS endpoint
+- **Long approval times**: OAuth-enabled banks can take months to approve
+- **Technical expertise**: Not recommended for non-technical users
+
+## Alternatives
+
+Consider these alternatives to Plaid:
+
+- **SimpleFIN**: Simpler setup, more affordable, US-focused
+- **Enable Banking**: Free, EU-focused, easier setup
+- **Lunch Flow**: Global coverage, paid service
+
+## Support
+
+For Plaid-specific issues, consult the [Plaid documentation](https://plaid.com/docs/) or contact Plaid support.
