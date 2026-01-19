@@ -1,0 +1,244 @@
+---
+title: Admin UI management
+description: Manage SSO providers through the admin interface without server restarts
+---
+
+## Overview
+
+The admin UI provides a comprehensive interface for managing SSO authentication providers. You can add, edit, disable, and remove providers without requiring server restarts or configuration file changes.
+
+## Prerequisites
+
+- `AUTH_PROVIDERS_SOURCE=database` environment variable configured
+- Admin access to the application
+- Identity provider credentials (client ID, client secret, etc.)
+
+## Accessing the admin UI
+
+Navigate to the SSO providers management page in your admin dashboard:
+
+```
+https://your-domain.com/admin/sso-providers
+```
+
+## Managing providers
+
+### Adding a new provider
+
+<Steps>
+  <Step title="Click Add Provider">
+    Select the "Add Provider" button in the admin UI
+  </Step>
+  
+  <Step title="Choose provider type">
+    Select the authentication protocol:
+    - OIDC (OpenID Connect)
+    - OAuth2
+    - SAML 2.0
+  </Step>
+  
+  <Step title="Configure basic settings">
+    Enter the provider details:
+    - **Provider name**: Display name for the login button
+    - **Provider ID**: Unique identifier (lowercase, no spaces)
+    - **Enabled**: Toggle to enable/disable the provider
+  </Step>
+  
+  <Step title="Enter credentials">
+    Add your identity provider credentials:
+    - Client ID
+    - Client secret (for OIDC/OAuth2)
+    - Certificate (for SAML)
+  </Step>
+  
+  <Step title="Configure endpoints">
+    Specify the authentication endpoints:
+    - Authorization URL
+    - Token URL
+    - User info URL (OIDC/OAuth2)
+    - SSO URL (SAML)
+  </Step>
+  
+  <Step title="Set up role mapping">
+    Configure just-in-time provisioning:
+    - Default roles for new users
+    - Group-to-role mappings
+    - Attribute mappings
+  </Step>
+  
+  <Step title="Save and test">
+    Save the provider configuration and test the login flow
+  </Step>
+</Steps>
+
+### Editing an existing provider
+
+<Steps>
+  <Step title="Select the provider">
+    Click on the provider you want to edit from the list
+  </Step>
+  
+  <Step title="Update settings">
+    Modify any configuration fields as needed
+  </Step>
+  
+  <Step title="Save changes">
+    Click "Save" to apply the updates immediately
+  </Step>
+</Steps>
+
+<Note>
+Changes to provider configuration take effect immediately without requiring a server restart.
+</Note>
+
+### Disabling a provider
+
+You can temporarily disable a provider without deleting its configuration:
+
+1. Navigate to the provider settings
+2. Toggle the "Enabled" switch to off
+3. Save the changes
+
+Disabled providers will not appear on the login page, but their configuration is preserved.
+
+### Deleting a provider
+
+<Warning>
+Deleting a provider will remove all its configuration. Users who authenticated with this provider will need to use alternative login methods.
+</Warning>
+
+To delete a provider:
+
+1. Select the provider from the list
+2. Click the "Delete" button
+3. Confirm the deletion
+
+## Provider configuration fields
+
+### Common fields (all providers)
+
+| Field | Description | Required |
+|-------|-------------|----------|
+| Provider name | Display name shown on login button | Yes |
+| Provider ID | Unique identifier (alphanumeric, lowercase) | Yes |
+| Enabled | Whether the provider is active | Yes |
+| Icon URL | Custom icon for the login button | No |
+| Button color | Custom color for the login button | No |
+
+### OIDC-specific fields
+
+| Field | Description | Required |
+|-------|-------------|----------|
+| Issuer URL | OIDC issuer/discovery endpoint | Yes |
+| Client ID | OAuth2 client identifier | Yes |
+| Client secret | OAuth2 client secret | Yes |
+| Scopes | Space-separated list of scopes | No (default: `openid profile email`) |
+
+### OAuth2-specific fields
+
+| Field | Description | Required |
+|-------|-------------|----------|
+| Authorization URL | OAuth2 authorization endpoint | Yes |
+| Token URL | OAuth2 token endpoint | Yes |
+| User info URL | Endpoint to fetch user profile | Yes |
+| Client ID | OAuth2 client identifier | Yes |
+| Client secret | OAuth2 client secret | Yes |
+| Scopes | Space-separated list of scopes | No |
+
+### SAML-specific fields
+
+| Field | Description | Required |
+|-------|-------------|----------|
+| SSO URL | SAML single sign-on endpoint | Yes |
+| Entity ID | SAML entity identifier | Yes |
+| Certificate | X.509 certificate for signature validation | Yes |
+| Sign requests | Whether to sign SAML requests | No |
+| Private key | Private key for signing requests | Conditional |
+
+## Testing provider configuration
+
+After configuring a provider, test the integration:
+
+<Steps>
+  <Step title="Open test login">
+    Click the "Test Login" button in the provider settings
+  </Step>
+  
+  <Step title="Authenticate">
+    Complete the authentication flow with your identity provider
+  </Step>
+  
+  <Step title="Verify user data">
+    Check that user attributes are correctly mapped
+  </Step>
+  
+  <Step title="Confirm role assignment">
+    Verify that roles are assigned based on your mapping configuration
+  </Step>
+</Steps>
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Use descriptive provider names">
+    Choose clear names like "Google Workspace" or "Okta Corporate" instead of generic names like "OIDC Provider 1"
+  </Accordion>
+  
+  <Accordion title="Test before enabling">
+    Always test a provider configuration before enabling it for all users
+  </Accordion>
+  
+  <Accordion title="Keep credentials secure">
+    Store client secrets and private keys securely. The admin UI encrypts sensitive fields in the database.
+  </Accordion>
+  
+  <Accordion title="Monitor audit logs">
+    Regularly review SSO audit logs to detect authentication issues or security concerns
+  </Accordion>
+  
+  <Accordion title="Document custom mappings">
+    Keep documentation of your group-to-role mappings for future reference
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Provider not appearing on login page
+
+- Verify the provider is enabled
+- Check that `AUTH_PROVIDERS_SOURCE=database` is set
+- Restart the application if you recently changed the environment variable
+
+### Authentication fails
+
+- Verify all endpoints are correct and accessible
+- Check that client ID and secret match your identity provider
+- Review audit logs for specific error messages
+- Ensure redirect URIs are configured in your identity provider
+
+### Users not getting correct roles
+
+- Review your role mapping configuration
+- Check the group claims sent by your identity provider
+- Verify attribute mappings are correct
+- Test with a known user account
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="OIDC setup" icon="key" href="/authentication/oidc">
+    Configure OIDC providers like Google, Okta, or Auth0
+  </Card>
+  
+  <Card title="SAML setup" icon="shield" href="/authentication/saml">
+    Set up SAML 2.0 for enterprise identity providers
+  </Card>
+  
+  <Card title="Role mapping" icon="users" href="/authentication/role-mapping">
+    Configure just-in-time provisioning and role assignments
+  </Card>
+  
+  <Card title="User management" icon="user-gear" href="/authentication/user-management">
+    Manage users and their connected accounts
+  </Card>
+</CardGroup>
