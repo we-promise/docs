@@ -1,0 +1,204 @@
+---
+title: Self-hosting with Docker
+description: Deploy Sure on your own infrastructure using Docker Compose
+---
+
+This guide shows you how to set up, update, and maintain a self-hosted Sure application with Docker Compose.
+
+## Prerequisites
+
+- Docker Engine installed and running
+- Basic familiarity with the command line
+
+## Installation
+
+### Install Docker
+
+1. Follow the [official Docker installation guide](https://docs.docker.com/engine/install/)
+2. Start the Docker service on your machine
+3. Verify the installation:
+
+```bash
+docker run hello-world
+```
+
+If Docker is set up correctly, this command will succeed.
+
+### Create your application directory
+
+Create a directory where your app will run:
+
+```bash
+mkdir -p ~/docker-apps/sure
+cd ~/docker-apps/sure
+```
+
+### Download the Docker Compose file
+
+Download the sample compose file from the Sure repository:
+
+```bash
+curl -o compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+```
+
+This creates a `compose.yml` file in your current directory with the default configuration.
+
+## Configuration
+
+By default, the `compose.example.yml` file runs without any configuration. For production deployments or if you're running outside of a local network, follow these steps to add security.
+
+### Create an environment file
+
+Create a `.env` file where Docker will read environment variables:
+
+```bash
+touch .env
+```
+
+### Generate a secret key
+
+Generate a secret key using one of these methods:
+
+**With OpenSSL:**
+```bash
+openssl rand -hex 64
+```
+
+**Without OpenSSL:**
+```bash
+head -c 64 /dev/urandom | od -An -tx1 | tr -d ' \n' && echo
+```
+
+Save the generated key for the next step.
+
+### Configure environment variables
+
+Open the `.env` file in your text editor and add:
+
+```txt
+SECRET_KEY_BASE="your-generated-secret-key-here"
+POSTGRES_PASSWORD="your-database-password-here"
+```
+
+Replace the placeholder values with your generated secret key and a secure database password.
+
+## Running the application
+
+### Start the application
+
+Start the app to verify everything is working:
+
+```bash
+docker compose up
+```
+
+This pulls the official Docker image and starts the app. You'll see logs in your terminal.
+
+Open your browser and navigate to `http://localhost:3000`. You should see the Sure login screen.
+
+### Create your account
+
+On first run, register a new account:
+
+1. Click "Create your account" on the login page
+2. Enter your email
+3. Enter a password
+
+### Run in the background
+
+To run Sure in the background:
+
+1. Stop the current process with `Ctrl+C`
+2. Start in detached mode:
+
+```bash
+docker compose up -d
+```
+
+Verify it's running:
+
+```bash
+docker compose ls
+```
+
+Your app is now accessible at `http://localhost:3000`.
+
+## Updating
+
+The Docker image in your `compose.yml` file controls which version of Sure you're running:
+
+```yml
+image: ghcr.io/we-promise/sure:latest
+```
+
+### Recommended images
+
+- `ghcr.io/we-promise/sure:latest` - Latest alpha release
+- `ghcr.io/we-promise/sure:stable` - Latest stable release
+
+You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
+
+### Update to the latest version
+
+Your app does not automatically update. To update:
+
+```bash
+cd ~/docker-apps/sure
+docker compose pull
+docker compose build
+docker compose up --no-deps -d web worker
+```
+
+### Change update channel
+
+To switch between update channels, edit the `compose.yml` file:
+
+```yml
+image: ghcr.io/we-promise/sure:stable
+```
+
+Then restart the app:
+
+```bash
+docker compose pull
+docker compose build
+docker compose up --no-deps -d web worker
+```
+
+## Troubleshooting
+
+### Database connection errors
+
+If you encounter `ActiveRecord::DatabaseConnectionError` on first startup, Docker may have initialized the Postgres database with a different default role from a previous attempt.
+
+<Warning>
+The following commands will delete all existing data in your Sure database. Only proceed if you're comfortable losing this data.
+</Warning>
+
+Reset the database:
+
+```bash
+docker compose down
+docker volume rm sure_postgres-data
+docker compose up
+docker compose exec db psql -U sure_user -d sure_development -c "SELECT 1;"
+```
+
+The last command verifies the issue is fixed.
+
+### Slow CSV imports
+
+If CSV imports are processing rows slower than expected, check your worker logs for errors:
+
+```bash
+docker compose logs worker
+```
+
+Look for connection timeouts or Redis communication failures. The `sure-worker` container requires Redis to process CSV imports.
+
+## Getting help
+
+If you find bugs or have feature requests:
+- Read the [contributing guide](https://github.com/we-promise/sure/wiki/How-to-Contribute-Effectively-to-Sure)
+- Ask in the [Discord](https://discord.gg/36ZGBsxYEK)
+- Open an [issue](https://github.com/we-promise/sure/issues/new/choose)
