@@ -3,6 +3,41 @@ title: "Troubleshooting"
 ---
 
 
+## When Rules Are Triggered
+
+Rules run automatically during family syncs or can be triggered manually. Understanding when rules execute helps troubleshoot categorization issues.
+
+<AccordionGroup>
+  <Accordion title="Manual trigger (user-initiated)">
+    Rules can be manually triggered in the following ways:
+    
+    - Clicking "Re-apply" on an individual rule in `/settings/rules`
+    - Clicking "Apply All" in `/settings/rules`
+    - Running the rake task: `bin/rails rules:apply_all[family_id]`
+  </Accordion>
+  
+  <Accordion title="During family sync (only active rules)">
+    Rules with `active: true` run automatically when a family sync occurs (`Family::Syncer.perform_sync`):
+    
+    **Scheduled syncs:**
+    - `SyncAllJob` - runs daily at 2:22 AM for all families
+    - `SyncHourlyJob` - runs every hour (for items that opt-in to hourly syncing)
+    
+    **Triggered syncs:**
+    - Provider webhooks (Plaid, etc.) - triggers sync which eventually propagates to family
+    - Manual sync button on accounts page
+    - After CSV imports complete (`Import` model calls `family.sync_later`)
+  </Accordion>
+  
+  <Accordion title="When rules do NOT run">
+    Rules are **not** triggered in these scenarios:
+    
+    - **Manual transaction creation** - Only triggers an Account sync (not Family sync)
+    - **Manual transaction editing** - Same as above, only Account sync runs
+    - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
+  </Accordion>
+</AccordionGroup>
+
 ## Category Rule Popup Behavior
 
 When a user selects a category for a transaction, a popup may appear to create an automatic categorization rule. This popup is intentionally gated by several conditions:
