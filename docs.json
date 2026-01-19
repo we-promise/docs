@@ -72,6 +72,12 @@
               "authentication/migration",
               "authentication/audit-logging"
             ]
+          },
+          {
+            "group": "Third party providers",
+            "pages": [
+              "providers/coinstats"
+            ]
           }
         ]
       },
