@@ -1,0 +1,353 @@
+---
+title: OIDC provider setup
+description: Configure OpenID Connect authentication with popular identity providers
+---
+
+## Overview
+
+OpenID Connect (OIDC) is the recommended authentication protocol for modern identity providers. It provides standardized user profile information, built-in token validation, and automatic discovery of provider endpoints.
+
+## Supported providers
+
+OIDC works with any compliant identity provider, including:
+
+- Google Workspace
+- Microsoft Entra ID (Azure AD)
+- Okta
+- Auth0
+- Keycloak
+- GitLab
+- GitHub (via OIDC)
+
+## Configuration via admin UI
+
+<Steps>
+  <Step title="Navigate to SSO providers">
+    Go to Admin → SSO Providers in your dashboard
+  </Step>
+  
+  <Step title="Add OIDC provider">
+    Click "Add Provider" and select "OIDC" as the provider type
+  </Step>
+  
+  <Step title="Enter basic information">
+    ```
+    Provider name: Google Workspace
+    Provider ID: google
+    Enabled: Yes
+    ```
+  </Step>
+  
+  <Step title="Configure OIDC settings">
+    ```
+    Issuer URL: https://accounts.google.com
+    Client ID: your-client-id.apps.googleusercontent.com
+    Client secret: your-client-secret
+    Scopes: openid profile email
+    ```
+  </Step>
+  
+  <Step title="Set up role mapping">
+    Configure default roles and group mappings (optional)
+  </Step>
+  
+  <Step title="Save and test">
+    Save the configuration and test the login flow
+  </Step>
+</Steps>
+
+## Provider-specific guides
+
+### Google Workspace
+
+<Steps>
+  <Step title="Create OAuth2 credentials">
+    1. Go to [Google Cloud Console](https://console.cloud.google.com)
+    2. Select your project or create a new one
+    3. Navigate to APIs & Services → Credentials
+    4. Click "Create Credentials" → "OAuth client ID"
+    5. Select "Web application" as the application type
+  </Step>
+  
+  <Step title="Configure redirect URIs">
+    Add your callback URL:
+    ```
+    https://your-domain.com/auth/callback/google
+    ```
+  </Step>
+  
+  <Step title="Copy credentials">
+    Save the Client ID and Client secret
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Issuer URL: https://accounts.google.com
+    Client ID: [your-client-id].apps.googleusercontent.com
+    Client secret: [your-client-secret]
+    Scopes: openid profile email
+    ```
+  </Step>
+</Steps>
+
+### Microsoft Entra ID (Azure AD)
+
+<Steps>
+  <Step title="Register application">
+    1. Go to [Azure Portal](https://portal.azure.com)
+    2. Navigate to Microsoft Entra ID → App registrations
+    3. Click "New registration"
+    4. Enter a name and select supported account types
+  </Step>
+  
+  <Step title="Configure redirect URI">
+    Add a web redirect URI:
+    ```
+    https://your-domain.com/auth/callback/azure
+    ```
+  </Step>
+  
+  <Step title="Create client secret">
+    1. Go to Certificates & secrets
+    2. Click "New client secret"
+    3. Save the secret value (shown only once)
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Issuer URL: https://login.microsoftonline.com/[tenant-id]/v2.0
+    Client ID: [application-id]
+    Client secret: [client-secret-value]
+    Scopes: openid profile email
+    ```
+  </Step>
+</Steps>
+
+<Note>
+Replace `[tenant-id]` with your Azure AD tenant ID or use `common` for multi-tenant applications.
+</Note>
+
+### Okta
+
+<Steps>
+  <Step title="Create OIDC application">
+    1. Log in to your Okta admin console
+    2. Go to Applications → Applications
+    3. Click "Create App Integration"
+    4. Select "OIDC - OpenID Connect"
+    5. Choose "Web Application"
+  </Step>
+  
+  <Step title="Configure application">
+    ```
+    Sign-in redirect URIs: https://your-domain.com/auth/callback/okta
+    Sign-out redirect URIs: https://your-domain.com/logout
+    ```
+  </Step>
+  
+  <Step title="Save credentials">
+    Copy the Client ID and Client secret
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Issuer URL: https://[your-domain].okta.com
+    Client ID: [client-id]
+    Client secret: [client-secret]
+    Scopes: openid profile email groups
+    ```
+  </Step>
+</Steps>
+
+### Auth0
+
+<Steps>
+  <Step title="Create application">
+    1. Go to [Auth0 Dashboard](https://manage.auth0.com)
+    2. Navigate to Applications → Applications
+    3. Click "Create Application"
+    4. Select "Regular Web Applications"
+  </Step>
+  
+  <Step title="Configure callbacks">
+    In the application settings:
+    ```
+    Allowed Callback URLs: https://your-domain.com/auth/callback/auth0
+    Allowed Logout URLs: https://your-domain.com/logout
+    ```
+  </Step>
+  
+  <Step title="Get credentials">
+    Find your Domain, Client ID, and Client Secret in the application settings
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Issuer URL: https://[your-domain].auth0.com
+    Client ID: [client-id]
+    Client secret: [client-secret]
+    Scopes: openid profile email
+    ```
+  </Step>
+</Steps>
+
+## Configuration fields
+
+| Field | Description | Required | Example |
+|-------|-------------|----------|---------|
+| Issuer URL | OIDC discovery endpoint | Yes | `https://accounts.google.com` |
+| Client ID | OAuth2 client identifier | Yes | `abc123.apps.googleusercontent.com` |
+| Client secret | OAuth2 client secret | Yes | `GOCSPX-...` |
+| Scopes | Space-separated OAuth2 scopes | No | `openid profile email groups` |
+
+## Common scopes
+
+| Scope | Description |
+|-------|-------------|
+| `openid` | Required for OIDC authentication |
+| `profile` | Access to user's profile information (name, picture) |
+| `email` | Access to user's email address |
+| `groups` | Access to user's group memberships (provider-dependent) |
+| `offline_access` | Request refresh tokens for long-lived sessions |
+
+## Redirect URI format
+
+The redirect URI (callback URL) follows this pattern:
+
+```
+https://[your-domain]/auth/callback/[provider-id]
+```
+
+Examples:
+- `https://app.example.com/auth/callback/google`
+- `https://app.example.com/auth/callback/okta`
+- `https://app.example.com/auth/callback/azure`
+
+<Warning>
+The redirect URI must exactly match what you configure in your identity provider. Include the protocol (https://) and ensure there are no trailing slashes.
+</Warning>
+
+## User attribute mapping
+
+OIDC providers return user information in the ID token and userinfo endpoint. Common claims include:
+
+| OIDC Claim | Application Field | Description |
+|------------|-------------------|-------------|
+| `sub` | User ID | Unique identifier for the user |
+| `email` | Email | User's email address |
+| `name` | Full name | User's display name |
+| `given_name` | First name | User's first name |
+| `family_name` | Last name | User's last name |
+| `picture` | Avatar URL | User's profile picture |
+| `groups` | Groups | User's group memberships |
+
+## Advanced configuration
+
+### Custom scopes
+
+Request additional scopes for provider-specific claims:
+
+```
+openid profile email groups roles department
+```
+
+### Discovery endpoint
+
+OIDC providers expose a discovery document at:
+
+```
+[issuer-url]/.well-known/openid-configuration
+```
+
+This document contains all endpoint URLs and supported features. The application automatically fetches this during authentication.
+
+### Token validation
+
+The application automatically validates:
+- Token signature using provider's public keys
+- Token expiration (`exp` claim)
+- Token audience (`aud` claim matches client ID)
+- Token issuer (`iss` claim matches issuer URL)
+
+## Troubleshooting
+
+### Invalid redirect URI error
+
+**Problem**: Identity provider rejects the redirect URI
+
+**Solution**:
+- Verify the redirect URI exactly matches in both systems
+- Check for trailing slashes or protocol mismatches
+- Ensure the provider ID in the URL matches your configuration
+
+### User info not populated
+
+**Problem**: User profile fields are empty after login
+
+**Solution**:
+- Verify you're requesting the correct scopes (`profile`, `email`)
+- Check that your identity provider includes claims in the ID token
+- Review the userinfo endpoint response in audit logs
+
+### Groups not syncing
+
+**Problem**: User groups from identity provider aren't mapped to roles
+
+**Solution**:
+- Add `groups` scope to your configuration
+- Verify your identity provider includes groups in the token
+- Check your group-to-role mapping configuration
+- Some providers require additional configuration to include groups
+
+### Token expired errors
+
+**Problem**: Users are logged out frequently
+
+**Solution**:
+- Check token expiration times in your identity provider
+- Request `offline_access` scope for refresh tokens
+- Configure session timeout settings in your application
+
+## Security best practices
+
+<AccordionGroup>
+  <Accordion title="Use HTTPS only">
+    Always use HTTPS for your redirect URIs. Most providers reject HTTP callbacks in production.
+  </Accordion>
+  
+  <Accordion title="Rotate client secrets">
+    Regularly rotate your client secrets and update them in the admin UI.
+  </Accordion>
+  
+  <Accordion title="Limit scopes">
+    Only request the scopes you need. Avoid requesting excessive permissions.
+  </Accordion>
+  
+  <Accordion title="Validate issuer">
+    Ensure the issuer URL matches your identity provider to prevent token substitution attacks.
+  </Accordion>
+  
+  <Accordion title="Monitor audit logs">
+    Regularly review SSO audit logs for suspicious authentication attempts.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Role mapping" icon="users" href="/authentication/role-mapping">
+    Configure group-to-role mappings for automatic role assignment
+  </Card>
+  
+  <Card title="User management" icon="user-gear" href="/authentication/user-management">
+    Manage users and their connected accounts
+  </Card>
+  
+  <Card title="OAuth2 setup" icon="key" href="/authentication/oauth2">
+    Configure OAuth2 providers without OIDC support
+  </Card>
+  
+  <Card title="Audit logging" icon="list" href="/authentication/audit-logging">
+    Monitor SSO authentication events
+  </Card>
+</CardGroup>
