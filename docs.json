@@ -44,6 +44,20 @@
               "ai-tools/claude-code",
               "ai-tools/windsurf"
             ]
+          },
+          {
+            "group": "Authentication",
+            "pages": [
+              "authentication/overview",
+              "authentication/admin-ui",
+              "authentication/oidc",
+              "authentication/saml",
+              "authentication/oauth2",
+              "authentication/role-mapping",
+              "authentication/user-management",
+              "authentication/migration",
+              "authentication/audit-logging"
+            ]
           }
         ]
       },

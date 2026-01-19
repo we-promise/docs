@@ -1,0 +1,546 @@
+---
+title: SSO audit logging
+description: Monitor and track SSO authentication events, configuration changes, and user activity
+---
+
+## Overview
+
+SSO audit logging provides comprehensive tracking of all authentication-related events, configuration changes, and user activity. This enables security monitoring, compliance reporting, troubleshooting, and forensic analysis.
+
+## Accessing audit logs
+
+Navigate to the audit logs page in your admin dashboard:
+
+```
+https://your-domain.com/admin/audit-logs
+```
+
+## Event types
+
+### Authentication events
+
+| Event Type | Description | Severity |
+|------------|-------------|----------|
+| `auth.login.success` | Successful SSO login | Info |
+| `auth.login.failed` | Failed login attempt | Warning |
+| `auth.logout` | User logout (including RP-initiated) | Info |
+| `auth.token.issued` | Access token issued | Info |
+| `auth.token.refreshed` | Access token refreshed | Info |
+| `auth.token.revoked` | Access token revoked | Warning |
+| `auth.session.expired` | User session expired | Info |
+
+### Provider configuration events
+
+| Event Type | Description | Severity |
+|------------|-------------|----------|
+| `provider.created` | New SSO provider added | Info |
+| `provider.updated` | Provider configuration changed | Info |
+| `provider.deleted` | Provider removed | Warning |
+| `provider.enabled` | Provider enabled | Info |
+| `provider.disabled` | Provider disabled | Warning |
+| `provider.test` | Provider test login performed | Info |
+
+### User account events
+
+| Event Type | Description | Severity |
+|------------|-------------|----------|
+| `user.created` | New user account created via JIT provisioning | Info |
+| `user.updated` | User profile updated | Info |
+| `user.suspended` | User account suspended | Warning |
+| `user.reactivated` | Suspended user reactivated | Info |
+| `user.deleted` | User account deleted | Warning |
+| `user.roles.synced` | User roles synchronized from IdP | Info |
+| `user.roles.updated` | User roles manually updated | Info |
+
+### Connected account events
+
+| Event Type | Description | Severity |
+|------------|-------------|----------|
+| `account.connected` | SSO account connected to user | Info |
+| `account.disconnected` | SSO account disconnected | Warning |
+| `account.linked` | Multiple SSO accounts linked | Info |
+| `account.unlinked` | SSO accounts unlinked | Warning |
+
+## Log entry details
+
+Each audit log entry contains:
+
+### Core fields
+
+| Field | Description |
+|-------|-------------|
+| Timestamp | When the event occurred (UTC) |
+| Event type | Type of event (see event types above) |
+| Severity | Info, Warning, Error, or Critical |
+| User | User who triggered the event (if applicable) |
+| IP address | Source IP address |
+| User agent | Browser/client information |
+
+### Event-specific data
+
+| Field | Description |
+|-------|-------------|
+| Provider | SSO provider involved |
+| Action | Specific action performed |
+| Resource | Resource affected (user, provider, etc.) |
+| Changes | What changed (for update events) |
+| Error message | Error details (for failed events) |
+| Session ID | Session identifier |
+| Request ID | Unique request identifier for correlation |
+
+### Example log entries
+
+#### Successful login
+```json
+{
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "eventType": "auth.login.success",
+  "severity": "info",
+  "user": {
+    "id": "user_123",
+    "email": "john@example.com"
+  },
+  "provider": "google",
+  "ipAddress": "203.0.113.42",
+  "userAgent": "Mozilla/5.0...",
+  "sessionId": "sess_abc123",
+  "requestId": "req_xyz789"
+}
+```
+
+#### Failed login attempt
+```json
+{
+  "timestamp": "2024-01-15T10:32:15.456Z",
+  "eventType": "auth.login.failed",
+  "severity": "warning",
+  "provider": "okta",
+  "ipAddress": "203.0.113.42",
+  "userAgent": "Mozilla/5.0...",
+  "error": "Invalid credentials",
+  "requestId": "req_abc456"
+}
+```
+
+#### Provider configuration change
+```json
+{
+  "timestamp": "2024-01-15T09:15:30.789Z",
+  "eventType": "provider.updated",
+  "severity": "info",
+  "user": {
+    "id": "admin_456",
+    "email": "admin@example.com"
+  },
+  "provider": "azure",
+  "changes": {
+    "scopes": {
+      "old": "openid profile email",
+      "new": "openid profile email groups"
+    }
+  },
+  "ipAddress": "203.0.113.10",
+  "requestId": "req_def789"
+}
+```
+
+## Filtering and search
+
+### Search capabilities
+
+Search audit logs using various criteria:
+
+- **Text search**: Search across all text fields
+- **User**: Filter by specific user
+- **Provider**: Filter by SSO provider
+- **Event type**: Filter by event type
+- **Severity**: Filter by severity level
+- **Date range**: Filter by time period
+- **IP address**: Filter by source IP
+
+### Advanced filters
+
+Combine multiple filters for precise queries:
+
+```
+Event type: auth.login.failed
+Provider: okta
+Date range: Last 7 days
+IP address: 203.0.113.*
+```
+
+### Saved searches
+
+Save frequently used search queries:
+
+<Steps>
+  <Step title="Create search">
+    Configure your search filters
+  </Step>
+  
+  <Step title="Click save search">
+    Click "Save Search" button
+  </Step>
+  
+  <Step title="Name the search">
+    Enter a descriptive name (e.g., "Failed Okta logins")
+  </Step>
+  
+  <Step title="Access saved searches">
+    Access from the "Saved Searches" dropdown
+  </Step>
+</Steps>
+
+## Monitoring and alerts
+
+### Real-time monitoring
+
+Monitor authentication events in real-time:
+
+- Live event stream
+- Auto-refresh every 30 seconds
+- Desktop notifications for critical events
+- Sound alerts for security events
+
+### Alert configuration
+
+Set up alerts for specific events:
+
+<Steps>
+  <Step title="Navigate to alerts">
+    Go to Admin → Audit Logs → Alerts
+  </Step>
+  
+  <Step title="Create alert">
+    Click "Create Alert"
+  </Step>
+  
+  <Step title="Configure conditions">
+    Set alert conditions:
+    - Event type
+    - Severity level
+    - Frequency threshold
+    - Time window
+  </Step>
+  
+  <Step title="Configure notifications">
+    Choose notification methods:
+    - Email
+    - Slack
+    - Webhook
+    - SMS (if configured)
+  </Step>
+  
+  <Step title="Save alert">
+    Save and enable the alert
+  </Step>
+</Steps>
+
+### Example alerts
+
+#### Multiple failed login attempts
+```
+Alert: Failed login threshold
+Condition: 5 or more failed logins from same IP in 10 minutes
+Notification: Email to security team
+```
+
+#### Provider configuration changes
+```
+Alert: Provider modified
+Condition: Any provider.updated or provider.deleted event
+Notification: Slack channel #security-alerts
+```
+
+#### Suspicious activity
+```
+Alert: Unusual login location
+Condition: Login from new country/region
+Notification: Email to user and security team
+```
+
+## Compliance and reporting
+
+### Compliance reports
+
+Generate reports for compliance requirements:
+
+#### SOC 2 authentication report
+- All authentication events
+- Failed login attempts
+- Account changes
+- Provider configuration changes
+
+#### GDPR user activity report
+- All events for a specific user
+- Account creation and deletion
+- Data access events
+- Consent changes
+
+#### HIPAA access audit
+- User authentication events
+- Role changes
+- Access to sensitive resources
+- Failed access attempts
+
+### Generating reports
+
+<Steps>
+  <Step title="Navigate to reports">
+    Go to Admin → Audit Logs → Reports
+  </Step>
+  
+  <Step title="Select report type">
+    Choose a compliance report template or create custom
+  </Step>
+  
+  <Step title="Configure parameters">
+    Set date range, users, providers, etc.
+  </Step>
+  
+  <Step title="Generate report">
+    Click "Generate Report"
+  </Step>
+  
+  <Step title="Export report">
+    Download as PDF, CSV, or JSON
+  </Step>
+</Steps>
+
+## Log retention
+
+### Retention policies
+
+Configure how long audit logs are retained:
+
+| Tier | Retention Period | Storage |
+|------|------------------|---------|
+| Standard | 90 days | Database |
+| Extended | 1 year | Database + Archive |
+| Compliance | 7 years | Archive storage |
+
+### Archiving
+
+Older logs are automatically archived:
+
+- Compressed and stored in archive storage
+- Searchable through archive interface
+- Can be restored for investigation
+- Compliant with data retention regulations
+
+### Export for long-term storage
+
+Export logs for external archiving:
+
+<Steps>
+  <Step title="Navigate to export">
+    Go to Admin → Audit Logs → Export
+  </Step>
+  
+  <Step title="Select date range">
+    Choose the time period to export
+  </Step>
+  
+  <Step title="Choose format">
+    Select JSON, CSV, or JSONL format
+  </Step>
+  
+  <Step title="Download archive">
+    Download the compressed archive file
+  </Step>
+</Steps>
+
+## Security monitoring use cases
+
+### Detecting brute force attacks
+
+Monitor for multiple failed login attempts:
+
+```
+Filter: auth.login.failed
+Group by: IP address
+Threshold: 10+ attempts in 5 minutes
+```
+
+### Identifying compromised accounts
+
+Look for unusual login patterns:
+
+- Logins from new locations
+- Logins at unusual times
+- Multiple concurrent sessions
+- Rapid provider switching
+
+### Tracking privilege escalation
+
+Monitor role changes:
+
+```
+Filter: user.roles.updated
+Alert: When admin role is assigned
+Review: Manual role changes
+```
+
+### Detecting configuration tampering
+
+Track provider configuration changes:
+
+```
+Filter: provider.updated OR provider.deleted
+Alert: Any configuration change
+Review: Who made the change and what changed
+```
+
+## Troubleshooting with audit logs
+
+### Debugging authentication failures
+
+<Steps>
+  <Step title="Search for user">
+    Filter logs by user email or ID
+  </Step>
+  
+  <Step title="Find failed events">
+    Look for `auth.login.failed` events
+  </Step>
+  
+  <Step title="Review error messages">
+    Check the error field for specific failure reasons
+  </Step>
+  
+  <Step title="Check provider logs">
+    Review provider-specific events around the same time
+  </Step>
+  
+  <Step title="Verify configuration">
+    Ensure provider configuration hasn't changed
+  </Step>
+</Steps>
+
+### Investigating role issues
+
+<Steps>
+  <Step title="Search for user">
+    Filter logs by user email or ID
+  </Step>
+  
+  <Step title="Find role events">
+    Look for `user.roles.synced` and `user.roles.updated` events
+  </Step>
+  
+  <Step title="Review changes">
+    Check what roles were added or removed
+  </Step>
+  
+  <Step title="Check group mappings">
+    Verify group-to-role mapping configuration
+  </Step>
+  
+  <Step title="Review IdP groups">
+    Check what groups the IdP is sending
+  </Step>
+</Steps>
+
+## API access to audit logs
+
+### REST API
+
+Access audit logs programmatically:
+
+```bash
+GET /api/v1/audit-logs
+Authorization: Bearer <token>
+
+Query parameters:
+- startDate: ISO 8601 timestamp
+- endDate: ISO 8601 timestamp
+- eventType: Event type filter
+- userId: User ID filter
+- provider: Provider ID filter
+- limit: Results per page (max 100)
+- offset: Pagination offset
+```
+
+### Webhook integration
+
+Stream audit events to external systems:
+
+<Steps>
+  <Step title="Configure webhook">
+    Go to Admin → Audit Logs → Webhooks
+  </Step>
+  
+  <Step title="Add endpoint">
+    Enter your webhook URL
+  </Step>
+  
+  <Step title="Select events">
+    Choose which event types to send
+  </Step>
+  
+  <Step title="Configure authentication">
+    Set up webhook authentication (HMAC signature)
+  </Step>
+  
+  <Step title="Test webhook">
+    Send a test event to verify configuration
+  </Step>
+</Steps>
+
+### SIEM integration
+
+Integrate with Security Information and Event Management systems:
+
+- Splunk
+- Datadog
+- Elastic Stack
+- Azure Sentinel
+- AWS CloudWatch
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Regular review">
+    Review audit logs regularly (daily or weekly) to identify patterns and anomalies.
+  </Accordion>
+  
+  <Accordion title="Set up alerts">
+    Configure alerts for critical security events to enable rapid response.
+  </Accordion>
+  
+  <Accordion title="Retain logs appropriately">
+    Follow your organization's retention policies and compliance requirements.
+  </Accordion>
+  
+  <Accordion title="Protect log access">
+    Restrict audit log access to authorized administrators only.
+  </Accordion>
+  
+  <Accordion title="Export regularly">
+    Export logs to external storage for long-term retention and disaster recovery.
+  </Accordion>
+  
+  <Accordion title="Correlate events">
+    Use request IDs to correlate related events across the authentication flow.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="User management" icon="user-gear" href="/authentication/user-management">
+    Manage users and investigate account issues
+  </Card>
+  
+  <Card title="Admin UI" icon="gear" href="/authentication/admin-ui">
+    Configure SSO providers and settings
+  </Card>
+  
+  <Card title="Role mapping" icon="users" href="/authentication/role-mapping">
+    Configure automatic role assignment
+  </Card>
+  
+  <Card title="OIDC setup" icon="key" href="/authentication/oidc">
+    Set up OIDC authentication providers
+  </Card>
+</CardGroup>
