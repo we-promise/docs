@@ -1,0 +1,105 @@
+---
+title: "Troubleshooting"
+---
+
+
+## Category Rule Popup Behavior
+
+When a user selects a category for a transaction, a popup may appear to create an automatic categorization rule. This popup is intentionally gated by several conditions:
+
+<AccordionGroup>
+  <Accordion title="When does the popup appear?">
+    The popup only shows when **all** of these conditions are met:
+    
+    1. User has not disabled rule prompts (`rule_prompts_disabled` is false)
+    2. User hasn't dismissed the popup in the last **24 hours**
+    3. The transaction category actually changed
+    4. No existing rule already sets this category for similar transactions
+    5. The transaction has a category assigned
+  </Accordion>
+  
+  <Accordion title="Why isn't the popup showing?">
+    Check these common reasons:
+    
+    - **Recently dismissed**: Wait 24 hours after dismissing the popup
+    - **Rule already exists**: A matching rule may already be in place
+    - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for the user
+  </Accordion>
+</AccordionGroup>
+
+## Sure Doesn’t Work Over HTTPS
+
+If Sure behaves incorrectly or fails when accessed over HTTPS, it’s usually due to missing SSL-related configuration between Nginx and Rails.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this issue?">
+
+    Sure relies on correct protocol headers to determine whether a request is secure.  
+    When HTTPS is terminated at Nginx but not properly forwarded to the app, Rails may treat requests as HTTP.
+
+  </Accordion>
+
+  <Accordion title="How do I fix it?">
+
+    Apply the following configuration changes:
+
+    1. **Nginx**
+
+       Ensure HTTPS is forwarded to the upstream app:
+
+       ```nginx
+       proxy_set_header X-Forwarded-Proto https;
+       ```
+
+    2. **docker-compose.yml**
+
+       In the `x-rails-env: &rails_env` section, set:
+
+       ```yaml
+       RAILS_ASSUME_SSL: "true"
+       ```
+
+       This tells Rails to treat all requests as HTTPS.
+
+  </Accordion>
+
+</AccordionGroup>
+
+
+## Some pages break over HTTPS
+
+Sure uses WebSockets for certain pages. If some pages fail to render correctly or break entirely, this is often caused by missing SSL or upgrade headers in your reverse proxy configuration.
+
+<AccordionGroup>
+
+  <Accordion title="What are the symptoms?">
+
+    You may see pages partially load, fail completely, or errors similar to:
+
+    ```text
+    Failed to upgrade to WebSocket (REQUEST_METHOD: GET, HTTP_CONNECTION: close, HTTP_UPGRADE: )
+    ```
+
+    This indicates that the WebSocket upgrade request is not being forwarded correctly.
+
+  </Accordion>
+
+  <Accordion title="How do I fix it?">
+
+    Ensure your Nginx configuration includes the required WebSocket headers:
+
+    ```nginx
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    ```
+
+    These headers allow Nginx to properly handle WebSocket upgrade requests over HTTPS.
+
+  </Accordion>
+
+</AccordionGroup>
+
+
+
+ 

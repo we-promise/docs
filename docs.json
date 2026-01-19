@@ -30,6 +30,12 @@
         "tab": "Guides",
         "groups": [
           {
+            "group": "Knowledge Base",
+            "pages": [
+              "guides/knowledge-base/troubleshooting"
+            ]
+          },
+          {
             "group": "Getting started",
             "pages": [
               "quickstart",
