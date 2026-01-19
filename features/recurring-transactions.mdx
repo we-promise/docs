@@ -1,0 +1,140 @@
+---
+title: Recurring transactions
+description: Automatically detect and track recurring transactions like subscriptions and bills
+---
+
+## Overview
+
+The recurring transactions feature automatically identifies patterns in your transaction history to detect recurring charges like subscriptions, bills, and regular payments. Once identified, these transactions are displayed in your transaction list with projected upcoming charges.
+
+## How it works
+
+### Automatic pattern detection
+
+The system analyzes your transaction history to identify recurring patterns based on:
+
+- **Merchant matching**: Groups transactions by the same merchant
+- **Amount consistency**: Looks for transactions with the same amount
+- **Date clustering**: Detects transactions that occur on similar days each month (within a 5-day window)
+- **Minimum occurrences**: Requires at least 3 occurrences in the last 3 months
+- **Recent activity**: Last occurrence must be within the last 45 days
+
+The pattern detection uses circular distance calculations to handle month-boundary cases (e.g., transactions on days 28, 29, 30, 31, 1, 2 are recognized as a single recurring pattern).
+
+### When patterns are identified
+
+Pattern identification runs automatically after:
+
+- CSV imports complete (transactions, trades, accounts, etc.)
+- Any provider sync completes (Plaid, SimpleFIN, LunchFlow, etc.)
+- Manual identification via the recurring transactions settings page
+
+### Projected transactions
+
+Active recurring transactions appear at the top of your transaction list showing:
+
+- Expected upcoming charges for the next month
+- Merchant name and logo
+- Projected amount
+- Expected date based on historical patterns
+- "Projected" badge to distinguish from actual transactions
+
+Projected transactions only appear when no filters are applied to the transaction list.
+
+## Managing recurring transactions
+
+### Settings page
+
+Access recurring transaction management at **Settings → Recurring**.
+
+The settings page displays:
+
+- **Merchant**: The merchant name and logo
+- **Amount**: The recurring charge amount
+- **Expected day**: The day of month when the charge typically occurs
+- **Next date**: The next expected occurrence date
+- **Last occurrence**: When the transaction last occurred
+- **Status**: Active or inactive
+- **Actions**: Toggle status or delete
+
+### Manual actions
+
+#### Identify patterns
+
+Click **Identify Patterns** to manually trigger pattern detection. This analyzes your transaction history and creates or updates recurring transaction records. Running this multiple times will not create duplicates.
+
+#### Clean up stale
+
+Click **Clean Up Stale** to mark recurring transactions as inactive if they haven't occurred in the last 2 months. This helps keep your recurring transaction list current.
+
+#### Toggle status
+
+Use the play/pause icon to manually activate or deactivate a recurring transaction. Inactive transactions won't show projected charges.
+
+#### Delete
+
+Use the trash icon to permanently remove a recurring transaction record.
+
+## Technical details
+
+### Pattern clustering
+
+The system uses circular distance calculations to handle month-boundary patterns:
+
+- Days are normalized on a circular scale (1-31)
+- Clustering accounts for wrap-around (e.g., day 31 to day 1 is distance 1)
+- Standard deviation threshold of 5 days for clustering
+- Median calculation on rotated day sequences for accurate expected day
+
+### Cleanup logic
+
+Recurring transactions are automatically marked inactive when:
+
+- No matching transaction has occurred in the last 2 months
+- The system verifies no recent matches exist before marking inactive
+
+### Data storage
+
+Each recurring transaction record stores:
+
+- Family and merchant associations
+- Amount and currency
+- Expected day of month (1-31)
+- Last occurrence date
+- Next expected date
+- Status (active/inactive)
+- Occurrence count
+
+## Use cases
+
+### Subscription tracking
+
+Monitor recurring subscriptions like:
+
+- Streaming services (Netflix, Spotify, etc.)
+- Software subscriptions (Adobe, Microsoft 365, etc.)
+- Membership fees (gym, clubs, etc.)
+
+### Bill management
+
+Track regular bills such as:
+
+- Utilities (electricity, water, gas)
+- Insurance premiums
+- Rent or mortgage payments
+
+### Income tracking
+
+Identify recurring income like:
+
+- Salary deposits
+- Freelance client payments
+- Investment dividends
+
+## Limitations
+
+- Requires at least 3 occurrences in the last 3 months
+- Last occurrence must be within 45 days
+- Only detects patterns with consistent amounts
+- Projected transactions hidden when filters are applied
+- Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
