@@ -1,0 +1,141 @@
+---
+title: LLM support
+description: Configure AI features with local or cloud models
+---
+
+<Note>
+LLM usage is optional and must be explicitly configured. You maintain full control by running local models on your own systems through Ollama, LM Studio, or similar tools. No data is sent to external services unless you configure a cloud provider.
+</Note>
+
+## Configuration via settings
+
+Configure AI settings through the web interface:
+
+1. Go to **Settings** → **Self-Hosting**
+2. Scroll to the **AI Provider** section
+3. Configure:
+   - **OpenAI Access Token** - Your API key
+   - **OpenAI URI Base** - Custom endpoint (leave blank for OpenAI)
+   - **OpenAI Model** - Model name (required for custom endpoints)
+
+Settings in the UI override environment variables.
+
+## OpenAI compatible API
+
+Sure supports any OpenAI-compatible API endpoint, giving you flexibility to use:
+
+- **OpenAI** - Direct access to GPT models
+- **Ollama** - Run models locally on your hardware
+- **LM Studio** - Local model hosting with a GUI
+- **OpenRouter** - Access to multiple providers (Anthropic, Google, etc.)
+- **Other providers** - Groq, Together AI, Anyscale, Replicate, and more
+
+### OpenAI
+
+```bash
+OPENAI_ACCESS_TOKEN=sk-proj-...
+# No other configuration needed
+```
+
+Recommended models:
+- `gpt-4.1` - Default, best balance of speed and quality
+- `gpt-5` - Latest model, highest quality
+- `gpt-4o-mini` - Cheaper, good quality
+
+### Ollama (local)
+
+```bash
+# Dummy token (Ollama doesn't need authentication)
+OPENAI_ACCESS_TOKEN=ollama-local
+
+# Ollama API endpoint
+OPENAI_URI_BASE=http://localhost:11434/v1
+
+# Model you pulled
+OPENAI_MODEL=llama3.1:13b
+```
+
+Install and run Ollama:
+
+```bash
+# macOS
+brew install ollama
+
+# Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Start Ollama
+ollama serve
+
+# Pull a model
+ollama pull llama3.1:13b
+```
+
+### LM Studio (local)
+
+1. Download from [lmstudio.ai](https://lmstudio.ai/)
+2. Download a model through the UI
+3. Start the local server
+4. Configure Sure:
+
+```bash
+OPENAI_ACCESS_TOKEN=lmstudio-local
+OPENAI_URI_BASE=http://localhost:1234/v1
+OPENAI_MODEL=your-model-name
+```
+
+### OpenRouter
+
+Access multiple providers through a single API:
+
+```bash
+OPENAI_ACCESS_TOKEN=your-openrouter-api-key
+OPENAI_URI_BASE=https://openrouter.ai/api/v1
+OPENAI_MODEL=google/gemini-2.0-flash-exp
+```
+
+Recommended models:
+- `google/gemini-2.5-flash` - Fast and capable
+- `anthropic/claude-sonnet-4.5` - Excellent reasoning
+- `anthropic/claude-haiku-4.5` - Fast and cost-effective
+
+## Evaluation system
+
+Test and compare different LLMs for your specific use case. The eval system helps you benchmark models for transaction categorization, merchant detection, and chat assistant functionality.
+
+See the [evaluation framework](/evals) documentation for details on:
+- Running evaluations
+- Comparing models
+- Creating custom datasets
+- Langfuse integration for tracking experiments
+
+## Docker compose example
+
+```yaml
+services:
+  sure:
+    environment:
+      - OPENAI_ACCESS_TOKEN=ollama-local
+      - OPENAI_URI_BASE=http://ollama:11434/v1
+      - OPENAI_MODEL=llama3.1:13b
+    depends_on:
+      - ollama
+  
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Uncomment if you have an NVIDIA GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:
+```
