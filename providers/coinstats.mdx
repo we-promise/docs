@@ -1,0 +1,75 @@
+---
+title: CoinStats
+description: Sync cryptocurrency wallets using CoinStats integration
+---
+
+CoinStats is a third-party provider that allows you to sync cryptocurrency wallet balances and transactions into Sure. This integration uses the CoinStats OpenAPI to fetch data from multiple blockchain networks.
+
+## How it works
+
+When you connect a crypto wallet through CoinStats, Sure syncs:
+- Wallet balances across multiple tokens
+- Transaction history
+- Real-time price data
+
+The integration supports multiple blockchain networks including Ethereum, Bitcoin, and many others available through CoinStats.
+
+## Currency storage approach
+
+All CoinStats accounts are stored in **USD** and will remain in USD. This design decision ensures data consistency and prevents exchange rate drift.
+
+### Why USD storage?
+
+There are two possible approaches for storing cryptocurrency values:
+
+**Option 1: Store in USD (current implementation)**
+- CoinStats data is stored in USD
+- Values are converted to your family currency when displayed
+- Works the same way as multi-currency accounts already do in Sure
+- If you update exchange rates, values automatically update correctly without requiring a sync
+- Original USD values are always preserved
+
+**Option 2: Store in family currency**
+- Convert cryptocurrency values to family currency during sync
+- **Problem**: If currency provider is not set up or conversion fails, data is saved with a 1:1 exchange rate
+- Once saved incorrectly, you lose the original value and cannot fix it later
+- Creates data integrity issues
+
+### Benefits of USD storage
+
+The USD storage approach provides several advantages:
+
+1. **No forex drift**: Values are converted only once, preventing cumulative exchange rate errors
+2. **Data integrity**: Original values are always preserved
+3. **Automatic updates**: When you fix or update exchange rates, all cryptocurrency values update correctly without re-syncing
+4. **Consistency**: Works the same way as other multi-currency accounts in Sure
+5. **Reliability**: No dependency on currency provider being available during sync
+
+This is why USD storage is the preferred approach and will remain the standard for CoinStats integration.
+
+## Setting up CoinStats
+
+To connect your cryptocurrency wallets:
+
+1. Get a CoinStats API key from [CoinStats](https://coinstats.app/)
+2. In Sure, navigate to account settings
+3. Add a new CoinStats connection
+4. Enter your API key
+5. Select the blockchain networks and wallet addresses you want to sync
+
+Once connected, Sure will automatically sync your wallet balances and transactions.
+
+## Supported features
+
+- **Multiple blockchains**: Connect wallets from different blockchain networks
+- **Bulk syncing**: Fetch balances and transactions for multiple wallets in a single request
+- **Automatic updates**: Sync runs periodically to keep your data current
+- **Transaction history**: Import historical transactions from your wallets
+- **Token balances**: Track balances across multiple tokens in each wallet
+
+## Limitations
+
+- CoinStats integration is currently in beta
+- Requires a valid CoinStats API key
+- Subject to CoinStats API rate limits
+- All values are stored in USD (see currency storage approach above)
