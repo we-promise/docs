@@ -1,0 +1,75 @@
+---
+title: Enable Banking
+description: Connect European bank accounts using PSD2 open banking
+---
+
+Enable Banking is a free third-party provider that allows you to connect European bank accounts to Sure using PSD2 open banking standards. It supports thousands of banks across the EU.
+
+## How it works
+
+Enable Banking uses the PSD2 open banking framework to securely access your bank data:
+
+1. Select your bank from the list of supported institutions
+2. Authorize Sure to access your account through your bank's authentication flow
+3. Sure syncs your account balances and transactions
+4. Data is refreshed periodically to keep your information current
+
+All authentication happens directly with your bank. Enable Banking and Sure never see your banking credentials.
+
+## Supported regions
+
+Enable Banking supports banks across the European Union and EEA countries. You can query available banks by country code (e.g., "GB", "DE", "FR").
+
+## Setting up Enable Banking
+
+To connect your European bank accounts:
+
+1. Obtain an Enable Banking application ID and client certificate from [Enable Banking](https://enablebanking.com/)
+2. In Sure, configure your Enable Banking credentials
+3. Select your country and bank from the available options
+4. Complete the authorization flow with your bank
+5. Sure will create a session and begin syncing your accounts
+
+## Features
+
+### Account access
+
+- **Account details**: View account information including IBAN and account type
+- **Balance information**: Real-time balance data from your bank
+- **Transaction history**: Import historical transactions with date range filtering
+- **Multiple accounts**: Connect multiple accounts from different banks
+
+### Session management
+
+Enable Banking uses sessions to maintain access to your accounts:
+
+- Sessions are valid for 90 days from creation
+- You can revoke access at any time by deleting the session
+- Sessions automatically refresh to keep data current
+
+### Transaction filtering
+
+When syncing transactions, you can:
+
+- Filter by date range (from/to dates)
+- Only booked transactions are imported (pending transactions are excluded)
+- Paginate through large transaction sets using continuation keys
+
+## Supported account types
+
+Enable Banking supports both personal and business accounts:
+
+- **Personal accounts**: Standard consumer bank accounts
+- **Business accounts**: Business banking accounts (specify `psu_type: "business"`)
+
+## API reference
+
+For technical details about the Enable Banking API, see the [official documentation](https://enablebanking.com/docs/api/reference/).
+
+## Limitations
+
+- Only supports banks in EU/EEA countries
+- Requires PSD2-compliant banks
+- Session validity is limited to 90 days
+- Subject to Enable Banking API rate limits
+- Some banks may have additional authentication requirements

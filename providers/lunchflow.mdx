@@ -1,0 +1,83 @@
+---
+title: Lunch Flow
+description: Connect bank accounts worldwide with global coverage
+---
+
+Lunch Flow is a paid third-party provider that offers global bank account connectivity. It's the recommended option for users who need to connect accounts from multiple countries or regions outside the EU and US.
+
+## How it works
+
+Lunch Flow provides a unified API to access bank accounts across different countries and financial institutions:
+
+1. Obtain a Lunch Flow API key
+2. Configure the API key in Sure
+3. Sure syncs your accounts, balances, and transactions
+4. Data is refreshed automatically to keep information current
+
+## Global coverage
+
+Lunch Flow supports financial institutions worldwide, making it ideal for:
+
+- Users with accounts in multiple countries
+- Regions not covered by Enable Banking or SimpleFIN
+- International banking needs
+
+## Setting up Lunch Flow
+
+To connect your bank accounts:
+
+1. Sign up for a Lunch Flow account at [lunchflow.app](https://lunchflow.app/)
+2. Generate an API key from your Lunch Flow dashboard
+3. In Sure, add your Lunch Flow API key
+4. Sure will automatically discover and sync your connected accounts
+
+## Features
+
+### Account management
+
+- **Account listing**: View all connected accounts with balances
+- **Balance tracking**: Real-time balance information in native currencies
+- **Transaction history**: Import transactions with date range filtering
+- **Investment holdings**: Track investment account holdings and values (where supported)
+
+### Transaction syncing
+
+Sync transactions with flexible filtering:
+
+- Filter by date range (start and end dates)
+- Automatic pagination for large transaction sets
+- Transaction details include merchant, description, amount, and currency
+
+### Investment accounts
+
+For investment accounts, Lunch Flow provides:
+
+- Holdings information (securities, quantities, values)
+- Total portfolio value
+- Currency-specific valuations
+
+Note: Not all account types support holdings. The API will indicate when holdings are not available for a specific account.
+
+## API structure
+
+Lunch Flow uses a straightforward REST API:
+
+- **GET /accounts**: List all connected accounts
+- **GET /accounts/{id}/balance**: Get current balance for an account
+- **GET /accounts/{id}/transactions**: Fetch transaction history
+- **GET /accounts/{id}/holdings**: Get investment holdings (if supported)
+
+## API reference
+
+For detailed API documentation, see the [Lunch Flow documentation](https://docs.lunchflow.app/introduction).
+
+## Pricing
+
+Lunch Flow is a paid service. Check [lunchflow.app](https://lunchflow.app/) for current pricing information.
+
+## Limitations
+
+- Requires a paid Lunch Flow subscription
+- Subject to Lunch Flow API rate limits
+- Holdings data not available for all account types
+- Coverage varies by country and institution

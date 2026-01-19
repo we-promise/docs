@@ -1,0 +1,111 @@
+---
+title: SimpleFIN
+description: Connect US bank accounts with a cost-effective provider
+---
+
+SimpleFIN is a paid third-party provider focused on US bank account connectivity. It offers a simpler, more affordable alternative to Plaid for personal finance management.
+
+## How it works
+
+SimpleFIN uses a setup token system to establish secure access to your bank accounts:
+
+1. Obtain a setup token from SimpleFIN
+2. Sure claims the setup token to get an access URL with embedded credentials
+3. The access URL is used to fetch account data, balances, and transactions
+4. Data syncs automatically to keep your information current
+
+## Setting up SimpleFIN
+
+To connect your US bank accounts:
+
+1. Sign up for a SimpleFIN account at [simplefin.org](https://www.simplefin.org/)
+2. Generate a setup token from your SimpleFIN dashboard
+3. In Sure, provide the setup token
+4. Sure will claim the token and establish access to your accounts
+
+### Setup token claiming
+
+The setup token is a base64-encoded claim URL. When you provide it to Sure:
+
+1. Sure decodes the token to get the claim URL
+2. Makes a POST request to claim the access URL
+3. Receives an access URL with HTTP Basic Auth credentials embedded
+4. Uses this access URL for all subsequent API requests
+
+## Features
+
+### Account syncing
+
+- **Account listing**: View all connected accounts with current balances
+- **Transaction history**: Import transactions with date range filtering
+- **Pending transactions**: Optional support for pending transactions (varies by institution)
+- **Multiple accounts**: Connect multiple bank accounts from different institutions
+
+### Date range filtering
+
+When syncing transactions, you can specify:
+
+- **Start date**: Fetch transactions from this date forward
+- **End date**: Fetch transactions up to this date
+- **Pending flag**: Include or exclude pending transactions
+
+SimpleFIN expects Unix timestamps for date parameters.
+
+### Reliability features
+
+Sure's SimpleFIN integration includes automatic retry logic:
+
+- Exponential backoff for transient network failures
+- Up to 3 retry attempts for network errors
+- Handles temporary connection issues gracefully
+- Prevents sync failures from intermittent network problems
+
+## API structure
+
+SimpleFIN uses a simple REST API with embedded authentication:
+
+- **POST /claim**: Exchange setup token for access URL
+- **GET /accounts**: Fetch all accounts with balances and transactions
+- **GET /info**: Get server information
+
+The access URL contains HTTP Basic Auth credentials, so no separate authentication headers are needed.
+
+## API reference
+
+For detailed protocol documentation, see the [SimpleFIN Protocol](https://www.simplefin.org/protocol.html).
+
+## Pricing
+
+SimpleFIN is a paid service, but typically more affordable than alternatives like Plaid. Check [simplefin.org](https://www.simplefin.org/) for current pricing.
+
+## Limitations
+
+- **US-focused**: Primarily supports US financial institutions
+- **Setup token security**: Setup tokens can only be claimed once and may expire
+- **Pending transactions**: Not all institutions return pending transactions, even when requested
+- **Rate limits**: Subject to SimpleFIN API rate limits
+- **Access URL validity**: Access URLs can be revoked or expire (returns 403 error)
+
+## Troubleshooting
+
+### Setup token issues
+
+If you receive a 403 error when claiming a setup token:
+
+- The token may have already been used
+- The token may have expired
+- The token may have been compromised
+
+Generate a new setup token from your SimpleFIN dashboard.
+
+### Missing pending transactions
+
+Some institutions don't return pending transactions even when the `pending=1` parameter is set. This is a limitation of the institution's data feed, not a bug in SimpleFIN or Sure.
+
+### Network errors
+
+If you experience intermittent sync failures:
+
+- Sure automatically retries failed requests up to 3 times
+- Network errors are logged for troubleshooting
+- Manual sync attempts may succeed where automatic syncs fail

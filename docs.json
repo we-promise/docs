@@ -76,6 +76,11 @@
           {
             "group": "Third party providers",
             "pages": [
+              "providers/overview",
+              "providers/enable-banking",
+              "providers/lunchflow",
+              "providers/simplefin",
+              "providers/plaid",
               "providers/coinstats"
             ]
           }
