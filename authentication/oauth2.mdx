@@ -1,0 +1,445 @@
+---
+title: OAuth2 provider setup
+description: Configure OAuth2 authentication for providers without OIDC support
+---
+
+## Overview
+
+OAuth2 provides flexible authentication for identity providers that don't support OpenID Connect (OIDC). While OIDC is recommended when available, OAuth2 allows you to integrate with providers that only offer OAuth2 endpoints.
+
+## When to use OAuth2
+
+Use OAuth2 instead of OIDC when:
+- Your identity provider doesn't support OIDC
+- You need custom user attribute mapping
+- You're integrating with legacy authentication systems
+- Your provider requires non-standard OAuth2 flows
+
+<Note>
+If your provider supports OIDC, use the [OIDC configuration](/authentication/oidc) instead. OIDC provides standardized user information and better security.
+</Note>
+
+## Configuration via admin UI
+
+<Steps>
+  <Step title="Navigate to SSO providers">
+    Go to Admin → SSO Providers in your dashboard
+  </Step>
+  
+  <Step title="Add OAuth2 provider">
+    Click "Add Provider" and select "OAuth2" as the provider type
+  </Step>
+  
+  <Step title="Enter basic information">
+    ```
+    Provider name: GitHub
+    Provider ID: github
+    Enabled: Yes
+    ```
+  </Step>
+  
+  <Step title="Configure OAuth2 settings">
+    ```
+    Authorization URL: https://github.com/login/oauth/authorize
+    Token URL: https://github.com/login/oauth/access_token
+    User info URL: https://api.github.com/user
+    Client ID: your-client-id
+    Client secret: your-client-secret
+    Scopes: user:email
+    ```
+  </Step>
+  
+  <Step title="Configure attribute mapping">
+    Map OAuth2 response fields to user attributes
+  </Step>
+  
+  <Step title="Save and test">
+    Save the configuration and test the login flow
+  </Step>
+</Steps>
+
+## Required configuration fields
+
+| Field | Description | Required | Example |
+|-------|-------------|----------|---------|
+| Authorization URL | OAuth2 authorization endpoint | Yes | `https://provider.com/oauth/authorize` |
+| Token URL | OAuth2 token exchange endpoint | Yes | `https://provider.com/oauth/token` |
+| User info URL | Endpoint to fetch user profile | Yes | `https://provider.com/api/user` |
+| Client ID | OAuth2 client identifier | Yes | `abc123xyz` |
+| Client secret | OAuth2 client secret | Yes | `secret_abc123` |
+| Scopes | Space-separated OAuth2 scopes | No | `user:email profile` |
+
+## Provider-specific guides
+
+### GitHub
+
+<Steps>
+  <Step title="Create OAuth App">
+    1. Go to [GitHub Settings](https://github.com/settings/developers)
+    2. Click "OAuth Apps" → "New OAuth App"
+    3. Fill in application details
+  </Step>
+  
+  <Step title="Configure callback URL">
+    ```
+    Authorization callback URL: https://your-domain.com/auth/callback/github
+    ```
+  </Step>
+  
+  <Step title="Get credentials">
+    Copy the Client ID and generate a Client secret
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Authorization URL: https://github.com/login/oauth/authorize
+    Token URL: https://github.com/login/oauth/access_token
+    User info URL: https://api.github.com/user
+    Client ID: [your-client-id]
+    Client secret: [your-client-secret]
+    Scopes: user:email
+    ```
+  </Step>
+  
+  <Step title="Configure attribute mapping">
+    ```json
+    {
+      "email": "email",
+      "name": "name",
+      "avatar": "avatar_url",
+      "username": "login"
+    }
+    ```
+  </Step>
+</Steps>
+
+<Note>
+GitHub requires the `user:email` scope to access the user's email address. Without this scope, email will not be available.
+</Note>
+
+### GitLab
+
+<Steps>
+  <Step title="Create OAuth application">
+    1. Go to GitLab → User Settings → Applications
+    2. Click "Add new application"
+    3. Enter application details
+  </Step>
+  
+  <Step title="Configure scopes and redirect URI">
+    ```
+    Redirect URI: https://your-domain.com/auth/callback/gitlab
+    Scopes: read_user, email
+    ```
+  </Step>
+  
+  <Step title="Save and get credentials">
+    Copy the Application ID and Secret
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Authorization URL: https://gitlab.com/oauth/authorize
+    Token URL: https://gitlab.com/oauth/token
+    User info URL: https://gitlab.com/api/v4/user
+    Client ID: [application-id]
+    Client secret: [secret]
+    Scopes: read_user email
+    ```
+  </Step>
+  
+  <Step title="Configure attribute mapping">
+    ```json
+    {
+      "email": "email",
+      "name": "name",
+      "avatar": "avatar_url",
+      "username": "username"
+    }
+    ```
+  </Step>
+</Steps>
+
+### Slack
+
+<Steps>
+  <Step title="Create Slack app">
+    1. Go to [Slack API](https://api.slack.com/apps)
+    2. Click "Create New App"
+    3. Choose "From scratch"
+    4. Enter app name and workspace
+  </Step>
+  
+  <Step title="Configure OAuth & Permissions">
+    1. Go to "OAuth & Permissions"
+    2. Add redirect URL:
+    ```
+    https://your-domain.com/auth/callback/slack
+    ```
+  </Step>
+  
+  <Step title="Add OAuth scopes">
+    Under "User Token Scopes", add:
+    ```
+    users:read
+    users:read.email
+    ```
+  </Step>
+  
+  <Step title="Get credentials">
+    Go to "Basic Information" and copy:
+    - Client ID
+    - Client Secret
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Authorization URL: https://slack.com/oauth/v2/authorize
+    Token URL: https://slack.com/api/oauth.v2.access
+    User info URL: https://slack.com/api/users.identity
+    Client ID: [client-id]
+    Client secret: [client-secret]
+    Scopes: users:read users:read.email
+    ```
+  </Step>
+  
+  <Step title="Configure attribute mapping">
+    ```json
+    {
+      "email": "user.email",
+      "name": "user.name",
+      "avatar": "user.image_192"
+    }
+    ```
+  </Step>
+</Steps>
+
+### Discord
+
+<Steps>
+  <Step title="Create Discord application">
+    1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+    2. Click "New Application"
+    3. Enter application name
+  </Step>
+  
+  <Step title="Configure OAuth2">
+    1. Go to OAuth2 settings
+    2. Add redirect:
+    ```
+    https://your-domain.com/auth/callback/discord
+    ```
+  </Step>
+  
+  <Step title="Get credentials">
+    Copy the Client ID and Client Secret from the OAuth2 page
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Authorization URL: https://discord.com/api/oauth2/authorize
+    Token URL: https://discord.com/api/oauth2/token
+    User info URL: https://discord.com/api/users/@me
+    Client ID: [client-id]
+    Client secret: [client-secret]
+    Scopes: identify email
+    ```
+  </Step>
+  
+  <Step title="Configure attribute mapping">
+    ```json
+    {
+      "email": "email",
+      "name": "username",
+      "avatar": "avatar",
+      "discriminator": "discriminator"
+    }
+    ```
+  </Step>
+</Steps>
+
+## Attribute mapping
+
+OAuth2 providers return user information in different formats. Configure attribute mapping to extract user data from the provider's response.
+
+### Common mapping patterns
+
+| Provider Field | Application Field | Description |
+|----------------|-------------------|-------------|
+| `email` | Email | User's email address |
+| `name` | Full name | User's display name |
+| `given_name` | First name | User's first name |
+| `family_name` | Last name | User's last name |
+| `picture` or `avatar_url` | Avatar URL | User's profile picture |
+| `login` or `username` | Username | User's username |
+
+### Nested attributes
+
+For nested JSON responses, use dot notation:
+
+```json
+{
+  "email": "user.email",
+  "name": "user.profile.name",
+  "avatar": "user.profile.image.url"
+}
+```
+
+### Array attributes
+
+For array values, specify the index:
+
+```json
+{
+  "email": "emails[0].value"
+}
+```
+
+## OAuth2 scopes
+
+Scopes determine what user information your application can access. Common scopes include:
+
+| Scope | Description | Providers |
+|-------|-------------|-----------|
+| `email` | Access to user's email address | Most providers |
+| `profile` | Access to basic profile information | Most providers |
+| `user:email` | Access to email (GitHub-specific) | GitHub |
+| `read_user` | Read user information | GitLab |
+| `identify` | Basic user information | Discord |
+| `users:read` | Read user data | Slack |
+
+<Warning>
+Only request the scopes you need. Requesting excessive permissions may cause users to deny authorization.
+</Warning>
+
+## Redirect URI format
+
+The redirect URI (callback URL) follows this pattern:
+
+```
+https://[your-domain]/auth/callback/[provider-id]
+```
+
+Examples:
+- `https://app.example.com/auth/callback/github`
+- `https://app.example.com/auth/callback/gitlab`
+- `https://app.example.com/auth/callback/slack`
+
+## Token handling
+
+### Access tokens
+
+OAuth2 access tokens are used to authenticate API requests to the provider. The application:
+- Exchanges the authorization code for an access token
+- Uses the access token to fetch user information
+- Stores the token for future API calls (optional)
+
+### Refresh tokens
+
+Some providers issue refresh tokens for long-lived access. Configure the `offline_access` or equivalent scope to request refresh tokens.
+
+### Token expiration
+
+Access tokens typically expire after a short period (1 hour to 24 hours). The application handles token refresh automatically when refresh tokens are available.
+
+## Troubleshooting
+
+### Invalid redirect URI
+
+**Problem**: Provider rejects the redirect URI
+
+**Solution**:
+- Verify the redirect URI exactly matches in both systems
+- Check for trailing slashes or protocol mismatches
+- Ensure the provider ID in the URL matches your configuration
+- Some providers require exact URL matching (including query parameters)
+
+### Missing email address
+
+**Problem**: User email is not populated after login
+
+**Solution**:
+- Verify you're requesting the correct scope for email access
+- Check that the user has a verified email in their provider account
+- Review the user info response in audit logs
+- Update attribute mapping to match the provider's response format
+
+### Scope not granted
+
+**Problem**: Provider doesn't grant requested scopes
+
+**Solution**:
+- Verify the scopes are valid for your provider
+- Check that your OAuth application is approved for the requested scopes
+- Some scopes require additional provider configuration or approval
+- Review provider documentation for scope requirements
+
+### User info endpoint fails
+
+**Problem**: Cannot fetch user information after authentication
+
+**Solution**:
+- Verify the user info URL is correct
+- Check that the access token is being sent correctly
+- Review the provider's API documentation for authentication requirements
+- Some providers require specific headers (e.g., `Accept: application/json`)
+
+## Security best practices
+
+<AccordionGroup>
+  <Accordion title="Use HTTPS only">
+    Always use HTTPS for redirect URIs. OAuth2 over HTTP is insecure.
+  </Accordion>
+  
+  <Accordion title="Validate state parameter">
+    The application automatically validates the state parameter to prevent CSRF attacks.
+  </Accordion>
+  
+  <Accordion title="Rotate client secrets">
+    Regularly rotate your client secrets and update them in the admin UI.
+  </Accordion>
+  
+  <Accordion title="Limit scopes">
+    Only request the scopes necessary for your application's functionality.
+  </Accordion>
+  
+  <Accordion title="Secure token storage">
+    Access tokens are encrypted in the database. Never log or expose tokens in client-side code.
+  </Accordion>
+</AccordionGroup>
+
+## Advanced configuration
+
+### Custom headers
+
+Some providers require custom headers for the user info request. Contact support if you need to configure custom headers.
+
+### Token endpoint authentication
+
+The application supports multiple token endpoint authentication methods:
+- `client_secret_post` (default): Send credentials in request body
+- `client_secret_basic`: Send credentials in Authorization header
+
+### PKCE support
+
+Proof Key for Code Exchange (PKCE) is automatically enabled for enhanced security on supported providers.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="OIDC setup" icon="key" href="/authentication/oidc">
+    Use OIDC for providers that support it
+  </Card>
+  
+  <Card title="Role mapping" icon="users" href="/authentication/role-mapping">
+    Configure automatic role assignment
+  </Card>
+  
+  <Card title="User management" icon="user-gear" href="/authentication/user-management">
+    Manage users and their connected accounts
+  </Card>
+  
+  <Card title="Audit logging" icon="list" href="/authentication/audit-logging">
+    Monitor OAuth2 authentication events
+  </Card>
+</CardGroup>
