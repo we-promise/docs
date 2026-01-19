@@ -1,0 +1,438 @@
+---
+title: Role mapping and JIT provisioning
+description: Configure automatic user provisioning and role assignment based on identity provider attributes
+---
+
+## Overview
+
+Just-in-time (JIT) provisioning automatically creates user accounts when users authenticate through SSO for the first time. Role mapping assigns application roles based on groups or attributes from your identity provider, eliminating manual user management.
+
+## Key features
+
+- **Automatic user creation**: Create accounts on first SSO login
+- **Default role assignment**: Assign default roles to all new users
+- **Group-to-role mapping**: Map IdP groups to application roles
+- **Attribute-based assignment**: Use custom attributes for role decisions
+- **Dynamic updates**: Update roles on each login based on current IdP data
+
+## Configuring JIT provisioning
+
+### Enable JIT provisioning
+
+JIT provisioning is enabled by default for all SSO providers. When a user authenticates for the first time:
+
+1. The application checks if the user exists
+2. If not, a new user account is created
+3. Default roles are assigned
+4. Group-to-role mappings are applied
+5. User attributes are populated from IdP claims
+
+### Default roles
+
+Configure default roles that are assigned to all new users:
+
+<Steps>
+  <Step title="Navigate to provider settings">
+    Go to Admin → SSO Providers and select your provider
+  </Step>
+  
+  <Step title="Configure default roles">
+    In the "Role Mapping" section, select default roles:
+    ```
+    Default roles: viewer, user
+    ```
+  </Step>
+  
+  <Step title="Save configuration">
+    Save the provider settings
+  </Step>
+</Steps>
+
+All users created through this provider will receive these roles automatically.
+
+## Group-to-role mapping
+
+Map identity provider groups to application roles for automatic role assignment.
+
+### Configuration
+
+<Steps>
+  <Step title="Access role mapping settings">
+    In your provider configuration, go to the "Role Mapping" section
+  </Step>
+  
+  <Step title="Add group mappings">
+    Create mappings between IdP groups and application roles:
+    ```
+    IdP Group → Application Role
+    admin-group → admin
+    developers → developer
+    support-team → support
+    ```
+  </Step>
+  
+  <Step title="Configure mapping behavior">
+    Choose how mappings are applied:
+    - **Additive**: Add mapped roles to default roles
+    - **Replace**: Replace default roles with mapped roles
+    - **Merge**: Combine all roles and remove duplicates
+  </Step>
+  
+  <Step title="Save and test">
+    Save the configuration and test with a user account
+  </Step>
+</Steps>
+
+### Mapping examples
+
+#### OIDC group mapping
+
+For OIDC providers that include groups in the `groups` claim:
+
+```json
+{
+  "mappings": [
+    {
+      "group": "okta-admins",
+      "role": "admin"
+    },
+    {
+      "group": "okta-developers",
+      "role": "developer"
+    },
+    {
+      "group": "okta-viewers",
+      "role": "viewer"
+    }
+  ]
+}
+```
+
+#### SAML attribute mapping
+
+For SAML providers using the `groups` or `memberOf` attribute:
+
+```json
+{
+  "attribute": "groups",
+  "mappings": [
+    {
+      "value": "CN=Administrators,OU=Groups,DC=company,DC=com",
+      "role": "admin"
+    },
+    {
+      "value": "CN=Developers,OU=Groups,DC=company,DC=com",
+      "role": "developer"
+    }
+  ]
+}
+```
+
+#### Multiple group mapping
+
+Map multiple IdP groups to a single application role:
+
+```json
+{
+  "mappings": [
+    {
+      "groups": ["admin-group", "super-admin", "root"],
+      "role": "admin"
+    },
+    {
+      "groups": ["dev-team", "engineering"],
+      "role": "developer"
+    }
+  ]
+}
+```
+
+#### Wildcard mapping
+
+Use wildcards for pattern matching:
+
+```json
+{
+  "mappings": [
+    {
+      "pattern": "admin-*",
+      "role": "admin"
+    },
+    {
+      "pattern": "*-developers",
+      "role": "developer"
+    }
+  ]
+}
+```
+
+## Role synchronization
+
+### On login
+
+Roles are synchronized every time a user logs in:
+
+1. Fetch current groups from identity provider
+2. Apply group-to-role mappings
+3. Update user's roles in the application
+4. Remove roles that are no longer mapped
+
+<Note>
+Role synchronization ensures users always have the correct permissions based on their current IdP group memberships.
+</Note>
+
+### Manual sync
+
+Administrators can manually trigger role synchronization:
+
+1. Go to Admin → User Management
+2. Select a user
+3. Click "Sync Roles from SSO"
+
+This fetches the latest group information from the identity provider and updates the user's roles.
+
+## Advanced configuration
+
+### Conditional role assignment
+
+Assign roles based on multiple conditions:
+
+```json
+{
+  "conditions": [
+    {
+      "attribute": "department",
+      "value": "Engineering",
+      "groups": ["senior-engineers"],
+      "role": "senior-developer"
+    },
+    {
+      "attribute": "department",
+      "value": "Engineering",
+      "role": "developer"
+    }
+  ]
+}
+```
+
+### Role hierarchy
+
+Define role hierarchies to automatically grant dependent roles:
+
+```json
+{
+  "hierarchy": {
+    "admin": ["developer", "viewer"],
+    "developer": ["viewer"]
+  }
+}
+```
+
+When a user is assigned the `admin` role, they automatically receive `developer` and `viewer` roles as well.
+
+### Custom attribute mapping
+
+Use custom IdP attributes for role assignment:
+
+```json
+{
+  "attribute_mappings": [
+    {
+      "attribute": "jobTitle",
+      "mappings": [
+        {
+          "value": "Engineering Manager",
+          "role": "admin"
+        },
+        {
+          "value": "Software Engineer",
+          "role": "developer"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Provider-specific configuration
+
+### OIDC providers
+
+Ensure your OIDC provider includes groups in the token:
+
+1. Request the `groups` scope:
+   ```
+   Scopes: openid profile email groups
+   ```
+
+2. Configure your IdP to include groups in the ID token or userinfo response
+
+3. Verify groups are present in the token by checking audit logs
+
+### SAML providers
+
+Configure group attributes in your SAML provider:
+
+1. Add a group attribute statement in your IdP:
+   ```xml
+   <Attribute Name="groups">
+     <AttributeValue>admin-group</AttributeValue>
+     <AttributeValue>developer-group</AttributeValue>
+   </Attribute>
+   ```
+
+2. Configure the attribute name in your provider settings:
+   ```
+   Group attribute: groups
+   ```
+
+3. Test the integration to verify groups are received
+
+### OAuth2 providers
+
+For OAuth2 providers, groups may need to be fetched from a separate endpoint:
+
+1. Configure a custom groups endpoint (if supported)
+2. Map the response field containing groups
+3. Test with a user account that has group memberships
+
+## User attribute mapping
+
+In addition to roles, map other user attributes from your identity provider:
+
+| IdP Attribute | Application Field | Description |
+|---------------|-------------------|-------------|
+| `email` | Email | User's email address |
+| `given_name` | First name | User's first name |
+| `family_name` | Last name | User's last name |
+| `name` | Display name | User's full name |
+| `picture` | Avatar URL | User's profile picture |
+| `phone_number` | Phone | User's phone number |
+| `department` | Department | User's department |
+| `title` | Job title | User's job title |
+
+### Custom field mapping
+
+Map custom IdP attributes to application fields:
+
+```json
+{
+  "custom_mappings": {
+    "employee_id": "externalId",
+    "cost_center": "metadata.costCenter",
+    "manager_email": "metadata.manager"
+  }
+}
+```
+
+## Troubleshooting
+
+### Groups not syncing
+
+**Problem**: User groups from IdP aren't being mapped to roles
+
+**Solution**:
+- Verify the `groups` scope is requested (OIDC)
+- Check that your IdP includes groups in the assertion (SAML)
+- Review audit logs to see what groups are received
+- Ensure group attribute name matches your IdP's configuration
+- Some IdPs require additional configuration to include groups
+
+### Roles not updating
+
+**Problem**: User roles don't update when IdP groups change
+
+**Solution**:
+- Roles only update on login - ask the user to log out and back in
+- Use manual role sync from the user management page
+- Verify role synchronization is enabled in provider settings
+- Check audit logs for role update events
+
+### Wrong roles assigned
+
+**Problem**: Users receive incorrect roles
+
+**Solution**:
+- Review your group-to-role mapping configuration
+- Check for typos in group names (case-sensitive)
+- Verify the mapping behavior (additive vs. replace)
+- Test with a known user account and review audit logs
+- Ensure group names match exactly between IdP and application
+
+### Default roles not applied
+
+**Problem**: New users don't receive default roles
+
+**Solution**:
+- Verify default roles are configured in provider settings
+- Check that JIT provisioning is enabled
+- Review user creation logs in audit logs
+- Ensure the roles exist in the application
+
+## Security considerations
+
+<AccordionGroup>
+  <Accordion title="Principle of least privilege">
+    Assign minimal default roles and use group mapping for elevated permissions. Don't give all users admin access by default.
+  </Accordion>
+  
+  <Accordion title="Regular audits">
+    Regularly review role mappings and user permissions to ensure they align with your security policies.
+  </Accordion>
+  
+  <Accordion title="Group naming conventions">
+    Use clear, consistent group names in your IdP to make role mapping easier to manage.
+  </Accordion>
+  
+  <Accordion title="Test before deploying">
+    Always test role mappings with test accounts before enabling for all users.
+  </Accordion>
+  
+  <Accordion title="Monitor role changes">
+    Review audit logs for unexpected role changes or privilege escalations.
+  </Accordion>
+</AccordionGroup>
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Use group-based access control">
+    Manage permissions through IdP groups rather than individual user assignments. This centralizes access control and makes it easier to audit.
+  </Accordion>
+  
+  <Accordion title="Document your mappings">
+    Keep documentation of your group-to-role mappings for future reference and onboarding.
+  </Accordion>
+  
+  <Accordion title="Implement role hierarchy">
+    Use role hierarchies to simplify permission management and reduce configuration complexity.
+  </Accordion>
+  
+  <Accordion title="Regular synchronization">
+    Encourage users to log out and back in periodically to ensure their roles stay synchronized.
+  </Accordion>
+  
+  <Accordion title="Separate environments">
+    Use different group mappings for development, staging, and production environments.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="User management" icon="user-gear" href="/authentication/user-management">
+    Manage users and manually adjust roles
+  </Card>
+  
+  <Card title="Audit logging" icon="list" href="/authentication/audit-logging">
+    Monitor role changes and user provisioning events
+  </Card>
+  
+  <Card title="OIDC setup" icon="key" href="/authentication/oidc">
+    Configure OIDC providers with group support
+  </Card>
+  
+  <Card title="SAML setup" icon="shield" href="/authentication/saml">
+    Set up SAML with group attributes
+  </Card>
+</CardGroup>
