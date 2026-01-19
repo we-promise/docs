@@ -1,0 +1,232 @@
+---
+title: Authentication quickstart
+description: Get started with SSO authentication in 5 minutes
+---
+
+## Overview
+
+Configure single sign-on (SSO) authentication with OIDC, OAuth2, or SAML 2.0 providers. This guide covers the essential steps to get authentication working quickly.
+
+## Choose your provider type
+
+<CardGroup cols={3}>
+  <Card title="OIDC" icon="key">
+    **Recommended**
+    
+    Google, Okta, Auth0, Azure AD, Keycloak
+  </Card>
+  
+  <Card title="OAuth2" icon="lock">
+    **Legacy providers**
+    
+    GitHub, GitLab, custom OAuth2
+  </Card>
+  
+  <Card title="SAML 2.0" icon="shield">
+    **Enterprise**
+    
+    Okta, OneLogin, Azure AD
+  </Card>
+</CardGroup>
+
+## Quick setup
+
+### Step 1: Enable database-backed providers
+
+Set the environment variable:
+
+```bash
+AUTH_PROVIDERS_SOURCE=database
+```
+
+Restart your application.
+
+### Step 2: Create OAuth credentials in your IdP
+
+<Tabs>
+  <Tab title="Google">
+    1. Go to [Google Cloud Console](https://console.cloud.google.com)
+    2. Navigate to **APIs & Services → Credentials**
+    3. Click **Create Credentials → OAuth client ID**
+    4. Select **Web application**
+    5. Add redirect URI:
+       ```
+       https://your-domain.com/auth/openid_connect/callback
+       ```
+    6. Copy the **Client ID** and **Client Secret**
+  </Tab>
+  
+  <Tab title="Okta">
+    1. Log in to Okta admin console
+    2. Go to **Applications → Create App Integration**
+    3. Select **OIDC - OpenID Connect**
+    4. Choose **Web Application**
+    5. Add redirect URI:
+       ```
+       https://your-domain.com/auth/openid_connect/callback
+       ```
+    6. Copy the **Client ID** and **Client Secret**
+  </Tab>
+  
+  <Tab title="Azure AD">
+    1. Go to [Azure Portal](https://portal.azure.com)
+    2. Navigate to **Microsoft Entra ID → App registrations**
+    3. Click **New registration**
+    4. Add redirect URI:
+       ```
+       https://your-domain.com/auth/openid_connect/callback
+       ```
+    5. Go to **Certificates & secrets** and create a client secret
+    6. Copy the **Application ID** and **Client Secret**
+  </Tab>
+</Tabs>
+
+### Step 3: Configure in admin UI
+
+1. Navigate to `/admin/sso_providers` in your application
+2. Click **Add Provider**
+3. Fill in the details:
+
+```
+Provider name: Google Workspace
+Provider ID: google
+Strategy: openid_connect
+
+Issuer URL: https://accounts.google.com
+Client ID: [your-client-id]
+Client Secret: [your-client-secret]
+Scopes: openid profile email
+```
+
+4. Click **Save**
+
+### Step 4: Test the integration
+
+1. Log out of your application
+2. You should see a "Sign in with Google" button (or your provider name)
+3. Click it and complete the authentication flow
+4. You should be logged in successfully
+
+## Configuration options
+
+### Local login control
+
+Disable local email/password login to enforce SSO-only:
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+```
+
+Keep an emergency admin override:
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=true
+```
+
+### JIT user provisioning
+
+Control how new users are created:
+
+```bash
+# Allow account creation for any verified email (default)
+AUTH_JIT_MODE=create_and_link
+
+# Only link to existing users, no new account creation
+AUTH_JIT_MODE=link_only
+
+# Restrict to specific email domains
+ALLOWED_OIDC_DOMAINS=example.com,company.com
+```
+
+### Role mapping
+
+Configure default roles for new users in the admin UI under **Role Mapping**:
+
+- **Default Role**: `member` (assigned to all new users)
+- **Group Mappings**: Map IdP groups to application roles
+
+Example:
+```
+IdP Group: admin@company.com → Role: super_admin
+IdP Group: developers@company.com → Role: admin
+```
+
+## Common configurations
+
+### Pure SSO-only mode
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=false
+AUTH_JIT_MODE=create_and_link
+```
+
+Users can only log in via SSO. No local passwords.
+
+### Hybrid mode (local + SSO)
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=true
+AUTH_JIT_MODE=create_and_link
+```
+
+Users can choose between local login or SSO.
+
+### Enterprise mode (restricted domains)
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+AUTH_JIT_MODE=link_only
+ALLOWED_OIDC_DOMAINS=company.com
+```
+
+Only users with `@company.com` emails can authenticate, and they must be pre-created by an admin.
+
+## Bootstrap first admin
+
+The first super admin must be set via Rails console:
+
+```bash
+bin/rails console
+```
+
+```ruby
+User.find_by(email: "admin@example.com").update!(role: :super_admin)
+```
+
+Once set, super admins can promote other users via the web UI at `/admin/users`.
+
+## Troubleshooting
+
+### Provider not appearing on login page
+
+- Verify `AUTH_PROVIDERS_SOURCE=database` is set
+- Check that the provider is **enabled** in `/admin/sso_providers`
+- Restart the application after setting environment variables
+
+### Authentication fails
+
+- Verify the redirect URI matches exactly in both systems
+- Check that client ID and secret are correct
+- Ensure the issuer URL is accessible from your server
+- Review logs at `/admin/sso_audit_logs`
+
+### User not created automatically
+
+- Check `AUTH_JIT_MODE` is set to `create_and_link`
+- Verify the email domain is allowed (if `ALLOWED_OIDC_DOMAINS` is set)
+- Ensure the IdP returns a verified email address
+- Check audit logs for JIT provisioning errors
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="In-depth guide" icon="book" href="/authentication/guide">
+    Complete authentication reference with advanced features
+  </Card>
+  
+  <Card title="User management" icon="users" href="/authentication/user-management">
+    Manage users, roles, and connected accounts
+  </Card>
+</CardGroup>

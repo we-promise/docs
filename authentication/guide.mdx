@@ -1,0 +1,705 @@
+---
+title: Authentication guide
+description: Complete reference for configuring SSO authentication with OIDC, OAuth2, and SAML
+---
+
+## Overview
+
+This guide covers all authentication features including OIDC, OAuth2, SAML 2.0, database-backed provider management, JIT provisioning, role mapping, user management, and audit logging.
+
+## Configuration methods
+
+### Database-backed providers (recommended)
+
+Manage providers through the admin UI without server restarts:
+
+```bash
+AUTH_PROVIDERS_SOURCE=db
+```
+
+Benefits:
+- Changes take effect immediately
+- No server restarts required
+- Web-based configuration at `/admin/sso_providers`
+- Audit trail for all changes
+
+### YAML-based providers (legacy)
+
+Configure providers in `config/auth.yml`. Requires server restart for changes.
+
+<Note>
+We recommend migrating to database-backed providers. See the migration section below.
+</Note>
+
+## OIDC configuration
+
+### Supported providers
+
+OIDC works with any compliant provider:
+- Google Workspace
+- Microsoft Entra ID (Azure AD)
+- Okta
+- Auth0
+- Keycloak
+- Authentik
+- GitLab
+
+### Basic OIDC setup
+
+<Steps>
+  <Step title="Create OAuth client in your IdP">
+    Configure redirect URI:
+    ```
+    https://yourdomain.com/auth/openid_connect/callback
+    ```
+  </Step>
+  
+  <Step title="Add provider in admin UI">
+    Navigate to `/admin/sso_providers` and click **Add Provider**:
+    
+    ```
+    Strategy: openid_connect
+    Issuer URL: https://accounts.google.com
+    Client ID: your-client-id
+    Client Secret: your-client-secret
+    Scopes: openid profile email
+    ```
+  </Step>
+  
+  <Step title="Configure role mapping">
+    Set default roles and group mappings (optional)
+  </Step>
+  
+  <Step title="Test the integration">
+    Use the test login flow to verify configuration
+  </Step>
+</Steps>
+
+### Multiple OIDC providers
+
+Configure multiple providers simultaneously (e.g., Keycloak + Authentik):
+
+```yaml
+# config/auth.yml
+providers:
+  - id: "keycloak"
+    strategy: "openid_connect"
+    name: "keycloak"
+    label: "Sign in with Keycloak"
+    issuer: <%= ENV["OIDC_KEYCLOAK_ISSUER"] %>
+    client_id: <%= ENV["OIDC_KEYCLOAK_CLIENT_ID"] %>
+    client_secret: <%= ENV["OIDC_KEYCLOAK_CLIENT_SECRET"] %>
+
+  - id: "authentik"
+    strategy: "openid_connect"
+    name: "authentik"
+    label: "Sign in with Authentik"
+    issuer: <%= ENV["OIDC_AUTHENTIK_ISSUER"] %>
+    client_id: <%= ENV["OIDC_AUTHENTIK_CLIENT_ID"] %>
+    client_secret: <%= ENV["OIDC_AUTHENTIK_CLIENT_SECRET"] %>
+```
+
+Each provider must have a unique `name` field, which determines the callback URL path.
+
+## OAuth2 configuration
+
+Use OAuth2 for providers without OIDC support (GitHub, GitLab, Discord, Slack).
+
+### GitHub example
+
+<Steps>
+  <Step title="Create OAuth App">
+    Go to [GitHub Settings](https://github.com/settings/developers) → **OAuth Apps** → **New OAuth App**
+    
+    Callback URL:
+    ```
+    https://your-domain.com/auth/github/callback
+    ```
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Strategy: oauth2
+    Authorization URL: https://github.com/login/oauth/authorize
+    Token URL: https://github.com/login/oauth/access_token
+    User Info URL: https://api.github.com/user
+    Client ID: [your-client-id]
+    Client Secret: [your-client-secret]
+    Scopes: user:email
+    ```
+  </Step>
+</Steps>
+
+### Token endpoint authentication
+
+The application supports multiple authentication methods:
+- `client_secret_post` (default): Send credentials in request body
+- `client_secret_basic`: Send credentials in Authorization header
+
+## SAML 2.0 configuration
+
+### Service Provider metadata
+
+Your application provides SAML metadata at:
+
+```
+https://your-domain.com/auth/saml/[provider-id]/metadata
+```
+
+### Okta SAML setup
+
+<Steps>
+  <Step title="Create SAML application">
+    In Okta admin console:
+    1. Go to **Applications → Create App Integration**
+    2. Select **SAML 2.0**
+  </Step>
+  
+  <Step title="Configure SAML settings">
+    ```
+    Single sign on URL: https://your-domain.com/auth/saml/okta/callback
+    Audience URI (SP Entity ID): https://your-domain.com/auth/saml/okta
+    Name ID format: EmailAddress
+    Application username: Email
+    ```
+  </Step>
+  
+  <Step title="Configure attribute statements">
+    ```
+    email: user.email
+    firstName: user.firstName
+    lastName: user.lastName
+    groups: appuser.groups
+    ```
+  </Step>
+  
+  <Step title="Get IdP metadata">
+    Copy:
+    - Identity Provider Single Sign-On URL
+    - Identity Provider Issuer
+    - X.509 Certificate
+  </Step>
+  
+  <Step title="Configure in admin UI">
+    ```
+    Strategy: saml
+    SSO URL: [from Okta]
+    Entity ID: [from Okta]
+    Certificate: [paste X.509 certificate]
+    ```
+  </Step>
+</Steps>
+
+### Azure AD SAML setup
+
+<Steps>
+  <Step title="Create enterprise application">
+    1. Go to **Microsoft Entra ID → Enterprise applications**
+    2. Click **New application → Create your own application**
+    3. Select **Integrate any other application (Non-gallery)**
+  </Step>
+  
+  <Step title="Configure SAML">
+    ```
+    Identifier (Entity ID): https://your-domain.com/auth/saml/azure
+    Reply URL (ACS URL): https://your-domain.com/auth/saml/azure/callback
+    Sign on URL: https://your-domain.com
+    Logout URL: https://your-domain.com/auth/saml/azure/logout
+    ```
+  </Step>
+  
+  <Step title="Configure attributes">
+    ```
+    email: user.mail
+    givenname: user.givenname
+    surname: user.surname
+    groups: user.groups
+    ```
+  </Step>
+  
+  <Step title="Download metadata">
+    Download Certificate (Base64) and copy Login URL and Azure AD Identifier
+  </Step>
+</Steps>
+
+## Database-backed provider management
+
+### Admin UI features
+
+Access at `/admin/sso_providers`:
+
+- Add, edit, delete providers without server restarts
+- Enable/disable providers with a toggle
+- Test login flows before enabling
+- View callback URLs with copy button
+- Encrypted storage of client secrets
+- Audit trail of all changes
+
+### Security features
+
+- Client secrets encrypted at rest using Rails 7.2 ActiveRecord Encryption
+- Rate limiting: 10 requests/minute per IP on admin endpoints
+- Discovery endpoint validation for OIDC providers
+- Issuer validation to prevent impersonation attacks
+- Super admin role required for provider management
+
+### Seeding providers from YAML
+
+Migrate existing YAML configuration to database:
+
+```bash
+# Dry run (preview changes)
+DRY_RUN=true rails sso_providers:seed
+
+# Apply changes
+rails sso_providers:seed
+
+# List all providers
+rails sso_providers:list
+```
+
+### Migration workflow
+
+<Steps>
+  <Step title="Backup configuration">
+    ```bash
+    cp config/auth.yml config/auth.yml.backup
+    ```
+  </Step>
+  
+  <Step title="Run migrations">
+    ```bash
+    rails db:migrate
+    ```
+  </Step>
+  
+  <Step title="Seed providers">
+    ```bash
+    DRY_RUN=true rails sso_providers:seed
+    rails sso_providers:seed
+    ```
+  </Step>
+  
+  <Step title="Enable database source">
+    ```bash
+    AUTH_PROVIDERS_SOURCE=db
+    ```
+  </Step>
+  
+  <Step title="Restart application">
+    ```bash
+    docker-compose restart app
+    ```
+  </Step>
+  
+  <Step title="Verify">
+    Check logs for: `[ProviderLoader] Loaded N provider(s) from database`
+  </Step>
+</Steps>
+
+## Local login control
+
+### Disable local login (SSO-only)
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+```
+
+Behavior:
+- Email/password form hidden
+- `POST /sessions` with local credentials blocked
+- Password reset routes disabled
+- Users must authenticate via SSO
+
+### Emergency admin override
+
+Allow super admins to log in locally during IdP outages:
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=true
+```
+
+Behavior:
+- Login page shows email/password form with admin-only note
+- Super admins can log in with local passwords
+- Regular users are blocked
+- Override logins are logged
+
+## JIT user provisioning
+
+### Provisioning modes
+
+```bash
+# Create new accounts on first SSO login (default)
+AUTH_JIT_MODE=create_and_link
+
+# Only link to existing users, no account creation
+AUTH_JIT_MODE=link_only
+```
+
+### Domain restrictions
+
+```bash
+# Allow any verified email domain
+ALLOWED_OIDC_DOMAINS=""
+
+# Restrict to specific domains
+ALLOWED_OIDC_DOMAINS="example.com,corp.com"
+```
+
+When set, JIT account creation is only allowed for emails from listed domains. Applies to all SSO providers.
+
+### Default roles
+
+Configure in admin UI under **Role Mapping**:
+
+- **Default Role**: Assigned to all JIT-created users (e.g., `member`)
+- **Group Mappings**: Map IdP groups to application roles
+
+## Role mapping
+
+### Group-to-role mapping
+
+Map identity provider groups to application roles:
+
+```json
+{
+  "mappings": [
+    {
+      "group": "Platform-Admins",
+      "role": "super_admin"
+    },
+    {
+      "group": "Team-Leads",
+      "role": "admin"
+    },
+    {
+      "group": "Everyone",
+      "role": "member"
+    }
+  ]
+}
+```
+
+Mapping is case-sensitive. When a user belongs to multiple groups, the highest role wins (`super_admin` > `admin` > `member`).
+
+### OIDC group mapping
+
+Ensure your OIDC provider includes groups:
+
+```
+Scopes: openid profile email groups
+```
+
+Configure your IdP to include groups in the ID token or userinfo response.
+
+### SAML attribute mapping
+
+Configure group attribute in SAML provider:
+
+```xml
+<Attribute Name="groups">
+  <AttributeValue>admin-group</AttributeValue>
+  <AttributeValue>developer-group</AttributeValue>
+</Attribute>
+```
+
+Set the attribute name in provider settings:
+```
+Group attribute: groups
+```
+
+### Role synchronization
+
+Roles are synchronized on every login:
+1. Fetch current groups from IdP
+2. Apply group-to-role mappings
+3. Update user's roles
+4. Remove roles no longer mapped
+
+Administrators can manually trigger sync at `/admin/users` → **Sync Roles from SSO**.
+
+## User management
+
+### Admin interface
+
+Access at `/admin/users`:
+
+- View all users with roles, auth methods, last login
+- Search and filter by role, provider, status
+- View connected SSO accounts
+- Manage user roles manually
+- Suspend/reactivate/delete users
+- View authentication history
+
+### Connected accounts
+
+Users can manage their own connected accounts at `/settings/security`:
+
+- View all connected SSO providers
+- Connect additional providers
+- Disconnect providers (if alternative login exists)
+- See last used timestamp
+
+### User actions
+
+**Suspend user**: Temporarily disable access
+```
+User detail page → Suspend User
+```
+
+**Reactivate user**: Restore access
+```
+User detail page → Reactivate User
+```
+
+**Delete user**: Permanently remove (cannot be undone)
+```
+User detail page → Delete User → Type email to confirm
+```
+
+**Sync roles**: Force role synchronization from IdP
+```
+User detail page → Sync Roles from SSO
+```
+
+## Audit logging
+
+### Event types
+
+Access logs at `/admin/sso_audit_logs`:
+
+**Authentication events:**
+- `login`: Successful SSO login
+- `login_failed`: Failed login attempt
+- `logout`: User logout
+- `logout_idp`: RP-initiated federated logout
+- `link`: SSO account linked to user
+- `unlink`: SSO account unlinked
+- `jit_account_created`: New account created via JIT provisioning
+
+**Query via console:**
+```ruby
+SsoAuditLog.by_event("login").recent.limit(50)
+SsoAuditLog.by_event("login_failed").where("created_at > ?", 24.hours.ago)
+```
+
+### Log retention
+
+- Standard: 90 days in database
+- Extended: 1 year (database + archive)
+- Compliance: 7 years (archive storage)
+
+### Monitoring
+
+Set up alerts for:
+- Multiple failed login attempts (brute force detection)
+- Provider configuration changes
+- Unusual login locations
+- Role escalations
+
+## Troubleshooting
+
+### Provider not appearing on login page
+
+**YAML mode:**
+- Check required environment variables are set (`OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`)
+
+**DB mode:**
+- Verify provider is enabled in `/admin/sso_providers`
+- Check `AUTH_PROVIDERS_SOURCE=db` is set
+- Review application logs for provider loading messages
+
+### Discovery endpoint validation fails
+
+When adding an OIDC provider:
+- Ensure issuer URL is correct and accessible
+- Check firewall rules allow outbound HTTPS
+- Verify issuer returns valid JSON with `issuer` field
+- For self-signed certificates, configure SSL verification
+
+### Callback URL mismatch
+
+Each provider requires exact callback URL match:
+
+**Format:** `https://yourdomain.com/auth/<provider_name>/callback`
+
+**Examples:**
+- Keycloak: `https://yourdomain.com/auth/keycloak/callback`
+- Google: `https://yourdomain.com/auth/google_oauth2/callback`
+- SAML: `https://yourdomain.com/auth/okta-saml/callback`
+
+The callback URL is shown in admin UI when editing a provider (with copy button).
+
+### Groups not syncing
+
+- Add `groups` scope to OIDC configuration
+- Verify IdP includes groups in token/assertion
+- Check group attribute name matches IdP configuration
+- Review audit logs to see what groups are received
+- Some IdPs require additional configuration to include groups
+
+## Security considerations
+
+### Encryption
+
+- Client secrets encrypted at rest using Rails 7.2 ActiveRecord Encryption
+- Encryption keys derived from `SECRET_KEY_BASE`
+- For additional security, set custom encryption keys via `ACTIVE_RECORD_ENCRYPTION_*` variables
+
+### Issuer validation
+
+- OIDC identities store the issuer claim from ID token
+- On subsequent logins, issuer is verified against configured provider
+- Prevents issuer impersonation attacks
+
+### Admin access
+
+- SSO provider management requires `super_admin` role
+- Regular `admin` users (family admins) cannot access `/admin/sso_providers`
+- All provider changes logged with user ID
+
+### Rate limiting
+
+- Admin endpoints: 10 requests/minute per IP
+- OAuth token endpoint: 10 requests/minute per IP
+- Failed login attempts monitored separately
+
+## Example configurations
+
+### Default hybrid (local + SSO)
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=true
+AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=false
+AUTH_JIT_MODE=create_and_link
+ALLOWED_OIDC_DOMAINS=""
+```
+
+Users can sign in with email/password or SSO. JIT account creation allowed for all verified emails.
+
+### Pure SSO-only
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=false
+```
+
+Email/password form hidden. Password reset disabled. SSO required for all users.
+
+### SSO-only with emergency admin override
+
+```bash
+AUTH_LOCAL_LOGIN_ENABLED=false
+AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=true
+```
+
+Super admins can log in locally during IdP outages. Regular users must use SSO.
+
+### Link-only JIT + restricted domains
+
+```bash
+AUTH_JIT_MODE=link_only
+ALLOWED_OIDC_DOMAINS="example.com,yourcorp.com"
+```
+
+SSO sign-ins can only link to existing users. New account creation disabled. Only specified domains allowed.
+
+## Advanced features
+
+### Request signing (SAML)
+
+Generate key pair:
+```bash
+openssl req -x509 -newkey rsa:2048 -keyout private.key -out certificate.crt -days 365 -nodes
+```
+
+Enable in admin UI:
+1. Toggle "Sign requests" to enabled
+2. Paste private key content
+3. Certificate automatically included in SP metadata
+
+### Custom attribute mapping
+
+Map custom IdP attributes to application fields:
+
+```json
+{
+  "custom_mappings": {
+    "employee_id": "externalId",
+    "cost_center": "metadata.costCenter",
+    "manager_email": "metadata.manager"
+  }
+}
+```
+
+### Conditional role assignment
+
+Assign roles based on multiple conditions:
+
+```json
+{
+  "conditions": [
+    {
+      "attribute": "department",
+      "value": "Engineering",
+      "groups": ["senior-engineers"],
+      "role": "senior-developer"
+    }
+  ]
+}
+```
+
+### Role hierarchy
+
+Define role hierarchies for automatic dependent roles:
+
+```json
+{
+  "hierarchy": {
+    "admin": ["developer", "viewer"],
+    "developer": ["viewer"]
+  }
+}
+```
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Use OIDC when available">
+    OIDC provides standardized user information and better security than OAuth2.
+  </Accordion>
+  
+  <Accordion title="Enable database-backed providers">
+    Manage providers through admin UI for easier updates and no downtime.
+  </Accordion>
+  
+  <Accordion title="Implement role mapping">
+    Use group-to-role mapping to centralize access control in your IdP.
+  </Accordion>
+  
+  <Accordion title="Monitor audit logs">
+    Regularly review authentication events and failed login attempts.
+  </Accordion>
+  
+  <Accordion title="Rotate secrets regularly">
+    Periodically rotate client secrets and update in admin UI.
+  </Accordion>
+  
+  <Accordion title="Test before enabling">
+    Always test provider configuration before enabling for all users.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/authentication/quickstart">
+    Get started with SSO in 5 minutes
+  </Card>
+  
+  <Card title="User management" icon="users" href="/authentication/user-management">
+    Manage users and connected accounts
+  </Card>
+</CardGroup>
