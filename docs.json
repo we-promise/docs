@@ -9,6 +9,20 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "icon": "book-open-cover",
+          "href": "https://mintlify.com/docs"
+        },
+        {
+          "anchor": "Blog",
+          "icon": "newspaper",
+          "href": "https://mintlify.com/blog"
+        }
+      ]
+    },
     "tabs": [
       {
         "tab": "Guides",
@@ -16,9 +30,9 @@
           {
             "group": "Getting started",
             "pages": [
-              "index",
               "quickstart",
-              "development"
+              "guide",
+              "self-hosting"
             ]
           },
           {
@@ -65,37 +79,24 @@
         "tab": "API reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Sure API",
+            "openapi": "/openapi.yaml",
             "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "GET /accounts",
+              "POST /accounts",
+              "GET /accounts/{id}",
+              "PATCH /accounts/{id}",
+              "DELETE /accounts/{id}",
+              "GET /transactions",
+              "POST /transactions",
+              "GET /transactions/{id}",
+              "PATCH /transactions/{id}",
+              "DELETE /transactions/{id}"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
