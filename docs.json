@@ -76,7 +76,25 @@
         ]
       },
       {
-        "tab": "API reference"
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Sure API",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /accounts",
+              "POST /accounts",
+              "GET /accounts/{id}",
+              "PATCH /accounts/{id}",
+              "DELETE /accounts/{id}",
+              "GET /transactions",
+              "POST /transactions",
+              "GET /transactions/{id}",
+              "PATCH /transactions/{id}",
+              "DELETE /transactions/{id}"
+            ]
+          }
+        ]
       }
     ]
   },
