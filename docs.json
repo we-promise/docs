@@ -57,6 +57,12 @@
             ]
           },
           {
+            "group": "App features",
+            "pages": [
+              "features/recurring-transactions"
+            ]
+          },
+          {
             "group": "Development",
             "pages": [
               "llm-support",
