@@ -40,6 +40,7 @@
           {
             "group": "App features",
             "pages": [
+              "guides/app-features/budgets",
               "features/recurring-transactions"
             ]
           },

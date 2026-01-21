@@ -1,6 +1,6 @@
 ---
-title: Authentication quickstart
-description: Get started with SSO authentication in 5 minutes
+title: "Authentication quickstart"
+description: "Get started with SSO authentication in 5 minutes"
 ---
 
 ## Overview
@@ -12,19 +12,17 @@ Configure single sign-on (SSO) authentication with OIDC, OAuth2, or SAML 2.0 pro
 <CardGroup cols={3}>
   <Card title="OIDC" icon="key">
     **Recommended**
-    
+
     Google, Okta, Auth0, Azure AD, Keycloak
   </Card>
-  
   <Card title="OAuth2" icon="lock">
     **Legacy providers**
-    
+
     GitHub, GitLab, custom OAuth2
   </Card>
-  
   <Card title="SAML 2.0" icon="shield">
     **Enterprise**
-    
+
     Okta, OneLogin, Azure AD
   </Card>
 </CardGroup>
@@ -50,29 +48,30 @@ Restart your application.
     3. Click **Create Credentials → OAuth client ID**
     4. Select **Web application**
     5. Add redirect URI:
+
        ```
        https://your-domain.com/auth/openid_connect/callback
        ```
     6. Copy the **Client ID** and **Client Secret**
   </Tab>
-  
   <Tab title="Okta">
     1. Log in to Okta admin console
     2. Go to **Applications → Create App Integration**
     3. Select **OIDC - OpenID Connect**
     4. Choose **Web Application**
     5. Add redirect URI:
+
        ```
        https://your-domain.com/auth/openid_connect/callback
        ```
     6. Copy the **Client ID** and **Client Secret**
   </Tab>
-  
   <Tab title="Azure AD">
     1. Go to [Azure Portal](https://portal.azure.com)
     2. Navigate to **Microsoft Entra ID → App registrations**
     3. Click **New registration**
     4. Add redirect URI:
+
        ```
        https://your-domain.com/auth/openid_connect/callback
        ```
@@ -147,6 +146,7 @@ Configure default roles for new users in the admin UI under **Role Mapping**:
 - **Group Mappings**: Map IdP groups to application roles
 
 Example:
+
 ```
 IdP Group: admin@company.com → Role: super_admin
 IdP Group: developers@company.com → Role: admin
@@ -225,7 +225,6 @@ Once set, super admins can promote other users via the web UI at `/admin/users`.
   <Card title="In-depth guide" icon="book" href="/authentication/guide">
     Complete authentication reference with advanced features
   </Card>
-  
   <Card title="User management" icon="users" href="/authentication/user-management">
     Manage users, roles, and connected accounts
   </Card>
