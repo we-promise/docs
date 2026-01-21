@@ -1,8 +1,8 @@
-# Mintlify Starter Kit
+# Sure Docs
 
-`#needsupdate`
+Still `#needsupdate`!
 
-Use the starter kit to get your docs deployed and ready to customize.
+This is the starter kit to get your docs deployed and ready to customize.
 
 Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
 
