@@ -177,20 +177,15 @@ The backup service uses Docker Compose profiles and is disabled by default. To e
 docker compose --profile backup up -d
 ```
 
-### Backup configuration
+### Configure backup settings
 
-The backup service is configured with sensible defaults:
+The backup service uses the following default settings:
 
-- **Schedule**: Daily at midnight (`@daily`)
-- **Retention**: 
-  - Last 7 daily backups
-  - Last 4 weekly backups
-  - Last 6 monthly backups
-- **Location**: `/opt/sure-data/backups` on the host machine
+- **Schedule**: Daily at midnight
+- **Retention**: 7 daily backups, 4 weekly backups, 6 monthly backups
+- **Location**: `/opt/sure-data/backups` on your host machine
 
-### Customizing backup settings
-
-Edit your `compose.yml` file to customize the backup service:
+To customize these settings, edit the `backup` service in your `compose.yml` file:
 
 ```yml
 backup:
