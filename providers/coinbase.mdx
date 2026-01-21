@@ -1,0 +1,150 @@
+---
+title: Coinbase
+description: Connect your Coinbase account to track cryptocurrency holdings and transactions
+---
+
+Coinbase integration allows you to sync your cryptocurrency accounts, track holdings, and monitor transactions directly in Sure using the Coinbase Developer Platform (CDP) API.
+
+<Note>
+This integration is currently in beta. Please report any issues you encounter.
+</Note>
+
+## Prerequisites
+
+- A Coinbase account
+- API credentials from Coinbase Developer Platform
+
+## Getting API credentials
+
+1. Log in to your [Coinbase Developer Platform account](https://portal.cdp.coinbase.com/)
+2. Navigate to API Keys section
+3. Create a new API key with the following permissions:
+   - Read account information
+   - Read transaction history
+   - Read wallet balances
+4. Save your API key and API secret securely
+
+<Warning>
+Your API secret is only shown once. Store it securely - you'll need it to connect Sure to Coinbase.
+</Warning>
+
+## Connecting Coinbase to Sure
+
+1. Navigate to **Settings** > **Providers** in Sure
+2. Click **Add Provider** and select **Coinbase**
+3. Enter your API credentials:
+   - **API Key**: Your Coinbase API key
+   - **API Secret**: Your Coinbase API secret
+4. Click **Connect**
+
+## Account linking
+
+After connecting, Sure will discover all your Coinbase accounts. You'll need to link each Coinbase account to a Sure account:
+
+1. Review the list of discovered Coinbase accounts
+2. For each account you want to track:
+   - Select an existing Sure account, or
+   - Create a new account to link it to
+3. Click **Save** to complete the linking
+
+## Supported features
+
+### Account types
+
+The Coinbase integration supports:
+
+- Cryptocurrency wallets (BTC, ETH, etc.)
+- Fiat wallets (USD, EUR, GBP, etc.)
+- Trading accounts
+
+### Transaction syncing
+
+Sure automatically syncs:
+
+- Trades (buy/sell)
+- Deposits and withdrawals
+- Transfers between accounts
+- Fees
+
+### Holdings tracking
+
+For cryptocurrency accounts, Sure tracks:
+
+- Current balances in native currency
+- Holdings by asset type
+- Real-time valuations
+
+### Native currency support
+
+The integration handles multiple currencies:
+
+- Cryptocurrency balances (BTC, ETH, etc.)
+- Fiat currencies (USD, EUR, GBP, etc.)
+- Automatic currency conversion for reporting
+
+## Security
+
+### Credential encryption
+
+Your Coinbase API credentials are encrypted using ActiveRecord Encryption:
+
+- **API Key**: Uses deterministic encryption for querying
+- **API Secret**: Uses standard encryption for maximum security
+
+### API timeouts
+
+All Coinbase API requests include timeouts to prevent hanging connections and ensure responsive syncing.
+
+## Syncing
+
+### Manual sync
+
+To manually sync your Coinbase accounts:
+
+1. Navigate to **Settings** > **Providers**
+2. Find your Coinbase connection
+3. Click **Sync Now**
+
+### Automatic sync
+
+Sure automatically syncs your Coinbase accounts on a regular schedule along with your other connected accounts.
+
+## Troubleshooting
+
+### Connection errors
+
+If you encounter connection errors:
+
+1. Verify your API credentials are correct
+2. Check that your API key has the required permissions
+3. Ensure your API key hasn't expired
+
+### Missing transactions
+
+If transactions are missing:
+
+1. Manually trigger a sync
+2. Check the date range of the sync
+3. Verify the transaction exists in your Coinbase account
+
+### Account linking issues
+
+If you have trouble linking accounts:
+
+1. Ensure you've selected accounts to link during setup
+2. Try unlinking and relinking the account
+3. Check that the account is active in Coinbase
+
+## Limitations
+
+- Historical data is limited to what's available via the Coinbase API
+- Some account types may not support full transaction history
+- Real-time price updates depend on Coinbase API availability
+
+## Getting help
+
+If you encounter issues with the Coinbase integration:
+
+- Check the [troubleshooting guide](/guides/knowledge-base/troubleshooting)
+- Ask in the [Discord](https://discord.gg/36ZGBsxYEK)
+- Open an [issue](https://github.com/we-promise/sure/issues/new/choose)
