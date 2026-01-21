@@ -41,7 +41,8 @@
             "group": "App features",
             "pages": [
               "guides/app-features/budgets",
-              "features/recurring-transactions"
+              "features/recurring-transactions",
+              "guides/app-features/settings"
             ]
           },
           {
@@ -68,6 +69,7 @@
               "providers/lunchflow",
               "providers/simplefin",
               "providers/plaid",
+              "providers/coinbase",
               "providers/coinstats"
             ]
           },
