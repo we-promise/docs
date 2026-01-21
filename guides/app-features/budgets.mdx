@@ -59,6 +59,13 @@ Combine both methods. Set a fixed budget for some subcategories while others sha
 - Restaurants: \$100 (fixed limit)
 - Groceries and Coffee share the remaining \$400
 
+When you set an individual budget for a subcategory, that amount is "ring-fenced" from the parent budget. Only that subcategory can use it, and it won't be available to other subcategories sharing the parent's budget.
+
+**How it works:**
+- **Restaurants** has \$100 remaining (\$100 budget - \$0 spent)
+- **Groceries** and **Coffee** share \$350 remaining (\$400 shared pool - \$50 spent between them)
+- The parent **Food & Dining** shows the total remaining across all subcategories
+
 ## Status Indicators
 
 Sure uses color-coded badges to show your budget status at a glance:
