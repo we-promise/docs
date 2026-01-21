@@ -1,0 +1,103 @@
+---
+title: Coinbase
+description: Sync cryptocurrency exchange accounts using Coinbase CDP API
+---
+
+Coinbase is a cryptocurrency exchange integration that allows you to sync your Coinbase account balances, trades, and transactions into Sure. This integration uses the Coinbase Commerce Data Platform (CDP) API to fetch data from your exchange accounts.
+
+<Note>
+This integration is currently in beta. Please report any issues you encounter.
+</Note>
+
+## How it works
+
+When you connect your Coinbase account, Sure syncs:
+
+- Account balances across multiple cryptocurrencies
+- Trading history and transactions
+- Holdings with real-time valuations
+- Native currency support (USD, EUR, GBP, etc.)
+
+The integration supports both cryptocurrency balances and fiat currency accounts linked to your Coinbase profile.
+
+## Prerequisites
+
+To use the Coinbase integration, you need:
+
+- An active Coinbase account
+- Coinbase CDP API credentials (API key and API secret)
+
+## Getting your API credentials
+
+1. Log in to your Coinbase account
+2. Navigate to Settings → API
+3. Create a new API key with the following permissions:
+   - View account information
+   - View transaction history
+   - View balances
+4. Save your API key and API secret securely
+
+<Warning>
+Your API secret is only shown once. Store it securely - you'll need both the API key and secret to connect Sure.
+</Warning>
+
+## Connecting Coinbase to Sure
+
+1. In Sure, navigate to Settings → Providers
+2. Click "Add Provider" and select Coinbase
+3. Enter your API key and API secret
+4. Select which accounts you want to sync
+5. Click "Connect"
+
+Sure will begin syncing your Coinbase data. The initial sync may take a few minutes depending on your transaction history.
+
+## Security
+
+- API credentials are encrypted using ActiveRecord encryption
+- API keys use deterministic encryption for secure lookups
+- API secrets use standard encryption for maximum security
+- All API requests include timeout protection
+
+## Supported features
+
+- **Account linking**: Connect multiple Coinbase accounts
+- **Balance tracking**: Real-time balance updates for all assets
+- **Transaction sync**: Complete transaction history
+- **Holdings management**: Track your crypto portfolio value
+- **Multi-currency**: Native support for USD, EUR, GBP, and other fiat currencies
+- **Timezone-safe parsing**: Accurate transaction timestamps
+
+## Limitations
+
+- Currently in beta - features may change
+- Requires valid Coinbase CDP API credentials
+- Subject to Coinbase API rate limits
+- Syncing frequency depends on your Sure configuration
+
+## Troubleshooting
+
+### Connection fails
+
+- Verify your API key and secret are correct
+- Ensure your API key has the required permissions
+- Check that your Coinbase account is in good standing
+
+### Missing transactions
+
+- Wait for the sync to complete - initial syncs can take several minutes
+- Manually trigger a sync from the provider settings
+- Check the sync logs for any errors
+
+### Balance discrepancies
+
+- Balances are updated during each sync cycle
+- Recent transactions may take a few minutes to appear
+- Verify the sync completed successfully
+
+## Getting help
+
+If you encounter issues with the Coinbase integration:
+
+- Check the [troubleshooting guide](/guides/knowledge-base/troubleshooting)
+- Ask in the [Discord](https://discord.gg/36ZGBsxYEK)
+- Open an [issue](https://github.com/we-promise/sure/issues/new/choose)
