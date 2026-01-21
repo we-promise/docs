@@ -27,6 +27,8 @@ Each category can have its own budget. For example, you might set:
 
 Sure shows helpful daily suggestions like "\$29.91 suggested per day for 11 remaining days" to help you pace your spending.
 
+When editing a subcategory's budget, you'll see "Shared" as the placeholder text. Leave the field empty or set it to \$0 to share the parent category's budget. Hover over the field to see the tooltip: "Leave empty to share parent's budget".
+
 ## Subcategories and Shared Budgets
 
 You can organize your spending further with subcategories. For example, "Food & Dining" might include:
@@ -47,6 +49,8 @@ Leave a subcategory's budget empty to share the parent category's budget. This i
 
 **Example:** Set "Food & Dining" to \$500, but leave the subcategories without individual limits. Now all your food spending draws from the same \$500 pool, whether you're buying groceries or eating out.
 
+When a subcategory shares its parent's budget, you'll see a "(shared)" label next to the budget amount, making it clear which subcategories are drawing from the shared pool.
+
 ### Mixed Approach
 
 Combine both methods. Set a fixed budget for some subcategories while others share the remaining amount.
@@ -56,6 +60,13 @@ Combine both methods. Set a fixed budget for some subcategories while others sha
 - Food & Dining: \$500 total
 - Restaurants: \$100 (fixed limit)
 - Groceries and Coffee share the remaining \$400
+
+When you set an individual budget for a subcategory, that amount is "ring-fenced" from the parent budget. Only that subcategory can use it, and it won't be available to other subcategories sharing the parent's budget.
+
+**How it works:**
+- **Restaurants** has \$100 remaining (\$100 budget - \$0 spent)
+- **Groceries** and **Coffee** share \$350 remaining (\$400 shared pool - \$50 spent between them)
+- The parent **Food & Dining** shows the total remaining across all subcategories
 
 ## Status Indicators
 
