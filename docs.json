@@ -83,21 +83,57 @@
         "tab": "API reference",
         "groups": [
           {
-            "group": "Sure API",
+            "group": "Accounts",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/accounts"
+            ]
+          },
+          {
+            "group": "Categories",
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/categories",
-              "GET /api/v1/categories/{id}",
+              "GET /api/v1/categories/{id}"
+            ]
+          },
+          {
+            "group": "Chats",
+            "openapi": "/openapi.yaml",
+            "pages": [
               "GET /api/v1/chats",
               "POST /api/v1/chats",
               "GET /api/v1/chats/{id}",
               "PATCH /api/v1/chats/{id}",
               "DELETE /api/v1/chats/{id}",
               "POST /api/v1/chats/{chat_id}/messages",
-              "POST /api/v1/chats/{chat_id}/messages/retry",
+              "POST /api/v1/chats/{chat_id}/messages/retry"
+            ]
+          },
+          {
+            "group": "Imports",
+            "openapi": "/openapi.yaml",
+            "pages": [
               "GET /api/v1/imports",
               "POST /api/v1/imports",
-              "GET /api/v1/imports/{id}",
+              "GET /api/v1/imports/{id}"
+            ]
+          },
+          {
+            "group": "Tags",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/tags",
+              "POST /api/v1/tags",
+              "GET /api/v1/tags/{id}",
+              "PATCH /api/v1/tags/{id}",
+              "DELETE /api/v1/tags/{id}"
+            ]
+          },
+          {
+            "group": "Transactions",
+            "openapi": "/openapi.yaml",
+            "pages": [
               "GET /api/v1/transactions",
               "POST /api/v1/transactions",
               "GET /api/v1/transactions/{id}",
