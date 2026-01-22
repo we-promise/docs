@@ -1,0 +1,389 @@
+---
+title: Self-hosting with Helm
+description: Deploy Sure on Kubernetes using the official Helm chart
+---
+
+This guide shows you how to deploy Sure on Kubernetes using the official Helm chart. The chart supports web (Rails) and worker (Sidekiq) workloads, optional in-cluster PostgreSQL and Redis, and production-grade features like pre-upgrade migrations, pod security contexts, and horizontal pod autoscaling.
+
+## Prerequisites
+
+- Kubernetes >= 1.25
+- Helm >= 3.10
+- Basic familiarity with Kubernetes and Helm
+
+## Features
+
+- Web (Rails) deployment with service and optional ingress
+- Worker (Sidekiq) deployment
+- Optional database migrations via Helm hook job or initContainer
+- Optional subcharts for PostgreSQL (CloudNativePG) and Redis (OT-CONTAINER-KIT redis-operator)
+- Security best practices: runAsNonRoot, readOnlyRootFilesystem, no hardcoded secrets
+- Scalability: replicas, resources, topology spread constraints, optional HPAs
+- Optional CronJobs for custom tasks
+
+## Installation
+
+### Add Helm repositories
+
+If you plan to use the bundled PostgreSQL or Redis subcharts, add their repositories first:
+
+```bash
+helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts
+helm repo add ot-helm https://ot-container-kit.github.io/helm-charts
+helm repo update
+```
+
+### Download the Helm chart
+
+Download the latest Helm chart from the [Sure releases page](https://github.com/we-promise/sure/releases):
+
+```bash
+# Download the latest chart archive
+curl -LO https://github.com/we-promise/sure/releases/latest/download/sure-helm-chart.tgz
+
+# Extract the chart
+tar -xzf sure-helm-chart.tgz
+```
+
+Alternatively, you can clone the repository and use the chart directly:
+
+```bash
+git clone https://github.com/we-promise/sure.git
+cd sure
+```
+
+### Quickstart (turnkey self-hosting)
+
+This installs CloudNativePG operator with a Postgres cluster and Redis managed by the OT redis-operator.
+
+<Warning>
+For production stability, use immutable image tags (for example, `image.tag=v1.2.3`) instead of `latest`.
+</Warning>
+
+```bash
+# Create namespace
+kubectl create ns sure || true
+
+# Install chart with a pinned image tag
+helm upgrade --install sure charts/sure \
+  -n sure \
+  --set image.tag=v1.2.3 \
+  --set rails.secret.enabled=true \
+  --set rails.secret.values.SECRET_KEY_BASE=$(openssl rand -hex 32)
+```
+
+Expose the app via an ingress (see configuration below) or port-forward:
+
+```bash
+kubectl port-forward svc/sure 8080:80 -n sure
+```
+
+Navigate to `http://localhost:8080` to access Sure.
+
+## Configuration
+
+### Using external Postgres and Redis
+
+To use external managed databases instead of the bundled subcharts:
+
+```yaml
+cnpg:
+  enabled: false
+
+redisOperator:
+  managed:
+    enabled: false
+
+redisSimple:
+  enabled: false
+
+rails:
+  extraEnv:
+    DATABASE_URL: postgresql://user:pass@db.example.com:5432/sure
+    REDIS_URL: redis://:pass@redis.example.com:6379/0
+```
+
+### Deployment profiles
+
+#### Simple single-node
+
+Minimal HA setup for development or small deployments:
+
+```yaml
+image:
+  repository: ghcr.io/we-promise/sure
+  tag: "v1.0.0"
+  pullPolicy: IfNotPresent
+
+rails:
+  existingSecret: sure-secrets
+  encryptionEnv:
+    enabled: true
+  settings:
+    SELF_HOSTED: "true"
+
+cnpg:
+  enabled: true
+  cluster:
+    enabled: true
+    name: sure-db
+    instances: 1
+    storage:
+      size: 8Gi
+      storageClassName: longhorn
+
+redisOperator:
+  enabled: true
+  managed:
+    enabled: true
+  mode: replication
+  replicas: 3
+  persistence:
+    enabled: true
+    className: longhorn
+    size: 8Gi
+
+migrations:
+  strategy: job
+```
+
+#### HA k3s profile
+
+High availability setup with multiple replicas and synchronous replication:
+
+```yaml
+cnpg:
+  enabled: true
+  cluster:
+    enabled: true
+    name: sure-db
+    instances: 3
+    storage:
+      size: 20Gi
+      storageClassName: longhorn
+    minSyncReplicas: 1
+    maxSyncReplicas: 2
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            cnpg.io/cluster: sure-db
+
+redisOperator:
+  enabled: true
+  managed:
+    enabled: true
+  mode: replication
+  replicas: 3
+  persistence:
+    enabled: true
+    className: longhorn
+    size: 8Gi
+
+migrations:
+  strategy: job
+  initContainer:
+    enabled: true
+
+hpa:
+  web:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+```
+
+### Secrets management
+
+Create a Kubernetes secret with the required credentials:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sure-secrets
+type: Opaque
+stringData:
+  # Rails secrets
+  SECRET_KEY_BASE: "__SET_SECRET__"
+
+  # Active Record Encryption keys (required for self-hosted mode)
+  ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY: "__SET_SECRET__"
+  ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY: "__SET_SECRET__"
+  ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT: "__SET_SECRET__"
+
+  # Redis password
+  redis-password: "__SET_SECRET__"
+```
+
+Apply the secret:
+
+```bash
+kubectl apply -f sure-secrets.yaml -n sure
+```
+
+Reference the secret in your values:
+
+```yaml
+rails:
+  existingSecret: sure-secrets
+
+redisOperator:
+  managed:
+    enabled: true
+  auth:
+    existingSecret: sure-secrets
+    passwordKey: redis-password
+```
+
+### Ingress configuration
+
+Enable ingress to expose Sure externally:
+
+```yaml
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: finance.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts: [finance.example.com]
+      secretName: finance-tls
+```
+
+### Horizontal pod autoscaling
+
+Enable HPAs for automatic scaling based on CPU utilization:
+
+```yaml
+hpa:
+  web:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+  worker:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+```
+
+## Updating
+
+To update to a new version of Sure:
+
+```bash
+# Download the new chart version
+curl -LO https://github.com/we-promise/sure/releases/latest/download/sure-helm-chart.tgz
+tar -xzf sure-helm-chart.tgz
+
+# Update the deployment
+helm upgrade sure charts/sure -n sure \
+  --set image.tag=v1.2.4 \
+  -f your-values.yaml
+```
+
+The chart will automatically run database migrations before deploying the new version.
+
+## Backup and restore
+
+### PostgreSQL backups with CloudNativePG
+
+CloudNativePG supports volume snapshot backups:
+
+```yaml
+cnpg:
+  cluster:
+    backup:
+      method: volumeSnapshot
+      volumeSnapshot:
+        className: longhorn
+```
+
+### Manual backup
+
+Create a manual backup of your PostgreSQL database:
+
+```bash
+# Get the primary pod name
+PRIMARY_POD=$(kubectl get pod -n sure -l cnpg.io/cluster=sure-db,role=primary -o name)
+
+# Create a backup
+kubectl exec -n sure $PRIMARY_POD -- pg_dump -U sure sure_production > backup.sql
+```
+
+### Restore from backup
+
+```bash
+# Copy backup to pod
+kubectl cp backup.sql sure/$PRIMARY_POD:/tmp/backup.sql
+
+# Restore
+kubectl exec -n sure $PRIMARY_POD -- psql -U sure sure_production < /tmp/backup.sql
+```
+
+## Troubleshooting
+
+### View logs
+
+```bash
+# Web logs
+kubectl logs -n sure -l app.kubernetes.io/component=web
+
+# Worker logs
+kubectl logs -n sure -l app.kubernetes.io/component=worker
+
+# Migration job logs
+kubectl logs -n sure -l job-name=sure-migrate
+```
+
+### Check pod status
+
+```bash
+kubectl get pods -n sure
+```
+
+### Verify database connectivity
+
+```bash
+# Test connection from web pod
+kubectl exec -n sure deploy/sure-web -- rails runner "puts ActiveRecord::Base.connection.execute('SELECT 1').first"
+```
+
+### Run Helm tests
+
+After installation, verify the deployment:
+
+```bash
+helm test sure -n sure
+```
+
+## Uninstall
+
+To remove Sure from your cluster:
+
+```bash
+helm uninstall sure -n sure
+```
+
+<Warning>
+This will not delete PersistentVolumeClaims. To completely remove all data, manually delete the PVCs after uninstalling.
+</Warning>
+
+```bash
+kubectl delete pvc -n sure --all
+```
+
+## Getting help
+
+If you find bugs or have feature requests:
+- Read the [contributing guide](https://github.com/we-promise/sure/wiki/How-to-Contribute-Effectively-to-Sure)
+- Ask in the [Discord](https://discord.gg/36ZGBsxYEK)
+- Open an [issue](https://github.com/we-promise/sure/issues/new/choose)
