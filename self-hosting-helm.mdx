@@ -268,12 +268,11 @@ hpa:
 To update to a new version of Sure:
 
 ```bash
-# Pull the latest changes
-cd sure
-git pull origin main
+# Update the Helm repository
+helm repo update sure
 
 # Update the deployment with a new image tag
-helm upgrade sure charts/sure -n sure \
+helm upgrade sure sure/sure -n sure \
   --set image.tag=v0.6.6-alpha.7 \
   -f your-values.yaml
 ```
