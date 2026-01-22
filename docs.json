@@ -41,6 +41,7 @@
             "group": "App features",
             "pages": [
               "guides/app-features/budgets",
+              "guides/app-features/csv-imports",
               "features/recurring-transactions",
               "guides/app-features/settings"
             ]
