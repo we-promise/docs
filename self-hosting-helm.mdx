@@ -270,13 +270,13 @@ hpa:
 To update to a new version of Sure:
 
 ```bash
-# Download the new chart version
-curl -LO https://github.com/we-promise/sure/releases/latest/download/sure-helm-chart.tgz
-tar -xzf sure-helm-chart.tgz
+# Pull the latest changes
+cd sure
+git pull origin main
 
-# Update the deployment
+# Update the deployment with a new image tag
 helm upgrade sure charts/sure -n sure \
-  --set image.tag=v1.2.4 \
+  --set image.tag=v0.6.6-alpha.7 \
   -f your-values.yaml
 ```
 
