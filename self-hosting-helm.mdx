@@ -53,7 +53,7 @@ For production stability, use immutable image tags (for example, `image.tag=v1.2
 kubectl create ns sure || true
 
 # Install chart with a pinned image tag
-helm upgrade --install sure charts/sure \
+helm upgrade --install sure sure/sure \
   -n sure \
   --set image.tag=v1.2.3 \
   --set rails.secret.enabled=true \
