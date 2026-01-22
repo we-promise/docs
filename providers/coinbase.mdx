@@ -9,23 +9,36 @@ Coinbase integration allows you to sync your cryptocurrency accounts, track hold
 This integration is currently in beta. Please report any issues you encounter.
 </Note>
 
+## How it works
+
+When you connect your Coinbase account, Sure syncs:
+
+- Account balances across multiple cryptocurrencies
+- Trading history and transactions
+- Holdings with real-time valuations
+- Native currency support (USD, EUR, GBP, etc.)
+
+The integration supports both cryptocurrency balances and fiat currency accounts linked to your Coinbase profile.
+
 ## Prerequisites
 
-- A Coinbase account
-- API credentials from Coinbase Developer Platform
+To use the Coinbase integration, you need:
 
-## Getting API credentials
+- An active Coinbase account
+- Coinbase CDP API credentials (API key and API secret)
 
-1. Log in to your [Coinbase Developer Platform account](https://portal.cdp.coinbase.com/)
-2. Navigate to API Keys section
+## Getting your API credentials
+
+1. Log in to your Coinbase account
+2. Navigate to Settings → API
 3. Create a new API key with the following permissions:
-   - Read account information
-   - Read transaction history
-   - Read wallet balances
+   - View account information
+   - View transaction history
+   - View balances
 4. Save your API key and API secret securely
 
 <Warning>
-Your API secret is only shown once. Store it securely - you'll need it to connect Sure to Coinbase.
+Your API secret is only shown once. Store it securely - you'll need both the API key and secret to connect Sure.
 </Warning>
 
 ## Connecting Coinbase to Sure

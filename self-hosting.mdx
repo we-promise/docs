@@ -165,13 +165,13 @@ docker compose build
 docker compose up --no-deps -d web worker
 ```
 
-## Backups
+## Backup service
 
-Sure includes an optional backup service that automatically backs up your PostgreSQL database on a schedule.
+The Docker Compose configuration includes an optional backup service that automatically backs up your PostgreSQL database.
 
-### Enable backups
+### Enabling backups
 
-The backup service is disabled by default. To enable it, start the backup profile:
+The backup service uses Docker Compose profiles and is disabled by default. To enable it:
 
 ```bash
 docker compose --profile backup up -d
@@ -192,35 +192,62 @@ backup:
   profiles:
     - backup
   image: prodrigestivill/postgres-backup-local
+  restart: unless-stopped
   volumes:
-    - /your/custom/path:/backups
+    - /your/custom/path:/backups  # Change this to your desired location
   environment:
-    - SCHEDULE=@daily
-    - BACKUP_KEEP_DAYS=7
-    - BACKUP_KEEP_WEEKS=4
-    - BACKUP_KEEP_MONTHS=6
+    - POSTGRES_HOST=db
+    - POSTGRES_DB=${POSTGRES_DB:-sure_production}
+    - POSTGRES_USER=${POSTGRES_USER:-sure_user}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sure_password}
+    - SCHEDULE=@daily              # Change schedule (e.g., @hourly, @weekly)
+    - BACKUP_KEEP_DAYS=7           # Number of daily backups to keep
+    - BACKUP_KEEP_WEEKS=4          # Number of weekly backups to keep
+    - BACKUP_KEEP_MONTHS=6         # Number of monthly backups to keep
 ```
 
-Change `/your/custom/path` to where you want backups stored on your host machine.
+### Backup schedule options
 
-### Restore from backup
+You can use cron syntax or these shortcuts:
 
-To restore from a backup:
+- `@hourly` - Every hour
+- `@daily` - Once per day at midnight
+- `@weekly` - Once per week
+- `@monthly` - Once per month
+- Custom cron: `0 2 * * *` (2 AM daily)
+
+### Restoring from backup
+
+To restore your database from a backup:
 
 1. Stop the application:
 ```bash
 docker compose down
 ```
 
-2. Restore the backup file:
+2. Locate your backup file in the backup directory (e.g., `/opt/sure-data/backups`)
+
+3. Restore the backup:
 ```bash
 docker compose up -d db
 docker compose exec -T db psql -U sure_user -d sure_production < /path/to/backup.sql
 ```
 
-3. Restart the application:
+4. Restart the application:
 ```bash
 docker compose up -d
+```
+
+### Verifying backups
+
+Check that backups are running correctly:
+
+```bash
+# View backup service logs
+docker compose logs backup
+
+# List backup files
+ls -lh /opt/sure-data/backups
 ```
 
 ## Troubleshooting
