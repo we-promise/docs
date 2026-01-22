@@ -25,21 +25,19 @@ This guide shows you how to deploy Sure on Kubernetes using the official Helm ch
 
 ### Add Helm repositories
 
-If you plan to use the bundled PostgreSQL or Redis subcharts, add their repositories first:
+Add the Sure Helm repository:
+
+```bash
+helm repo add sure https://we-promise.github.io/sure
+helm repo update
+```
+
+If you plan to use the bundled PostgreSQL or Redis subcharts, add their repositories as well:
 
 ```bash
 helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts
 helm repo update
-```
-
-### Get the Helm chart
-
-Clone the Sure repository to access the Helm chart:
-
-```bash
-git clone https://github.com/we-promise/sure.git
-cd sure
 ```
 
 ### Quickstart (turnkey self-hosting)
