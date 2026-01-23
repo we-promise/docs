@@ -76,6 +76,28 @@ For detailed API documentation, see the [Lunch Flow documentation](https://docs.
 
 Lunch Flow is a paid service. Check [lunchflow.app](https://lunchflow.app/) for current pricing information.
 
+## Configuration
+
+### Pending transactions
+
+You can configure Lunch Flow to include pending transactions in your syncs. Pending transactions are those that have been authorized but haven't yet posted to your account.
+
+To enable pending transactions, set the following environment variable:
+
+```bash
+LUNCHFLOW_INCLUDE_PENDING=1
+```
+
+When enabled, transactions marked as pending by Lunch Flow will be imported and displayed with a "Pending" badge in the UI.
+
+### Debug mode
+
+For troubleshooting, you can enable debug logging to see the raw API responses:
+
+```bash
+LUNCHFLOW_DEBUG_RAW=1
+```
+
 ## Limitations
 
 - Requires a paid Lunch Flow subscription
