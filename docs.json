@@ -34,7 +34,8 @@
             "pages": [
               "quickstart",
               "guide",
-              "self-hosting"
+              "self-hosting",
+              "self-hosting-helm"
             ]
           },
           {
