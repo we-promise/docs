@@ -9,22 +9,6 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "icon": "book-open-cover",
-          "hidden": true,
-          "href": "https://docs.sure.am"
-        },
-        {
-          "anchor": "Blog",
-          "icon": "newspaper",
-          "hidden": true,
-          "href": "https://sure.am/"
-        }
-      ]
-    },
     "tabs": [
       {
         "tab": "Guides",
