@@ -76,7 +76,8 @@
           {
             "group": "Knowledge Base",
             "pages": [
-              "guides/knowledge-base/troubleshooting"
+              "guides/knowledge-base/troubleshooting",
+              "guides/knowledge-base/faq"
             ]
           }
         ]
