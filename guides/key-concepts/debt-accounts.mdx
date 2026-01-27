@@ -1,0 +1,150 @@
+---
+title: How Debt Accounts Work
+description: Understand how liability accounts track what you owe, why debt math seems backwards, and how different debt types work in Sure.
+---
+
+# How Debt Accounts Work
+
+Debt accounts (also called liability accounts) track money you owe to others. This includes credit cards, loans, and any other obligations.
+
+## Why Debt Math Seems "Backwards"
+
+If you're used to thinking about asset accounts, debt accounts can feel counterintuitive at first. Here's the key difference:
+
+| Balance Type | What It Means |
+| --- | --- |
+| **Positive balance** | You owe money |
+| **Negative balance** | The lender owes you money (overpayment, refund) |
+
+And transactions work in the opposite direction from assets:
+
+| Action | Asset Account | Debt Account |
+| --- | --- | --- |
+| Spend money | Balance decreases | Balance increases (more debt) |
+| Receive money | Balance increases | Balance decreases (less debt) |
+
+> [!TIP]
+> Think of a debt balance as "Amount Owed" rather than "money I have." A higher number means you owe more, not that you have more.
+
+## Credit Card Example
+
+Let's walk through a typical credit card scenario:
+
+| Action | Balance Change | New Balance | What It Means |
+| --- | --- | --- | --- |
+| Starting balance | — | $500 | You owe $500 |
+| Buy groceries (+$80) | +$80 | $580 | You now owe $580 |
+| Gas purchase (+$45) | +$45 | $625 | You now owe $625 |
+| Make payment (-$300) | -$300 | $325 | You now owe $325 |
+
+Notice how spending **increases** the balance (you owe more) and payments **decrease** it (you owe less).
+
+### Overpayment Scenario
+
+What happens if you pay more than you owe?
+
+| Action | Balance Change | New Balance | What It Means |
+| --- | --- | --- | --- |
+| Starting balance | — | $100 | You owe $100 |
+| Make payment (-$150) | -$150 | -$50 | Card company owes you $50 |
+| Buy coffee (+$5) | +$5 | -$45 | Card company owes you $45 |
+
+A negative balance on a credit card means you've overpaid—the credit card company owes *you* money. This might happen from:
+
+- Overpayment
+- Refunds for returned purchases
+- Statement credits or rewards
+
+## Types of Debt Accounts
+
+Sure supports three types of liability accounts:
+
+### Credit Card
+
+Track your credit card balances and spending. Credit card accounts can include:
+
+| Field | Description |
+| --- | --- |
+| APR | Annual percentage rate (interest rate) |
+| Available Credit | Remaining credit you can use |
+| Minimum Payment | Minimum amount due |
+| Annual Fee | Yearly card fee |
+
+### Loan
+
+Track mortgages, auto loans, student loans, and other installment debt.
+
+| Subtype | Description |
+| --- | --- |
+| Mortgage | Home loan |
+| Student | Student loan debt |
+| Auto | Car loan |
+| Other | Personal loans, etc. |
+
+Loan accounts support additional fields:
+
+| Field | Description |
+| --- | --- |
+| Interest Rate | Annual interest rate |
+| Rate Type | Fixed or variable rate |
+| Term | Loan duration (months) |
+| Monthly Payment | Calculated based on loan details |
+
+> [!NOTE]
+> For fixed-rate loans, Sure can calculate your monthly payment automatically based on the original balance, interest rate, and term.
+
+### Other Liability
+
+For debts that don't fit the above categories:
+
+- Personal loans from friends/family
+- Medical bills
+- IOUs
+- Tax obligations
+
+## How Debt Affects Net Worth
+
+Liabilities **reduce** your net worth:
+
+```
+Net Worth = Total Assets - Total Liabilities
+```
+
+When you pay down debt, your net worth increases (even though your cash decreases). This is because the debt reduction outweighs the cash spent—you're converting a liquid asset (cash) into reduced liability (less debt).
+
+### Example: Paying Off a Credit Card
+
+| Account | Before Payment | After $500 Payment |
+| --- | --- | --- |
+| Checking (Asset) | $2,000 | $1,500 |
+| Credit Card (Liability) | $500 | $0 |
+| **Net Worth** | **$1,500** | **$1,500** |
+
+Your net worth stays the same because you traded $500 of cash for $500 of debt reduction. But now you have no credit card debt!
+
+## Adding Debt Accounts
+
+To add a debt account:
+
+1. Click **+ Add Account** on your dashboard
+2. Select the liability type (Credit Card, Loan, or Other Liability)
+3. Enter your account details:
+   - Account name
+   - Current balance (the amount you owe)
+   - For loans: interest rate, term, and rate type
+4. Click **Create Account**
+
+> [!IMPORTANT]
+> Make sure to select a liability account type (Credit Card, Loan, or Other Liability) when adding debt. If you accidentally create a Cash account for your credit card, the balance calculations will be incorrect.
+
+## Understanding Loan Payments
+
+When you make a loan payment, the payment typically covers:
+
+1. **Interest** - Cost of borrowing
+2. **Principal** - Reducing the amount you owe
+
+Sure tracks your loan balance, which represents the remaining principal. As you make payments, the balance decreases until the loan is paid off.
+
+> [!TIP]
+> To track loan payments accurately, create a [transfer](./transfers.mdx) from your checking account to your loan account. This properly reflects the payment in both accounts.

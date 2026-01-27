@@ -23,6 +23,16 @@
             ]
           },
           {
+            "group": "Key concepts",
+            "pages": [
+              "guides/key-concepts/account-types",
+              "guides/key-concepts/untitled-page",
+              "guides/key-concepts/debt-accounts",
+              "guides/key-concepts/investment-accounts",
+              "guides/key-concepts/transfers"
+            ]
+          },
+          {
             "group": "App features",
             "pages": [
               "guides/app-features/budgets",
