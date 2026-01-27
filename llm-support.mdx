@@ -101,6 +101,57 @@ Recommended models:
 - `anthropic/claude-sonnet-4.5` - Excellent reasoning
 - `anthropic/claude-haiku-4.5` - Fast and cost-effective
 
+## AI cache management
+
+Sure caches AI-generated results (like auto-categorization and merchant detection) to avoid redundant API calls and costs.
+
+### What is the AI cache?
+
+When AI rules process transactions, Sure stores:
+
+- **Enrichment records** - Which attributes were set by AI (category, merchant, etc.)
+- **Attribute locks** - Prevents rules from re-processing already-handled transactions
+
+This caching means:
+
+- Transactions won't be sent to the LLM repeatedly
+- Your API costs are minimized
+- Processing is faster on subsequent rule runs
+
+### When to reset the AI cache
+
+You might want to reset the cache when:
+
+- **Switching LLM models** - Different models may produce better categorizations
+- **Improving prompts** - After system updates with better prompts
+- **Fixing miscategorizations** - When AI made systematic errors
+- **Testing** - During development or evaluation of AI features
+
+<Warning>
+  Resetting the AI cache will cause all transactions to be re-processed by AI rules on the next run. This **will incur API costs** if using a cloud provider.
+</Warning>
+
+### How to reset the AI cache
+
+**Via UI (recommended):**
+
+1. Go to **Settings** → **Rules**
+2. Click the menu button (three dots)
+3. Select **Reset AI cache**
+4. Confirm the action
+
+The cache is cleared asynchronously in the background.
+
+**Automatic reset:**
+
+The AI cache is automatically cleared for all users when the OpenAI model setting is changed. This ensures that the new model processes transactions fresh.
+
+### What happens when cache is reset
+
+- **AI-locked attributes are unlocked** - Transactions can be re-enriched
+- **AI enrichment records are deleted** - The history of AI changes is cleared
+- **User edits are preserved** - If you manually changed a category after AI set it, your change is kept
+
 ## Evaluation system
 
 Test and compare different LLMs for your specific use case. The eval system helps you benchmark models for transaction categorization, merchant detection, and chat assistant functionality.
