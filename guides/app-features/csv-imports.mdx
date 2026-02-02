@@ -1,0 +1,143 @@
+---
+title: "CSV imports"
+description: "Import your financial data from CSV files into Sure"
+---
+
+# CSV imports
+
+Sure supports importing financial data from CSV files, making it easy to migrate from other financial apps or add bulk data.
+
+## Supported import types
+
+You can import the following types of data via CSV:
+
+- **Accounts**: Create multiple accounts with opening balances
+- **Transactions**: Import transaction history
+- **Trades**: Import investment trades
+- **Categories**: Set up your category structure
+- **Rules**: Import transaction rules
+
+## Importing accounts
+
+Account imports let you quickly set up multiple accounts with their opening balances.
+
+### CSV format
+
+Your CSV file should include these columns:
+
+| Column | Required | Description | Example |
+|--------|----------|-------------|---------|
+| Account type | Yes | Type of account | Checking, Savings, Credit Card |
+| Name | Yes | Account name | Main Checking Account |
+| Balance | Yes | Opening balance | 1000.00 |
+| Currency | No | Currency code (defaults to family currency) | USD |
+| Balance Date | No | Date for the opening balance | 01/01/2024 |
+
+### Example CSV
+
+```csv
+Account type,Name,Balance,Currency,Balance Date
+Checking,Main Checking Account,1000.00,USD,01/01/2024
+Savings,Emergency Fund,5000.00,USD,01/15/2024
+Credit Card,Rewards Card,-500.00,USD,02/01/2024
+```
+
+### Balance date column
+
+The optional **Balance Date** column lets you specify when the opening balance should be recorded. This is useful when:
+
+- Migrating historical data from another app
+- Setting up accounts with balances from a specific date
+- Maintaining accurate historical balance tracking
+
+If you don't provide a balance date, Sure will use the current date for the opening balance.
+
+<Note>
+The date format should match your import settings. Common formats include MM/DD/YYYY, DD/MM/YYYY, and YYYY-MM-DD.
+</Note>
+
+### Supported account types
+
+- Checking
+- Savings
+- Credit Card
+- Investment
+- Loan
+- Property
+- Vehicle
+- Crypto
+- Other Asset
+- Other Liability
+
+## Importing transactions
+
+Transaction imports let you add historical transaction data to your accounts.
+
+### CSV format
+
+Your CSV file should include these columns:
+
+| Column | Required | Description |
+|--------|----------|-------------|
+| Date | Yes | Transaction date |
+| Amount | Yes | Transaction amount |
+| Name | Yes | Transaction description |
+| Account | Yes | Account name |
+| Category | No | Category name |
+| Notes | No | Additional notes |
+
+### Example CSV
+
+```csv
+Date,Amount,Name,Account,Category,Notes
+01/15/2024,-45.50,Grocery Store,Main Checking,Groceries,Weekly shopping
+01/16/2024,-12.00,Coffee Shop,Main Checking,Dining Out,Morning coffee
+01/20/2024,2500.00,Paycheck,Main Checking,Income,Bi-weekly salary
+```
+
+## Import process
+
+1. **Navigate to imports**: Go to Settings → Imports or use the import button in the app
+2. **Upload CSV**: Drag and drop your CSV file or click to browse
+3. **Configure settings**: 
+   - Select import type (Accounts, Transactions, etc.)
+   - Choose date format
+   - Set number format (decimal separator)
+4. **Map columns**: Match your CSV columns to Sure's fields
+5. **Review**: Check the preview of your data
+6. **Import**: Confirm and import your data
+
+## Tips for successful imports
+
+1. **Use templates**: Download CSV templates from the import screen for the correct format
+2. **Check encoding**: Ensure your CSV file is UTF-8 encoded
+3. **Validate dates**: Make sure dates match your selected format
+4. **Test with small files**: Try importing a few rows first to verify the format
+5. **Clean your data**: Remove any extra columns or formatting before importing
+
+## Troubleshooting
+
+### Import fails with date errors
+
+Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
+
+### Accounts not found
+
+When importing transactions, ensure the account names in your CSV exactly match existing account names in Sure.
+
+### Duplicate transactions
+
+Sure will import all rows from your CSV. Review your data before importing to avoid duplicates.
+
+## Limits
+
+- **Account imports**: Maximum 50 accounts per import
+- **Transaction imports**: No hard limit, but large files may take longer to process
+
+## Getting help
+
+If you encounter issues with CSV imports:
+
+- Check the [troubleshooting guide](/guides/knowledge-base/troubleshooting)
+- Ask in the [Discord](https://discord.gg/36ZGBsxYEK)
+- Open an [issue](https://github.com/we-promise/sure/issues/new/choose)
