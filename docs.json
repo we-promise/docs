@@ -118,6 +118,14 @@
             ]
           },
           {
+            "group": "Merchants",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/merchants",
+              "GET /api/v1/merchants/{id}"
+            ]
+          },
+          {
             "group": "Tags",
             "openapi": "/openapi.yaml",
             "pages": [
