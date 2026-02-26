@@ -25,6 +25,7 @@ Dataset: categorization_golden_v1
 
 | Model | Quantisation | json_mode | batch_size | easy | medium | hard | edge_case | accuracy | avg_latency_ms | cost_per_sample | notes
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| qwen/qwen3.5-35b-a3b | full | strict | 25 | 100.0% accuracy (33/33) | 100.0% accuracy (34/34) | 100.0% accuracy (19/19) | 100.0% accuracy (14/14) | 100.0 | 54698 | 0.0 |
 | qwen3-30b-a3b-instruct-2507 | Q3_K_XL | strict | 25 | 100.0% accuracy (33/33) | 100.0% accuracy (34/34) | 94.74% accuracy (18/19) | 100.0% accuracy (14/14) | 99.0 | 25357 | 0.0 |
 | gpt-oss-20b | Q3_K_XL | none, strict | 25 | 100.0% accuracy (33/33) | 100.0% accuracy (34/34) | 52.63% accuracy (10/19) | 100.0% accuracy (14/14) | 91.0 | 43214 | 0.0 | Needs at least 8k context window due to not supporting strict JSON mode.
 | qwen3-14b | Q5_K_XL | strict | 25 | 93.94% accuracy (31/33) | 88.24% accuracy (30/34) | 84.21% accuracy (16/19) | 100.0% accuracy (14/14) | 91.0 | 67455 | 0.0 |
