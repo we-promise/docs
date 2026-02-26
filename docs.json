@@ -45,7 +45,8 @@
             "pages": [
               "llm-support",
               "evals",
-              "development/rails-provider-generator"
+              "development/rails-provider-generator",
+              "development/llm-benchmarks"
             ]
           },
           {
