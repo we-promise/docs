@@ -19,6 +19,31 @@ Each holding tracks:
 - **Amount** - Total current value (quantity x price)
 - **Cost Basis** - What you originally paid
 
+## Recording Trades
+
+When you buy or sell securities, you can record trades manually in Sure. Each trade includes:
+
+- **Type**: Buy or Sell
+- **Security**: The stock, ETF, or crypto you're trading
+- **Quantity**: Number of shares or units
+- **Price**: Price per share at the time of trade
+- **Fee**: Optional transaction fee charged by your broker
+- **Date**: When the trade occurred
+
+### Transaction Fees
+
+Trades support an optional **fee** field to track brokerage commissions and transaction costs. The fee is included in the total amount calculation:
+
+```
+Total Amount = (Quantity × Price) + Fee
+```
+
+For example:
+- Buy 10 shares at $100/share with a $5 fee = $1,005 total
+- Sell 10 shares at $110/share with a $5 fee = $1,095 total (proceeds after fee)
+
+Fees are automatically factored into your cost basis calculations and realized gains/losses.
+
 ## Securities Types
 
 Sure supports various security types:
