@@ -47,6 +47,36 @@ This creates a `compose.yml` file in your current directory with the default con
 
 By default, the `compose.example.yml` file runs without any configuration. For production deployments or if you're running outside of a local network, follow these steps to add security.
 
+### Email configuration
+
+To enable email notifications and password resets, configure SMTP settings in your `.env` file:
+
+```txt
+SMTP_ADDRESS=smtp.example.com
+SMTP_PORT=587
+SMTP_DOMAIN=example.com
+SMTP_USERNAME=your-username
+SMTP_PASSWORD=your-password
+SMTP_AUTHENTICATION=plain
+SMTP_ENABLE_STARTTLS_AUTO=true
+```
+
+#### SSL/TLS options
+
+For SMTP servers with custom SSL certificates or self-signed certificates:
+
+**Skip TLS verification** (not recommended for production):
+```txt
+SMTP_OPENSSL_VERIFY_MODE=none
+```
+
+**Use custom CA certificate**:
+```txt
+SSL_CA_FILE=/path/to/ca-certificate.pem
+```
+
+The `SSL_CA_FILE` option allows you to specify a custom CA certificate file for SSL verification when connecting to SMTP servers with self-signed or internal certificates.
+
 ### Create an environment file
 
 Create a `.env` file where Docker will read environment variables:
