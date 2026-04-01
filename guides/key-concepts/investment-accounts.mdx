@@ -115,6 +115,29 @@ When creating a dividend or interest entry:
 4. Enter the amount received
 5. The entry is saved as a trade with the appropriate label
 
+## Recording Trades
+
+When recording buy or sell trades in investment accounts, you can specify:
+
+- **Security** - The stock, ETF, or other security being traded
+- **Quantity** - Number of shares or units
+- **Price** - Price per share
+- **Fee** (optional) - Transaction fees charged by your broker
+
+### Trade Fees
+
+Transaction fees are included in the total amount calculation:
+
+```
+Total Amount = (Quantity × Price) + Fee
+```
+
+For example:
+- Buy 10 shares at $100/share with a $5 fee = $1,005 total
+- Sell 10 shares at $100/share with a $5 fee = $995 total (you receive $995)
+
+Fees are optional and default to $0 if not specified. The fee field is available on both the create and edit forms for trades.
+
 ### Available Activity Labels
 
 | Label | Description |
