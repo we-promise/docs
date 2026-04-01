@@ -95,6 +95,53 @@ After unlocking:
 - Future syncs can update the cost basis
 - Calculated values (from trades) will replace the manual value
 
+## Recording Trades
+
+Investment accounts support recording various types of trades to track your portfolio activity.
+
+### Trade Types
+
+| Type | Description | Security Required |
+| --- | --- | --- |
+| **Buy** | Purchase of securities | Yes |
+| **Sell** | Sale of securities | Yes |
+| **Dividend** | Dividend payments received | Yes |
+| **Interest** | Interest earned on cash or securities | No (optional) |
+
+### Recording Dividends and Interest
+
+Dividends and interest are recorded as trades with zero quantity and zero price, allowing them to be associated with specific securities while maintaining data integrity.
+
+**Dividends:**
+- Require a security selection (the stock/fund paying the dividend)
+- Recorded as a trade with qty: 0 and price: 0
+- Amount represents the dividend payment received
+
+**Interest:**
+- Security selection is optional
+- When no security is selected, Sure creates a synthetic cash security for the account
+- Recorded as a trade with qty: 0 and price: 0
+- Amount represents the interest earned
+
+To record a dividend or interest payment:
+
+1. Navigate to your investment account
+2. Click **+ New Trade**
+3. Select **Dividend** or **Interest** from the type dropdown
+4. For dividends: Select the security that paid the dividend
+5. For interest: Optionally select a security, or leave blank for cash interest
+6. Enter the amount received
+7. Set the date
+8. Click **Save**
+
+### Trade Fees
+
+All trades support an optional fee field to track transaction costs:
+
+- Fees are included in the total amount calculation: `total = (qty × price) + fee`
+- Fees default to 0 if not specified
+- Fees are tracked separately for accurate cost basis calculations
+
 ## Investment Activity Labels
 
 Activity labels help you classify investment transactions. They appear as badges in your transaction list and help you understand your investment activity at a glance.
@@ -107,8 +154,8 @@ Activity labels help you classify investment transactions. They appear as badges
 | **Sell** | Sale of securities |
 | **Contribution** | Money added to the investment account |
 | **Withdrawal** | Money removed from the investment account |
-| **Dividend** | Dividend payments received |
-| **Interest** | Interest earned |
+| **Dividend** | Dividend payments received (recorded as trades) |
+| **Interest** | Interest earned (recorded as trades) |
 | **Reinvestment** | Dividends or distributions reinvested |
 | **Sweep In** | Cash swept into the account |
 | **Sweep Out** | Cash swept out of the account |
