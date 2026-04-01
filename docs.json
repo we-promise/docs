@@ -37,6 +37,7 @@
             "pages": [
               "guides/app-features/budgets",
               "features/recurring-transactions",
+              "guides/app-features/family-sharing",
               "guides/app-features/settings"
             ]
           },
