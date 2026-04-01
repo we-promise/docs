@@ -1,0 +1,135 @@
+---
+title: "Family Sharing"
+description: "Share accounts and collaborate on finances with family members"
+---
+
+# Family Sharing
+
+Family sharing allows you to share specific accounts with other members of your family, enabling collaborative financial management while maintaining privacy and control over your data.
+
+## How Family Sharing Works
+
+Each Sure family can have multiple members with different permission levels. You can selectively share accounts with specific family members, giving them either view-only or edit access.
+
+### Permission Levels
+
+| Permission | Description | Can View | Can Edit |
+| --- | --- | --- | --- |
+| **Owner** | Full control over the account | ✅ | ✅ |
+| **Editor** | Can view and modify transactions | ✅ | ✅ |
+| **Viewer** | Read-only access | ✅ | ❌ |
+
+## Sharing an Account
+
+To share an account with family members:
+
+1. Navigate to the account you want to share
+2. Click the **Share** button or access sharing settings
+3. Select the family members you want to share with
+4. Choose their permission level (Viewer or Editor)
+5. Click **Save**
+
+The account will now appear in the selected family members' account lists with the appropriate access level.
+
+## What Gets Shared
+
+When you share an account, the following information is accessible to family members:
+
+- **Account balance** and balance history
+- **Transactions** and transaction details
+- **Holdings** (for investment accounts)
+- **Trades** (for investment accounts)
+- **Account settings** and preferences
+
+## Privacy and Scoping
+
+Family sharing respects privacy boundaries:
+
+- **Scoped views**: Each family member only sees accounts shared with them
+- **Reports**: Financial reports are scoped to only include accounts the user has access to
+- **Budgets**: Budget calculations only include shared accounts
+- **Totals**: Net worth and other totals reflect only accessible accounts
+- **Providers**: Third-party provider connections are scoped per family
+- **Merchants**: Merchant data is shared across the family for consistency
+
+## Managing Shared Accounts
+
+### Viewing Shared Accounts
+
+Shared accounts appear in your account list with an indicator showing they're shared. You can filter your account list to show:
+- Only your accounts
+- Only shared accounts
+- All accounts
+
+### Editing Shared Accounts
+
+If you have **Editor** permission on a shared account, you can:
+- Add, edit, and delete transactions
+- Update account settings
+- Record trades (for investment accounts)
+- Categorize and tag transactions
+
+If you have **Viewer** permission, you can only view the account data without making changes.
+
+### Removing Access
+
+Account owners can remove sharing access at any time:
+
+1. Open the shared account
+2. Go to sharing settings
+3. Remove the family member or change their permission level
+4. Click **Save**
+
+The account will immediately disappear from that family member's view.
+
+## Family Roles
+
+### Admin Role
+
+Family admins have additional privileges:
+- Manage family members
+- Configure family-wide settings
+- Manage third-party provider connections
+- Access all family accounts (if shared)
+
+Only admins can manage provider integrations to ensure security and consistency across the family.
+
+## Use Cases
+
+### Couples Managing Joint Finances
+
+Share checking, savings, and credit card accounts with your partner. Both can track spending, categorize transactions, and monitor budgets together.
+
+### Parents Teaching Financial Literacy
+
+Share specific accounts with children in view-only mode, allowing them to learn about budgeting and money management without making changes.
+
+### Household Budget Collaboration
+
+Share household expense accounts with all family members who contribute to bills, enabling transparent tracking of shared expenses.
+
+### Investment Portfolio Oversight
+
+Share investment accounts with a financial advisor or trusted family member for oversight while maintaining control over trading decisions.
+
+## Security Considerations
+
+- **Encryption**: All shared data is encrypted at rest and in transit
+- **Access control**: Permissions are enforced at the database level
+- **Audit trail**: All changes to shared accounts are logged
+- **Revocable access**: Sharing can be revoked instantly by the account owner
+
+## Limitations
+
+- Sharing is limited to members within the same family
+- Provider credentials are managed at the family level by admins
+- Some account types may have restrictions on sharing
+- Recurring transactions are scoped to the family, not individual users
+
+## Best Practices
+
+1. **Start with view-only**: Give new family members viewer access first, then upgrade to editor as needed
+2. **Regular reviews**: Periodically review who has access to your accounts
+3. **Clear communication**: Discuss financial goals and boundaries with family members
+4. **Use categories consistently**: Establish category conventions for shared accounts
+5. **Respect privacy**: Only share accounts that genuinely need collaboration
