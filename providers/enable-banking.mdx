@@ -55,6 +55,30 @@ When syncing transactions, you can:
 - Only booked transactions are imported (pending transactions are excluded)
 - Paginate through large transaction sets using continuation keys
 
+### Duplicate transaction handling
+
+Enable Banking implements intelligent deduplication to prevent duplicate transactions:
+
+**Content-based deduplication:**
+- The API sometimes returns the same transaction multiple times with different `entry_reference` IDs
+- Sure uses a composite key to identify true duplicates based on transaction content:
+  - Transaction ID (when available)
+  - Date (booking_date or value_date)
+  - Amount
+  - Currency
+  - Credit/debit indicator (CRDT/DBIT)
+  - Creditor and debtor information
+  - Remittance information
+  - Transaction status
+
+**How it works:**
+- When multiple transactions have identical content, only the first occurrence is kept
+- This prevents API-level duplicates while preserving legitimately distinct transactions
+- The `credit_debit_indicator` is included to distinguish between payments and refunds of the same amount on the same day
+
+> [!NOTE]
+> When `transaction_id` is nil for multiple transactions, pure content comparison applies. In rare cases, this could theoretically collapse two genuinely distinct transactions with identical fields, but this trade-off prevents the more common issue of API-level duplicates.
+
 ## Supported account types
 
 Enable Banking supports both personal and business accounts:
