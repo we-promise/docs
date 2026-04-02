@@ -95,6 +95,39 @@ After unlocking:
 - Future syncs can update the cost basis
 - Calculated values (from trades) will replace the manual value
 
+## Recording Trades
+
+Investment and crypto exchange accounts support manual trade entry, allowing you to record buy and sell transactions.
+
+### Trade types
+
+When creating a trade, you can select from these types:
+
+- **Buy** - Purchase securities (requires quantity, price, and optional fee)
+- **Sell** - Sell securities (requires quantity, price, and optional fee)
+- **Dividend** - Record dividend income (requires security, recorded as trade with qty/price = 0)
+- **Interest** - Record interest income (optional security, uses synthetic cash security if none selected)
+
+### Trade fees
+
+All trades support an optional fee field to track transaction costs:
+
+- Fees are included in the total amount calculation: `total = (qty × price) + fee`
+- Fees default to 0 if not specified
+- Fees are tracked separately and visible in trade details
+- Fees affect cost basis calculations for tax reporting
+
+### Recording dividend and interest income
+
+Dividends and interest are recorded as special trades:
+
+- **Quantity and price are set to 0**
+- **Dividends require a security** - Select the security that paid the dividend
+- **Interest is optional** - If no security is selected, a synthetic cash security is automatically created for the account
+- Both appear in your transaction history with appropriate activity labels
+
+This approach maintains data integrity while properly tracking investment income.
+
 ## Investment Activity Labels
 
 Activity labels help you classify investment transactions. They appear as badges in your transaction list and help you understand your investment activity at a glance.
