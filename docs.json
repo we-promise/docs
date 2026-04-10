@@ -65,6 +65,7 @@
               "providers/lunchflow",
               "providers/simplefin",
               "providers/plaid",
+              "providers/binance",
               "providers/coinbase",
               "providers/coinstats"
             ]

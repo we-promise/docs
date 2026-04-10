@@ -1,0 +1,172 @@
+---
+title: Binance
+description: Connect your Binance account to track cryptocurrency holdings, balances, and trades
+---
+
+Binance integration allows you to sync your cryptocurrency accounts, track holdings across spot, margin, and earn products, and monitor trades directly in Sure using the Binance API.
+
+<Note>
+This integration is currently in beta. Please report any issues you encounter.
+</Note>
+
+## How it works
+
+When you connect your Binance account, Sure syncs:
+
+- Spot wallet balances
+- Cross-margin account balances (net assets)
+- Simple Earn positions (flexible and locked)
+- Spot trade history
+- Holdings with daily valuations
+
+All three account types (spot, margin, and earn) are combined into a single cryptocurrency account in Sure, with a unified USD-denominated balance.
+
+## Prerequisites
+
+To use the Binance integration, you need:
+
+- An active Binance account
+- Binance API credentials (API key and API secret)
+- API key permissions for reading account data and trade history
+
+## Getting your API credentials
+
+1. Log in to your Binance account
+2. Navigate to **Account** > **API Management**
+3. Create a new API key with the following permissions:
+   - Enable reading (account info, balances)
+   - Enable spot and margin trading history (read-only)
+4. Save your API key and API secret securely
+
+<Warning>
+Your API secret is only shown once during creation. Store it securely — you'll need both the API key and secret to connect Sure.
+</Warning>
+
+<Tip>
+For security, restrict your API key to read-only access. Sure does not execute trades or withdrawals on your behalf.
+</Tip>
+
+## Connecting Binance to Sure
+
+1. Navigate to **Settings** > **Providers** in Sure
+2. Click **Add Provider** and select **Binance**
+3. Enter your API credentials:
+   - **API Key**: Your Binance API key
+   - **API Secret**: Your Binance API secret
+4. Optionally set a **sync start date** to limit how far back trade history is fetched
+5. Click **Connect**
+
+## Account setup
+
+After connecting, Sure discovers your Binance account data during the first sync. You then need to link the account:
+
+1. Review the discovered Binance account
+2. Link it to an existing Sure account, or create a new one
+3. Click **Save** to complete the setup
+
+<Note>
+Spot, margin, and earn balances are combined into a single account. They are not tracked separately.
+</Note>
+
+## Supported features
+
+### Account types
+
+The Binance integration syncs data from:
+
+- **Spot wallet** — free and locked balances for all assets
+- **Cross-margin** — net asset balances (assets minus borrowed amounts)
+- **Simple Earn** — flexible and locked staking/savings positions
+
+### Holdings tracking
+
+Sure creates a daily holding record for each asset, including:
+
+- Current quantity per asset and source (spot, margin, earn)
+- Price data from Binance market data
+- Valuations converted to your family's preferred currency
+
+### Trade syncing
+
+Sure syncs your spot trade history, including:
+
+- Buy and sell trades
+- Trade price and quantity
+- Commission and fees
+- Support for multiple quote currencies (USDT, BUSD, FDUSD, BTC, ETH, BNB)
+
+Trades are synced incrementally — only new trades are fetched on subsequent syncs.
+
+### Currency handling
+
+- All values are stored internally in USD
+- Stablecoins (USDT, BUSD, FDUSD, TUSD, USDC, DAI) are treated as 1:1 with USD
+- Values are converted to your family's preferred currency for display
+
+## Security
+
+### Credential encryption
+
+Your Binance API credentials are encrypted using ActiveRecord Encryption:
+
+- **API Key**: Uses deterministic encryption for querying
+- **API Secret**: Uses standard encryption for maximum security
+
+### API timeouts
+
+All Binance API requests include a 30-second timeout to prevent hanging connections.
+
+## Syncing
+
+### Manual sync
+
+To manually sync your Binance account:
+
+1. Navigate to **Settings** > **Providers**
+2. Find your Binance connection
+3. Click **Sync Now**
+
+### Automatic sync
+
+Sure automatically syncs your Binance account on a regular schedule along with your other connected accounts.
+
+## Limitations
+
+- Only spot, cross-margin, and Simple Earn accounts are supported — futures, options, and other Binance products are not included
+- Margin balances reflect net assets (assets minus borrowed), not gross positions
+- Historical trade data depends on Binance API availability and retention
+- Real-time price updates depend on Binance market data availability
+
+## Troubleshooting
+
+### Connection errors
+
+If you encounter connection errors:
+
+1. Verify your API credentials are correct
+2. Check that your API key has the required read permissions
+3. Ensure your API key hasn't been revoked or expired
+
+### Missing balances
+
+If balances are missing:
+
+1. Manually trigger a sync
+2. Check that the asset has a non-zero balance on Binance
+3. Verify the account is linked in Sure
+
+### Missing trades
+
+If trades are missing:
+
+1. Check that your API key has trade history read permissions
+2. Verify the trade exists in your Binance account
+3. Ensure the sync start date is set before the trade date
+
+## Getting help
+
+If you encounter issues with the Binance integration:
+
+- Check the [troubleshooting guide](/guides/knowledge-base/troubleshooting)
+- Ask in the [Discord](https://discord.gg/36ZGBsxYEK)
+- Open an [issue](https://github.com/we-promise/sure/issues/new/choose)
