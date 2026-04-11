@@ -1,20 +1,70 @@
 ---
 title: "CoinStats"
-description: "Sync cryptocurrency wallets using CoinStats integration"
+description: "Sync cryptocurrency wallets, DeFi positions, and exchange accounts using CoinStats"
 ---
 
-
-CoinStats is a third-party provider that allows you to sync cryptocurrency wallet balances and transactions into Sure. This integration uses the CoinStats OpenAPI to fetch data from multiple blockchain networks.
+CoinStats is a third-party provider that allows you to sync cryptocurrency holdings into Sure. It supports wallet balances, DeFi positions (staking, liquidity pools, yield farming), and centralized exchange accounts.
 
 ## How it works
 
-When you connect a crypto wallet through CoinStats, Sure syncs:
+CoinStats connects to your crypto assets in three ways:
 
-- Wallet balances across multiple tokens
-- Transaction history
-- Real-time price data
+- **Wallets** — Track token balances across multiple blockchain networks by wallet address
+- **DeFi positions** — Automatically discover staking, LP, and yield farming positions associated with your wallets
+- **Exchange accounts** — Connect centralized exchanges (e.g. Binance, Kraken) through CoinStats portfolio API
 
-The integration supports multiple blockchain networks including Ethereum, Bitcoin, and many others available through CoinStats.
+When you add a connection, Sure syncs balances, transaction history, and real-time price data.
+
+## Setting up CoinStats
+
+<Steps>
+  <Step title="Get an API key">
+    Obtain a CoinStats API key from [CoinStats](https://coinstats.app/).
+  </Step>
+  <Step title="Add a connection">
+    In Sure, navigate to account settings and add a new CoinStats connection. Enter your API key.
+  </Step>
+  <Step title="Link your assets">
+    Choose one of the connection methods below to start syncing.
+  </Step>
+</Steps>
+
+## Connecting a wallet
+
+Link a wallet by providing its address and selecting the blockchain network.
+
+1. Select **Link wallet** from the CoinStats connection page
+2. Choose the blockchain (e.g. Ethereum, Bitcoin, Polygon)
+3. Enter your wallet address
+4. Sure fetches token balances and creates an account for each token found
+
+Once linked, Sure automatically syncs wallet balances on a recurring schedule.
+
+### DeFi position discovery
+
+When you link a wallet, Sure also queries the CoinStats DeFi API to discover staking, liquidity pool, and yield farming positions associated with that address. Each DeFi position is tracked as a separate crypto wallet account.
+
+DeFi accounts are named using the pattern **TOKEN (Protocol Action)**, for example:
+
+- `ETH (Aave Staking)` — a staked ETH position on Aave
+- `USDC (Uniswap Rewards)` — reward tokens from a Uniswap LP
+
+If a DeFi position is fully unstaked or no longer returned by the API, its balance is automatically set to zero.
+
+<Note>
+DeFi discovery runs during every wallet sync. New positions are added automatically and inactive positions are zeroed out.
+</Note>
+
+## Connecting an exchange
+
+You can connect a centralized exchange account through CoinStats to sync your portfolio.
+
+1. Select **Link exchange** from the CoinStats connection page
+2. Choose your exchange from the supported list
+3. Enter the required credentials (API key, secret, and any additional fields specific to the exchange)
+4. Sure creates a portfolio on CoinStats and syncs your exchange holdings
+
+The credential fields vary by exchange. Sure dynamically renders the required fields based on the exchange you select. Sensitive fields like secrets and passphrases use masked input.
 
 ## Currency storage approach
 
@@ -41,35 +91,25 @@ There are two possible approaches for storing cryptocurrency values:
 
 ### Benefits of USD storage
 
-The USD storage approach provides several advantages:
+1. **No forex drift** — values are converted only once, preventing cumulative exchange rate errors
+2. **Data integrity** — original values are always preserved
+3. **Automatic updates** — when you fix or update exchange rates, all cryptocurrency values update correctly without re-syncing
+4. **Consistency** — works the same way as other multi-currency accounts in Sure
+5. **Reliability** — no dependency on currency provider being available during sync
 
-1. **No forex drift**: Values are converted only once, preventing cumulative exchange rate errors
-2. **Data integrity**: Original values are always preserved
-3. **Automatic updates**: When you fix or update exchange rates, all cryptocurrency values update correctly without re-syncing
-4. **Consistency**: Works the same way as other multi-currency accounts in Sure
-5. **Reliability**: No dependency on currency provider being available during sync
-
-This is why USD storage is the preferred approach and will remain the standard for CoinStats integration.
-
-## Setting up CoinStats
-
-To connect your cryptocurrency wallets:
-
-1. Get a CoinStats API key from [CoinStats](https://coinstats.app/)
-2. In Sure, navigate to account settings
-3. Add a new CoinStats connection
-4. Enter your API key
-5. Select the blockchain networks and wallet addresses you want to sync
-
-Once connected, Sure will automatically sync your wallet balances and transactions.
+<Note>
+DeFi positions follow a slightly different path: USD balances from the API are converted to your family currency during sync for consistent portfolio reporting. If the exchange rate is unavailable, the value falls back to USD.
+</Note>
 
 ## Supported features
 
-- **Multiple blockchains**: Connect wallets from different blockchain networks
-- **Bulk syncing**: Fetch balances and transactions for multiple wallets in a single request
-- **Automatic updates**: Sync runs periodically to keep your data current
-- **Transaction history**: Import historical transactions from your wallets
-- **Token balances**: Track balances across multiple tokens in each wallet
+| Feature | Wallets | DeFi | Exchanges |
+| --- | --- | --- | --- |
+| Balance syncing | Yes | Yes | Yes |
+| Transaction history | Yes | No | Yes |
+| Multiple tokens/positions | Yes | Yes | Yes |
+| Automatic periodic sync | Yes | Yes | Yes |
+| Multiple blockchains | Yes | Yes | N/A |
 
 ## Limitations
 
@@ -77,3 +117,4 @@ Once connected, Sure will automatically sync your wallet balances and transactio
 - Requires a valid CoinStats API key
 - Subject to CoinStats API rate limits
 - All values are stored in USD (see currency storage approach above)
+- DeFi position discovery depends on CoinStats DeFi API coverage for each blockchain and protocol
