@@ -657,6 +657,297 @@ components:
       properties:
         data:
           "$ref": "#/components/schemas/ImportDetail"
+    MerchantDetail:
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - FamilyMerchant
+          - ProviderMerchant
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    MerchantCollection:
+      type: array
+      items:
+        "$ref": "#/components/schemas/MerchantDetail"
+    Security:
+      type: object
+      required:
+      - id
+      - ticker
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        ticker:
+          type: string
+        name:
+          type: string
+    Trade:
+      type: object
+      required:
+      - id
+      - date
+      - amount
+      - currency
+      - name
+      - qty
+      - price
+      - account
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        amount:
+          type: string
+        currency:
+          type: string
+        name:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        qty:
+          type: number
+        price:
+          type: string
+        investment_activity_label:
+          type: string
+          nullable: true
+        account:
+          "$ref": "#/components/schemas/Account"
+        security:
+          "$ref": "#/components/schemas/Security"
+          nullable: true
+        category:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TradeCollection:
+      type: object
+      required:
+      - trades
+      - pagination
+      properties:
+        trades:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Trade"
+        pagination:
+          "$ref": "#/components/schemas/Pagination"
+    Holding:
+      type: object
+      required:
+      - id
+      - date
+      - qty
+      - price
+      - amount
+      - currency
+      - account
+      - security
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        qty:
+          type: number
+        price:
+          type: string
+        amount:
+          type: string
+        currency:
+          type: string
+        cost_basis_source:
+          type: string
+          nullable: true
+        account:
+          "$ref": "#/components/schemas/Account"
+        security:
+          "$ref": "#/components/schemas/Security"
+        avg_cost:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    HoldingCollection:
+      type: object
+      required:
+      - holdings
+      - pagination
+      properties:
+        holdings:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Holding"
+        pagination:
+          "$ref": "#/components/schemas/Pagination"
+    Valuation:
+      type: object
+      required:
+      - id
+      - date
+      - amount
+      - currency
+      - account
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        amount:
+          type: string
+        currency:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        kind:
+          type: string
+          nullable: true
+        account:
+          "$ref": "#/components/schemas/Account"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    BalanceSheet:
+      type: object
+      required:
+      - currency
+      - net_worth
+      - assets
+      - liabilities
+      properties:
+        currency:
+          type: string
+        net_worth:
+          type: object
+          additionalProperties: true
+        assets:
+          type: object
+          additionalProperties: true
+        liabilities:
+          type: object
+          additionalProperties: true
+    SyncResponse:
+      type: object
+      required:
+      - id
+      - status
+      - message
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        syncable_type:
+          type: string
+        syncable_id:
+          type: string
+          format: uuid
+        syncing_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        window_start_date:
+          type: string
+          format: date
+          nullable: true
+        window_end_date:
+          type: string
+          format: date
+          nullable: true
+        message:
+          type: string
+    UsageResponse:
+      type: object
+      properties:
+        api_key:
+          type: object
+          properties:
+            name:
+              type: string
+            scopes:
+              type: array
+              items:
+                type: string
+            last_used_at:
+              type: string
+              format: date-time
+              nullable: true
+            created_at:
+              type: string
+              format: date-time
+        rate_limit:
+          type: object
+          properties:
+            tier:
+              type: string
+            limit:
+              type: integer
+            current_count:
+              type: integer
+            remaining:
+              type: integer
+            reset_in_seconds:
+              type: integer
+            reset_at:
+              type: string
+              format: date-time
 paths:
   "/api/v1/accounts":
     get:
@@ -685,6 +976,33 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/AccountCollection"
+  "/api/v1/accounts/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Account ID
+      schema:
+        type: string
+    get:
+      summary: Retrieve an account
+      tags:
+      - Accounts
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: account retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AccountDetail"
+        '404':
+          description: account not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
   "/api/v1/categories":
     get:
       summary: List categories
@@ -757,6 +1075,47 @@ paths:
                 "$ref": "#/components/schemas/CategoryDetail"
         '404':
           description: category not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/merchants":
+    get:
+      summary: List merchants
+      tags:
+      - Merchants
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: merchants listed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MerchantCollection"
+  "/api/v1/merchants/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Merchant ID
+      schema:
+        type: string
+    get:
+      summary: Retrieve a merchant
+      tags:
+      - Merchants
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: merchant retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MerchantDetail"
+        '404':
+          description: merchant not found
           content:
             application/json:
               schema:
@@ -1578,6 +1937,583 @@ paths:
                 "$ref": "#/components/schemas/DeleteResponse"
         '404':
           description: transaction not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/trades":
+    get:
+      summary: List trades
+      tags:
+      - Trades
+      security:
+      - apiKeyAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: 'Page number (default: 1)'
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Items per page (default: 25, max: 100)'
+        schema:
+          type: integer
+      - name: account_id
+        in: query
+        required: false
+        description: Filter by account ID
+        schema:
+          type: string
+      - name: account_ids
+        in: query
+        required: false
+        description: Filter by multiple account IDs
+        schema:
+          type: array
+          items:
+            type: string
+      - name: start_date
+        in: query
+        required: false
+        description: Filter trades from this date
+        schema:
+          type: string
+          format: date
+      - name: end_date
+        in: query
+        required: false
+        description: Filter trades until this date
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: trades listed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TradeCollection"
+    post:
+      summary: Create trade
+      tags:
+      - Trades
+      security:
+      - apiKeyAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: trade created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Trade"
+        '404':
+          description: account or security not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trade:
+                  type: object
+                  properties:
+                    account_id:
+                      type: string
+                      format: uuid
+                      description: Investment or crypto account ID
+                    date:
+                      type: string
+                      format: date
+                      description: Trade date
+                    type:
+                      type: string
+                      enum:
+                      - buy
+                      - sell
+                      description: Trade type
+                    qty:
+                      type: number
+                      description: Quantity (must be positive)
+                    price:
+                      type: number
+                      description: Price per unit (must be positive)
+                    currency:
+                      type: string
+                      description: Currency code (defaults to account currency)
+                    security_id:
+                      type: string
+                      format: uuid
+                      description: Security ID (provide one of security_id, ticker, or manual_ticker)
+                    ticker:
+                      type: string
+                      description: Ticker symbol (e.g. "AAPL" or "AAPL|XNAS")
+                    manual_ticker:
+                      type: string
+                      description: Manual or custom ticker
+                    investment_activity_label:
+                      type: string
+                      description: Activity label for the trade
+                    category_id:
+                      type: string
+                      format: uuid
+                      description: Category ID
+                  required:
+                  - account_id
+                  - date
+                  - type
+                  - qty
+                  - price
+              required:
+              - trade
+        required: true
+  "/api/v1/trades/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Trade ID
+      schema:
+        type: string
+    get:
+      summary: Retrieve a trade
+      tags:
+      - Trades
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: trade retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Trade"
+        '404':
+          description: trade not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    patch:
+      summary: Update a trade
+      tags:
+      - Trades
+      security:
+      - apiKeyAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: trade updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Trade"
+        '404':
+          description: trade not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trade:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Trade name
+                    date:
+                      type: string
+                      format: date
+                    amount:
+                      type: number
+                      description: Trade amount
+                    currency:
+                      type: string
+                    notes:
+                      type: string
+                    nature:
+                      type: string
+                      enum:
+                      - sell
+                      - inflow
+                      - buy
+                      - outflow
+                      description: Trade direction
+                    type:
+                      type: string
+                      enum:
+                      - buy
+                      - sell
+                      description: Alias for nature
+                    qty:
+                      type: number
+                      description: Quantity
+                    price:
+                      type: number
+                      description: Price per unit
+                    investment_activity_label:
+                      type: string
+                    category_id:
+                      type: string
+                      format: uuid
+        required: true
+    delete:
+      summary: Delete a trade
+      tags:
+      - Trades
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: trade deleted
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DeleteResponse"
+        '404':
+          description: trade not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/holdings":
+    get:
+      summary: List holdings
+      tags:
+      - Holdings
+      security:
+      - apiKeyAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: 'Page number (default: 1)'
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Items per page (default: 25, max: 100)'
+        schema:
+          type: integer
+      - name: account_id
+        in: query
+        required: false
+        description: Filter by account ID
+        schema:
+          type: string
+      - name: account_ids
+        in: query
+        required: false
+        description: Filter by multiple account IDs
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        required: false
+        description: Filter by exact date
+        schema:
+          type: string
+          format: date
+      - name: start_date
+        in: query
+        required: false
+        description: Filter holdings from this date
+        schema:
+          type: string
+          format: date
+      - name: end_date
+        in: query
+        required: false
+        description: Filter holdings until this date
+        schema:
+          type: string
+          format: date
+      - name: security_id
+        in: query
+        required: false
+        description: Filter by security ID
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: holdings listed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HoldingCollection"
+  "/api/v1/holdings/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Holding ID
+      schema:
+        type: string
+    get:
+      summary: Retrieve a holding
+      tags:
+      - Holdings
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: holding retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Holding"
+        '404':
+          description: holding not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/valuations":
+    post:
+      summary: Create valuation
+      tags:
+      - Valuations
+      security:
+      - apiKeyAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: valuation created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Valuation"
+        '404':
+          description: account not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                valuation:
+                  type: object
+                  properties:
+                    account_id:
+                      type: string
+                      format: uuid
+                      description: Account to set the valuation for
+                    amount:
+                      type: number
+                      description: Balance or valuation amount
+                    date:
+                      type: string
+                      format: date
+                      description: Valuation date
+                    notes:
+                      type: string
+                      description: Optional notes
+                  required:
+                  - account_id
+                  - amount
+                  - date
+              required:
+              - valuation
+        required: true
+  "/api/v1/valuations/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Valuation ID
+      schema:
+        type: string
+    get:
+      summary: Retrieve a valuation
+      tags:
+      - Valuations
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: valuation retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Valuation"
+        '404':
+          description: valuation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    patch:
+      summary: Update a valuation
+      tags:
+      - Valuations
+      security:
+      - apiKeyAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: valuation updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Valuation"
+        '404':
+          description: valuation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                valuation:
+                  type: object
+                  properties:
+                    amount:
+                      type: number
+                      description: New valuation amount (required together with date)
+                    date:
+                      type: string
+                      format: date
+                      description: New valuation date (required together with amount)
+                    notes:
+                      type: string
+                      description: Updated notes (can be updated independently)
+        required: true
+  "/api/v1/balance_sheet":
+    get:
+      summary: Get balance sheet
+      tags:
+      - Balance Sheet
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: balance sheet retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/BalanceSheet"
+  "/api/v1/sync":
+    post:
+      summary: Trigger sync
+      description: Queue a sync for all accounts in the family. This also applies all active rules after syncing.
+      tags:
+      - Sync
+      security:
+      - apiKeyAuth: []
+      responses:
+        '202':
+          description: sync queued
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SyncResponse"
+        '500':
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/usage":
+    get:
+      summary: Get API usage
+      description: Returns API key details and rate limit information. Only available when authenticating with an API key.
+      tags:
+      - Usage
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: usage information retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UsageResponse"
+  "/api/v1/users/reset":
+    delete:
+      summary: Reset account
+      description: Resets the family account data. Requires admin privileges.
+      tags:
+      - Users
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: account reset initiated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DeleteResponse"
+        '403':
+          description: forbidden - admin privileges required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/users/me":
+    delete:
+      summary: Delete account
+      description: Permanently deletes the authenticated user's account.
+      tags:
+      - Users
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: account deleted
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DeleteResponse"
+        '422':
+          description: deletion failed
           content:
             application/json:
               schema:

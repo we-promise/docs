@@ -85,7 +85,8 @@
             "group": "Accounts",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /api/v1/accounts"
+              "GET /api/v1/accounts",
+              "GET /api/v1/accounts/{id}"
             ]
           },
           {
@@ -94,6 +95,14 @@
             "pages": [
               "GET /api/v1/categories",
               "GET /api/v1/categories/{id}"
+            ]
+          },
+          {
+            "group": "Merchants",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/merchants",
+              "GET /api/v1/merchants/{id}"
             ]
           },
           {
@@ -138,6 +147,63 @@
               "GET /api/v1/transactions/{id}",
               "PATCH /api/v1/transactions/{id}",
               "DELETE /api/v1/transactions/{id}"
+            ]
+          },
+          {
+            "group": "Trades",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/trades",
+              "POST /api/v1/trades",
+              "GET /api/v1/trades/{id}",
+              "PATCH /api/v1/trades/{id}",
+              "DELETE /api/v1/trades/{id}"
+            ]
+          },
+          {
+            "group": "Holdings",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/holdings",
+              "GET /api/v1/holdings/{id}"
+            ]
+          },
+          {
+            "group": "Valuations",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/valuations",
+              "GET /api/v1/valuations/{id}",
+              "PATCH /api/v1/valuations/{id}"
+            ]
+          },
+          {
+            "group": "Balance Sheet",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/balance_sheet"
+            ]
+          },
+          {
+            "group": "Sync",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/sync"
+            ]
+          },
+          {
+            "group": "Usage",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/usage"
+            ]
+          },
+          {
+            "group": "Users",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "DELETE /api/v1/users/reset",
+              "DELETE /api/v1/users/me"
             ]
           }
         ]
