@@ -52,8 +52,17 @@ Enable Banking uses sessions to maintain access to your accounts:
 When syncing transactions, you can:
 
 - Filter by date range (from/to dates)
-- Only booked transactions are imported (pending transactions are excluded)
 - Paginate through large transaction sets using continuation keys
+
+### Pending transactions
+
+By default, Sure imports both booked and pending (uncleared) transactions from Enable Banking. Pending transactions are automatically reconciled once they post as booked.
+
+You can disable pending transaction imports in your sync settings by toggling "Include pending transactions" off. When disabled, only booked transactions are imported, and any previously stored pending transactions are removed during the next sync.
+
+<Note>
+  Disable this option if your bank provides unreliable pending transaction data.
+</Note>
 
 ## Supported account types
 
