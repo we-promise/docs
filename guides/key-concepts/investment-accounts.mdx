@@ -1,0 +1,205 @@
+---
+title: Managing Investment Accounts
+description: Learn how to track holdings, trades, cost basis, and investment activity in Sure's investment and crypto accounts.
+---
+
+# Managing Investment Accounts
+
+Investment accounts in Sure go beyond simple balance tracking. They help you understand your portfolio through holdings, trades, cost basis tracking, and investment activity labels.
+
+## Understanding Holdings
+
+A **holding** represents your position in a specific security. For example, if you own 50 shares of Apple stock, that's one holding.
+
+Each holding tracks:
+
+- **Security** - What you own (stock, ETF, mutual fund, crypto)
+- **Quantity** - How many shares or units you hold
+- **Price** - Current market price per share
+- **Amount** - Total current value (quantity x price)
+- **Cost Basis** - What you originally paid
+
+## Securities Types
+
+Sure supports various security types:
+
+| Type | Examples |
+| --- | --- |
+| Stocks | Individual company shares (AAPL, GOOGL) |
+| ETFs | Exchange-traded funds (SPY, VTI) |
+| Mutual Funds | Pooled investment funds |
+| Crypto | Bitcoin, Ethereum, other cryptocurrencies |
+| Bonds | Fixed-income securities |
+
+## Cost Basis Tracking
+
+Cost basis is the original purchase price of your investments. It's essential for:
+
+- Calculating gains and losses
+- Understanding investment performance
+- Tax reporting
+
+### Cost Basis Sources
+
+Sure tracks cost basis from three sources, in order of priority:
+
+| Priority | Source | Description |
+| --- | --- | --- |
+| 1 (Highest) | **Manual** | Values you enter directly |
+| 2 | **Calculated** | Computed from your buy trades |
+| 3 (Lowest) | **Provider** | Imported from your financial institution |
+
+This hierarchy ensures your manual entries always take precedence, calculated values override provider data, and provider data is used when nothing else is available.
+
+### Setting Cost Basis Manually
+
+You can set cost basis in two ways:
+
+**From the Holdings List:**
+
+1. Navigate to your investment account
+2. Find the holding in your portfolio
+3. Click the pencil icon next to the average cost
+4. Enter either:
+   - **Total cost basis**: The total amount you paid for all shares
+   - **Per-share cost**: The average price per share
+5. Click **Save**
+
+**From the Holding Drawer:**
+
+1. Click on a holding to open its detail drawer
+2. In the Overview section, click the pencil icon next to "Average Cost"
+3. Enter the cost basis (total or per-share)
+4. Click **Save**
+
+> [!TIP]
+> The cost basis editor provides real-time conversion between total and per-share values. Enter whichever format you have available, and Sure calculates the other automatically.
+
+### Lock Protection
+
+When you manually set a cost basis, Sure automatically **locks** it to prevent automatic updates from overwriting your value. You'll see a lock icon indicating the value is protected.
+
+This ensures your manual entries remain intact during account syncs.
+
+### Unlocking Cost Basis
+
+If you want Sure to recalculate cost basis from your trades:
+
+1. Open the holding drawer
+2. Scroll to the **Settings** section
+3. Find "Cost basis locked"
+4. Click **Unlock**
+
+After unlocking:
+- The lock icon disappears
+- Future syncs can update the cost basis
+- Calculated values (from trades) will replace the manual value
+
+## Investment Activity Labels
+
+Activity labels help you classify investment transactions. They appear as badges in your transaction list and help you understand your investment activity at a glance.
+
+### Available Activity Labels
+
+| Label | Description |
+| --- | --- |
+| **Buy** | Purchase of securities |
+| **Sell** | Sale of securities |
+| **Contribution** | Money added to the investment account |
+| **Withdrawal** | Money removed from the investment account |
+| **Dividend** | Dividend payments received |
+| **Interest** | Interest earned |
+| **Reinvestment** | Dividends or distributions reinvested |
+| **Sweep In** | Cash swept into the account |
+| **Sweep Out** | Cash swept out of the account |
+| **Fee** | Account or transaction fees |
+| **Exchange** | Currency or security exchanges |
+| **Transfer** | Internal transfers |
+| **Other** | Miscellaneous transactions |
+
+### Setting Labels Manually
+
+1. Open a transaction from an investment or crypto account
+2. Scroll to the **Settings** section
+3. Find "Activity type"
+4. Select a label from the dropdown
+5. The change saves automatically
+
+### Setting Labels with Rules
+
+Create rules to automatically label transactions based on patterns:
+
+1. Go to **Settings > Rules**
+2. Create a new rule
+3. Set conditions (e.g., "IF transaction name contains 'DIVIDEND'")
+4. Add action: "Set investment activity label"
+5. Choose the label (e.g., "Dividend")
+6. Save the rule
+
+Example rules:
+- IF name contains "DIVIDEND" THEN set label to "Dividend"
+- IF name contains "INTEREST" THEN set label to "Interest"
+- IF name contains "FEE" THEN set label to "Fee"
+
+> [!NOTE]
+> Internal movement labels (Transfer, Sweep In, Sweep Out, Exchange) are automatically excluded from budget calculations since they represent cash management rather than income or expenses.
+
+## Tax Treatment Categories
+
+Investment accounts have different tax implications based on their type:
+
+| Category | Description | Examples |
+| --- | --- | --- |
+| **Taxable** | Gains taxed when realized | Brokerage, UGMA/UTMA |
+| **Tax-Deferred** | Taxes deferred until withdrawal | 401(k), Traditional IRA, 403(b) |
+| **Tax-Exempt** | Qualified gains are tax-free | Roth IRA, Roth 401(k), ISA |
+| **Tax-Advantaged** | Special tax benefits with conditions | 529 Plan, HSA |
+
+Sure automatically assigns tax treatment based on account subtype, but you can adjust it manually if needed.
+
+## Understanding Gains and Losses
+
+Sure helps you track two types of gains:
+
+### Unrealized Gains/Losses
+
+Paper gains or losses on holdings you still own:
+
+```
+Unrealized Gain = Current Value - Cost Basis
+```
+
+If you bought 10 shares at $100 ($1,000 total) and they're now worth $1,200, you have an unrealized gain of $200.
+
+### Realized Gains/Losses
+
+Actual gains or losses from securities you've sold. These are what matter for taxes.
+
+The **Trend** indicator on each holding shows your unrealized gain or loss, calculated from your cost basis. If cost basis is unknown (no trades and no manual entry), the trend won't display.
+
+## Crypto-Specific Features
+
+Crypto accounts work similarly to investment accounts but have unique characteristics:
+
+| Subtype | Description | Manual Trades |
+| --- | --- | --- |
+| Wallet | Self-custody or provider-synced | No |
+| Exchange | Centralized exchanges (Coinbase, etc.) | Yes |
+
+- **Exchange accounts** support manual trade entry, letting you record buys and sells
+- **Wallet accounts** are sync-only—holdings are updated through provider connections
+
+Crypto is taxable by default, though it can be held in tax-advantaged accounts (e.g., self-directed IRA).
+
+## Adding Investment Accounts
+
+1. Click **+ Add Account** on your dashboard
+2. Select **Investment** or **Crypto**
+3. Choose the appropriate subtype (see [Account Types](./account-types.mdx) for all options)
+4. Enter your account details:
+   - Account name
+   - Current balance
+   - Tax treatment (if different from default)
+5. Click **Create Account**
+
+After creating the account, you can add holdings manually or connect a provider to sync them automatically.
