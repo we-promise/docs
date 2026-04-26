@@ -1,0 +1,211 @@
+---
+title: Transfers Between Accounts
+description: Learn how transfers work in Sure, including transfer types, automatic matching, and how transfers affect your budgets and net worth.
+---
+
+# Transfers Between Accounts
+
+A transfer moves money between your own accounts. Unlike income or expenses, transfers don't change your net worth—they simply move funds from one place to another.
+
+## How Transfers Work
+
+Every transfer consists of two linked transactions:
+
+1. **Outflow** - Money leaving one account (negative amount)
+2. **Inflow** - Money entering another account (positive amount)
+
+These two transactions are linked together as a single transfer.
+
+### Example: Moving Money to Savings
+
+When you transfer $500 from checking to savings:
+
+| Account | Transaction | Amount |
+| --- | --- | --- |
+| Checking | Outflow | -$500 |
+| Savings | Inflow | +$500 |
+| **Net Effect** | | **$0** |
+
+Your total net worth stays the same—the money simply moved from one account to another.
+
+## Transfer Types
+
+Sure recognizes different types of transfers based on the destination account:
+
+| Transfer Type | When It's Used | Budget Impact |
+| --- | --- | --- |
+| **Funds Movement** | Between asset accounts | Excluded |
+| **CC Payment** | Payment to a credit card | Excluded |
+| **Loan Payment** | Payment to a loan account | Treated as expense |
+| **Investment Contribution** | To investment or crypto accounts | Excluded |
+
+### Funds Movement
+
+General transfers between asset accounts:
+- Checking to savings
+- Savings to money market
+- Between investment accounts
+
+These are excluded from budgets because they don't represent spending or income.
+
+### Credit Card Payment
+
+When you pay your credit card bill, Sure creates a `cc_payment` transfer:
+- Outflow from your checking account
+- Inflow to your credit card (reducing your debt)
+
+This is excluded from budgets because the spending already happened when you used the credit card.
+
+### Loan Payment
+
+Payments to loan accounts (mortgage, auto, student loans) are treated as `loan_payment` transfers.
+
+> [!NOTE]
+> Loan payments can be treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt.
+
+### Investment Contribution
+
+Transfers to investment or crypto accounts:
+- Contributing to your 401(k)
+- Adding funds to a brokerage account
+- Moving money to a crypto exchange
+
+These are excluded from budgets because you're saving/investing, not spending.
+
+## Creating Transfers Manually
+
+To create a transfer:
+
+1. Go to the **Transactions** page
+2. Click **+ New Transaction**
+3. Select **Transfer**
+4. Choose:
+   - **From account** - Where money is coming from
+   - **To account** - Where money is going
+   - **Amount** - How much to transfer
+   - **Date** - When the transfer occurred
+5. Click **Add transaction**
+
+Sure automatically creates both the outflow and inflow transactions and links them together.
+
+## Automatic Transfer Matching
+
+When you sync accounts with a provider (Plaid, SimpleFIN, etc.), Sure attempts to automatically match transfers between accounts.
+
+### How Matching Works
+
+Sure looks for transaction pairs that:
+- Are from different accounts in the same family
+- Have opposite amounts (one positive, one negative)
+- Occurred within a date window
+
+### Date Windows
+
+| Transaction Status | Window |
+| --- | --- |
+| Pending transactions | 4 days |
+| Confirmed transactions | 30 days |
+
+### Suggested Matches
+
+When Sure finds a potential transfer match, it creates a **pending** transfer suggestion. You can:
+
+1. **Confirm** - Accept the match and link the transactions
+2. **Reject** - Dismiss the match (transactions remain separate)
+
+To review suggested transfers:
+1. Open a transaction that may be part of a transfer
+2. Look for transfer match suggestions
+3. Confirm or reject as appropriate
+
+## Cross-Currency Transfers
+
+When transferring between accounts with different currencies:
+
+- Sure validates that amounts have opposite signs
+- The exact amounts don't need to match (due to exchange rates)
+- Both transactions are linked as a transfer
+
+Example: Transferring from a USD checking account to a EUR savings account:
+
+| Account | Currency | Amount |
+| --- | --- | --- |
+| US Checking | USD | -$1,000 |
+| Euro Savings | EUR | +€920 |
+
+The transfer is valid because one amount is negative and one is positive, even though the numbers differ due to the exchange rate.
+
+## How Transfers Affect Budgets
+
+Transfers are generally **excluded** from budget calculations because they don't represent actual spending or income:
+
+| Transfer Type | Budget Treatment |
+| --- | --- |
+| Funds Movement | Excluded |
+| CC Payment | Excluded |
+| Investment Contribution | Excluded |
+| Loan Payment | Can be included as expense |
+
+> [!TIP]
+> If you want to budget for loan payments, you may want to track them as expenses. Sure treats loan payments specially since they represent ongoing obligations.
+
+## Understanding Net Worth Impact
+
+Transfers are **zero-sum** for net worth:
+
+- Moving $500 from checking to savings: Net worth unchanged
+- Paying $500 to credit card: Net worth unchanged (reduced cash = reduced debt)
+- Contributing $500 to 401(k): Net worth unchanged (reduced cash = increased investments)
+
+The only time a transfer affects net worth is if there are fees involved (which would be a separate expense transaction).
+
+## Common Transfer Scenarios
+
+### Paying Off a Credit Card
+
+1. Money leaves your checking account (-$500)
+2. Credit card balance decreases (-$500 debt)
+3. Net worth: unchanged
+
+### Making a Mortgage Payment
+
+1. Money leaves your checking account (-$2,000)
+2. Loan balance decreases (-$1,700 principal, $300 goes to interest)
+3. Note: The interest portion is technically an expense
+
+> [!IMPORTANT]
+> Mortgage payments include both principal (reducing debt) and interest (an expense). Sure tracks the full payment as a loan transfer, but the interest portion represents a true cost.
+
+### Contributing to Retirement
+
+1. Money leaves your checking account (-$500)
+2. Investment account balance increases (+$500)
+3. Net worth: unchanged (cash converted to investments)
+
+### Transferring Between Banks
+
+1. Money leaves Bank A checking (-$1,000)
+2. Money arrives at Bank B checking (+$1,000)
+3. Net worth: unchanged
+
+## Troubleshooting Transfers
+
+### Duplicate Transactions
+
+If you see both a transfer and separate expense/income transactions:
+- Check if the transactions should be linked as a transfer
+- Confirm or reject the transfer suggestion
+- Delete duplicate transactions if needed
+
+### Unmatched Transfers
+
+If Sure didn't automatically match a transfer:
+- The amounts may not match exactly (due to fees or timing)
+- The dates may be too far apart
+- You can manually create a transfer to link them
+
+### Wrong Transfer Type
+
+If a transfer is categorized incorrectly:
+- Check that both accounts are the correct type
+- The transfer type is determined by the destination account

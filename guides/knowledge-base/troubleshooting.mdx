@@ -135,6 +135,55 @@ Sure uses WebSockets for certain pages. If some pages fail to render correctly o
 
 </AccordionGroup>
 
+## Why is Sure not running auto-categorization and merchant detection on the same transactions again?
 
+Sure caches AI-generated results to avoid redundant API calls and costs. Once a transaction has been processed by AI rules, it won't be re-processed unless you explicitly reset the AI cache.
+
+<AccordionGroup>
+
+  <Accordion title="Why does Sure cache AI results?">
+
+    When AI rules process transactions, Sure stores:
+
+    - **Enrichment records** - Which attributes were set by AI (category, merchant, etc.)
+    - **Attribute locks** - Prevents rules from re-processing already-handled transactions
+
+    This caching ensures:
+
+    - Transactions aren't sent to the LLM repeatedly
+    - API costs are minimized
+    - Processing is faster on subsequent rule runs
+
+  </Accordion>
+
+  <Accordion title="How do I force Sure to re-process transactions?">
+
+    To have AI rules re-process transactions, you need to reset the AI cache:
+
+    1. Go to **Settings** → **Rules**
+    2. Click the menu button (three dots)
+    3. Select **Reset AI cache**
+    4. Confirm the action
+
+    After resetting, the next time rules run (either manually or during a sync), AI will re-process all transactions.
+
+    **Note:** This will incur API costs if using a cloud provider.
+
+  </Accordion>
+
+  <Accordion title="When should I reset the AI cache?">
+
+    Common scenarios for resetting the cache:
+
+    - **Switching LLM models** - Different models may produce better categorizations
+    - **After system updates** - New versions may have improved prompts
+    - **Fixing miscategorizations** - When AI made systematic errors
+    - **Testing** - During development or evaluation of AI features
+
+    The AI cache is automatically cleared when you change the OpenAI model setting.
+
+  </Accordion>
+
+</AccordionGroup>
 
  

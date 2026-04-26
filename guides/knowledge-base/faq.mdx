@@ -1,0 +1,22 @@
+---
+title: "FAQ"
+---
+
+## Transfers and Currencies
+
+<AccordionGroup>
+  <Accordion title="Can I have a transfer between accounts with different currencies (exchange rate)?">
+    Yes, you can make transfers between accounts with different currencies. The system automatically applies the appropriate exchange rate for the transfer date:
+    
+    - The outgoing transaction uses the source account's currency and amount
+    - The incoming transaction is converted to the destination account's currency using the latest available rate
+    - If no exchange rate is found, it falls back to a 1:1 rate, which may result in incorrect amounts until rates are synced
+    - Foreign exchange metadata is also recorded for auditing purposes
+    
+    For best results, make sure your exchange rates are up to date to avoid conversion errors.
+    
+    **Sources:**
+    - [Transfer Creator Implementation](https://github.com/we-promise/sure/blob/8e36c8e7368cef008133970404bcaabd6cde3df9/app/models/transfer/creator.rb#L1-L103)
+    - [Issue #124](https://github.com/we-promise/sure/issues/124)
+  </Accordion>
+</AccordionGroup>

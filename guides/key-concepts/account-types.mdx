@@ -1,0 +1,229 @@
+---
+title: All Account Types Sure Offers
+description: A complete reference of all account types available in Sure, including assets, liabilities, and their subtypes organized by region.
+---
+
+# All Account Types Sure Offers
+
+Sure supports a comprehensive range of account types to track your complete financial picture. This page provides a complete reference of all available account types and their subtypes.
+
+## Overview: Assets vs. Liabilities
+
+| Classification | Types | Description |
+| --- | --- | --- |
+| **Assets** | Cash, Investment, Crypto, Property, Vehicle, Other Asset | Things you own |
+| **Liabilities** | Credit Card, Loan, Other Liability | Things you owe |
+
+## Asset Accounts
+
+### Cash (Depository)
+
+Liquid funds in bank accounts.
+
+| Subtype | Short Name | Description |
+| --- | --- | --- |
+| checking | Checking | Everyday spending account |
+| savings | Savings | Interest-bearing savings |
+| hsa | HSA | Health Savings Account |
+| cd | CD | Certificate of Deposit |
+| money_market | MM | Money Market account |
+
+### Investment
+
+Investment accounts hold securities and have tax treatment based on account type.
+
+#### United States
+
+| Subtype | Short Name | Full Name | Tax Treatment |
+| --- | --- | --- | --- |
+| brokerage | Brokerage | Brokerage | Taxable |
+| 401k | 401(k) | 401(k) | Tax-Deferred |
+| roth_401k | Roth 401(k) | Roth 401(k) | Tax-Exempt |
+| 403b | 403(b) | 403(b) | Tax-Deferred |
+| 457b | 457(b) | 457(b) | Tax-Deferred |
+| tsp | TSP | Thrift Savings Plan | Tax-Deferred |
+| ira | IRA | Traditional IRA | Tax-Deferred |
+| roth_ira | Roth IRA | Roth IRA | Tax-Exempt |
+| sep_ira | SEP IRA | SEP IRA | Tax-Deferred |
+| simple_ira | SIMPLE IRA | SIMPLE IRA | Tax-Deferred |
+| 529_plan | 529 Plan | 529 Education Savings Plan | Tax-Advantaged |
+| hsa | HSA | Health Savings Account | Tax-Advantaged |
+| ugma | UGMA | UGMA Custodial Account | Taxable |
+| utma | UTMA | UTMA Custodial Account | Taxable |
+
+#### United Kingdom
+
+| Subtype | Short Name | Full Name | Tax Treatment |
+| --- | --- | --- | --- |
+| isa | ISA | Individual Savings Account | Tax-Exempt |
+| lisa | LISA | Lifetime ISA | Tax-Exempt |
+| sipp | SIPP | Self-Invested Personal Pension | Tax-Deferred |
+| workplace_pension_uk | Pension | Workplace Pension | Tax-Deferred |
+
+#### Canada
+
+| Subtype | Short Name | Full Name | Tax Treatment |
+| --- | --- | --- | --- |
+| rrsp | RRSP | Registered Retirement Savings Plan | Tax-Deferred |
+| tfsa | TFSA | Tax-Free Savings Account | Tax-Exempt |
+| resp | RESP | Registered Education Savings Plan | Tax-Advantaged |
+| lira | LIRA | Locked-In Retirement Account | Tax-Deferred |
+| rrif | RRIF | Registered Retirement Income Fund | Tax-Deferred |
+
+#### Australia
+
+| Subtype | Short Name | Full Name | Tax Treatment |
+| --- | --- | --- | --- |
+| super | Super | Superannuation | Tax-Deferred |
+| smsf | SMSF | Self-Managed Super Fund | Tax-Deferred |
+
+#### Europe
+
+| Subtype | Short Name | Full Name | Tax Treatment |
+| --- | --- | --- | --- |
+| pea | PEA | Plan d'Epargne en Actions | Tax-Advantaged |
+| pillar_3a | Pillar 3a | Private Pension (Pillar 3a) | Tax-Deferred |
+| riester | Riester | Riester-Rente | Tax-Deferred |
+
+#### Generic (Available Everywhere)
+
+| Subtype | Short Name | Full Name | Tax Treatment |
+| --- | --- | --- | --- |
+| pension | Pension | Pension | Tax-Deferred |
+| retirement | Retirement | Retirement Account | Tax-Deferred |
+| mutual_fund | Mutual Fund | Mutual Fund | Taxable |
+| angel | Angel | Angel Investment | Taxable |
+| trust | Trust | Trust | Taxable |
+| other | Other | Other Investment | Taxable |
+
+### Crypto
+
+Cryptocurrency holdings.
+
+| Subtype | Short Name | Full Name | Manual Trades |
+| --- | --- | --- | --- |
+| wallet | Wallet | Crypto Wallet | No |
+| exchange | Exchange | Crypto Exchange | Yes |
+
+> [!NOTE]
+> Only exchange accounts support manual trade entry. Wallet accounts are sync-only.
+
+### Property
+
+Real estate assets.
+
+| Subtype | Short Name | Full Name |
+| --- | --- | --- |
+| single_family_home | Single Family Home | Single Family Home |
+| multi_family_home | Multi-Family Home | Multi-Family Home |
+| condominium | Condo | Condominium |
+| townhouse | Townhouse | Townhouse |
+| investment_property | Investment Property | Investment Property |
+| second_home | Second Home | Second Home |
+
+**Additional fields:**
+- Address
+- Area (square feet or square meters)
+- Year built
+
+### Vehicle
+
+Cars, trucks, and other vehicles.
+
+**Additional fields:**
+- Make
+- Model
+- Year
+- Mileage (miles or kilometers)
+
+### Other Asset
+
+Anything of value that doesn't fit other categories:
+- Collectibles (art, antiques, coins)
+- Jewelry and watches
+- Equipment
+- Other valuables
+
+## Liability Accounts
+
+### Credit Card
+
+Track credit card balances and spending.
+
+**Additional fields:**
+
+| Field | Description |
+| --- | --- |
+| APR | Annual Percentage Rate |
+| Available Credit | Remaining credit limit |
+| Minimum Payment | Minimum amount due |
+| Annual Fee | Yearly card fee |
+
+### Loan
+
+Track mortgages, auto loans, student loans, and other installment debt.
+
+| Subtype | Short Name | Full Name |
+| --- | --- | --- |
+| mortgage | Mortgage | Mortgage |
+| student | Student | Student Loan |
+| auto | Auto | Auto Loan |
+| other | Other | Other Loan |
+
+**Additional fields:**
+
+| Field | Description |
+| --- | --- |
+| Interest Rate | Annual interest rate |
+| Rate Type | Fixed or variable |
+| Term (months) | Loan duration |
+| Monthly Payment | Calculated from loan details (fixed-rate only) |
+
+> [!TIP]
+> For fixed-rate loans, Sure automatically calculates the monthly payment based on your original balance, interest rate, and term.
+
+### Other Liability
+
+Debts that don't fit the above categories:
+- Personal loans from friends/family
+- Medical bills
+- IOUs
+- Tax obligations
+
+## Tax Treatment Explained
+
+Investment accounts have different tax implications:
+
+| Treatment | Description | When Taxes Apply |
+| --- | --- | --- |
+| **Taxable** | Normal taxation | Gains taxed when realized |
+| **Tax-Deferred** | Taxes postponed | Taxes paid on withdrawal |
+| **Tax-Exempt** | No taxes on gains | Qualified withdrawals are tax-free |
+| **Tax-Advantaged** | Special benefits | Varies by account type and use |
+
+> [!IMPORTANT]
+> Tax treatment in Sure is for informational and organizational purposes. Consult a tax professional for tax advice specific to your situation.
+
+## Choosing the Right Account Type
+
+| Your Situation | Recommended Account Type |
+| --- | --- |
+| Bank checking/savings | Cash (Depository) |
+| Brokerage account | Investment |
+| 401(k), IRA, pension | Investment (select appropriate subtype) |
+| Bitcoin, Ethereum holdings | Crypto |
+| Your home | Property |
+| Your car | Vehicle |
+| Credit card | Credit Card |
+| Mortgage | Loan (mortgage) |
+| Student loans | Loan (student) |
+| Car loan | Loan (auto) |
+| Money you owe someone | Other Liability |
+| Collectibles, jewelry | Other Asset |
+
+## Related Pages
+
+- [How Asset Accounts Work](./asset-accounts.mdx)
+- [How Debt Accounts Work](./debt-accounts.mdx)
+- [Managing Investment Accounts](./investment-accounts.mdx)
+- [Transfers Between Accounts](./transfers.mdx)
