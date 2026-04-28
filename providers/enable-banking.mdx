@@ -58,6 +58,16 @@ When syncing transactions, Sure imports both booked and pending transactions:
 - You can filter synced transactions by date range
 - Large transaction sets are paginated automatically
 
+### Pending transactions
+
+By default, Sure imports both booked and pending (uncleared) transactions from Enable Banking. Pending transactions are automatically reconciled once they post as booked.
+
+You can disable pending transaction imports in your sync settings by toggling "Include pending transactions" off. When disabled, only booked transactions are imported, and any previously stored pending transactions are removed during the next sync.
+
+<Note>
+Disable this option if your bank provides unreliable pending transaction data.
+</Note>
+
 ### Account type mapping
 
 Sure automatically maps your bank's account types to the appropriate Sure account type:
