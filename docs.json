@@ -63,6 +63,7 @@
             "group": "Third party providers",
             "pages": [
               "providers/overview",
+              "providers/market-data",
               "providers/binance",
               "providers/enable-banking",
               "providers/lunchflow",

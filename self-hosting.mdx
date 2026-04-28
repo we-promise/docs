@@ -112,45 +112,27 @@ POSTGRES_PASSWORD="your-database-password-here"
 
 Replace the placeholder values with your generated secret key and a secure database password.
 
-### Optional: SSL/TLS Configuration
+### Market data provider variables
 
-Sure supports additional SSL/TLS configuration options for secure email delivery and API connections.
-
-#### Custom CA Certificate
-
-If you're using a custom Certificate Authority (CA) or self-signed certificates, you can specify a CA file:
+Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
 
 ```txt
-SSL_CA_FILE="/path/to/your/ca-certificate.pem"
+# Comma-separated list of securities providers (e.g. yahoo_finance,tiingo,mfapi)
+SECURITIES_PROVIDERS="yahoo_finance"
+
+# Exchange rate provider (default: twelve_data)
+EXCHANGE_RATE_PROVIDER="twelve_data"
+
+# API keys (only needed for providers that require them)
+TWELVE_DATA_API_KEY="your-key-here"
+TIINGO_API_KEY="your-key-here"
+EODHD_API_KEY="your-key-here"
+ALPHA_VANTAGE_API_KEY="your-key-here"
 ```
 
-This is useful when:
-- Running Sure in a corporate environment with internal CAs
-- Using self-signed certificates for development
-- Connecting to services with custom certificate chains
-
-#### Skip TLS Verification for Email
-
-For development or testing environments, you can disable TLS verification for the email mailer:
-
-```txt
-SMTP_ENABLE_STARTTLS_AUTO=false
-SMTP_TLS_VERIFY=false
-```
-
-<Warning>
-Only disable TLS verification in development or trusted environments. In production, always use proper TLS verification to ensure secure email delivery.
-</Warning>
-
-**When to use this:**
-- Development environments with self-signed certificates
-- Testing email functionality locally
-- Internal mail servers with custom certificates
-
-**Production recommendations:**
-- Always use valid SSL/TLS certificates in production
-- Use the `SSL_CA_FILE` option instead of disabling verification
-- Ensure your SMTP server supports STARTTLS
+<Note>
+Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over the UI setting. Leave it unset to manage providers from the UI only.
+</Note>
 
 ## Running the application
 
@@ -359,6 +341,46 @@ Restart the application after updating your configuration:
 ```bash
 docker compose restart web worker
 ```
+
+### Optional: SSL/TLS Configuration
+
+Sure supports additional SSL/TLS configuration options for secure email delivery and API connections.
+
+#### Custom CA Certificate
+
+If you're using a custom Certificate Authority (CA) or self-signed certificates, you can specify a CA file:
+
+```txt
+SSL_CA_FILE="/path/to/your/ca-certificate.pem"
+```
+
+This is useful when:
+- Running Sure in a corporate environment with internal CAs
+- Using self-signed certificates for development
+- Connecting to services with custom certificate chains
+
+#### Skip TLS Verification for Email
+
+For development or testing environments, you can disable TLS verification for the email mailer:
+
+```txt
+SMTP_ENABLE_STARTTLS_AUTO=false
+SMTP_TLS_VERIFY=false
+```
+
+<Warning>
+Only disable TLS verification in development or trusted environments. In production, always use proper TLS verification to ensure secure email delivery.
+</Warning>
+
+**When to use this:**
+- Development environments with self-signed certificates
+- Testing email functionality locally
+- Internal mail servers with custom certificates
+
+**Production recommendations:**
+- Always use valid SSL/TLS certificates in production
+- Use the `SSL_CA_FILE` option instead of disabling verification
+- Ensure your SMTP server supports STARTTLS
 
 ### Mailer SSL configuration
 
