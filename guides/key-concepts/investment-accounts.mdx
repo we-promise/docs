@@ -19,6 +19,55 @@ Each holding tracks:
 - **Amount** - Total current value (quantity x price)
 - **Cost Basis** - What you originally paid
 
+## Recording Trades
+
+Investment accounts support manual trade entry to track your buy and sell activity.
+
+### Trade Types
+
+When recording a trade, you can specify:
+
+- **Buy**: Purchase of securities
+- **Sell**: Sale of securities
+- **Dividend**: Dividend income (recorded as a trade with qty: 0 and price: 0)
+- **Interest**: Interest income (recorded as a trade with qty: 0 and price: 0)
+
+### Recording Dividends and Interest
+
+Dividends and interest are recorded as trades to maintain data integrity:
+
+**Dividends:**
+- Require a security selection (the security that paid the dividend)
+- Recorded with qty: 0 and price: 0
+- Amount represents the dividend payment received
+
+**Interest:**
+- Security selection is optional
+- If no security is selected, Sure creates a synthetic cash security for the account
+- Recorded with qty: 0 and price: 0
+- Amount represents the interest earned
+
+This approach ensures all investment income is properly tracked while maintaining the requirement that trades reference a security.
+
+### Transaction Fees
+
+Trades support an optional **fee** field to track transaction costs:
+
+- Fees are included in the total amount calculation: `qty × price + fee`
+- Fees default to 0 if not specified
+- Useful for tracking brokerage commissions, exchange fees, or other trading costs
+
+For example:
+- Buy 10 shares at $100/share with a $5 fee = $1,005 total
+- Sell 10 shares at $110/share with a $5 fee = $1,095 total (proceeds after fee)
+
+To add a fee to a trade:
+1. Open the trade form (create or edit)
+2. Enter the fee amount in the fee field
+3. The total amount updates automatically to include the fee
+
+Fees are automatically factored into your cost basis calculations and realized gains/losses.
+
 ## Securities Types
 
 Sure supports various security types:
@@ -95,9 +144,108 @@ After unlocking:
 - Future syncs can update the cost basis
 - Calculated values (from trades) will replace the manual value
 
+## Recording Trades
+
+Investment accounts support recording various types of trades to track your portfolio activity.
+
+### Trade Types
+
+| Type | Description | Security Required |
+| --- | --- | --- |
+| **Buy** | Purchase of securities | Yes |
+| **Sell** | Sale of securities | Yes |
+| **Dividend** | Dividend payments received | Yes |
+| **Interest** | Interest earned on cash or securities | No (optional) |
+
+### Recording Dividends and Interest
+
+Dividends and interest are recorded as trades with zero quantity and zero price, allowing them to be associated with specific securities while maintaining data integrity.
+
+**Dividends:**
+- Require a security selection (the stock/fund paying the dividend)
+- Recorded as a trade with qty: 0 and price: 0
+- Amount represents the dividend payment received
+
+**Interest:**
+- Security selection is optional
+- When no security is selected, Sure creates a synthetic cash security for the account
+- Recorded as a trade with qty: 0 and price: 0
+- Amount represents the interest earned
+
+To record a dividend or interest payment:
+
+1. Navigate to your investment account
+2. Click **+ New Trade**
+3. Select **Dividend** or **Interest** from the type dropdown
+4. For dividends: Select the security that paid the dividend
+5. For interest: Optionally select a security, or leave blank for cash interest
+6. Enter the amount received
+7. Set the date
+8. Click **Save**
+
+> [!NOTE]
+> Dividends require a security selection, while interest can be recorded without one. When no security is selected for interest, Sure automatically creates a per-account synthetic cash security (kind: `cash`, offline: `true`) to maintain data integrity.
+
+### Trade Fees
+
+All trades support an optional fee field to track transaction costs:
+
+- Fees are included in the total amount calculation: `total = (qty × price) + fee`
+- Fees default to 0 if not specified
+- Fees are tracked separately for accurate cost basis calculations
+
 ## Investment Activity Labels
 
 Activity labels help you classify investment transactions. They appear as badges in your transaction list and help you understand your investment activity at a glance.
+
+## Recording Dividends and Interest
+
+Dividends and interest are recorded as **trades** with zero quantity and zero price. This approach maintains data integrity while properly tracking investment income:
+
+- **Dividends** require a security to be selected (the stock or fund paying the dividend)
+- **Interest** can optionally specify a security, or will use a synthetic cash security for the account
+- Both appear in your holdings and trade history
+- Both are properly labeled with their respective activity types
+- The zero-quantity, zero-price approach preserves the trade model's required security association
+
+When creating a dividend or interest transaction:
+
+1. Select **Dividend** or **Interest** from the trade type dropdown
+2. For dividends: Choose the security paying the dividend (required)
+3. For interest: Optionally select a security, or leave blank to use the account's cash position
+4. Enter the amount received
+5. The trade is created with qty: 0 and price: 0, maintaining the security association
+
+## Trade Fees
+
+All trades support an optional **fee** field to track transaction costs like brokerage commissions, exchange fees, or other trading expenses.
+
+### How Fees Work
+
+- Fees are included in the total transaction amount: `Total = (Quantity × Price) + Fee`
+- Fees default to 0 if not specified
+- Fees can be added when creating or editing trades
+- The fee field auto-submits like other trade fields
+
+### Adding Fees to Trades
+
+When creating or editing a trade:
+
+1. Enter the quantity and price as usual
+2. Add the fee amount in the **Fee** field
+3. The total amount updates automatically to include the fee
+4. Save the trade
+
+Example: Buying 10 shares at $50 with a $5 commission:
+- Quantity: 10
+- Price: $50
+- Fee: $5
+- **Total: $505** (10 × $50 + $5)
+
+Fees are particularly important for:
+- Accurate cost basis calculations
+- Understanding true investment returns
+- Tax reporting and record keeping
 
 ### Available Activity Labels
 
@@ -107,8 +255,8 @@ Activity labels help you classify investment transactions. They appear as badges
 | **Sell** | Sale of securities |
 | **Contribution** | Money added to the investment account |
 | **Withdrawal** | Money removed from the investment account |
-| **Dividend** | Dividend payments received |
-| **Interest** | Interest earned |
+| **Dividend** | Dividend payments received (recorded as trades with qty: 0) |
+| **Interest** | Interest earned (recorded as trades with qty: 0) |
 | **Reinvestment** | Dividends or distributions reinvested |
 | **Sweep In** | Cash swept into the account |
 | **Sweep Out** | Cash swept out of the account |
@@ -116,6 +264,9 @@ Activity labels help you classify investment transactions. They appear as badges
 | **Exchange** | Currency or security exchanges |
 | **Transfer** | Internal transfers |
 | **Other** | Miscellaneous transactions |
+
+> [!NOTE]
+> Dividends and interest are recorded as trades with zero quantity and zero price. Dividends require a security selection, while interest can optionally use a synthetic cash security if no specific security is selected.
 
 ### Setting Labels Manually
 
@@ -184,12 +335,12 @@ Crypto accounts work similarly to investment accounts but have unique characteri
 | Subtype | Description | Manual Trades |
 | --- | --- | --- |
 | Wallet | Self-custody or provider-synced | No |
-| Exchange | Centralized exchanges (Coinbase, etc.) | Yes |
+| Exchange | Centralized exchanges (Binance, Coinbase, etc.) | Yes |
 
 - **Exchange accounts** support manual trade entry, letting you record buys and sells
-- **Wallet accounts** are sync-only—holdings are updated through provider connections
+- **Wallet accounts** are sync-only, holdings are updated through provider connections
 
-Crypto is taxable by default, though it can be held in tax-advantaged accounts (e.g., self-directed IRA).
+Crypto is taxable by default, though it can be held in tax-advantaged accounts (for example, a self-directed IRA).
 
 ## Adding Investment Accounts
 

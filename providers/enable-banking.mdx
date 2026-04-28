@@ -38,29 +38,66 @@ To connect your European bank accounts:
 - **Balance information**: Real-time balance data from your bank
 - **Transaction history**: Import historical transactions with date range filtering
 - **Multiple accounts**: Connect multiple accounts from different banks
+- **Duplicate detection**: Automatic deduplication of transactions with different entry reference IDs
 
 ### Session management
 
 Enable Banking uses sessions to maintain access to your accounts:
 
-- Sessions are valid for 90 days from creation
+- Session validity depends on your bank's maximum consent period, up to 90 days
 - You can revoke access at any time by deleting the session
 - Sessions automatically refresh to keep data current
 
-### Transaction filtering
+### Transaction syncing
 
-When syncing transactions, you can:
+When syncing transactions, Sure imports both booked and pending transactions:
 
-- Filter by date range (from/to dates)
-- Only booked transactions are imported (pending transactions are excluded)
-- Paginate through large transaction sets using continuation keys
+- **Booked transactions**: Confirmed transactions from your bank
+- **Pending transactions**: Transactions that have not yet settled (visible for 1–3 days before they become booked)
+- When a pending transaction settles, the pending entry is automatically replaced by the booked version
+- You can filter synced transactions by date range
+- Large transaction sets are paginated automatically
+
+### Account type mapping
+
+Sure automatically maps your bank's account types to the appropriate Sure account type:
+
+- **Checking accounts** (CACC, TRAN, SALA, and others) map to depository accounts
+- **Savings accounts** (SVGS, MOMA) map to depository savings accounts
+- **Credit cards** (CARD, CRCD) map to credit card accounts
+- **Loans and mortgages** (LOAN, MORT) map to loan accounts
+
+### Automatic transfer detection
+
+When syncing transactions from Enable Banking, Sure automatically detects certain transfer types based on the destination account:
+
+- **Loan payments**: Transactions to loan accounts are automatically classified as loan payment transfers
+- **Credit card payments**: Transactions to credit card accounts are automatically classified as credit card payment transfers
+
+See [transfers](/guides/key-concepts/transfers) for more details on how transfer types affect budgets.
+
+### Duplicate transaction handling
+
+Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
+
+- The API sometimes returns the same logical transaction multiple times with different `entry_reference` IDs
+- Sure uses a composite key based on transaction content, including `transaction_id` when present, plus date, amount, currency, creditor and debtor information, remittance information, status, and credit/debit indicator
+- When multiple transactions have identical content, only the first occurrence is kept
+- The `credit_debit_indicator` helps distinguish between payments and refunds of the same amount on the same day
+
+This keeps your transaction history clean and accurate even when the API returns duplicate data.
+
+> [!NOTE]
+> When `transaction_id` is nil for multiple transactions, pure content comparison applies. In rare cases, this could collapse two genuinely distinct transactions with identical fields, but this trade-off prevents the more common issue of API-level duplicates.
 
 ## Supported account types
 
 Enable Banking supports both personal and business accounts:
 
-- **Personal accounts**: Standard consumer bank accounts
-- **Business accounts**: Business banking accounts (specify `psu_type: "business"`)
+- **Personal accounts**: Standard consumer bank accounts (default)
+- **Business accounts**: Business banking accounts
+
+When connecting a bank, Sure validates the selected account type against the types your bank supports. If your bank only supports one type, it is selected automatically.
 
 ## API reference
 
@@ -70,6 +107,7 @@ For technical details about the Enable Banking API, see the [official documentat
 
 - Only supports banks in EU/EEA countries
 - Requires PSD2-compliant banks
-- Session validity is limited to 90 days
+- Session validity depends on your bank's consent limits (up to 90 days)
+- Banks that use decoupled authentication (separate device approval) are not supported
 - Subject to Enable Banking API rate limits
 - Some banks may have additional authentication requirements

@@ -4,6 +4,10 @@ description: Connect your Binance account to track cryptocurrency holdings, bala
 ---
 
 Binance integration allows you to sync your cryptocurrency accounts, track holdings across spot, margin, and earn products, and monitor trades directly in Sure using the Binance API.
+description: Connect your Binance account to track cryptocurrency holdings and transactions
+---
+
+Binance integration allows you to sync your cryptocurrency accounts, track holdings, and monitor transactions directly in Sure using the Binance API.
 
 <Note>
 This integration is currently in beta. Please report any issues you encounter.
@@ -31,15 +35,18 @@ To use the Binance integration, you need:
 
 ## Getting your API credentials
 
-1. Log in to your Binance account
+1. Log in to your [Binance account](https://www.binance.com)
 2. Navigate to **Account** > **API Management**
 3. Create a new API key with the following permissions:
-   - Enable reading (account info, balances)
-   - Enable spot and margin trading history (read-only)
+   - Enable reading (view account information, balances, and trade history)
 4. Save your API key and API secret securely
 
 <Warning>
 Your API secret is only shown once during creation. Store it securely — you'll need both the API key and secret to connect Sure.
+</Warning>
+
+<Warning>
+Do not enable withdrawal or trading permissions on your API key. Sure only requires read access.
 </Warning>
 
 <Tip>
@@ -51,9 +58,10 @@ For security, restrict your API key to read-only access. Sure does not execute t
 1. Navigate to **Settings** > **Providers** in Sure
 2. Click **Add Provider** and select **Binance**
 3. Enter your API credentials:
+   - **Name**: A label for this connection (e.g., "My Binance")
    - **API Key**: Your Binance API key
    - **API Secret**: Your Binance API secret
-4. Optionally set a **sync start date** to limit how far back trade history is fetched
+4. Optionally set a **Sync start date** to limit how far back trade history is fetched
 5. Click **Connect**
 
 ## Account setup
@@ -112,6 +120,10 @@ Your Binance API credentials are encrypted using ActiveRecord Encryption:
 - **API Key**: Uses deterministic encryption for querying
 - **API Secret**: Uses standard encryption for maximum security
 
+### Read-only access
+
+Sure only requires read permissions on your Binance API key. No withdrawal or trading permissions are needed.
+
 ### API timeouts
 
 All Binance API requests include a 30-second timeout to prevent hanging connections.
@@ -136,6 +148,15 @@ Sure automatically syncs your Binance account on a regular schedule along with y
 - Margin balances reflect net assets (assets minus borrowed), not gross positions
 - Historical trade data depends on Binance API availability and retention
 - Real-time price updates depend on Binance market data availability
+To manually sync your Binance accounts:
+
+1. Navigate to **Settings** > **Providers**
+2. Find your Binance connection
+3. Click **Sync**
+
+### Automatic sync
+
+Sure automatically syncs your Binance accounts on a regular schedule along with your other connected accounts.
 
 ## Troubleshooting
 
@@ -162,6 +183,35 @@ If trades are missing:
 1. Check that your API key has trade history read permissions
 2. Verify the trade exists in your Binance account
 3. Ensure the sync start date is set before the trade date
+2. Ensure your API key hasn't been revoked or expired
+3. Check that your API key has read permissions enabled
+4. Confirm your Binance account is active and in good standing
+
+### Missing balances
+
+If some balances are missing:
+
+1. Manually trigger a sync
+2. Verify the asset exists in your Binance account
+3. Check that the account type (spot, margin, earn) is supported
+
+### Stale rate warnings
+
+If you see stale rate warnings on certain holdings, this means Sure couldn't find a recent exchange rate for that asset. This can happen with low-liquidity tokens.
+
+### Account linking issues
+
+If you have trouble linking accounts:
+
+1. Ensure you've completed the account setup after connecting
+2. When linking to an existing account, verify it's a manual crypto account
+3. Try unlinking and relinking the account
+
+## Limitations
+
+- Historical trade data is limited to spot trades
+- Some asset types may not have real-time pricing available
+- Margin and Earn transaction history is not currently synced (only current balances)
 
 ## Getting help
 

@@ -15,6 +15,10 @@ When you create a budget, you assign a spending limit to a category. As you spen
 - **Amount remaining** in your budget
 - **Status indicators** showing if you're on track, near your limit, or over budget
 
+### Planning ahead
+
+You can create budgets for future months, up to 2 years in advance. This lets you plan your spending ahead of time and set category limits before the month begins. Navigate forward using the month selector to set up upcoming budgets.
+
 ![Screenshot2026 01 21at09 53 09](/images/Screenshot2026-01-21at09.53.09.png)
 
 ## Setting Up Category Budgets
@@ -39,11 +43,11 @@ You can organize your spending further with subcategories. For example, "Food & 
 
 ![Screenshot2026 01 21at09 54 22 2](/images/Screenshot2026-01-21at09.54.22-2.png)
 
-### Individual Budgets
+### Individual budgets
 
 Give each subcategory its own limit. This works well when you want strict control over specific types of spending.
 
-### Shared Budgets
+### Shared budgets
 
 Leave a subcategory's budget empty to share the parent category's budget. This is great when you want flexibility across related expenses.
 
@@ -51,7 +55,7 @@ Leave a subcategory's budget empty to share the parent category's budget. This i
 
 When a subcategory shares its parent's budget, you'll see a "(shared)" label next to the budget amount, making it clear which subcategories are drawing from the shared pool.
 
-### Mixed Approach
+### Mixed approach
 
 Combine both methods. Set a fixed budget for some subcategories while others share the remaining amount.
 
@@ -68,6 +72,23 @@ When you set an individual budget for a subcategory, that amount is "ring-fenced
 - **Groceries** and **Coffee** share \$350 remaining (\$400 shared pool - \$50 spent between them)
 - The parent **Food & Dining** shows the total remaining across all subcategories
 
+### Parent auto-aggregation
+
+When you edit a subcategory's budget, the parent category's budget automatically updates to reflect the change. You don't need to manually adjust the parent — Sure keeps it in sync for you.
+
+**How it works:**
+
+- When you increase a subcategory's budget, the parent's budget increases by the same amount.
+- When you decrease a subcategory's budget, the parent's budget decreases accordingly.
+- If the parent had extra budget beyond the sum of its subcategories (a "reserve"), that reserve is preserved during the update.
+- The parent's budget never drops below the combined total of its subcategories.
+
+**Example:**
+
+- Food & Dining starts at \$500 with Restaurants at \$100 and Groceries at \$150 (\$250 reserve in the shared pool)
+- You increase Groceries from \$150 to \$200
+- Food & Dining automatically updates to \$550, preserving the \$250 reserve
+
 ## Status Indicators
 
 Sure uses color-coded badges to show your budget status at a glance:
@@ -75,6 +96,18 @@ Sure uses color-coded badges to show your budget status at a glance:
 - **On Track** (green) - You're within budget and pacing well
 - **Near Limit** (yellow) - Getting close to your limit
 - **Over Budget** (red) - You've exceeded your budget
+
+## Tax-advantaged accounts and budgets
+
+Sure automatically excludes activity from tax-advantaged investment accounts when calculating budget spending. This ensures your budgets accurately reflect your day-to-day spending without being skewed by investment contributions or withdrawals.
+
+**Excluded account types:**
+- 401(k) accounts
+- IRA accounts (Traditional and Roth)
+- 403(b) accounts
+- Other tax-advantaged retirement accounts
+
+Transactions from these accounts won't count toward your budget limits, keeping your budget focused on regular income and expenses.
 
 ## Tips for Effective Budgeting
 

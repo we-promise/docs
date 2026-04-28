@@ -48,7 +48,7 @@ General transfers between asset accounts:
 
 These are excluded from budgets because they don't represent spending or income.
 
-### Credit Card Payment
+### Credit card payment
 
 When you pay your credit card bill, Sure creates a `cc_payment` transfer:
 - Outflow from your checking account
@@ -56,12 +56,16 @@ When you pay your credit card bill, Sure creates a `cc_payment` transfer:
 
 This is excluded from budgets because the spending already happened when you used the credit card.
 
-### Loan Payment
+When syncing transactions from a provider, Sure automatically classifies transactions to credit card accounts as credit card payment transfers.
+
+### Loan payment
 
 Payments to loan accounts (mortgage, auto, student loans) are treated as `loan_payment` transfers.
 
 > [!NOTE]
 > Loan payments can be treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt.
+
+When syncing transactions from a provider, Sure automatically classifies transactions to loan accounts as loan payment transfers.
 
 ### Investment Contribution
 
@@ -134,6 +138,26 @@ Example: Transferring from a USD checking account to a EUR savings account:
 | Euro Savings | EUR | +€920 |
 
 The transfer is valid because one amount is negative and one is positive, even though the numbers differ due to the exchange rate.
+
+## Transfer Summary Totals
+
+When viewing your transaction list filtered by transfers, Sure displays **Inflow** and **Outflow** totals instead of the standard Income and Expenses labels.
+
+### How It Works
+
+**Transfer-only filter:**
+- When filtering exclusively by "Transfer" type, the summary bar shows:
+  - **Inflow**: Total positive transfer amounts (money coming in)
+  - **Outflow**: Total negative transfer amounts (money going out)
+
+**Mixed filters:**
+- When filtering by transfers along with other transaction types (income, expenses), the summary bar shows standard Income/Expenses labels
+- Transfer amounts are excluded from these totals since they don't represent actual income or spending
+
+This helps you understand your cash movement patterns when reviewing transfers in isolation.
+
+> [!NOTE]
+> When filtering by both transfers and other transaction types, transfer amounts are excluded from income and expense totals to avoid confusion.
 
 ## How Transfers Affect Budgets
 
