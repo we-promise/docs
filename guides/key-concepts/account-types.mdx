@@ -221,6 +221,93 @@ Investment accounts have different tax implications:
 | Money you owe someone | Other Liability |
 | Collectibles, jewelry | Other Asset |
 
+## Account Sharing and Permissions
+
+Sure supports sharing accounts with other family members, allowing collaborative financial management while maintaining appropriate access controls.
+
+### How Account Sharing Works
+
+Accounts can be shared with other members of your family with different permission levels:
+
+**Permission Levels:**
+
+| Permission | Can View | Can Edit | Can Delete |
+| --- | --- | --- | --- |
+| **View Only** | ✅ Yes | ❌ No | ❌ No |
+| **Edit** | ✅ Yes | ✅ Yes | ❌ No |
+| **Full Access** | ✅ Yes | ✅ Yes | ✅ Yes |
+
+### Sharing an Account
+
+To share an account with family members:
+
+1. Navigate to the account you want to share
+2. Open the account settings or details page
+3. Find the "Sharing" or "Permissions" section
+4. Click **Share Account** or **Manage Access**
+5. Select the family member you want to share with
+6. Choose their permission level
+7. Click **Save** or **Share**
+
+### Managing Shared Accounts
+
+**As an account owner:**
+- You maintain full control over accounts you create
+- You can modify or revoke sharing permissions at any time
+- You can see who has access to each account
+
+**As a shared user:**
+- Shared accounts appear in your account list
+- Your available actions depend on your permission level
+- You can see who owns the account
+
+### Account Scoping
+
+Account sharing affects how data appears throughout Sure:
+
+**Dashboard and reports:**
+- Your dashboard shows all accounts you own plus accounts shared with you
+- Net worth calculations include all accessible accounts
+- Reports and budgets can be filtered by account ownership
+
+**Transactions and activity:**
+- You can view transactions for any account you have access to
+- Edit permissions allow you to categorize, tag, and modify transactions
+- Full access allows you to delete transactions and manage account settings
+
+**Provider connections:**
+- Only account owners and users with full access can manage provider connections
+- Synced data is visible to all users with access to the account
+
+### Family-Level Features
+
+Some features operate at the family level and are accessible to all family members:
+
+- **Recurring transactions**: Scoped to accounts you have access to
+- **Merchants**: Shared across the family for consistent categorization
+- **Categories and tags**: Available to all family members
+- **Rules**: Can be created by any family member and apply to their accessible accounts
+
+> [!IMPORTANT]
+> Account sharing is designed for trusted family members. Users with edit or full access permissions can modify financial data, so only share accounts with people you trust.
+
+### Privacy and Security
+
+**What's shared:**
+- Account balances and transaction history
+- Holdings and investment details (for investment accounts)
+- Account metadata (name, type, institution)
+
+**What's not shared:**
+- Your login credentials
+- Provider API keys (unless explicitly configured)
+- Personal settings and preferences
+
+**Admin controls:**
+- Family admins can manage provider connections for the entire family
+- Only admins can configure third-party provider integrations
+- Account owners always retain control over their own accounts
+
 ## Related Pages
 
 - [How Asset Accounts Work](./asset-accounts.mdx)

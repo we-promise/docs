@@ -36,7 +36,9 @@
             "group": "App features",
             "pages": [
               "guides/app-features/budgets",
+              "guides/app-features/csv-imports",
               "features/recurring-transactions",
+              "guides/app-features/family-sharing",
               "guides/app-features/settings"
             ]
           },
@@ -89,42 +91,10 @@
             ]
           },
           {
-            "group": "Transactions",
+            "group": "Balance Sheet",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /api/v1/transactions",
-              "POST /api/v1/transactions",
-              "GET /api/v1/transactions/{id}",
-              "PATCH /api/v1/transactions/{id}",
-              "DELETE /api/v1/transactions/{id}"
-            ]
-          },
-          {
-            "group": "Trades",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/trades",
-              "POST /api/v1/trades",
-              "GET /api/v1/trades/{id}",
-              "PATCH /api/v1/trades/{id}",
-              "DELETE /api/v1/trades/{id}"
-            ]
-          },
-          {
-            "group": "Holdings",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/holdings",
-              "GET /api/v1/holdings/{id}"
-            ]
-          },
-          {
-            "group": "Valuations",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "POST /api/v1/valuations",
-              "GET /api/v1/valuations/{id}",
-              "PATCH /api/v1/valuations/{id}"
+              "GET /api/v1/balance_sheet"
             ]
           },
           {
@@ -133,25 +103,6 @@
             "pages": [
               "GET /api/v1/categories",
               "GET /api/v1/categories/{id}"
-            ]
-          },
-          {
-            "group": "Merchants",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/merchants",
-              "GET /api/v1/merchants/{id}"
-            ]
-          },
-          {
-            "group": "Tags",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/tags",
-              "POST /api/v1/tags",
-              "GET /api/v1/tags/{id}",
-              "PATCH /api/v1/tags/{id}",
-              "DELETE /api/v1/tags/{id}"
             ]
           },
           {
@@ -168,6 +119,14 @@
             ]
           },
           {
+            "group": "Holdings",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/holdings",
+              "GET /api/v1/holdings/{id}"
+            ]
+          },
+          {
             "group": "Imports",
             "openapi": "/openapi.yaml",
             "pages": [
@@ -177,10 +136,11 @@
             ]
           },
           {
-            "group": "Balance Sheet",
+            "group": "Merchants",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /api/v1/balance_sheet"
+              "GET /api/v1/merchants",
+              "GET /api/v1/merchants/{id}"
             ]
           },
           {
@@ -191,10 +151,52 @@
             ]
           },
           {
+            "group": "Tags",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/tags",
+              "POST /api/v1/tags",
+              "GET /api/v1/tags/{id}",
+              "PATCH /api/v1/tags/{id}",
+              "DELETE /api/v1/tags/{id}"
+            ]
+          },
+          {
+            "group": "Trades",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/trades",
+              "POST /api/v1/trades",
+              "GET /api/v1/trades/{id}",
+              "PATCH /api/v1/trades/{id}",
+              "DELETE /api/v1/trades/{id}"
+            ]
+          },
+          {
+            "group": "Transactions",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/transactions",
+              "POST /api/v1/transactions",
+              "GET /api/v1/transactions/{id}",
+              "PATCH /api/v1/transactions/{id}",
+              "DELETE /api/v1/transactions/{id}"
+            ]
+          },
+          {
             "group": "Usage",
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/usage"
+            ]
+          },
+          {
+            "group": "Valuations",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/valuations",
+              "GET /api/v1/valuations/{id}",
+              "PATCH /api/v1/valuations/{id}"
             ]
           },
           {
