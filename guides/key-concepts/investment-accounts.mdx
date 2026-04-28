@@ -262,14 +262,8 @@ Fees are particularly important for:
 | **Transfer** | Internal transfers |
 | **Other** | Miscellaneous transactions |
 
-### Recording Dividends and Interest
-
-Dividends and interest are recorded as **trades** with zero quantity and zero price, maintaining the security association:
-
-- **Dividends**: Require a security selection (the stock or fund paying the dividend)
-- **Interest**: Can be associated with a security or fall back to a synthetic cash security for the account
-
-This approach ensures all investment income is properly tracked and associated with the correct securities in your portfolio.
+> [!NOTE]
+> Dividends and interest are recorded as trades with zero quantity and zero price. Dividends require a security selection, while interest can optionally use a synthetic cash security if no specific security is selected.
 
 ### Setting Labels Manually
 
