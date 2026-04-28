@@ -36,7 +36,9 @@
             "group": "App features",
             "pages": [
               "guides/app-features/budgets",
+              "guides/app-features/csv-imports",
               "features/recurring-transactions",
+              "guides/app-features/family-sharing",
               "guides/app-features/settings"
             ]
           },
@@ -142,6 +144,13 @@
             ]
           },
           {
+            "group": "Sync",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/sync"
+            ]
+          },
+          {
             "group": "Tags",
             "openapi": "/openapi.yaml",
             "pages": [
@@ -175,26 +184,19 @@
             ]
           },
           {
-            "group": "Valuations",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/valuations/{id}",
-              "POST /api/v1/valuations",
-              "PATCH /api/v1/valuations/{id}"
-            ]
-          },
-          {
-            "group": "Sync",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "POST /api/v1/sync"
-            ]
-          },
-          {
             "group": "Usage",
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/usage"
+            ]
+          },
+          {
+            "group": "Valuations",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/valuations",
+              "GET /api/v1/valuations/{id}",
+              "PATCH /api/v1/valuations/{id}"
             ]
           },
           {
