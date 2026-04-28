@@ -112,6 +112,46 @@ POSTGRES_PASSWORD="your-database-password-here"
 
 Replace the placeholder values with your generated secret key and a secure database password.
 
+### Optional: SSL/TLS Configuration
+
+Sure supports additional SSL/TLS configuration options for secure email delivery and API connections.
+
+#### Custom CA Certificate
+
+If you're using a custom Certificate Authority (CA) or self-signed certificates, you can specify a CA file:
+
+```txt
+SSL_CA_FILE="/path/to/your/ca-certificate.pem"
+```
+
+This is useful when:
+- Running Sure in a corporate environment with internal CAs
+- Using self-signed certificates for development
+- Connecting to services with custom certificate chains
+
+#### Skip TLS Verification for Email
+
+For development or testing environments, you can disable TLS verification for the email mailer:
+
+```txt
+SMTP_ENABLE_STARTTLS_AUTO=false
+SMTP_TLS_VERIFY=false
+```
+
+<Warning>
+Only disable TLS verification in development or trusted environments. In production, always use proper TLS verification to ensure secure email delivery.
+</Warning>
+
+**When to use this:**
+- Development environments with self-signed certificates
+- Testing email functionality locally
+- Internal mail servers with custom certificates
+
+**Production recommendations:**
+- Always use valid SSL/TLS certificates in production
+- Use the `SSL_CA_FILE` option instead of disabling verification
+- Ensure your SMTP server supports STARTTLS
+
 ## Running the application
 
 ### Start the application
@@ -279,6 +319,55 @@ docker compose logs backup
 # List backup files
 ls -lh /opt/sure-data/backups
 ```
+
+## SSL certificate configuration
+
+For self-hosted environments using self-signed certificates or custom certificate authorities, Sure provides SSL configuration options.
+
+### Environment variables
+
+Add these variables to your `.env` file:
+
+```txt
+SSL_CA_FILE=/path/to/ca-bundle.pem
+SSL_VERIFY=true
+```
+
+**SSL_CA_FILE**: Path to a custom CA certificate bundle (PEM format). Use this when:
+- Your environment uses self-signed certificates
+- You need to trust a custom certificate authority
+- Corporate proxies inject their own certificates
+
+**SSL_VERIFY**: Controls SSL certificate verification (default: `true`)
+- Set to `false` to disable SSL verification (not recommended for production)
+- Only disable verification in development or testing environments
+
+### Mailer SSL configuration
+
+For SMTP connections, additional SSL options are available:
+
+```txt
+SMTP_ENABLE_STARTTLS_AUTO=true
+SMTP_OPENSSL_VERIFY_MODE=none
+```
+
+**SMTP_ENABLE_STARTTLS_AUTO**: Enable STARTTLS for SMTP connections (default: `true`)
+
+**SMTP_OPENSSL_VERIFY_MODE**: SSL verification mode for SMTP
+- `none`: Skip SSL verification
+- `peer`: Verify the server certificate (default)
+
+### Security considerations
+
+<Warning>
+Disabling SSL verification (`SSL_VERIFY=false` or `SMTP_OPENSSL_VERIFY_MODE=none`) exposes your application to man-in-the-middle attacks. Only use these settings in trusted networks or development environments.
+</Warning>
+
+For production deployments:
+- Use properly signed certificates from a trusted CA
+- Keep `SSL_VERIFY=true`
+- Use `SMTP_OPENSSL_VERIFY_MODE=peer`
+- If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
 ## Troubleshooting
 
