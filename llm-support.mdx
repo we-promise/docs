@@ -165,6 +165,8 @@ See the [evaluation framework](/evals) documentation for details on:
 
 ## Docker compose example
 
+### Basic Ollama setup
+
 ```yaml
 services:
   sure:
@@ -174,7 +176,7 @@ services:
       - OPENAI_MODEL=llama3.1:13b
     depends_on:
       - ollama
-  
+
   ollama:
     image: ollama/ollama:latest
     ports:
@@ -193,3 +195,59 @@ services:
 volumes:
   ollama_data:
 ```
+
+### Advanced AI setup with OpenClaw
+
+For advanced AI features including code execution and tool use, you can use the `local-ai` profile with OpenClaw:
+
+```yaml
+services:
+  sure:
+    profiles:
+      - local-ai
+    environment:
+      - OPENAI_ACCESS_TOKEN=ollama-local
+      - OPENAI_URI_BASE=http://openclaw:8080/v1
+      - OPENAI_MODEL=llama3.1:13b
+    depends_on:
+      - openclaw
+      - ollama
+
+  openclaw:
+    image: openclaw/openclaw:latest
+    profiles:
+      - local-ai
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles:
+      - local-ai
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  ollama_data:
+```
+
+To use the local AI setup:
+
+```bash
+# Start with local AI profile
+docker compose --profile local-ai up
+
+# Or include it with other profiles
+docker compose --profile local-ai --profile external-assistant up
+```
+
+The `local-ai` profile includes:
+- **Ollama** - Local LLM inference
+- **OpenClaw** - Gateway providing enhanced AI capabilities and tool use
+- Automatic routing between Sure and the AI stack
