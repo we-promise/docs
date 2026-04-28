@@ -48,16 +48,31 @@ This installs CloudNativePG operator with a Postgres cluster and Redis managed b
 For production stability, use immutable image tags (for example, `image.tag=v1.2.3`) instead of `latest`.
 </Warning>
 
+<Warning>
+Do not pass production secrets with `--set` on the command line. Use a values file with restricted permissions or a Kubernetes Secret as described in [Secrets management](#secrets-management).
+</Warning>
+
 ```bash
 # Create namespace
 kubectl create ns sure || true
 
+# Create a values file for the initial secret
+SECRET_KEY_BASE=$(openssl rand -hex 32)
+cat > values-quickstart.yaml <<EOF
+image:
+  tag: v1.2.3
+rails:
+  secret:
+    enabled: true
+    values:
+      SECRET_KEY_BASE: "$SECRET_KEY_BASE"
+EOF
+chmod 600 values-quickstart.yaml
+
 # Install chart with a pinned image tag
 helm upgrade --install sure sure/sure \
   -n sure \
-  --set image.tag=v1.2.3 \
-  --set rails.secret.enabled=true \
-  --set rails.secret.values.SECRET_KEY_BASE=$(openssl rand -hex 32)
+  -f values-quickstart.yaml
 ```
 
 Expose the app via an ingress (see configuration below) or port-forward:
@@ -72,7 +87,7 @@ Navigate to `http://localhost:8080` to access Sure.
 
 ### Using external Postgres and Redis
 
-To use external managed databases instead of the bundled subcharts:
+To use external managed databases instead of the bundled subcharts, store connection strings in a Kubernetes Secret and reference them from your values file. See [Secrets management](#secrets-management) for the general pattern.
 
 ```yaml
 cnpg:
@@ -87,15 +102,27 @@ redisSimple:
 
 rails:
   extraEnv:
-    DATABASE_URL: postgresql://user:pass@db.example.com:5432/sure
-    REDIS_URL: redis://:pass@redis.example.com:6379/0
+    DATABASE_URL:
+      valueFrom:
+        secretKeyRef:
+          name: external-db-credentials
+          key: database-url
+    REDIS_URL:
+      valueFrom:
+        secretKeyRef:
+          name: external-db-credentials
+          key: redis-url
 ```
 
 ### Deployment profiles
 
 #### Simple single-node
 
-Minimal HA setup for development or small deployments:
+Minimal setup for development or small deployments:
+
+- `encryptionEnv.enabled: true` tells the chart to wire the Active Record encryption keys from your secret into the app container.
+- `SELF_HOSTED: "true"` enables self-hosted behavior inside Sure.
+- Replace `longhorn` with a storage class that exists in your cluster.
 
 ```yaml
 image:
@@ -124,8 +151,8 @@ redisOperator:
   enabled: true
   managed:
     enabled: true
-  mode: replication
-  replicas: 3
+  mode: standalone
+  replicas: 1
   persistence:
     enabled: true
     className: longhorn
@@ -185,6 +212,16 @@ hpa:
 
 ### Secrets management
 
+Generate strong secrets before creating the Kubernetes Secret:
+
+```bash
+openssl rand -hex 32   # SECRET_KEY_BASE
+openssl rand -hex 32   # ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
+openssl rand -hex 32   # ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
+openssl rand -hex 32   # redis-password
+openssl rand -hex 64   # ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
+```
+
 Create a Kubernetes secret with the required credentials:
 
 ```yaml
@@ -204,6 +241,10 @@ stringData:
 
   # Redis password
   redis-password: "__SET_SECRET__"
+
+  # Optional external service URLs
+  database-url: "postgresql://user:pass@db.example.com:5432/sure"
+  redis-url: "redis://:pass@redis.example.com:6379/0"
 ```
 
 Apply the secret:
@@ -273,7 +314,7 @@ helm repo update sure
 
 # Update the deployment with a new image tag
 helm upgrade sure sure/sure -n sure \
-  --set image.tag=v0.6.6-alpha.7 \
+  --set image.tag=v1.2.4 \
   -f your-values.yaml
 ```
 
@@ -306,6 +347,9 @@ PRIMARY_POD=$(kubectl get pod -n sure -l cnpg.io/cluster=sure-db,role=primary -o
 kubectl exec -n sure $PRIMARY_POD -- pg_dump -U sure sure_production > backup.sql
 ```
 
+> [!NOTE]
+> If you customized the PostgreSQL username or database name in your chart values, replace `sure` and `sure_production` in the backup and restore commands below.
+
 ### Restore from backup
 
 ```bash
@@ -313,7 +357,7 @@ kubectl exec -n sure $PRIMARY_POD -- pg_dump -U sure sure_production > backup.sq
 kubectl cp backup.sql sure/$PRIMARY_POD:/tmp/backup.sql
 
 # Restore
-kubectl exec -n sure $PRIMARY_POD -- psql -U sure sure_production < /tmp/backup.sql
+kubectl exec -n sure $PRIMARY_POD -- psql -U sure sure_production -f /tmp/backup.sql
 ```
 
 ## Troubleshooting
@@ -361,13 +405,13 @@ helm uninstall sure -n sure
 ```
 
 <Warning>
-This will not delete PersistentVolumeClaims. To completely remove all data, manually delete the PVCs after uninstalling.
+This will not delete PersistentVolumeClaims. Before deleting PVCs, make sure the namespace does not contain volumes for anything other than Sure.
 </Warning>
 
 ```bash
-kubectl delete pvc -n sure --all
+kubectl get pvc -n sure
+kubectl delete pvc -n sure <sure-pvc-name>
 ```
-
 ## Getting help
 
 If you find bugs or have feature requests:
