@@ -68,6 +68,24 @@ You can disable pending transaction imports in your sync settings by toggling "I
 Disable this option if your bank provides unreliable pending transaction data.
 </Note>
 
+### Account type mapping
+
+Sure automatically maps your bank's account types to the appropriate Sure account type:
+
+- **Checking accounts** (CACC, TRAN, SALA, and others) map to depository accounts
+- **Savings accounts** (SVGS, MOMA) map to depository savings accounts
+- **Credit cards** (CARD, CRCD) map to credit card accounts
+- **Loans and mortgages** (LOAN, MORT) map to loan accounts
+
+### Automatic transfer detection
+
+When syncing transactions from Enable Banking, Sure automatically detects certain transfer types based on the destination account:
+
+- **Loan payments**: Transactions to loan accounts are automatically classified as loan payment transfers
+- **Credit card payments**: Transactions to credit card accounts are automatically classified as credit card payment transfers
+
+See [transfers](/guides/key-concepts/transfers) for more details on how transfer types affect budgets.
+
 ### Duplicate transaction handling
 
 Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
