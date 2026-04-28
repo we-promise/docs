@@ -176,7 +176,7 @@ services:
       - OPENAI_MODEL=llama3.1:13b
     depends_on:
       - ollama
-  
+
   ollama:
     image: ollama/ollama:latest
     ports:
@@ -212,7 +212,7 @@ services:
     depends_on:
       - openclaw
       - ollama
-  
+
   openclaw:
     image: openclaw/openclaw:latest
     profiles:
@@ -223,7 +223,7 @@ services:
       - OLLAMA_HOST=http://ollama:11434
     depends_on:
       - ollama
-  
+
   ollama:
     image: ollama/ollama:latest
     profiles:

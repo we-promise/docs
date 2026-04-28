@@ -517,6 +517,24 @@ components:
         account_col_label:
           type: string
           nullable: true
+        qty_col_label:
+          type: string
+          nullable: true
+        ticker_col_label:
+          type: string
+          nullable: true
+        price_col_label:
+          type: string
+          nullable: true
+        entity_type_col_label:
+          type: string
+          nullable: true
+        currency_col_label:
+          type: string
+          nullable: true
+        exchange_operating_mic_col_label:
+          type: string
+          nullable: true
         date_format:
           type: string
           nullable: true
@@ -524,6 +542,15 @@ components:
           type: string
           nullable: true
         signage_convention:
+          type: string
+          nullable: true
+        col_sep:
+          type: string
+          nullable: true
+        amount_type_strategy:
+          type: string
+          nullable: true
+        amount_type_inflow_value:
           type: string
           nullable: true
     ImportStats:
@@ -557,6 +584,9 @@ components:
           - MintImport
           - CategoryImport
           - RuleImport
+          - PdfImport
+          - QifImport
+          - SureImport
         status:
           type: string
           enum:
@@ -603,6 +633,9 @@ components:
           - MintImport
           - CategoryImport
           - RuleImport
+          - PdfImport
+          - QifImport
+          - SureImport
         status:
           type: string
           enum:
@@ -686,6 +719,7 @@ components:
           type: string
         name:
           type: string
+          nullable: true
     Trade:
       type: object
       required:
@@ -708,7 +742,7 @@ components:
           format: date
         amount:
           type: string
-          description: Formatted amount string
+          description: Formatted monetary amount (e.g. "$1,234.56")
         currency:
           type: string
         name:
@@ -792,6 +826,7 @@ components:
         cost_basis_source:
           type: string
           nullable: true
+          description: Source of cost basis calculation
         account:
           "$ref": "#/components/schemas/Account"
         security:
@@ -833,6 +868,7 @@ components:
         id:
           type: string
           format: uuid
+          description: The entry ID for this valuation
         date:
           type: string
           format: date
@@ -885,6 +921,26 @@ components:
       type: array
       items:
         "$ref": "#/components/schemas/MerchantDetail"
+    BalanceSheetResponse:
+      type: object
+      required:
+      - currency
+      - net_worth
+      - assets
+      - liabilities
+      properties:
+        currency:
+          type: string
+          description: The family's primary currency code
+        net_worth:
+          type: object
+          description: Net worth as a Money object
+        assets:
+          type: object
+          description: Total assets as a Money object
+        liabilities:
+          type: object
+          description: Total liabilities as a Money object
     SyncResponse:
       type: object
       required:
@@ -932,7 +988,9 @@ components:
             name:
               type: string
             scopes:
-              type: string
+              type: array
+              items:
+                type: string
             last_used_at:
               type: string
               format: date-time
@@ -956,26 +1014,6 @@ components:
             reset_at:
               type: string
               format: date-time
-    BalanceSheetResponse:
-      type: object
-      required:
-      - currency
-      - net_worth
-      - assets
-      - liabilities
-      properties:
-        currency:
-          type: string
-          description: The family's primary currency code
-        net_worth:
-          type: object
-          description: Net worth as a Money object
-        assets:
-          type: object
-          description: Total assets as a Money object
-        liabilities:
-          type: object
-          description: Total liabilities as a Money object
 paths:
   "/api/v1/accounts":
     get:
@@ -1339,6 +1377,9 @@ paths:
           - MintImport
           - CategoryImport
           - RuleImport
+          - PdfImport
+          - QifImport
+          - SureImport
       responses:
         '200':
           description: imports filtered by type
@@ -1385,6 +1426,9 @@ paths:
                   - MintImport
                   - CategoryImport
                   - RuleImport
+                  - PdfImport
+                  - QifImport
+                  - SureImport
                   description: Import type (defaults to TransactionImport)
                 account_id:
                   type: string
@@ -1412,6 +1456,27 @@ paths:
                 notes_col_label:
                   type: string
                   description: Header name for the notes column
+                account_col_label:
+                  type: string
+                  description: Header name for the account column
+                qty_col_label:
+                  type: string
+                  description: Header name for the quantity column (trade imports)
+                ticker_col_label:
+                  type: string
+                  description: Header name for the ticker column (trade imports)
+                price_col_label:
+                  type: string
+                  description: Header name for the price column (trade imports)
+                entity_type_col_label:
+                  type: string
+                  description: Header name for the entity type column (account imports)
+                currency_col_label:
+                  type: string
+                  description: Header name for the currency column
+                exchange_operating_mic_col_label:
+                  type: string
+                  description: Header name for the exchange MIC column (trade imports)
                 date_format:
                   type: string
                   description: Date format pattern (e.g., "%m/%d/%Y")
@@ -1435,6 +1500,13 @@ paths:
                   - ","
                   - ";"
                   description: Column separator
+                amount_type_strategy:
+                  type: string
+                  description: Strategy for determining transaction direction
+                amount_type_inflow_value:
+                  type: string
+                  description: Value that indicates an inflow when using column-based
+                    amount type strategy
         required: true
   "/api/v1/imports/{id}":
     parameters:
@@ -1971,14 +2043,14 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Trade"
-        '422':
-          description: validation error
+        '404':
+          description: account or security not found
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
-        '404':
-          description: account or security not found
+        '422':
+          description: validation error
           content:
             application/json:
               schema:
@@ -2018,8 +2090,7 @@ paths:
                     security_id:
                       type: string
                       format: uuid
-                      description: Security ID (provide one of security_id, ticker,
-                        or manual_ticker)
+                      description: Security ID (provide one of security_id, ticker, or manual_ticker)
                     ticker:
                       type: string
                       description: Security ticker symbol
@@ -2085,6 +2156,12 @@ paths:
                 "$ref": "#/components/schemas/Trade"
         '404':
           description: trade not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: validation error
           content:
             application/json:
               schema:
@@ -2261,14 +2338,14 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Valuation"
-        '422':
-          description: validation error
+        '404':
+          description: account not found
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
-        '404':
-          description: account not found
+        '422':
+          description: validation error
           content:
             application/json:
               schema:
@@ -2332,8 +2409,7 @@ paths:
                 "$ref": "#/components/schemas/ErrorResponse"
     patch:
       summary: Update a valuation
-      description: Update balance and/or notes. When updating the balance, both amount
-        and date must be provided together.
+      description: Update balance and/or notes. When updating the balance, both amount and date must be provided together.
       tags:
       - Valuations
       security:
@@ -2382,8 +2458,7 @@ paths:
   "/api/v1/merchants":
     get:
       summary: List merchants
-      description: Returns all family-owned and provider merchants associated with
-        the user's transactions.
+      description: Returns all family-owned and provider merchants associated with the user's transactions.
       tags:
       - Merchants
       security:
@@ -2425,8 +2500,7 @@ paths:
   "/api/v1/sync":
     post:
       summary: Trigger sync
-      description: Queues a full family sync that applies all active rules, syncs
-        all accounts, and auto-matches transfers.
+      description: Queues a full family sync that applies all active rules, syncs all accounts, and auto-matches transfers.
       tags:
       - Sync
       security:
@@ -2441,8 +2515,7 @@ paths:
   "/api/v1/usage":
     get:
       summary: Get API usage
-      description: Returns API key details and rate limit information. Detailed usage
-        is only available when authenticating with an API key.
+      description: Returns API key details and rate limit information. Detailed usage is only available when authenticating with an API key.
       tags:
       - Usage
       security:
@@ -2457,8 +2530,7 @@ paths:
   "/api/v1/balance_sheet":
     get:
       summary: Get balance sheet
-      description: Returns the family's net worth, total assets, and total liabilities
-        in the family's primary currency.
+      description: Returns the family's net worth, total assets, and total liabilities in the family's primary currency.
       tags:
       - Balance Sheet
       security:
@@ -2470,3 +2542,45 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/BalanceSheetResponse"
+  "/api/v1/users/reset":
+    delete:
+      summary: Reset account data
+      description: Initiates an asynchronous reset of all family data. Requires admin role.
+      tags:
+      - Users
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: reset initiated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DeleteResponse"
+        '403':
+          description: forbidden - admin role required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/users/me":
+    delete:
+      summary: Delete account
+      description: Deactivates the current user's account.
+      tags:
+      - Users
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: account deleted
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DeleteResponse"
+        '422':
+          description: deletion failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"

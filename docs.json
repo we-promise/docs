@@ -198,6 +198,14 @@
               "GET /api/v1/valuations/{id}",
               "PATCH /api/v1/valuations/{id}"
             ]
+          },
+          {
+            "group": "Users",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "DELETE /api/v1/users/reset",
+              "DELETE /api/v1/users/me"
+            ]
           }
         ]
       }
