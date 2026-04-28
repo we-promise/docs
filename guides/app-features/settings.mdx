@@ -36,7 +36,7 @@ The Brandfetch integration provides:
 - **Fallback support**: Automatic logo lookup for stock tickers and merchants
 - **Consistent branding**: Standardized logo appearance across all transactions
 
-This feature works automatically once enabled - no additional configuration required.
+This feature works automatically once enabled, no additional configuration required.
 
 ## Provider settings
 
@@ -45,6 +45,64 @@ Configure third-party integrations and data providers from Settings → Provider
 ## AI settings
 
 Configure AI features like chat and transaction rules from Settings → Self-Hosting. See the [LLM support documentation](/llm-support) for more details.
+
+## Appearance settings
+
+### Dashboard layout
+
+You can customize how your dashboard is displayed:
+
+**2-column layout**: On wide screens, display dashboard cards in a 2-column grid for better space utilization. This setting is available in Settings → Appearance.
+
+When enabled:
+- Dashboard cards arrange in two columns on desktop screens
+- Provides a more compact view of your financial overview
+- Automatically adjusts to single column on mobile devices
+
+### Theme selection
+
+Sure supports multiple theme options to match your preference:
+
+**Available themes:**
+- **Light** - Light color scheme for bright environments
+- **Dark** - Dark color scheme for low-light environments
+- **System** - Automatically matches your device's system theme
+
+**To change your theme:**
+
+1. Navigate to Settings
+2. Find the "Theme" or "Appearance" section
+3. Select your preferred theme (Light, Dark, or System)
+4. The theme applies immediately
+
+The theme setting is saved to your account and syncs across all your devices.
+
+> [!TIP]
+> The "System" option automatically switches between light and dark themes based on your device's settings, providing the best experience throughout the day.
+
+## Mobile app settings
+
+### AI chat improvements
+
+The mobile app includes an enhanced AI chat experience:
+
+- **Typing indicator**: An animated indicator shows when the AI is generating a response
+- **Smooth animations**: The typing indicator uses a classic three-dot bounce animation
+- **Auto-scroll**: The chat automatically scrolls to show new messages as they arrive
+- **Improved flow**: Chat creation is now lazy-loaded on first message send, eliminating loading delays
+
+## Data exports
+
+Sure allows you to export your financial data for backup or analysis purposes. When you create an export, the page automatically refreshes to show the latest status.
+
+### Export status tracking
+
+The export list page automatically polls for updates when exports are in progress:
+- **Processing exports**: The page checks for updates every 3 seconds
+- **Completed exports**: Auto-refresh stops once all exports are complete
+- **Download ready**: Download buttons appear when exports finish processing
+
+This ensures you always see the current status without manually refreshing the page.
 
 ## Account preferences
 
