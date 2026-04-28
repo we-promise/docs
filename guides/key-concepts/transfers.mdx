@@ -48,7 +48,7 @@ General transfers between asset accounts:
 
 These are excluded from budgets because they don't represent spending or income.
 
-### Credit Card Payment
+### Credit card payment
 
 When you pay your credit card bill, Sure creates a `cc_payment` transfer:
 - Outflow from your checking account
@@ -56,12 +56,16 @@ When you pay your credit card bill, Sure creates a `cc_payment` transfer:
 
 This is excluded from budgets because the spending already happened when you used the credit card.
 
-### Loan Payment
+When syncing transactions from a provider, Sure automatically classifies transactions to credit card accounts as credit card payment transfers.
+
+### Loan payment
 
 Payments to loan accounts (mortgage, auto, student loans) are treated as `loan_payment` transfers.
 
 > [!NOTE]
 > Loan payments can be treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt.
+
+When syncing transactions from a provider, Sure automatically classifies transactions to loan accounts as loan payment transfers.
 
 ### Investment Contribution
 

@@ -1,80 +1,177 @@
 ---
 title: Binance
-description: Track cryptocurrency prices and holdings using Binance public market data
+description: Connect your Binance account to track cryptocurrency holdings and transactions
 ---
 
-Binance is a securities provider that supplies cryptocurrency price data from the Binance exchange. It uses Binance's public market data API, so no API key or account is required.
+Binance integration allows you to sync your cryptocurrency accounts, track holdings, and monitor transactions directly in Sure using the Binance API.
 
 <Note>
-This provider is used for security price lookups and does not sync account balances or transactions. To track crypto holdings, add them manually or use a wallet-syncing provider like [CoinStats](/providers/coinstats) or [Coinbase](/providers/coinbase).
+This integration is currently in beta. Please report any issues you encounter.
 </Note>
 
 ## How it works
 
-Binance acts as a **securities provider** in Sure, similar to how Twelve Data or Yahoo Finance provide stock prices. When you search for a cryptocurrency or track holdings in an investment account, Sure can resolve prices through Binance's public API.
+When you connect your Binance account, Sure syncs:
 
-Specifically, Binance provides:
+- Spot account balances across multiple cryptocurrencies
+- Margin account balances
+- Simple Earn positions (flexible and locked)
+- Trading history and transactions
+- Holdings with real-time valuations
 
-- **Security search**: Find cryptocurrencies by symbol (e.g., BTC, ETH, SOL)
-- **Historical prices**: Daily close prices for any date range
-- **Security metadata**: Basic information about each trading pair
+The integration supports cryptocurrency balances and automatically converts values to your native currency.
 
-## Supported currencies
+## Prerequisites
 
-Binance prices are available in the following quote currencies:
+To use the Binance integration, you need:
 
-| Quote currency | Display currency | Notes |
-|---|---|---|
-| USDT | USD | Default; Binance's dominant dollar-quoted pairs |
-| EUR | EUR | Euro-quoted pairs |
-| JPY | JPY | Japanese yen-quoted pairs |
-| BRL | BRL | Brazilian real-quoted pairs |
-| TRY | TRY | Turkish lira-quoted pairs |
+- An active Binance account
+- Binance API credentials (API key and API secret)
 
-When you search for a cryptocurrency, Sure returns results across all available quote currencies, ranked by relevance. USDT pairs are surfaced as USD for simplicity.
+## Getting your API credentials
 
-<Info>
-GBP-quoted pairs are not currently available on Binance. If your family currency is GBP, Sure converts from USD using your configured exchange rates.
-</Info>
+1. Log in to your [Binance account](https://www.binance.com)
+2. Navigate to **Account** > **API Management**
+3. Create a new API key with the following permissions:
+   - Enable reading (view account information, balances, and trade history)
+4. Save your API key and API secret securely
 
-## Setup
+<Warning>
+Your API secret is only shown once during creation. Store it securely — you'll need both the API key and secret to connect Sure.
+</Warning>
 
-No configuration is needed. Binance is automatically available as a securities provider for all Sure instances. It requires no API key, no account, and no environment variables.
+<Warning>
+Do not enable withdrawal or trading permissions on your API key. Sure only requires read access.
+</Warning>
 
-## How securities are resolved
+## Connecting Binance to Sure
 
-When you add a holding or search for a security, Sure checks its configured securities providers in order. Binance is included in this chain alongside providers like Twelve Data and Yahoo Finance.
+1. Navigate to **Settings** > **Providers** in Sure
+2. Click **Add Provider** and select **Binance**
+3. Enter your API credentials:
+   - **Name**: A label for this connection (e.g., "My Binance")
+   - **API Key**: Your Binance API key
+   - **API Secret**: Your Binance API secret
+4. Optionally set a **Sync start date** to limit how far back Sure imports data
+5. Click **Connect**
 
-A search for "BTC" returns results like:
+## Account setup
 
-- **BTCUSD** (Bitcoin priced in USD)
-- **BTCEUR** (Bitcoin priced in EUR)
-- **BTCJPY** (Bitcoin priced in JPY)
+After connecting, Sure discovers your Binance accounts. You can set them up in two ways:
 
-Each result includes the Binance exchange identifier (`BNCX`) so Sure can fetch the correct price history.
+### Create new accounts
 
-## Price data
+1. Review the list of discovered Binance accounts
+2. Select the accounts you want to track
+3. Sure creates new accounts and links them automatically
 
-### Historical prices
+### Link to existing accounts
 
-Sure fetches daily closing prices from Binance using 1-day candlestick (kline) data. For long date ranges, Sure automatically paginates through the data in batches of up to 1,000 days.
+If you already have a manual crypto account in Sure:
 
-### Price availability
+1. Choose **Link to existing account**
+2. Select the Binance account to link
+3. Choose the existing Sure account (must be a manual crypto account)
+4. Click **Link**
 
-- Prices are only available from the date a trading pair was listed on Binance
-- Delisted pairs return prices up to their last trading day
-- If a pair has no data for a requested date, no price is returned for that day
+## Supported features
+
+### Account types
+
+The Binance integration discovers accounts from:
+
+- **Spot** — Your main trading account balances
+- **Margin** — Cross and isolated margin balances
+- **Simple Earn (flexible)** — Flexible savings positions
+- **Simple Earn (locked)** — Locked staking positions
+
+### Transaction syncing
+
+Sure automatically syncs spot trading history, including:
+
+- Buy and sell trades
+- Trade fees
+- Trading pairs and quantities
+
+### Holdings tracking
+
+For each linked account, Sure tracks:
+
+- Current balances by asset
+- Real-time valuations using Binance market data
+- Holdings with quantity and current price
+
+### Stablecoin handling
+
+The integration recognizes common stablecoins (USDT, BUSD, FDUSD, TUSD, USDC, DAI) and handles their valuation accordingly, treating them as USD-equivalent for balance calculations.
+
+## Security
+
+### Credential encryption
+
+Your Binance API credentials are encrypted using ActiveRecord Encryption:
+
+- **API Key**: Uses deterministic encryption for querying
+- **API Secret**: Uses standard encryption for maximum security
+
+### Read-only access
+
+Sure only requires read permissions on your Binance API key. No withdrawal or trading permissions are needed.
+
+## Syncing
+
+### Manual sync
+
+To manually sync your Binance accounts:
+
+1. Navigate to **Settings** > **Providers**
+2. Find your Binance connection
+3. Click **Sync**
+
+### Automatic sync
+
+Sure automatically syncs your Binance accounts on a regular schedule along with your other connected accounts.
+
+## Troubleshooting
+
+### Connection errors
+
+If you encounter connection errors:
+
+1. Verify your API credentials are correct
+2. Ensure your API key hasn't been revoked or expired
+3. Check that your API key has read permissions enabled
+4. Confirm your Binance account is active and in good standing
+
+### Missing balances
+
+If some balances are missing:
+
+1. Manually trigger a sync
+2. Verify the asset exists in your Binance account
+3. Check that the account type (spot, margin, earn) is supported
+
+### Stale rate warnings
+
+If you see stale rate warnings on certain holdings, this means Sure couldn't find a recent exchange rate for that asset. This can happen with low-liquidity tokens.
+
+### Account linking issues
+
+If you have trouble linking accounts:
+
+1. Ensure you've completed the account setup after connecting
+2. When linking to an existing account, verify it's a manual crypto account
+3. Try unlinking and relinking the account
 
 ## Limitations
 
-- Only provides price data, not account syncing or transaction history
-- Limited to trading pairs actively listed on Binance (or historically listed)
-- Subject to Binance API rate limits
-- Crypto logos depend on availability from the logo provider
+- Historical trade data is limited to spot trades
+- Some asset types may not have real-time pricing available
+- Margin and Earn transaction history is not currently synced (only current balances)
 
 ## Getting help
 
-If you encounter issues with cryptocurrency price data:
+If you encounter issues with the Binance integration:
 
 - Check the [troubleshooting guide](/guides/knowledge-base/troubleshooting)
 - Ask in the [Discord](https://discord.gg/36ZGBsxYEK)

@@ -1,0 +1,106 @@
+---
+title: Sophtron
+description: Connect US and Canadian bank accounts via Sophtron's aggregation API
+---
+
+Sophtron is a third-party provider that connects bank, credit card, investment, loan, insurance, utility, and other financial accounts in the US and Canada. It is currently in **alpha**.
+
+## How it works
+
+Sophtron uses HMAC-SHA256 authenticated API calls to securely aggregate your financial data:
+
+1. Obtain a Sophtron User ID and Access Key
+2. Configure your credentials in Sure
+3. Sure fetches your accounts, balances, and transactions through Sophtron's API
+4. Data syncs automatically to keep your information current
+
+## Setting up Sophtron
+
+To connect your accounts:
+
+1. Sign up for a Sophtron account at [sophtron.com](https://www.sophtron.com/)
+2. Obtain your **User ID** and **Access Key** from the Sophtron dashboard
+3. In Sure, go to **Settings > Bank Sync Providers** and add your Sophtron credentials
+4. Sure will discover your accounts and prompt you to select which ones to link
+
+### Credential configuration
+
+Sophtron credentials are stored per-family. Each family configures their own User ID and Access Key. Credentials are encrypted at rest when ActiveRecord Encryption is enabled.
+
+You can optionally configure a custom **base URL** if you use a non-production Sophtron environment.
+
+### Linking accounts
+
+After providing your credentials, Sure fetches available accounts from Sophtron. You can:
+
+- **Link new accounts**: Select from your Sophtron accounts and choose the account type (depository, credit card, investment, or loan)
+- **Link existing accounts**: Connect an existing Sure account to a Sophtron account for automatic syncing
+
+## Supported account types
+
+Sophtron supports the following account types:
+
+| Account type | Description |
+| --- | --- |
+| Depository | Checking, savings, and other deposit accounts |
+| Credit card | Credit card accounts |
+| Investment | Brokerage and retirement accounts |
+| Loan | Mortgage, student loan, and other loan accounts |
+
+When linking accounts, you can also select a subtype (e.g., checking vs. savings for depository accounts).
+
+## Features
+
+### Account syncing
+
+- **Account discovery**: Automatically finds all accounts linked to your Sophtron credentials
+- **Balance tracking**: Fetches current balances for all linked accounts
+- **Transaction history**: Imports transactions with date range filtering
+- **Multiple institutions**: Sophtron aggregates accounts across multiple banks and financial institutions under a single connection
+
+### Transaction syncing
+
+When syncing transactions, Sure:
+
+- Fetches transactions within a configurable date range
+- Maps transaction data including amount, date, merchant, and description
+- Supports both income and expense transaction types
+- Defaults the currency to USD when not specified by the provider
+
+### Sync start date
+
+You can configure a **sync start date** to control how far back Sure fetches transaction history. This is useful when you only want recent transactions rather than a full history.
+
+## Limitations
+
+- **Alpha status**: Sophtron integration is currently in alpha and may have rough edges
+- **US and Canada only**: Primarily supports financial institutions in the United States and Canada
+- **Rate limits**: Subject to Sophtron API rate limits (returns a 429 status when exceeded)
+- **No pending transactions**: Pending transaction support is not currently available
+- **Holdings**: Investment holdings sync is not currently supported
+
+## Troubleshooting
+
+### Authentication errors
+
+If you receive an "Invalid User ID or Access key" error:
+
+- Verify your User ID and Access Key are correct
+- Ensure your Access Key is the base64-encoded version provided by Sophtron
+- Check that your Sophtron account is active
+
+### No accounts found
+
+If Sure cannot find any accounts:
+
+- Confirm that your Sophtron account has linked financial institutions
+- Check that your credentials have the correct permissions
+- Try re-entering your credentials in Sure's provider settings
+
+### Sync failures
+
+If syncing fails intermittently:
+
+- Check whether you have hit the API rate limit (wait and retry)
+- Verify your credentials have not been revoked
+- Review the sync status in your accounts page for specific error messages
