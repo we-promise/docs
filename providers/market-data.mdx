@@ -1,0 +1,104 @@
+---
+title: Market data providers
+description: Configure securities pricing providers for stock, ETF, and mutual fund data
+---
+
+Sure uses market data providers to fetch security prices, search for securities, and display portfolio holdings. You can enable multiple providers simultaneously, and each security can be assigned to a specific provider.
+
+## Available providers
+
+| Provider | API key required | Free tier | Coverage |
+| --- | --- | --- | --- |
+| **Yahoo Finance** | No | Unlimited | Global stocks, ETFs, crypto |
+| **Twelve Data** | Yes | 800 requests/day | Global stocks, ETFs, forex |
+| **Tiingo** | Yes | 500 requests/hour | US and international equities |
+| **EODHD** | Yes | 20 requests/day | 70+ global exchanges |
+| **Alpha Vantage** | Yes | 25 requests/day | Global stocks, ETFs |
+| **MFAPI** | No | Unlimited | Indian mutual funds |
+
+## Configuring providers
+
+You can enable and configure market data providers from **Settings > Self-Hosting** in the Sure UI. Select the providers you want to use and enter API keys where required.
+
+### Environment variables
+
+You can also configure providers through environment variables. Add these to your `.env` file or Docker Compose configuration:
+
+```bash
+# Exchange rate provider (default: twelve_data)
+EXCHANGE_RATE_PROVIDER=twelve_data
+
+# Securities providers (comma-separated list)
+SECURITIES_PROVIDERS=yahoo_finance,twelve_data
+
+# API keys
+TWELVE_DATA_API_KEY=your-key-here
+TIINGO_API_KEY=your-key-here
+EODHD_API_KEY=your-key-here
+ALPHA_VANTAGE_API_KEY=your-key-here
+```
+
+<Note>
+When you set `SECURITIES_PROVIDERS` as an environment variable, it takes precedence over the UI setting. To manage providers from the UI only, leave the environment variable unset.
+</Note>
+
+### Multiple providers
+
+You can enable multiple securities providers at the same time. When searching for securities, Sure queries the active provider and assigns each security to the provider that found it. This lets you use different providers for different asset types — for example, Yahoo Finance for US stocks and MFAPI for Indian mutual funds.
+
+If you disable a provider that has securities assigned to it, those securities are marked offline until the provider is re-enabled.
+
+## Provider details
+
+### Yahoo Finance
+
+Yahoo Finance is the default provider and requires no API key. It offers broad global coverage for stocks, ETFs, indices, and cryptocurrencies.
+
+- **Rate limits**: No strict API key limits, but subject to Yahoo's usage policies
+- **Coverage**: Global stocks, ETFs, mutual funds, indices, crypto
+- **API key**: Not required
+
+<Note>
+If you experience connection issues with Yahoo Finance, some IPv6 networks may have trouble reaching Yahoo's servers. Try setting `YAHOO_FINANCE_IPV6=false` in your environment variables to force IPv4 connections.
+</Note>
+
+### Twelve Data
+
+Twelve Data provides real-time and historical market data for global equities and forex. It also serves as the default exchange rate provider.
+
+- **Rate limits**: 800 API requests per day (free tier), 8 per minute
+- **Coverage**: Global stocks, ETFs, forex, crypto
+- **API key**: Required — get one at [twelvedata.com](https://twelvedata.com)
+
+### Tiingo
+
+Tiingo provides end-of-day and intraday price data for US and international equities.
+
+- **Rate limits**: 500 requests per hour (free tier)
+- **Coverage**: US stocks, international equities, ETFs, mutual funds
+- **API key**: Required — get one at [tiingo.com](https://www.tiingo.com)
+
+### EODHD
+
+EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global exchanges.
+
+- **Rate limits**: 20 API requests per day (free tier)
+- **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
+- **API key**: Required — get one at [eodhd.com](https://eodhd.com)
+
+### Alpha Vantage
+
+Alpha Vantage provides free stock, ETF, and technical data for global markets.
+
+- **Rate limits**: 25 API requests per day (free tier), with a minimum 1-second interval between requests
+- **Coverage**: Global stocks, ETFs, technical indicators
+- **API key**: Required — get one at [alphavantage.co](https://www.alphavantage.co)
+- **History**: Free tier returns approximately 100 trading days of historical data
+
+### MFAPI
+
+MFAPI is a free, open-source API for Indian mutual fund NAV (Net Asset Value) data. It requires no API key.
+
+- **Rate limits**: No strict limits
+- **Coverage**: Indian mutual funds only (BSE-listed schemes)
+- **API key**: Not required
