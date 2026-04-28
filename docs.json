@@ -36,7 +36,9 @@
             "group": "App features",
             "pages": [
               "guides/app-features/budgets",
+              "guides/app-features/csv-imports",
               "features/recurring-transactions",
+              "guides/app-features/family-sharing",
               "guides/app-features/settings"
             ]
           },
@@ -89,6 +91,13 @@
             ]
           },
           {
+            "group": "Balance Sheet",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/balance_sheet"
+            ]
+          },
+          {
             "group": "Categories",
             "openapi": "/openapi.yaml",
             "pages": [
@@ -110,12 +119,35 @@
             ]
           },
           {
+            "group": "Holdings",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/holdings",
+              "GET /api/v1/holdings/{id}"
+            ]
+          },
+          {
             "group": "Imports",
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/imports",
               "POST /api/v1/imports",
               "GET /api/v1/imports/{id}"
+            ]
+          },
+          {
+            "group": "Merchants",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/merchants",
+              "GET /api/v1/merchants/{id}"
+            ]
+          },
+          {
+            "group": "Sync",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/sync"
             ]
           },
           {
@@ -130,17 +162,6 @@
             ]
           },
           {
-            "group": "Transactions",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/transactions",
-              "POST /api/v1/transactions",
-              "GET /api/v1/transactions/{id}",
-              "PATCH /api/v1/transactions/{id}",
-              "DELETE /api/v1/transactions/{id}"
-            ]
-          },
-          {
             "group": "Trades",
             "openapi": "/openapi.yaml",
             "pages": [
@@ -152,11 +173,21 @@
             ]
           },
           {
-            "group": "Holdings",
+            "group": "Transactions",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /api/v1/holdings",
-              "GET /api/v1/holdings/{id}"
+              "GET /api/v1/transactions",
+              "POST /api/v1/transactions",
+              "GET /api/v1/transactions/{id}",
+              "PATCH /api/v1/transactions/{id}",
+              "DELETE /api/v1/transactions/{id}"
+            ]
+          },
+          {
+            "group": "Usage",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/usage"
             ]
           },
           {
@@ -169,40 +200,11 @@
             ]
           },
           {
-            "group": "Merchants",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/merchants",
-              "GET /api/v1/merchants/{id}"
-            ]
-          },
-          {
-            "group": "Balance Sheet",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/balance_sheet"
-            ]
-          },
-          {
-            "group": "Sync",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "POST /api/v1/sync"
-            ]
-          },
-          {
-            "group": "Usage",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/usage"
-            ]
-          },
-          {
             "group": "Users",
             "openapi": "/openapi.yaml",
             "pages": [
-              "DELETE /api/v1/users/me",
-              "DELETE /api/v1/users/reset"
+              "DELETE /api/v1/users/reset",
+              "DELETE /api/v1/users/me"
             ]
           }
         ]

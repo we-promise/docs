@@ -135,6 +135,26 @@ Example: Transferring from a USD checking account to a EUR savings account:
 
 The transfer is valid because one amount is negative and one is positive, even though the numbers differ due to the exchange rate.
 
+## Transfer Summary Totals
+
+When viewing your transaction list filtered by transfers, Sure displays **Inflow** and **Outflow** totals instead of the standard Income and Expenses labels.
+
+### How It Works
+
+**Transfer-only filter:**
+- When filtering exclusively by "Transfer" type, the summary bar shows:
+  - **Inflow**: Total positive transfer amounts (money coming in)
+  - **Outflow**: Total negative transfer amounts (money going out)
+
+**Mixed filters:**
+- When filtering by transfers along with other transaction types (income, expenses), the summary bar shows standard Income/Expenses labels
+- Transfer amounts are excluded from these totals since they don't represent actual income or spending
+
+This helps you understand your cash movement patterns when reviewing transfers in isolation.
+
+> [!NOTE]
+> When filtering by both transfers and other transaction types, transfer amounts are excluded from income and expense totals to avoid confusion.
+
 ## How Transfers Affect Budgets
 
 Transfers are generally **excluded** from budget calculations because they don't represent actual spending or income:
