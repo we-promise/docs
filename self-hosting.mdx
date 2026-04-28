@@ -47,6 +47,36 @@ This creates a `compose.yml` file in your current directory with the default con
 
 By default, the `compose.example.yml` file runs without any configuration. For production deployments or if you're running outside of a local network, follow these steps to add security.
 
+### Email configuration
+
+To enable email notifications and password resets, configure SMTP settings in your `.env` file:
+
+```txt
+SMTP_ADDRESS=smtp.example.com
+SMTP_PORT=587
+SMTP_DOMAIN=example.com
+SMTP_USERNAME=your-username
+SMTP_PASSWORD=your-password
+SMTP_AUTHENTICATION=plain
+SMTP_ENABLE_STARTTLS_AUTO=true
+```
+
+#### SSL/TLS options
+
+For SMTP servers with custom SSL certificates or self-signed certificates:
+
+**Skip TLS verification** (not recommended for production):
+```txt
+SMTP_OPENSSL_VERIFY_MODE=none
+```
+
+**Use custom CA certificate**:
+```txt
+SSL_CA_FILE=/path/to/ca-certificate.pem
+```
+
+The `SSL_CA_FILE` option allows you to specify a custom CA certificate file for SSL verification when connecting to SMTP servers with self-signed or internal certificates.
+
 ### Create an environment file
 
 Create a `.env` file where Docker will read environment variables:
@@ -103,6 +133,46 @@ ALPHA_VANTAGE_API_KEY="your-key-here"
 <Note>
 Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over the UI setting. Leave it unset to manage providers from the UI only.
 </Note>
+
+### Optional: SSL/TLS Configuration
+
+Sure supports additional SSL/TLS configuration options for secure email delivery and API connections.
+
+#### Custom CA Certificate
+
+If you're using a custom Certificate Authority (CA) or self-signed certificates, you can specify a CA file:
+
+```txt
+SSL_CA_FILE="/path/to/your/ca-certificate.pem"
+```
+
+This is useful when:
+- Running Sure in a corporate environment with internal CAs
+- Using self-signed certificates for development
+- Connecting to services with custom certificate chains
+
+#### Skip TLS Verification for Email
+
+For development or testing environments, you can disable TLS verification for the email mailer:
+
+```txt
+SMTP_ENABLE_STARTTLS_AUTO=false
+SMTP_TLS_VERIFY=false
+```
+
+<Warning>
+Only disable TLS verification in development or trusted environments. In production, always use proper TLS verification to ensure secure email delivery.
+</Warning>
+
+**When to use this:**
+- Development environments with self-signed certificates
+- Testing email functionality locally
+- Internal mail servers with custom certificates
+
+**Production recommendations:**
+- Always use valid SSL/TLS certificates in production
+- Use the `SSL_CA_FILE` option instead of disabling verification
+- Ensure your SMTP server supports STARTTLS
 
 ## Running the application
 
