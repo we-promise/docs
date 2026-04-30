@@ -180,12 +180,12 @@ Things to verify first:
 
 If all of that looks correct and the flow still closes with no obvious error, Plaid may need to review or reprocess your onboarding / client registration.
 
-This has happened in the wild with Sure. In one confirmed case, the integration started working without app changes after Plaid support reprocessed the user's registration.
+This has happened in the wild with Sure. In one confirmed Chase case, the integration started working without app changes after Plaid support escalated the issue to their Chase team and reprocessed the user's client registration.
 
 When contacting Plaid support, include:
 
 - Your Plaid environment and access tier (for example, Limited Production)
-- The institution you are trying to connect
+- The institution you are trying to connect (especially if it is Chase or another OAuth-heavy institution)
 - Confirmation that `/link/token/create` succeeds
 - Confirmation that your redirect URI is configured correctly
 - A note that the Link popup closes without completing the connection
