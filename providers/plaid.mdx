@@ -165,6 +165,32 @@ Consider these alternatives to Plaid:
 - **Enable Banking**: Free, EU-focused, easier setup
 - **Lunch Flow**: Global coverage, paid service
 
+## Troubleshooting
+
+### Link popup closes after selecting a bank
+
+If the Plaid popup closes immediately after you select a bank, and Sure shows no useful app logs, the problem may be on Plaid's side rather than in your Sure configuration.
+
+Things to verify first:
+
+- Your instance is publicly reachable over HTTPS
+- Your allowed redirect URI is set correctly in Plaid, for example `https://your-domain.com/accounts`
+- `PLAID_ENV=production` when using Limited or Full Production access
+- Your `PLAID_CLIENT_ID` and `PLAID_SECRET` are the Production credentials, not Sandbox keys
+
+If all of that looks correct and the flow still closes with no obvious error, Plaid may need to review or reprocess your onboarding / client registration.
+
+This has happened in the wild with Sure. In one confirmed case, the integration started working without app changes after Plaid support reprocessed the user's registration.
+
+When contacting Plaid support, include:
+
+- Your Plaid environment and access tier (for example, Limited Production)
+- The institution you are trying to connect
+- Confirmation that `/link/token/create` succeeds
+- Confirmation that your redirect URI is configured correctly
+- A note that the Link popup closes without completing the connection
+- A request for them to verify or reprocess your client registration / onboarding
+
 ## Support
 
 For Plaid-specific issues, consult the [Plaid documentation](https://plaid.com/docs/) or contact Plaid support.
