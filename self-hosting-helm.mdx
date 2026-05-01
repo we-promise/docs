@@ -322,6 +322,10 @@ The chart will automatically run database migrations before deploying the new ve
 
 ## Backup and restore
 
+<Warning>
+  These steps cover PostgreSQL backups and restore. They do not automatically back up or restore uploaded files if your deployment stores them outside PostgreSQL.
+</Warning>
+
 ### PostgreSQL backups with CloudNativePG
 
 CloudNativePG supports volume snapshot backups:
@@ -352,13 +356,23 @@ kubectl exec -n sure $PRIMARY_POD -- pg_dump -U sure sure_production > backup.sq
 
 ### Restore from backup
 
-```bash
-# Copy backup to pod
-kubectl cp backup.sql sure/$PRIMARY_POD:/tmp/backup.sql
+1. Make sure app traffic is stopped or the deployment is in maintenance mode.
 
-# Restore
+2. Copy the SQL backup to the primary PostgreSQL pod:
+
+```bash
+kubectl cp backup.sql sure/$PRIMARY_POD:/tmp/backup.sql
+```
+
+3. Restore the database:
+
+```bash
 kubectl exec -n sure $PRIMARY_POD -- psql -U sure sure_production -f /tmp/backup.sql
 ```
+
+4. If your deployment uses uploaded files stored outside PostgreSQL, restore those separately using the matching volume snapshot or object-storage recovery process.
+
+5. Verify that the app starts cleanly and your data appears as expected.
 
 ## Troubleshooting
 
