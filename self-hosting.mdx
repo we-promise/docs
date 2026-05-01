@@ -284,13 +284,13 @@ You can use cron syntax or these shortcuts:
 
 ### Restore uploaded files
 
-<Warn>
+<Warning>
 Since the database refernces files (paths, IDs, metadata), file restore should PRECEDE the restore of the database.
-</Warn>
+</Warning>
 
 If your Sure instance stores uploaded files (attachments, profile pictures, etc.) on the local filesystem, restoring the database alone is not enough. You must also restore the files themselves from the corresponding backup.
 
-The exact restore path depends on how you mapped volumes in `compose.yml`. Restore the backup at the same directory that Sure uses for storage. By default, sure will use the `app-storage` Docker volume.
+The exact restore path depends on how you mapped volumes in `compose.yml`. Restore the backup at the same directory that Sure uses for storage. By default, Sure will use the `app-storage` Docker volume.
 
 If you are using external object storage instead of local disk, restore those files using that provider's backup or versioning workflow instead.
 
@@ -306,29 +306,24 @@ The following process will wipe the current database and will replace it with th
 If you customized the PostgreSQL username, password, or database name in your `.env` or `compose.yml`, replace `sure_user` and `sure_production` in the commands below.
 </Note>
 
-1. Stop the application containers so they do not write to the database during the restore.
+1. While the stack is running, stop the application containers so they do not write to the database during the restore:
 
 ```bash
-docker compose down
+docker compose stop web worker
 ```
 
-2. Start only the Postgres database container
-```bash
-docker compose up -d db
-```
+2. Locate the backup file in your backup directory, for example in the backup service's `sure-backups` volume.
 
-3. Locate the backup file in your backup directory, for example in the backup service's `sure-backups` volume.
-
-4. Restore the SQL backup into PostgreSQL:
+3. Restore the SQL backup into PostgreSQL:
 
 ```bash
 docker compose exec -T db psql -U sure_user -d sure_production < /path/to/backup.sql
 ```
 
-5. Restart the app:
+4. Restart the rest of the containers:
 
 ```bash
-docker compose up -d
+docker compose up -d web worker
 ```
 
 ### Verify the restore
