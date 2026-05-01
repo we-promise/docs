@@ -25,12 +25,14 @@ Enable Banking supports banks across the European Union and EEA countries. You c
 To connect your European bank accounts:
 
 1. Obtain an Enable Banking application ID and client certificate from [Enable Banking](https://enablebanking.com/)
-2. In Sure, configure your Enable Banking credentials
-3. Select your country and bank from the available options
-4. Complete the authorization flow with your bank
-5. Sure will create a session and begin syncing your accounts
+2. In Enable Banking, link your bank account to the application
+3. In Sure, configure your Enable Banking credentials
+4. Select your country and bank from the available options
+5. Complete the authorization flow with your bank
+6. Sure will create a session and begin syncing your accounts
 
 If you want to connect another bank, or connect the same bank with a different login, use **Add Connection** after your first Enable Banking connection is working. Sure stores each Enable Banking connection separately, so you can sync, reconnect, or remove them independently.
+Make sure to link the bank account first in the Enable Banking portal, and then create the bank connection in Sure.
 
 ### Using one provider config across different countries
 
@@ -38,13 +40,14 @@ You do **not** need to create a separate Enable Banking provider configuration f
 
 Use one shared Enable Banking configuration with your application ID and client certificate, then use **Add Connection** for each additional bank you want to link.
 
-When adding each connection:
+When adding each bank connection:
 
 1. Start from **Settings -> Providers -> Enable Banking**
-2. Click **Add Connection**
-3. Choose the country for that specific bank
-4. Select the bank in that country
-5. Complete authorization
+2. Choose the country in **Country Code** list
+3. Save the configuration with selected country
+4. Click **Add Connection**
+5. Select the bank in that country
+6. Complete authorization
 
 Example: you can keep one Enable Banking provider config in Sure, then add one connection for a Spanish bank and another connection for a German bank using the same credentials.
 
