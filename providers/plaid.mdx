@@ -174,7 +174,7 @@ If the Plaid popup closes immediately after you select a bank, and Sure shows no
 Things to verify first:
 
 - Your instance is publicly reachable over HTTPS
-- Your allowed redirect URI is set correctly in Plaid, for example `https://your-domain.com/accounts`
+- Your allowed redirect URI is set correctly in Plaid, for example `https://budget.yourdomain.com/accounts`
 - `PLAID_ENV=production` when using Limited or Full Production access
 - Your `PLAID_CLIENT_ID` and `PLAID_SECRET` are the Production credentials, not Sandbox keys
 
@@ -186,7 +186,8 @@ When contacting Plaid support, include:
 
 - Your Plaid environment and access tier (for example, Limited Production)
 - The institution you are trying to connect (especially if it is Chase or another OAuth-heavy institution)
-- Confirmation that `/link/token/create` succeeds
+- Confirmation that /link/token/create succeeds (can be verified in the Activity section of your Plaid Dashboard)  
+
 - Confirmation that your redirect URI is configured correctly
 - A note that the Link popup closes without completing the connection
 - A request for them to verify or reprocess your client registration / onboarding
