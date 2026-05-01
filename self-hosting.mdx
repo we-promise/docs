@@ -282,26 +282,42 @@ You can use cron syntax or these shortcuts:
 - `@monthly` - Once per month
 - Custom cron: `0 2 * * *` (2 AM daily)
 
-### Restore from a PostgreSQL backup
+### Restore uploaded files
+
+<Warn>
+Since the database refernces files (paths, IDs, metadata), file restore should PRECEDE the restore of the database.
+</Warn>
+
+If your Sure instance stores uploaded files (attachments, profile pictures, etc.) on the local filesystem, restoring the database alone is not enough. You must also restore the files themselves from the corresponding backup.
+
+The exact restore path depends on how you mapped volumes in `compose.yml`. Restore the backup at the same directory that Sure uses for storage. By default, sure will use the `app-storage` Docker volume.
+
+If you are using external object storage instead of local disk, restore those files using that provider's backup or versioning workflow instead.
+
+### Restore the database from a PostgreSQL backup
 
 Use this process when you have a SQL dump created by the backup service or with `pg_dump`.
 
-> [!NOTE]
-> If you customized the PostgreSQL username, password, or database name in your `.env` or `compose.yml`, replace `sure_user` and `sure_production` in the commands below.
+<Danger>
+The following process will wipe the current database and will replace it with the backup. All data currently being used by Sure will be lost.
+</Danger>
 
-1. Stop the application containers so they do not write to the database during the restore:
+<Note>
+If you customized the PostgreSQL username, password, or database name in your `.env` or `compose.yml`, replace `sure_user` and `sure_production` in the commands below.
+</Note>
+
+1. Stop the application containers so they do not write to the database during the restore.
 
 ```bash
-docker compose stop web worker
+docker compose down
 ```
 
-2. Start or keep the database container running:
-
+2. Start only the Postgres database container
 ```bash
 docker compose up -d db
 ```
 
-3. Locate the backup file in your backup directory, for example `/opt/sure-data/backups`.
+3. Locate the backup file in your backup directory, for example in the backup service's `sure-backups` volume.
 
 4. Restore the SQL backup into PostgreSQL:
 
@@ -312,16 +328,8 @@ docker compose exec -T db psql -U sure_user -d sure_production < /path/to/backup
 5. Restart the app:
 
 ```bash
-docker compose up -d web worker
+docker compose up -d
 ```
-
-### Restore local uploaded files
-
-If your Sure instance stores uploaded files on the local filesystem, restoring the database alone is not enough. You must also restore the app's storage directory from the matching file backup.
-
-The exact host path depends on how you mapped volumes in `compose.yml`. Restore the same directory that Sure uses for local storage, then restart the app containers.
-
-If you are using external object storage instead of local disk, restore those files using that provider's backup or versioning workflow instead.
 
 ### Verify the restore
 
