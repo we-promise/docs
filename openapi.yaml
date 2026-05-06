@@ -952,7 +952,7 @@ components:
         liabilities:
           type: object
           description: Total liabilities as a Money object
-    SyncResponse:
+    SyncJobResponse:
       type: object
       required:
       - id
@@ -990,6 +990,136 @@ components:
           nullable: true
         message:
           type: string
+    SyncableSummary:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          description: The type of resource the sync targets (for example `Family`, `Account`, or `PlaidItem`).
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+          description: Display name of the syncable resource, when available.
+    SyncErrorSummary:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Sanitized human-readable error message for a failed sync.
+    SyncResource:
+      type: object
+      description: Sanitized status metadata for a single sync run.
+      required:
+      - id
+      - status
+      - in_progress
+      - terminal
+      - syncable
+      - children_count
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          description: Current lifecycle status of the sync.
+          enum:
+          - pending
+          - syncing
+          - completed
+          - failed
+          - stale
+        in_progress:
+          type: boolean
+          description: True when the sync is queued or actively running.
+        terminal:
+          type: boolean
+          description: True when the sync has reached a terminal state (`completed`, `failed`, or `stale`).
+        syncable:
+          "$ref": "#/components/schemas/SyncableSummary"
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Identifier of the parent sync, when this sync was triggered as part of a larger run.
+        children_count:
+          type: integer
+          minimum: 0
+          description: Number of child syncs spawned by this sync.
+        window_start_date:
+          type: string
+          format: date
+          nullable: true
+          description: Start of the date window the sync covers, when applicable.
+        window_end_date:
+          type: string
+          format: date
+          nullable: true
+          description: End of the date window the sync covers, when applicable.
+        pending_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the sync entered the `pending` state.
+        syncing_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the sync started running.
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the sync finished successfully.
+        failed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the sync transitioned to the `failed` state.
+        error:
+          nullable: true
+          description: Sanitized error details, present only when the sync has failed.
+          allOf:
+          - "$ref": "#/components/schemas/SyncErrorSummary"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    SyncResponse:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          nullable: true
+          description: The sync resource, or `null` when no sync exists (for example, the latest sync endpoint when the family has never synced).
+          allOf:
+          - "$ref": "#/components/schemas/SyncResource"
+    SyncCollection:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          maxItems: 100
+          items:
+            "$ref": "#/components/schemas/SyncResource"
+        meta:
+          "$ref": "#/components/schemas/Pagination"
     UsageResponse:
       type: object
       properties:
@@ -2522,7 +2652,115 @@ paths:
           content:
             application/json:
               schema:
+                "$ref": "#/components/schemas/SyncJobResponse"
+  "/api/v1/syncs":
+    get:
+      summary: List sync history
+      description: Returns sanitized sync status history for the authenticated user's family, including syncs for the family, its accounts, and provider connections. Results are paginated and ordered by creation time (most recent first).
+      tags:
+      - Sync
+      security:
+      - apiKeyAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: 'Page number (default: 1)'
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Items per page (default: 25, max: 100)'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: syncs listed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SyncCollection"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/syncs/latest":
+    get:
+      summary: Get the latest sync
+      description: Returns the most recently created sanitized sync status for the authenticated user's family. The `data` field is `null` when the family has no sync history.
+      tags:
+      - Sync
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: latest sync shown
+          content:
+            application/json:
+              schema:
                 "$ref": "#/components/schemas/SyncResponse"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/syncs/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: UUID of the sync to retrieve. The sync must belong to the authenticated user's family.
+      schema:
+        type: string
+        format: uuid
+    get:
+      summary: Get a sync
+      description: Returns sanitized status metadata for a single family-scoped sync.
+      tags:
+      - Sync
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: sync shown
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SyncResponse"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
   "/api/v1/usage":
     get:
       summary: Get API usage
