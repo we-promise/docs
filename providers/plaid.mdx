@@ -113,6 +113,16 @@ After your Plaid account is approved:
 6. Go to [dashboard.plaid.com/developers/keys](https://dashboard.plaid.com/developers/keys) or click **Developers > Keys**
 7. Copy your `client_id` and Production `secret` key
 
+### Complete Plaid Link customization
+
+After production access is approved, finish the Plaid Link configuration before testing bank connections:
+
+1. In the Plaid Dashboard, go to **Link > Link Customization**
+2. Add **Track and manage your finances** as a use case
+3. Publish the changes
+
+If this step is missing, Plaid may let you select and validate a bank but then show an empty Link popup afterward. This can look like a Sure application issue, but it usually means Plaid still has a configuration or validation step left to complete.
+
 ### Docker Compose configuration
 
 In your `docker-compose.yml` file, add these environment variables:
@@ -166,6 +176,8 @@ Consider these alternatives to Plaid:
 - **Lunch Flow**: Global coverage, paid service
 
 ## Troubleshooting
+
+If you run into Plaid errors that are not visible in Sure, check the Plaid Dashboard logs under **Developers > Logs**. These logs can show whether the issue is coming from Plaid Link configuration, product approval, institution support, or another Plaid-side validation error.
 
 ### Link popup closes after selecting a bank
 
