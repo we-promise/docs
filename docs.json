@@ -103,6 +103,22 @@
             ]
           },
           {
+            "group": "Budget Categories",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/budget_categories",
+              "GET /api/v1/budget_categories/{id}"
+            ]
+          },
+          {
+            "group": "Budgets",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/budgets",
+              "GET /api/v1/budgets/{id}"
+            ]
+          },
+          {
             "group": "Categories",
             "openapi": "/openapi.yaml",
             "pages": [
