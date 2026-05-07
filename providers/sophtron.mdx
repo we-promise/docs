@@ -7,12 +7,14 @@ Sophtron is a third-party provider that connects bank, credit card, investment, 
 
 ## How it works
 
-Sophtron uses HMAC-SHA256 authenticated API calls to securely aggregate your financial data:
+Sophtron uses HMAC-SHA256 (FIApiAUTH) signed API calls to securely aggregate your financial data:
 
 1. Obtain a Sophtron User ID and Access Key
 2. Configure your credentials in Sure
-3. Sure fetches your accounts, balances, and transactions through Sophtron's API
-4. Data syncs automatically to keep your information current
+3. Sure provisions a Sophtron Customer for your family (created or reused automatically through the API)
+4. You connect a bank institution by searching for it and entering your bank login credentials
+5. Sure fetches your accounts, balances, and transactions through Sophtron's API
+6. Data syncs automatically to keep your information current
 
 ## Setting up Sophtron
 
@@ -21,17 +23,44 @@ To connect your accounts:
 1. Sign up for a Sophtron account at [sophtron.com](https://www.sophtron.com/)
 2. Obtain your **User ID** and **Access Key** from the Sophtron dashboard
 3. In Sure, go to **Settings > Bank Sync Providers** and add your Sophtron credentials
-4. Sure will discover your accounts and prompt you to select which ones to link
+4. Open the Sophtron connection dialog and search for your bank institution
+5. Enter your bank login credentials (and complete any MFA challenge if prompted)
+6. Sure will discover your accounts and prompt you to select which ones to link
 
 ### Credential configuration
 
 Sophtron credentials are stored per-family. Each family configures their own User ID and Access Key. Credentials are encrypted at rest when ActiveRecord Encryption is enabled.
 
-You can optionally configure a custom **base URL** if you use a non-production Sophtron environment.
+You can optionally configure a custom **base URL** if you use a non-production Sophtron environment. The default base URL is `https://api.sophtron.com/api`.
+
+When you save your credentials, Sure automatically creates or reuses a Sophtron **Customer ID** for your family by calling the Sophtron Customer API. You do not need to provision the customer manually.
+
+### Connecting an institution
+
+Before you can link accounts, you must connect a bank institution to Sophtron:
+
+1. Search for your bank by name in the connection dialog
+2. Select the institution from the results
+3. Enter your bank username and password
+4. If the institution requires it, complete the MFA challenge
+
+#### Multi-factor authentication
+
+Sophtron supports several MFA challenge types. Depending on your institution, you may be asked to:
+
+- Enter a verification code (OTP) sent to your email or phone
+- Type the text shown in a captcha image
+- Confirm the login attempt by phone
+
+Sure polls Sophtron for the connection status while the institution login is in progress and prompts you when an MFA step is required.
+
+#### Connection timeouts and retries
+
+If Sophtron does not finish connecting within the expected time, the connection dialog gives you the option to check again or retry. Failed or timed-out connection jobs are reset so you can start a fresh attempt without re-entering your provider credentials.
 
 ### Linking accounts
 
-After providing your credentials, Sure fetches available accounts from Sophtron. You can:
+After the institution is connected, Sure fetches available accounts from Sophtron. You can:
 
 - **Link new accounts**: Select from your Sophtron accounts and choose the account type (depository, credit card, investment, or loan)
 - **Link existing accounts**: Connect an existing Sure account to a Sophtron account for automatic syncing
@@ -53,10 +82,11 @@ When linking accounts, you can also select a subtype (e.g., checking vs. savings
 
 ### Account syncing
 
-- **Account discovery**: Automatically finds all accounts linked to your Sophtron credentials
+- **Account discovery**: Automatically finds all accounts available on the connected institution
 - **Balance tracking**: Fetches current balances for all linked accounts
 - **Transaction history**: Imports transactions with date range filtering
-- **Multiple institutions**: Sophtron aggregates accounts across multiple banks and financial institutions under a single connection
+- **Refresh polling**: Sync jobs poll Sophtron's job status endpoint and complete once the refresh job finishes
+- **Reconnect on auth recovery**: When an institution refresh requires re-authentication or a new MFA challenge, Sure marks the connection as `requires_update` so you can complete the challenge and resume syncing
 
 ### Transaction syncing
 
@@ -89,11 +119,20 @@ If you receive an "Invalid User ID or Access key" error:
 - Ensure your Access Key is the base64-encoded version provided by Sophtron
 - Check that your Sophtron account is active
 
+### Institution connection errors
+
+If Sure cannot complete the institution connection:
+
+- **Bank credentials**: Double-check the username and password you entered for the institution
+- **Verification code**: Make sure you entered the latest MFA code before it expired
+- **Institution timeout**: The bank login page may not have finished in time. Try connecting again
+- **Unsupported MFA**: Sophtron may not support the institution's current verification flow
+
 ### No accounts found
 
 If Sure cannot find any accounts:
 
-- Confirm that your Sophtron account has linked financial institutions
+- Confirm that you have completed the institution connection step
 - Check that your credentials have the correct permissions
 - Try re-entering your credentials in Sure's provider settings
 
@@ -103,4 +142,5 @@ If syncing fails intermittently:
 
 - Check whether you have hit the API rate limit (wait and retry)
 - Verify your credentials have not been revoked
+- If the connection is marked **requires update**, reopen the connection dialog and complete the new MFA challenge
 - Review the sync status in your accounts page for specific error messages
