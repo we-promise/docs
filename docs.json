@@ -140,12 +140,19 @@
               "GET /api/v1/imports/{id}"
             ]
           },
-          {
+           {
             "group": "Merchants",
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/merchants",
               "GET /api/v1/merchants/{id}"
+            ]
+          },
+          {
+            "group": "Provider Connections",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/provider_connections"
             ]
           },
           {
