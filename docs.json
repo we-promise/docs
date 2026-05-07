@@ -159,7 +159,10 @@
             "group": "Sync",
             "openapi": "/openapi.yaml",
             "pages": [
-              "POST /api/v1/sync"
+              "POST /api/v1/sync",
+              "GET /api/v1/syncs",
+              "GET /api/v1/syncs/latest",
+              "GET /api/v1/syncs/{id}"
             ]
           },
           {
