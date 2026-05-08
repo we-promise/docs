@@ -18,6 +18,12 @@ Sophtron uses HMAC-SHA256 (FIApiAUTH) signed API calls to securely aggregate you
 
 ## Setting up Sophtron
 
+<Note>
+  Connecting institutions and managing Sophtron connections requires a family
+  admin role. Non-admin members can view linked accounts but cannot start a new
+  institution connection or submit MFA answers.
+</Note>
+
 To connect your accounts:
 
 1. Register a Sophtron account at [sophtron.com](https://sophtron.com/account/register)
@@ -48,11 +54,13 @@ Before you can link accounts, you must connect a bank institution to Sophtron:
 
 Sophtron supports several MFA challenge types. Depending on your institution, you may be asked to:
 
+- Answer one or more security questions
+- Choose how you want to receive a verification code (for example, email or SMS)
 - Enter a verification code (OTP) sent to your email or phone
 - Type the text shown in a captcha image
 - Confirm the login attempt by phone
 
-Sure polls Sophtron for the connection status while the institution login is in progress and prompts you when an MFA step is required.
+Sure polls Sophtron for the connection status while the institution login is in progress and prompts you when an MFA step is required. After you submit a challenge, Sure continues polling so any follow-up step (such as entering an OTP after choosing a delivery method) is shown automatically.
 
 #### Connection timeouts and retries
 
@@ -135,6 +143,10 @@ If Sure cannot find any accounts:
 - Confirm that you have completed the institution connection step
 - Check that your credentials have the correct permissions
 - Try re-entering your credentials in Sure's provider settings
+
+### No institution connected
+
+If Sure tells you that no bank institution is connected when syncing or linking accounts, open the Sophtron connection dialog and connect an institution before retrying. Sync attempts fail until at least one institution is linked.
 
 ### Sync failures
 
