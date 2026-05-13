@@ -34,7 +34,7 @@ Configure single sign-on (SSO) authentication with OIDC, OAuth2, or SAML 2.0 pro
 Set the environment variable:
 
 ```bash
-AUTH_PROVIDERS_SOURCE=database
+AUTH_PROVIDERS_SOURCE=db
 ```
 
 Restart your application.
@@ -201,7 +201,7 @@ Once set, super admins can promote other users via the web UI at `/admin/users`.
 
 ### Provider not appearing on login page
 
-- Verify `AUTH_PROVIDERS_SOURCE=database` is set
+- Verify `AUTH_PROVIDERS_SOURCE=db` is set
 - Check that the provider is **enabled** in `/admin/sso_providers`
 - Restart the application after setting environment variables
 
