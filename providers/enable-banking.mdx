@@ -22,14 +22,22 @@ Enable Banking supports banks across the European Union and EEA countries. You c
 
 ## Setting up Enable Banking
 
+> [!WARNING]
+> The most common setup issue is `REDIRECT_URI_NOT_ALLOWED`.
+> Before connecting a bank, register Sure's callback URL in your Enable Banking application settings.
+> Copy the exact callback URL shown in **Settings -> Providers -> Enable Banking** in Sure.
+>
+> In production this is usually `https://your-domain.example/enable_banking_items/callback`, but in development it may use a different URL. Use the exact value shown by Sure.
+
 To connect your European bank accounts:
 
 1. Obtain an Enable Banking application ID and client certificate from [Enable Banking](https://enablebanking.com/)
-2. In Enable Banking, link your bank account to the application
-3. In Sure, configure your Enable Banking credentials
-4. Select your country and bank from the available options
-5. Complete the authorization flow with your bank
-6. Sure will create a session and begin syncing your accounts
+2. Register Sure's callback URL in your Enable Banking application settings
+3. In Enable Banking, link your bank account to the application
+4. In Sure, configure your Enable Banking credentials
+5. Select your country and bank from the available options
+6. Complete the authorization flow with your bank
+7. Sure will create a session and begin syncing your accounts
 
 If you want to connect another bank, or connect the same bank with a different login, use **Add Connection** after your first Enable Banking connection is working. Sure stores each Enable Banking connection separately, so you can sync, reconnect, or remove them independently.
 Make sure to link the bank account first in the Enable Banking portal, and then create the bank connection in Sure.
