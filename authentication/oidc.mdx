@@ -251,6 +251,19 @@ Request additional scopes for provider-specific claims:
 openid profile email groups roles department
 ```
 
+### Groups claim request
+
+When you include `groups` in the scopes or configure [role mapping](/authentication/role-mapping), the application automatically sends an explicit OIDC `claims` parameter on the authorization request, asking the provider to return `groups` as an essential claim in both the ID token and userinfo response:
+
+```json
+{
+  "id_token": { "groups": { "essential": true } },
+  "userinfo":  { "groups": { "essential": true } }
+}
+```
+
+Some providers (such as Authelia) do not return the `groups` claim based on scope alone. This explicit request ensures the claim is included so role mapping can take effect. No additional configuration is required to enable this behavior.
+
 ### Discovery endpoint
 
 OIDC providers expose a discovery document at:
@@ -294,10 +307,10 @@ The application automatically validates:
 **Problem**: User groups from identity provider aren't mapped to roles
 
 **Solution**:
-- Add `groups` scope to your configuration
+- Add `groups` scope to your configuration, or configure [role mapping](/authentication/role-mapping) (either triggers an explicit `claims` request for `groups`)
 - Verify your identity provider includes groups in the token
 - Check your group-to-role mapping configuration
-- Some providers require additional configuration to include groups
+- Some providers require additional configuration to release the `groups` claim, even when it is requested as essential
 
 ### Token expired errors
 
