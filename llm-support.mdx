@@ -20,6 +20,19 @@ Configure AI settings through the web interface:
 
 Settings in the UI override environment variables.
 
+## Choosing a provider
+
+Sure ships with two first-class LLM providers:
+
+- **OpenAI (and OpenAI-compatible)** — default. Works with OpenAI directly, Ollama, LM Studio, OpenRouter, Groq, and any other OpenAI-compatible endpoint.
+- **Anthropic** — native Claude support via the Messages API, including auto-categorization, merchant detection, and provider-merchant enhancement.
+
+Select the active provider with the `LLM_PROVIDER` environment variable:
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `LLM_PROVIDER` | Active provider. Set to `openai` or `anthropic` | `openai` |
+
 ## OpenAI compatible API
 
 Sure supports any OpenAI-compatible API endpoint, giving you flexibility to use:
@@ -100,6 +113,55 @@ Recommended models:
 - `google/gemini-2.5-flash` - Fast and capable
 - `anthropic/claude-sonnet-4.5` - Excellent reasoning
 - `anthropic/claude-haiku-4.5` - Fast and cost-effective
+
+## Anthropic (native)
+
+Sure can call the Anthropic Messages API directly instead of going through an OpenAI-compatible proxy. The native integration covers chat, auto-categorization, merchant detection, and provider-merchant enhancement, and records per-call token usage (including prompt-cache reads and writes) in the LLM cost ledger.
+
+Set `LLM_PROVIDER=anthropic` to make Sure route AI traffic through Anthropic:
+
+```bash
+LLM_PROVIDER=anthropic
+ANTHROPIC_ACCESS_TOKEN=sk-ant-...
+# Optional — defaults to claude-sonnet-4-6
+ANTHROPIC_MODEL=claude-sonnet-4-6
+```
+
+`ANTHROPIC_API_KEY` is accepted as an alias for `ANTHROPIC_ACCESS_TOKEN`.
+
+### Supported models
+
+Any model whose ID starts with `claude` is accepted. Pricing is tracked in the LLM cost ledger for the following models (input / output, per million tokens):
+
+| Model | Input | Output |
+| --- | --- | --- |
+| `claude-opus-4-7` | $15 | $75 |
+| `claude-opus-4-6` | $15 | $75 |
+| `claude-sonnet-4-6` (default) | $3 | $15 |
+| `claude-sonnet-4-5` | $3 | $15 |
+| `claude-haiku-4-5` | $1 | $5 |
+
+Models not listed above still work — they just won't have a cost estimate attached to their usage records.
+
+### Custom Anthropic-compatible endpoints
+
+To route Anthropic calls through Amazon Bedrock, Google Vertex AI, or another Anthropic-compatible proxy, configure a custom base URL and an explicit model name. Custom endpoints bypass the `claude` prefix check, so any model ID is accepted.
+
+### Environment variables
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `ANTHROPIC_ACCESS_TOKEN` | Anthropic API key | — |
+| `ANTHROPIC_API_KEY` | Alias for `ANTHROPIC_ACCESS_TOKEN` | — |
+| `ANTHROPIC_MODEL` | Default Claude model | `claude-sonnet-4-6` |
+| `ANTHROPIC_REQUEST_TIMEOUT` | HTTP timeout in seconds | `600` |
+| `ANTHROPIC_MAX_TOKENS` | Upper bound on output tokens per request | `4096` |
+
+### Batch operations
+
+Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via **forced tool calls**: a single output tool whose `input_schema` mirrors the desired result, invoked with `tool_choice: { type: "tool", disable_parallel_tool_use: true }`. This guarantees schema-valid output without JSON-mode fallbacks.
+
+Each batch operation caps the number of items at **25 per request**, matching the OpenAI provider. Requests above this limit are rejected with a clear error before they are sent.
 
 ## Token budget
 
