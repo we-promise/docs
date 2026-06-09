@@ -81,7 +81,7 @@ Click **Identify Patterns** to manually trigger pattern detection. This analyzes
 
 #### Clean up stale
 
-Click **Clean Up Stale** to mark recurring transactions as inactive if they haven't occurred in the last 2 months. This helps keep your recurring transaction list current.
+Click **Clean Up Stale** to mark recurring transactions as inactive if they haven't occurred recently. Automatically detected recurring transactions use a 2-month threshold; manually marked recurring transactions use a 6-month threshold. Recurring transfers are matched by their transfer pair (an outflow on the source account paired with an inflow on the destination account) rather than by name, so transfers stay active as long as the pair keeps occurring and are retired only when the pair stops.
 
 #### Toggle status
 
@@ -110,8 +110,9 @@ The system uses circular distance calculations to handle month-boundary patterns
 
 Recurring transactions are automatically marked inactive when:
 
-- No matching transaction has occurred in the last 2 months
+- No matching transaction has occurred within the staleness threshold (2 months for automatically detected patterns, 6 months for manually marked patterns)
 - The system verifies no recent matches exist before marking inactive
+- For recurring transfers, matching uses transfer-pair detection (an outflow on the source account paired with an inflow on the destination account, within the usual amount and day-of-month tolerance) so transfers stay active while the pair recurs and are retired only when the pair stops
 
 ### Data storage
 
