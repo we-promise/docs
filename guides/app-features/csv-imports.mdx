@@ -12,6 +12,9 @@ Sure supports importing financial data from CSV files, making it easy to migrate
 You can import the following types of data via CSV:
 
 - **Accounts**: Create multiple accounts with opening balances
+- **Actual Budget transactions**: Import transaction history exported from Actual Budget
+- **Mint transactions**: Import transaction history exported from Mint
+- **Merchants**: Create merchant records in bulk
 - **Transactions**: Import transaction history
 - **Trades**: Import investment trades
 - **Categories**: Set up your category structure
@@ -132,7 +135,18 @@ Sure will import all rows from your CSV. Review your data before importing to av
 ## Limits
 
 - **Account imports**: Maximum 50 accounts per import
-- **Transaction imports**: No hard limit, but large files may take longer to process
+- **Transactions**: Maximum 10,000 rows per import
+- **Actual Budget imports**: Maximum 10,000 rows per import
+- **Mint imports**: Maximum 10,000 rows per import
+- **Trade imports**: Maximum 10,000 rows per import
+- **Category imports**: Maximum 10,000 rows per import
+- **Rule imports**: Maximum 10,000 rows per import
+- **Merchant imports**: Maximum 10,000 rows per import
+- **CSV file size**: Maximum 10 MB per import
+
+<Note>
+If a CSV import fails during upload or publish, check both the row count and the file size. An import can be under the row limit and still fail if the CSV file is larger than 10 MB.
+</Note>
 
 ## Getting help
 
