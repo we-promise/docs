@@ -36,46 +36,18 @@ Configure AI settings through the web interface:
 
 Settings in the UI override environment variables.
 
-## Anthropic
+## Choosing a provider
 
-Sure can talk to Anthropic's Messages API directly, with full chat (text + streaming + tool use) parity with the OpenAI provider.
+Sure ships with two first-class LLM providers:
 
-```bash
-LLM_PROVIDER=anthropic
-ANTHROPIC_ACCESS_TOKEN=sk-ant-...
-# Optional — defaults to claude-sonnet-4-6
-ANTHROPIC_MODEL=claude-sonnet-4-6
-```
+- **OpenAI (and OpenAI-compatible)** — default. Works with OpenAI directly, Ollama, LM Studio, OpenRouter, Groq, and any other OpenAI-compatible endpoint.
+- **Anthropic** — native Claude support via the Messages API, including auto-categorization, merchant detection, and provider-merchant enhancement.
 
-Recommended models:
-
-- `claude-sonnet-4-6` - Default, best balance of speed and quality
-- `claude-haiku-4-5` - Fast and cost-effective
-
-### Custom Anthropic-compatible endpoints
-
-Set `ANTHROPIC_BASE_URL` to route requests through Amazon Bedrock, Google Vertex, or any other Anthropic-compatible proxy. `ANTHROPIC_MODEL` is required when a custom base URL is set, because proxy providers use their own model-ID conventions (for example, Bedrock IDs like `anthropic.claude-sonnet-4-5-20250929-v1:0`).
-
-```bash
-LLM_PROVIDER=anthropic
-ANTHROPIC_ACCESS_TOKEN=your-proxy-token
-ANTHROPIC_BASE_URL=https://your-proxy.example.com
-ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
-```
-
-### Anthropic environment variables
+Select the active provider with the `LLM_PROVIDER` environment variable:
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `ANTHROPIC_ACCESS_TOKEN` *(or `ANTHROPIC_API_KEY`)* | API key for Anthropic (or a compatible proxy) | — |
-| `ANTHROPIC_MODEL` | Model name. Required when `ANTHROPIC_BASE_URL` is set | `claude-sonnet-4-6` |
-| `ANTHROPIC_BASE_URL` | Custom endpoint URL (Bedrock, Vertex, or other proxy). Leave blank for `api.anthropic.com` | — |
-| `ANTHROPIC_REQUEST_TIMEOUT` | HTTP timeout in seconds | `600` |
-| `ANTHROPIC_MAX_TOKENS` | Maximum tokens returned by the model on each chat turn | `4096` |
-
-<Note>
-  This first release of the Anthropic provider supports **chat only** (text, streaming, and tool use). Auto-categorization, merchant detection, PDF processing, and RAG features still require the OpenAI provider — calling them while `LLM_PROVIDER=anthropic` raises a clear "not yet implemented" error. Native Anthropic support for these features is being added in follow-up releases.
-</Note>
+| `LLM_PROVIDER` | Active provider. Set to `openai` or `anthropic` | `openai` |
 
 ## OpenAI compatible API
 
@@ -157,6 +129,53 @@ Recommended models:
 - `google/gemini-2.5-flash` - Fast and capable
 - `anthropic/claude-sonnet-4.5` - Excellent reasoning
 - `anthropic/claude-haiku-4.5` - Fast and cost-effective
+
+## Anthropic
+
+Sure can talk to Anthropic's Messages API directly, with full chat (text + streaming + tool use) parity with the OpenAI provider.
+
+```bash
+LLM_PROVIDER=anthropic
+ANTHROPIC_ACCESS_TOKEN=sk-ant-...
+# Optional — defaults to claude-sonnet-4-6
+ANTHROPIC_MODEL=claude-sonnet-4-6
+```
+
+Recommended models:
+
+- `claude-sonnet-4-6` - Default, best balance of speed and quality
+- `claude-haiku-4-5` - Fast and cost-effective
+
+### Custom Anthropic-compatible endpoints
+
+Set `ANTHROPIC_BASE_URL` to route requests through Amazon Bedrock, Google Vertex, or any other Anthropic-compatible proxy. `ANTHROPIC_MODEL` is required when a custom base URL is set, because proxy providers use their own model-ID conventions (for example, Bedrock IDs like `anthropic.claude-sonnet-4-5-20250929-v1:0`).
+
+```bash
+LLM_PROVIDER=anthropic
+ANTHROPIC_ACCESS_TOKEN=your-proxy-token
+ANTHROPIC_BASE_URL=https://your-proxy.example.com
+ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
+```
+
+### Anthropic environment variables
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `ANTHROPIC_ACCESS_TOKEN` *(or `ANTHROPIC_API_KEY`)* | API key for Anthropic (or a compatible proxy) | — |
+| `ANTHROPIC_MODEL` | Model name. Required when `ANTHROPIC_BASE_URL` is set | `claude-sonnet-4-6` |
+| `ANTHROPIC_BASE_URL` | Custom endpoint URL (Bedrock, Vertex, or other proxy). Leave blank for `api.anthropic.com` | — |
+| `ANTHROPIC_REQUEST_TIMEOUT` | HTTP timeout in seconds | `600` |
+| `ANTHROPIC_MAX_TOKENS` | Maximum tokens returned by the model on each chat turn | `4096` |
+
+<Note>
+  This first release of the Anthropic provider supports **chat only** (text, streaming, and tool use). Auto-categorization, merchant detection, PDF processing, and RAG features still require the OpenAI provider — calling them while `LLM_PROVIDER=anthropic` raises a clear "not yet implemented" error. Native Anthropic support for these features is being added in follow-up releases.
+</Note>
+
+### Batch operations
+
+Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via **forced tool calls**: a single output tool whose `input_schema` mirrors the desired result, invoked with `tool_choice: { type: "tool", disable_parallel_tool_use: true }`. This guarantees schema-valid output without JSON-mode fallbacks.
+
+Each batch operation caps the number of items at **25 per request**, matching the OpenAI provider. Requests above this limit are rejected with a clear error before they are sent.
 
 ## Token budget
 
