@@ -269,6 +269,8 @@ Ensure your OIDC provider includes groups in the token:
 
 3. Verify groups are present in the token by checking audit logs
 
+When either the `groups` scope is requested or a role mapping is configured, the application automatically sends an explicit OIDC `claims` parameter asking the provider to return `groups` as an essential claim in both the ID token and userinfo response. This helps with providers (for example, Authelia) that do not release the `groups` claim from scope alone.
+
 ### SAML providers
 
 Configure group attributes in your SAML provider:
