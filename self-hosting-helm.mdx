@@ -83,6 +83,14 @@ kubectl port-forward svc/sure 8080:80 -n sure
 
 Navigate to `http://localhost:8080` to access Sure.
 
+After creating your initial admin account, you can control future signups from **Settings > Self-Hosting > Onboarding**:
+
+- **Open**: Anyone can create an account from the registration page.
+- **Invite-only**: Signups stay enabled, but a valid invite code is required.
+- **Closed**: The registration page is disabled for new signups.
+
+If you do not want additional self-service registrations, switch the instance to **Closed** after the initial setup.
+
 ## Configuration
 
 ### Using external Postgres and Redis
