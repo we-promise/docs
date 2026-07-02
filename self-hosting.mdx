@@ -112,6 +112,68 @@ POSTGRES_PASSWORD="your-database-password-here"
 
 Replace the placeholder values with your generated secret key and a secure database password.
 
+### Optional: expose Sure with Cloudflare Tunnel
+
+If you want to reach your self-hosted instance from the public internet without opening router ports, you can put a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) in front of the `web` container.
+
+1. Create a tunnel in Cloudflare Zero Trust and copy the tunnel token.
+2. Add the token to your `.env` file:
+
+```txt
+CLOUDFLARE_TUNNEL_TOKEN="your-cloudflare-tunnel-token"
+```
+
+3. Edit `compose.yml` and set:
+
+```yaml
+RAILS_ASSUME_SSL: "true"
+```
+
+This tells Sure to generate HTTPS URLs correctly when Cloudflare terminates TLS before forwarding traffic to the container over HTTP.
+
+4. Add a `cloudflared` service to your `compose.yml`:
+
+```yaml
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - web
+    networks:
+      - sure_net
+```
+
+5. In the Cloudflare tunnel dashboard, add a public hostname such as `sure.example.com` and point it at the internal Docker service:
+
+```txt
+Service type: HTTP
+URL: http://web:3000
+```
+
+6. Start the tunnel connector:
+
+```bash
+docker compose up -d cloudflared
+docker compose logs cloudflared --tail 20
+```
+
+Look for a successful tunnel registration message in the logs, then open `https://sure.example.com`.
+
+<Note>
+Cloudflare should connect to `http://web:3000`, not `https://web:3000`. Sure speaks plain HTTP inside Docker and relies on `RAILS_ASSUME_SSL` to know the original request was HTTPS.
+</Note>
+
+<Tip>
+If you enable passkeys or security keys on a public hostname, also set `WEBAUTHN_RP_ID` and `WEBAUTHN_ALLOWED_ORIGINS` in `.env` to match that hostname.
+</Tip>
+
+<Warning>
+If you only want Cloudflare Tunnel access, do not leave port `3000` broadly exposed to the internet. Keep the host firewall closed or bind the published port more narrowly.
+</Warning>
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
