@@ -90,10 +90,32 @@
         "tab": "API reference",
         "groups": [
           {
+            "group": "Auth",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/auth/signup",
+              "POST /api/v1/auth/login",
+              "POST /api/v1/auth/refresh",
+              "POST /api/v1/auth/sso_exchange",
+              "POST /api/v1/auth/sso_link",
+              "POST /api/v1/auth/sso_create_account",
+              "PATCH /api/v1/auth/enable_ai"
+            ]
+          },
+          {
             "group": "Accounts",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /api/v1/accounts"
+              "GET /api/v1/accounts",
+              "GET /api/v1/accounts/{id}"
+            ]
+          },
+          {
+            "group": "Balances",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/balances",
+              "GET /api/v1/balances/{id}"
             ]
           },
           {
@@ -124,6 +146,7 @@
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/categories",
+              "POST /api/v1/categories",
               "GET /api/v1/categories/{id}"
             ]
           },
@@ -141,6 +164,23 @@
             ]
           },
           {
+            "group": "Family Exports",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/family_exports",
+              "POST /api/v1/family_exports",
+              "GET /api/v1/family_exports/{id}",
+              "GET /api/v1/family_exports/{id}/download"
+            ]
+          },
+          {
+            "group": "Family Settings",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/family_settings"
+            ]
+          },
+          {
             "group": "Holdings",
             "openapi": "/openapi.yaml",
             "pages": [
@@ -154,14 +194,27 @@
             "pages": [
               "GET /api/v1/imports",
               "POST /api/v1/imports",
-              "GET /api/v1/imports/{id}"
+              "POST /api/v1/imports/preflight",
+              "GET /api/v1/imports/{id}",
+              "GET /api/v1/imports/{id}/rows"
             ]
           },
-           {
+          {
+            "group": "Import Sessions",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/import_sessions",
+              "GET /api/v1/import_sessions/{id}",
+              "POST /api/v1/import_sessions/{id}/chunks",
+              "POST /api/v1/import_sessions/{id}/publish"
+            ]
+          },
+          {
             "group": "Merchants",
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/merchants",
+              "POST /api/v1/merchants",
               "GET /api/v1/merchants/{id}"
             ]
           },
@@ -170,6 +223,57 @@
             "openapi": "/openapi.yaml",
             "pages": [
               "GET /api/v1/provider_connections"
+            ]
+          },
+          {
+            "group": "Recurring Transactions",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/recurring_transactions",
+              "POST /api/v1/recurring_transactions",
+              "GET /api/v1/recurring_transactions/{id}",
+              "PATCH /api/v1/recurring_transactions/{id}",
+              "DELETE /api/v1/recurring_transactions/{id}"
+            ]
+          },
+          {
+            "group": "Rejected Transfers",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/rejected_transfers",
+              "GET /api/v1/rejected_transfers/{id}"
+            ]
+          },
+          {
+            "group": "Rule Runs",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/rule_runs",
+              "GET /api/v1/rule_runs/{id}"
+            ]
+          },
+          {
+            "group": "Rules",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/rules",
+              "GET /api/v1/rules/{id}"
+            ]
+          },
+          {
+            "group": "Securities",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/securities",
+              "GET /api/v1/securities/{id}"
+            ]
+          },
+          {
+            "group": "Security Prices",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/security_prices",
+              "GET /api/v1/security_prices/{id}"
             ]
           },
           {
@@ -216,6 +320,14 @@
             ]
           },
           {
+            "group": "Transfers",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/transfers",
+              "GET /api/v1/transfers/{id}"
+            ]
+          },
+          {
             "group": "Usage",
             "openapi": "/openapi.yaml",
             "pages": [
@@ -223,20 +335,22 @@
             ]
           },
           {
-            "group": "Valuations",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "POST /api/v1/valuations",
-              "GET /api/v1/valuations/{id}",
-              "PATCH /api/v1/valuations/{id}"
-            ]
-          },
-          {
             "group": "Users",
             "openapi": "/openapi.yaml",
             "pages": [
+              "GET /api/v1/users/reset/status",
               "DELETE /api/v1/users/reset",
               "DELETE /api/v1/users/me"
+            ]
+          },
+          {
+            "group": "Valuations",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/valuations",
+              "POST /api/v1/valuations",
+              "GET /api/v1/valuations/{id}",
+              "PATCH /api/v1/valuations/{id}"
             ]
           }
         ]
@@ -262,15 +376,15 @@
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
