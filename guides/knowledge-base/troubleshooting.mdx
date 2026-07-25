@@ -135,6 +135,41 @@ Sure uses WebSockets for certain pages. If some pages fail to render correctly o
 
 </AccordionGroup>
 
+## Budget totals do not update after deleting transactions
+
+If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this issue?">
+
+    Budget totals are derived from entry aggregation queries. Older versions of Sure used the most recent entry update timestamp as part of the cache key, which meant deleting an older transaction could leave the cache key unchanged.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    The entry aggregate cache version now includes both:
+
+    - The current entry count
+    - The newest entry `updated_at` timestamp
+
+    Because the count changes when an entry is deleted, budget and income aggregate caches are invalidated even when the deleted transaction was not the most recently updated entry.
+
+  </Accordion>
+
+  <Accordion title="How can maintainers validate it?">
+
+    Confirm the installed version includes the cache invalidation fix for `Family#entries_cache_version`, then re-check the affected budget after the next request or cache refresh. The regression test is:
+
+    ```bash
+    bin/rails test test/models/family_test.rb
+    ```
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Why is Sure not running auto-categorization and merchant detection on the same transactions again?
 
 Sure caches AI-generated results to avoid redundant API calls and costs. Once a transaction has been processed by AI rules, it won't be re-processed unless you explicitly reset the AI cache.
@@ -185,5 +220,3 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
   </Accordion>
 
 </AccordionGroup>
-
- 
