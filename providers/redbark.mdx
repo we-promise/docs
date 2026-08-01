@@ -1,0 +1,57 @@
+---
+title: Redbark
+description: Connect Australian bank accounts via CDR open banking
+---
+
+Redbark connects Australian bank accounts to Sure through the [Consumer Data Right](https://www.cdr.gov.au/) (CDR) open banking framework. Data flows one way, from your banks into Sure, using read-only consented access. Your bank credentials are never shared with Redbark or Sure.
+
+## How it works
+
+1. You connect your banks in Redbark through each bank's official consent flow
+2. You create a Redbark API key and paste it into Sure
+3. Sure pulls your accounts, balances, and transactions from the Redbark API
+4. Syncs run automatically to keep your data current
+
+## Setting up Redbark
+
+<Note>
+API access requires a Redbark Developer or Professional plan. It is not available on the Saver plan.
+</Note>
+
+1. Sign up at [app.redbark.com](https://app.redbark.com) and connect your bank accounts
+2. In Redbark, go to **Settings > API Keys** and create a new key (it is only shown once)
+3. In Sure, go to **Settings > Providers**, find the **Redbark** panel, and paste the key
+4. Link each bank account to an existing Sure account or create a new one from it
+
+## Features
+
+### Account syncing
+
+- **Account listing**: All connected bank accounts with institution names and logos
+- **Balances**: Current balances fetched from your bank on every sync
+- **Transaction history**: The first sync pulls 90 days of history (or from a start date you choose); later syncs are incremental with a 7 day lookback
+- **Deduplication**: Transactions are deduplicated by their Redbark transaction id, so re-syncing never creates duplicates
+
+### Pending transactions
+
+Only posted transactions are imported by default. To also import pending transactions, set this in your Sure environment:
+
+```
+REDBARK_INCLUDE_PENDING=true
+```
+
+When a pending transaction settles, the posted version replaces it automatically.
+
+## Limitations
+
+- Australian institutions only (banks under the CDR regime)
+- Banking accounts only; brokerage accounts connected to Redbark are not imported
+- Data is read-only; Sure never writes anything back to your banks
+
+## Troubleshooting
+
+**Connection requires update**: your API key was revoked or expired. Create a new key in Redbark and update it in the Sure provider panel.
+
+**An account is missing**: check the account's consent is still active in Redbark under **Settings > Consents**, and note that brokerage accounts are not synced.
+
+For more detail, see the [Redbark documentation](https://docs.redbark.com/sure).

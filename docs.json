@@ -71,6 +71,7 @@
               "providers/lunchflow",
               "providers/simplefin",
               "providers/plaid",
+              "providers/redbark",
               "providers/snaptrade",
               "providers/binance",
               "providers/coinbase",
