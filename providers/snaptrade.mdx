@@ -1,0 +1,114 @@
+---
+title: SnapTrade
+description: Connect brokerage accounts through the SnapTrade aggregation network
+---
+
+SnapTrade is a third-party provider for brokerage connectivity. In Sure, it is focused on **investment** and **crypto** accounts rather than checking or credit card accounts.
+
+It is a good fit if you want to import holdings, balances, and brokerage activity from supported brokers such as Fidelity, Vanguard, Schwab, and Robinhood without building a custom brokerage integration yourself.
+
+## How it works
+
+Sure uses your SnapTrade **Client ID** and **Consumer Key** from a Commercial API key to create a per-family SnapTrade user, open the SnapTrade connection portal, and sync the accounts you authorize. Personal API keys are not supported because they do not use SnapTrade's Register User flow.
+
+The flow looks like this:
+
+1. Create a SnapTrade app with a Commercial API key in the SnapTrade dashboard
+2. Copy the **Client ID** and **Consumer Key** into Sure
+3. Sure registers a SnapTrade user for your family
+4. You open the SnapTrade connection portal and sign in to your brokerage
+5. Sure discovers the connected brokerage accounts
+6. You choose which accounts to link to Sure
+7. Sure imports balances, holdings, and brokerage activity
+
+## Setting up SnapTrade
+
+To connect your brokerage accounts:
+
+1. Create an account at [dashboard.snaptrade.com](https://dashboard.snaptrade.com/)
+2. Create or open a SnapTrade app with a Commercial API key and copy its **Client ID** and **Consumer Key**
+3. In Sure, go to **Settings -> Providers -> SnapTrade**
+4. Paste the credentials and click **Save Configuration**
+5. Click **Connect Brokerage** and complete the SnapTrade connection flow
+6. After the redirect back to Sure, open the account setup screen and choose which discovered brokerage accounts to link
+
+If you already have an unlinked investment or crypto account in Sure, you can link the SnapTrade account to that existing account instead of creating a duplicate.
+
+## Managing connections
+
+SnapTrade connections are managed per family inside Sure.
+
+After your first successful connection, Sure lets you:
+
+- Add another brokerage connection
+- Review connected brokerages
+- Remove a brokerage connection
+- Delete unused or stale brokerage connections before adding more
+
+<Warning>
+SnapTrade's free tier covers **5 brokerage connections**. If you hit the limit, remove unused connections from Sure or upgrade your SnapTrade plan.
+</Warning>
+
+## Supported account types
+
+Sure currently uses SnapTrade for:
+
+- **Investment** accounts
+- **Crypto** accounts
+
+Brokerage-specific account subtypes such as IRA, Roth IRA, 401(k), TFSA, RRSP, margin, cash, and joint accounts are mapped into Sure's investment account model automatically.
+
+## Features
+
+### Brokerage syncing
+
+- **Brokerage aggregation**: Connect supported brokerages through a single provider
+- **Holdings sync**: Import securities positions and cash balances
+- **Activity sync**: Import brokerage activity and trade history
+- **Multiple brokerages**: Connect more than one brokerage under the same SnapTrade configuration
+- **Link existing accounts**: Attach a discovered SnapTrade account to an existing Sure investment or crypto account
+
+### Account setup flow
+
+After authorization, Sure separates discovered SnapTrade accounts into:
+
+- **Linked accounts**: Already attached to a Sure account
+- **Unlinked accounts**: Ready to be linked or created in Sure
+
+This makes it easier to avoid duplicates when you reconnect a brokerage or add another account later.
+
+### Background activity import
+
+Fresh brokerage connections may take a little longer to finish importing activity history. Sure continues fetching account activity in the background after the initial connection when needed.
+
+## Limitations
+
+- **Investment-focused**: SnapTrade is not the right provider for checking, savings, or credit card syncing
+- **Connection caps**: Free-tier SnapTrade accounts have limited brokerage connection slots
+- **Provider coverage**: Only brokerages supported by SnapTrade can be connected
+- **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
+- **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
+
+## Troubleshooting
+
+### Credentials save, but brokerage connection does not start
+
+- Verify the **Client ID** and **Consumer Key** were copied from the correct SnapTrade app
+- Re-open **Settings -> Providers -> SnapTrade** and save the credentials again
+- Try the **Connect Brokerage** button again so Sure can re-register the SnapTrade user if needed
+
+### No accounts appear after connecting a brokerage
+
+- Wait for the initial sync to finish and refresh the setup page
+- Check whether the brokerage was connected successfully in **Manage Connections**
+- Try running another sync from the SnapTrade account card in Sure
+
+### Hit the free-tier connection limit
+
+- Open **Manage Connections** in Sure and delete old brokerage connections you no longer use
+- Delete unused or stale brokerage connections first; the limit applies to brokerage connections, not registrations alone
+- Upgrade your SnapTrade plan if you need more simultaneous brokerage connections
+
+## API reference
+
+For SnapTrade API details and broker coverage, see the [official SnapTrade documentation](https://docs.snaptrade.com/).
