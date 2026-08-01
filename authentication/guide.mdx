@@ -547,6 +547,7 @@ The callback URL is shown in admin UI when editing a provider (with copy button)
 - Client secrets encrypted at rest using Rails 7.2 ActiveRecord Encryption
 - Encryption keys derived from `SECRET_KEY_BASE`
 - For additional security, set custom encryption keys via `ACTIVE_RECORD_ENCRYPTION_*` variables
+- If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 
 ### Issuer validation
 
