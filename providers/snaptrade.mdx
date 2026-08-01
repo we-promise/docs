@@ -9,11 +9,11 @@ It is a good fit if you want to import holdings, balances, and brokerage activit
 
 ## How it works
 
-Sure uses your SnapTrade **Client ID** and **Consumer Key** to create a per-family SnapTrade user, open the SnapTrade connection portal, and sync the accounts you authorize.
+Sure uses your SnapTrade **Client ID** and **Consumer Key** from a Commercial API key to create a per-family SnapTrade user, open the SnapTrade connection portal, and sync the accounts you authorize. Personal API keys are not supported because they do not use SnapTrade's Register User flow.
 
 The flow looks like this:
 
-1. Create a SnapTrade app in the SnapTrade dashboard
+1. Create a SnapTrade app with a Commercial API key in the SnapTrade dashboard
 2. Copy the **Client ID** and **Consumer Key** into Sure
 3. Sure registers a SnapTrade user for your family
 4. You open the SnapTrade connection portal and sign in to your brokerage
@@ -26,7 +26,7 @@ The flow looks like this:
 To connect your brokerage accounts:
 
 1. Create an account at [dashboard.snaptrade.com](https://dashboard.snaptrade.com/)
-2. Create or open your SnapTrade app and copy its **Client ID** and **Consumer Key**
+2. Create or open a SnapTrade app with a Commercial API key and copy its **Client ID** and **Consumer Key**
 3. In Sure, go to **Settings -> Providers -> SnapTrade**
 4. Paste the credentials and click **Save Configuration**
 5. Click **Connect Brokerage** and complete the SnapTrade connection flow
@@ -43,7 +43,7 @@ After your first successful connection, Sure lets you:
 - Add another brokerage connection
 - Review connected brokerages
 - Remove a brokerage connection
-- Clean up orphaned SnapTrade registrations that are still consuming connection slots
+- Delete unused or stale brokerage connections before adding more
 
 <Warning>
 SnapTrade's free tier covers **5 brokerage connections**. If you hit the limit, remove unused connections from Sure or upgrade your SnapTrade plan.
@@ -87,7 +87,7 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - **Connection caps**: Free-tier SnapTrade accounts have limited brokerage connection slots
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
-- **Activity timing**: A fresh connection can take up to about a minute before all activity is fully available in Sure
+- **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
 
 ## Troubleshooting
 
@@ -106,7 +106,7 @@ Fresh brokerage connections may take a little longer to finish importing activit
 ### Hit the free-tier connection limit
 
 - Open **Manage Connections** in Sure and delete old brokerage connections you no longer use
-- Remove orphaned registrations if they are consuming slots
+- Delete unused or stale brokerage connections first; the limit applies to brokerage connections, not registrations alone
 - Upgrade your SnapTrade plan if you need more simultaneous brokerage connections
 
 ## API reference
