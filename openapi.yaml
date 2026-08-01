@@ -1382,11 +1382,15 @@ components:
           nullable: true
           description: Average expected amount in currency minor units
         account:
-          "$ref": "#/components/schemas/Account"
+          type: object
           nullable: true
+          allOf:
+          - "$ref": "#/components/schemas/Account"
         merchant:
-          "$ref": "#/components/schemas/Merchant"
+          type: object
           nullable: true
+          allOf:
+          - "$ref": "#/components/schemas/Merchant"
         created_at:
           type: string
           format: date-time
@@ -5136,6 +5140,11 @@ paths:
                   description: Raw CSV or Sure NDJSON content as a string. CSV content
                     is limited to 10MB. Required for SureImport unless a multipart
                     file is uploaded.
+                file:
+                  type: string
+                  format: binary
+                  description: CSV or Sure NDJSON upload when using multipart/form-data.
+                    CSV files are limited to 10MB.
                 type:
                   type: string
                   enum:
@@ -5484,11 +5493,6 @@ paths:
                   type: string
                   description: Raw CSV or Sure NDJSON content as a string. CSV content
                     is limited to 10MB.
-                file:
-                  type: string
-                  format: binary
-                  description: CSV or Sure NDJSON upload when using multipart/form-data.
-                    CSV files are limited to 10MB.
                 type:
                   type: string
                   enum:
@@ -6935,7 +6939,7 @@ paths:
       parameters: []
       responses:
         '201':
-          description: interest created
+          description: trade created
           content:
             application/json:
               schema:
@@ -6953,7 +6957,7 @@ paths:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
         '422':
-          description: deposit without amount returns error
+          description: validation error
           content:
             application/json:
               schema:
