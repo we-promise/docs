@@ -13,9 +13,10 @@ An authorized client can read the user and family financial data exposed by Sure
 
 1. Sign in to Sure and open **Settings > MCP Server**.
 2. Copy the MCP server URL shown on the page. Sure builds this URL from your configured base URL and appends `/mcp`.
-3. In Claude.ai, open **Settings > Integrations**.
-4. Click **Add integration**, paste the MCP server URL, and click **Connect**.
-5. Your browser redirects to Sure. Sign in if needed, then authorize the client.
+3. Open Claude.ai and go to **Settings > Connectors**.
+4. Select **Add a connector**.
+5. Enter the connector name and paste the MCP server URL from Sure **Settings > MCP Server**, then select **Add**.
+6. Select the connector's **Connect** button to complete authorization. Your browser redirects to Sure. Sign in if needed, then authorize access.
 
 After authorization, the client can use the Sure tools exposed to it. Other MCP-compatible clients follow the same general process: give the client the URL from **Settings > MCP Server**, then complete Sure's sign-in and authorization flow in your browser. The client handles the MCP and OAuth protocol details; you do not need to register it or create an access token manually.
 
