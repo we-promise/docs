@@ -25,11 +25,34 @@ The **Connected clients** section under **Settings > MCP Server** lists clients 
 
 ## Available tools and access
 
-Sure exposes the tools enabled by your installed version. They can include tools for accounts, transactions, holdings, balance sheets, income statements, budgets, tags, categories, goals, and uploaded family files.
+The current `Assistant.function_classes` registry exposes the following tools. Tool availability and schemas can vary by Sure version, so clients should use `tools/list` as the source of truth for their installation.
 
-The `import_bank_statement` tool is not read-only. When available, it can extract transactions from a bank-statement PDF already uploaded to Sure and create an import for review. It does not publish the import automatically.
+### Read
 
-Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Tool availability and schemas can change between Sure versions, so clients should use `tools/list` as the source of truth. Review tool calls whenever your client offers that option.
+| Tool | Description |
+| --- | --- |
+| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
+| `get_accounts` | List accounts with current and historical balances and account metadata |
+| `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
+| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
+| `get_income_statement` | Retrieve income and expenses by category for a date range |
+| `get_budget` | Compare a monthly budget with spending by category, with an optional prior-month trend comparison |
+| `get_tags` | List family tags alphabetically |
+| `get_categories` | List family categories hierarchically, including IDs and parent relationships |
+| `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames |
+
+### Create, update, and import
+
+| Tool | Description |
+| --- | --- |
+| `import_bank_statement` | Use AI extraction to import transactions from an already-uploaded bank-statement PDF; creates a transaction import and returns its ID and rows for review |
+| `create_goal` | Create a savings goal linked to at least one eligible depository account, only after confirming key details with the user |
+| `create_tag` | Create a unique family tag |
+| `update_tag` | Update an existing tag's name or color |
+| `create_category` | Create a unique category, optionally as a subcategory |
+| `update_category` | Update an existing category's name, color, or icon |
+
+`import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
 ## Technical details
 
