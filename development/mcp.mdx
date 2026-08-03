@@ -1,0 +1,197 @@
+---
+title: Model Context Protocol (MCP)
+description: Connect an external AI assistant to your self-hosted Sure financial data
+---
+
+Sure exposes an MCP endpoint for external AI assistants and custom clients. It uses JSON-RPC 2.0 over HTTP:
+
+```text
+POST https://your-sure-instance.example/mcp
+Authorization: Bearer <MCP_API_TOKEN>
+```
+
+<Warning>
+An MCP client can read broad financial data for the selected user's entire family, including accounts, transactions, holdings, statements, and uploaded-file search results. The `import_bank_statement` tool can also create a transaction import. Only connect clients and AI providers you trust.
+</Warning>
+
+## Configure access
+
+The endpoint requires both of these environment variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `MCP_API_TOKEN` | A secret Bearer token that authenticates every MCP request |
+| `MCP_USER_EMAIL` | The email address of an existing Sure user whose family data is exposed |
+
+Generate a dedicated, high-entropy token:
+
+```bash
+openssl rand -base64 32
+```
+
+Store the result in your secret manager or `.env` file. Do not commit it, put it directly in an AI prompt, include it in logs, or reuse a token from another service. Rotate the token if it might have been exposed.
+
+`MCP_USER_EMAIL` is an access-control decision, not just a label. Sure resolves that user on every request and scopes tools to the user's family. Confirm the account already exists and has access only to the family data you intend to share.
+
+### Docker Compose
+
+The recommended Docker path uses Sure's AI Compose file and Pipelock configuration:
+
+```bash
+curl -o compose.ai.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.ai.yml
+curl -o pipelock.example.yaml https://raw.githubusercontent.com/we-promise/sure/main/pipelock.example.yaml
+```
+
+Add the credentials to `.env` beside the Compose file:
+
+```dotenv
+MCP_API_TOKEN=<generated-random-token>
+MCP_USER_EMAIL=user@example.com
+```
+
+Then start the stack:
+
+```bash
+docker compose -f compose.ai.yml up -d
+```
+
+With this configuration, connect the MCP client to `http://your-server:8889`. Pipelock listens there and forwards scanned requests to Sure's internal `http://web:3000/mcp` endpoint.
+
+### Kubernetes with Helm
+
+Create a Kubernetes Secret without placing the token in `values.yaml` or shell history:
+
+```bash
+kubectl create secret generic sure-mcp-credentials \
+  --namespace sure \
+  --from-literal=MCP_API_TOKEN="$MCP_API_TOKEN" \
+  --from-literal=MCP_USER_EMAIL="user@example.com"
+```
+
+Reference it from your Helm values and enable Pipelock:
+
+```yaml
+rails:
+  extraEnvFrom:
+    - secretRef:
+        name: sure-mcp-credentials
+
+pipelock:
+  enabled: true
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: mcp.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+```
+
+Configure TLS and network policy for your ingress, then point the client at the Pipelock hostname. The Pipelock ingress routes to its MCP listener; it does not add authentication, so the client must still send the Bearer token.
+
+## Supported protocol
+
+Sure currently supports these JSON-RPC methods:
+
+| Method | Purpose |
+| --- | --- |
+| `initialize` | Negotiate the protocol version and return server capabilities |
+| `tools/list` | Return available tools, descriptions, and input schemas |
+| `tools/call` | Run a named tool with JSON arguments |
+
+Send each request as an HTTP `POST` with `Content-Type: application/json`. Sure does not document stdio, SSE, or other MCP transports for this endpoint.
+
+### Test the connection
+
+Export the token in your current shell, then initialize the connection:
+
+```bash
+export MCP_API_TOKEN='<generated-random-token>'
+
+curl --request POST 'https://your-sure-instance.example/mcp' \
+  --header "Authorization: Bearer $MCP_API_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize"
+  }'
+```
+
+List the tools and their current input schemas:
+
+```bash
+curl --request POST 'https://your-sure-instance.example/mcp' \
+  --header "Authorization: Bearer $MCP_API_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list"
+  }'
+```
+
+Call a read tool:
+
+```bash
+curl --request POST 'https://your-sure-instance.example/mcp' \
+  --header "Authorization: Bearer $MCP_API_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "get_accounts",
+      "arguments": {}
+    }
+  }'
+```
+
+<Tip>
+Use `tools/list` as the source of truth for the schemas accepted by your installed Sure version instead of hard-coding arguments in a client.
+</Tip>
+
+## Tools
+
+The documented MCP tools are:
+
+| Tool | Access | Description |
+| --- | --- | --- |
+| `get_transactions` | Read | Retrieve family transactions with supported filters |
+| `get_accounts` | Read | Retrieve accounts and balances |
+| `get_holdings` | Read | Retrieve investment holdings |
+| `get_balance_sheet` | Read | Retrieve assets, liabilities, and net worth |
+| `get_income_statement` | Read | Retrieve income and expenses for a period |
+| `search_family_files` | Read | Search uploaded family documents and return relevant excerpts |
+| `import_bank_statement` | **Write** | Extract transactions from an already-uploaded bank-statement PDF and create a transaction import for review |
+
+`import_bank_statement` requires an uploaded PDF import and an account selection. A successful call creates an import and extracted rows; it does not merely preview the statement. Review the generated import carefully before publishing it in Sure.
+
+## Security model
+
+Every MCP request authenticates independently. Sure loads the user selected by `MCP_USER_EMAIL`, creates a fresh transient session scoped to that user, executes the request, and then discards the session. This prevents browser or impersonation session state from carrying into MCP calls.
+
+Transient isolation does not reduce what the selected user can access. A compromised client or token can repeatedly query the family data available through the tools, and can invoke the import tool. Protect the endpoint with TLS, restrict network reachability, rotate credentials, and review client tool approvals.
+
+### Route clients through Pipelock
+
+For production, Sure recommends [Pipelock](https://github.com/luckyPipewrench/pipelock) as an MCP reverse proxy. It scans inbound MCP traffic for secret exfiltration, prompt injection, and tool poisoning before forwarding requests to Sure.
+
+- With `compose.example.ai.yml`, clients connect to port `8889` instead of directly to Sure on port `3000`.
+- With Helm, enable `pipelock.enabled` and expose the Pipelock MCP ingress.
+- Keep `MCP_API_TOKEN` enabled and send it through the proxy; Pipelock does not replace Sure's authentication.
+- Limit or block direct network access to `/mcp` when practical, so clients cannot bypass scanning.
+
+See Sure's [Pipelock configuration](https://github.com/we-promise/sure/blob/main/docs/hosting/pipelock.md) for policy, deployment, and validation options.
+
+## Troubleshooting
+
+| Result | Check |
+| --- | --- |
+| `401 unauthorized` | Confirm the Bearer header is present and exactly matches `MCP_API_TOKEN`. If Pipelock is in front, confirm it forwards the header. |
+| User cannot be resolved | Confirm `MCP_USER_EMAIL` exactly matches an existing Sure user's email, then restart or roll out the application after changing environment variables. |
+| Method not found | Use only `initialize`, `tools/list`, and `tools/call`. |
+| Unknown tool or invalid arguments | Call `tools/list` and use the name and input schema returned by the running server. |
+| Pipelock connection refused | Check the Pipelock container or pod, its health check, and exposure of MCP port `8889`. |
