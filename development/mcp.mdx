@@ -1,0 +1,77 @@
+---
+title: Model Context Protocol (MCP)
+description: Connect an MCP-compatible AI assistant to your Sure financial data
+---
+
+Sure includes an MCP server that lets compatible AI assistants use the financial data and tools available to your Sure account.
+
+<Warning>
+An authorized client can read the user and family financial data exposed by Sure's MCP tools. Depending on the tools available in your Sure version, it may also be able to make changes. For example, `import_bank_statement` can create a transaction import from an uploaded bank-statement PDF. Only connect clients and AI providers you trust, and review tool requests before approving them.
+</Warning>
+
+## Connect an AI assistant
+
+1. Sign in to Sure and open **Settings > MCP Server**.
+2. Copy the MCP server URL shown on the page. Sure builds this URL from your configured base URL and appends `/mcp`.
+3. Open Claude.ai and go to **Settings > Connectors**.
+4. Select **Add a connector**.
+5. Enter the connector name and paste the MCP server URL from Sure **Settings > MCP Server**, then select **Add**.
+6. Select the connector's **Connect** button to complete authorization. Your browser redirects to Sure. Sign in if needed, then authorize access.
+
+After authorization, the client can use the Sure tools exposed to it. Other MCP-compatible clients follow the same general process: give the client the URL from **Settings > MCP Server**, then complete Sure's sign-in and authorization flow in your browser. The client handles the MCP and OAuth protocol details; you do not need to register it or create an access token manually.
+
+## Manage connected clients
+
+The **Connected clients** section under **Settings > MCP Server** lists clients with active access to your account. Select **Revoke** beside a client to invalidate its token. Revoke clients you no longer use or recognize.
+
+## Available tools and access
+
+The current `Assistant.function_classes` registry exposes the following tools. Tool availability and schemas can vary by Sure version, so clients should use `tools/list` as the source of truth for their installation.
+
+### Read
+
+| Tool | Description |
+| --- | --- |
+| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
+| `get_accounts` | List accounts with current and historical balances and account metadata |
+| `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
+| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
+| `get_income_statement` | Retrieve income and expenses by category for a date range |
+| `get_budget` | Compare a monthly budget with spending by category, with an optional prior-month trend comparison |
+| `get_tags` | List family tags alphabetically |
+| `get_categories` | List family categories hierarchically, including IDs and parent relationships |
+| `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames |
+
+### Create, update, and import
+
+| Tool | Description |
+| --- | --- |
+| `import_bank_statement` | Use AI extraction to import transactions from an already-uploaded bank-statement PDF; creates a transaction import and returns its ID and rows for review |
+| `create_goal` | Create a savings goal linked to at least one eligible depository account, only after confirming key details with the user |
+| `create_tag` | Create a unique family tag |
+| `update_tag` | Update an existing tag's name or color |
+| `create_category` | Create a unique category, optionally as a subcategory |
+| `update_category` | Update an existing category's name, color, or icon |
+| `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
+
+`import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
+
+## Technical details
+
+Sure serves MCP over JSON-RPC 2.0 at the URL displayed in **Settings > MCP Server**. The endpoint supports `initialize`, `tools/list`, and `tools/call` over HTTP `POST` requests. MCP-compatible clients use this URL and handle browser-based sign-in and authorization with Sure.
+
+Sure authenticates each MCP request with an active OAuth access token that has the `read_write` scope. The token's resource owner determines the Sure user and family available to the tools. Sure creates a fresh transient session for that user for the request so an existing browser or impersonation session is not reused.
+
+### Legacy environment-token fallback
+
+Self-hosted deployments can optionally support older clients that cannot complete the browser authorization flow. Set both `MCP_API_TOKEN` to a high-entropy secret and `MCP_USER_EMAIL` to an existing Sure user's email. The client sends the configured token as a bearer token, and the selected user's family data is exposed to the available MCP tools.
+
+This is a compatibility fallback: Sure tries OAuth access-token authentication first. Prefer the connection flow in **Settings > MCP Server**, and protect, rotate, and avoid logging any fallback token.
+
+## Optional Pipelock proxy
+
+[Pipelock](https://github.com/luckyPipewrench/pipelock) is an optional security proxy that can scan MCP tool calls and responses for secret exfiltration, prompt injection, and tool poisoning before forwarding traffic to Sure.
+
+Sure's AI Docker Compose example exposes Pipelock's MCP listener on port `8889` and forwards it to Sure's internal `/mcp` endpoint. The Helm chart can similarly expose a Pipelock MCP ingress. Operators who deploy it should provide users with the proxied MCP address. Pipelock adds scanning; it does not replace Sure's browser sign-in and authorization or require users to configure OAuth manually.
+
+Operators can see Sure's [Pipelock configuration](https://github.com/we-promise/sure/blob/main/docs/hosting/pipelock.md) for deployment and policy options. Use TLS, restrict direct access to `/mcp` when practical, and ensure clients use the proxied URL so they cannot bypass scanning.
