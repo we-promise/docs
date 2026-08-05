@@ -70,6 +70,7 @@
               "providers/binance",
               "providers/enable-banking",
               "providers/lunchflow",
+              "providers/wise",
               "providers/simplefin",
               "providers/plaid",
               "providers/redbark",
