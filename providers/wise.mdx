@@ -16,15 +16,15 @@ Wise integration connects your Wise multi-currency account to Sure using a perso
 
 ## Setting up Wise
 
-1. Sign in to [wise.com](https://wise.com)
-2. Go to **Settings → API tokens**
-3. Create a new personal API token with read-only access
+1. Sign in to your Wise business account at [wise.com](https://wise.com) (personal API tokens are issued from business account settings, even if you're only connecting a personal profile)
+2. Go to **Your Account → Connect and manage apps → API tokens** (requires two-factor authentication on the account)
+3. Create a new personal API token and choose an access level: **read only** lets Sure read balances, transfers, and Jar activity; **full** additionally allows the token to authorize recipients and transfers, so prefer read-only unless you need that capability elsewhere
 4. In Sure, go to **Settings > Providers**, find the **Wise** panel, and paste the token
 5. If the token has access to more than one profile (for example, a personal and a business profile), select which ones to connect — Sure creates a separate connection for each
 6. Open **Set Up Accounts** on the new connection and link each currency balance to a Sure account
 
 <Note>
-For testing, Wise provides a sandbox environment at `https://api.sandbox.transferwise.tech`. Set `WISE_BASE_URL` in your Sure environment to point at it instead of the default live API (`https://api.wise.com`).
+For testing, Wise provides a sandbox environment at `https://api.wise-sandbox.com` (the V2 sandbox host; the legacy `api.sandbox.transferwise.tech` URL was retired). Set `WISE_BASE_URL` in your Sure environment to point at it instead of the default live API (`https://api.wise.com`).
 </Note>
 
 ## Features
@@ -37,8 +37,8 @@ For testing, Wise provides a sandbox environment at `https://api.sandbox.transfe
 
 ### Transaction syncing
 
-- The first sync imports 90 days of transfer history (or history from a sync start date you configure); later syncs use a 7-day lookback from the last successful sync
-- Transfers are matched to each linked balance by source or target currency
+- The first sync imports 90 days of transfer history (or history from a sync start date you configure); later syncs use a 7-day lookback from the last successful sync. Statement-based history is only available for Wise accounts registered in a country the Wise API supports for statement retrieval (currently the US, Canada, Australia, New Zealand, Singapore, and Malaysia) — other accounts sync balances and Jar activity but won't get transfer history
+- Transfers are matched to their linked balance by Wise balance ID, so Jars that share the same currency are still tracked as separate accounts
 - Cross-currency incoming transfers use the amount actually received, not the amount sent
 - When a same-currency transfer includes a fee, the fee is imported as a separate "Wise fee" transaction
 
@@ -60,7 +60,7 @@ If your Wise account has both personal and business profiles, you can connect se
 
 ## Troubleshooting
 
-**Invalid token / connection requires update**: your API token was revoked, expired, or lacks permissions. Create a new personal token in Wise and update it in the Wise provider panel.
+**Invalid token / connection requires update**: your API token was revoked, is invalid, or lacks permissions (Wise personal API tokens don't expire on their own). Create a new personal token in Wise and update it in the Wise provider panel.
 
 **No profiles found**: the token doesn't have access to any Wise profile. Check the token's permissions in Wise and try again.
 
