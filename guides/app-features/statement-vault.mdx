@@ -1,0 +1,70 @@
+---
+title: "Statement Vault"
+description: "Store account statements and understand how Sure suggests matching accounts for uploaded PDFs"
+---
+
+# Statement Vault
+
+The Statement Vault stores original account statement files for a family. It accepts PDF, CSV, and XLSX uploads, keeps the original file, and uses the file hash to avoid storing the same document twice.
+
+You can upload statements from Settings -> Statement Vault. If you choose an account during upload, Sure links the statement to that account immediately. If you leave the account blank, the statement stays in the unmatched inbox and Sure may suggest a matching account for review.
+
+<Note>
+An account suggestion is not the same thing as an account link. Sure only links an unmatched statement after a person confirms the suggestion or selects an account manually.
+</Note>
+
+## How PDF account suggestions work
+
+When an unmatched PDF is uploaded, Sure reads metadata from the filename and compares it with visible accounts in the same family.
+
+For PDFs, Sure currently uses filename-based detection:
+
+- Statement period, from dates or month names in the filename
+- Account last four digits, from patterns like `ending 1234`, `last 4 1234`, `acct 1234`, or `xx1234`
+- Institution and account name hints, from meaningful remaining filename text after generic words and dates are removed
+
+Sure then scores each visible account:
+
+- Institution hint matches the account name, institution name, or institution domain: `+0.45`
+- Account name hint matches the account name: `+0.25`
+- Last-four hint matches the account name or institution name: `+0.25`
+- Statement currency matches the account currency: `+0.05`
+
+Accounts below `0.35` confidence are ignored. The highest scoring account becomes the suggested account shown in the unmatched inbox.
+
+## Example
+
+A file named `Chase_Bank_2024-01_account_6789.pdf` can produce:
+
+- A January 2024 statement period
+- `Chase Bank` as an institution/account hint
+- `6789` as the account last-four hint
+
+If a visible account has matching Chase metadata and the same currency, Sure will show that account as a suggestion with a confidence score.
+
+## Reviewing suggestions
+
+From Settings -> Statement Vault, unmatched statements show:
+
+- The original filename
+- Detected statement period, when available
+- Suggested account, when Sure finds one
+- Confidence score
+- Actions to link or reject the suggestion
+
+Selecting the link action files the statement against that account. Rejecting the suggestion clears it and marks the statement as rejected so it is not re-suggested by routine metadata edits.
+
+## PDF imports and AI extraction
+
+PDF transaction imports use the Statement Vault as their storage layer, but account matching and AI extraction are separate steps.
+
+When you upload a PDF through the import flow, Sure first stores it as an unmatched statement, then creates a PDF import and queues AI processing. The AI processing classifies the document and may extract transactions for bank or credit card statements. That AI extraction does not currently improve the account suggestion; the suggestion comes from the statement metadata matching described above.
+
+After transactions are extracted, the import still needs an account before it can be published.
+
+## Tips for better matches
+
+- Keep the institution name in the filename.
+- Include the statement month or date range.
+- Include a masked account suffix when available, such as `account_6789`.
+- Avoid generic filenames like `statement.pdf`; they usually do not contain enough information to suggest an account confidently.
