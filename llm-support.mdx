@@ -56,6 +56,7 @@ Sure supports any OpenAI-compatible API endpoint, giving you flexibility to use:
 - **OpenAI** - Direct access to GPT models
 - **Ollama** - Run models locally on your hardware
 - **LM Studio** - Local model hosting with a GUI
+- **Google Gemini** - Use Gemini models directly with a Gemini API key
 - **OpenRouter** - Access to multiple providers (Anthropic, Google, etc.)
 - **Other providers** - Groq, Together AI, Anyscale, Replicate, and more
 
@@ -113,6 +114,20 @@ OPENAI_ACCESS_TOKEN=lmstudio-local
 OPENAI_URI_BASE=http://localhost:1234/v1
 OPENAI_MODEL=your-model-name
 ```
+
+### Google Gemini
+
+Gemini provides an OpenAI-compatible endpoint that works with a Gemini API key from Google AI Studio:
+
+```bash
+OPENAI_ACCESS_TOKEN=your-gemini-api-key
+OPENAI_URI_BASE=https://generativelanguage.googleapis.com/v1beta/openai/
+OPENAI_MODEL=gemini-3.6-flash
+```
+
+Recommended models:
+
+- `gemini-3.6-flash` - Fast and capable
 
 ### OpenRouter
 
