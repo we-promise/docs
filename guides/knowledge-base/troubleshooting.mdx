@@ -260,4 +260,19 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
   </Accordion>
 
+  <Accordion title="How do I check if the AI cache reset ran?">
+
+    The cache reset runs as a background job. You can verify it ran and see a breakdown of what was cleared in **Settings → Debug** by filtering for the `ai_cache_reset` category.
+
+    The debug log records:
+    - An `info` entry when the reset is enqueued from the rules page
+    - An `info` entry when the job starts on a worker
+    - `warn` entries (up to 5 per scope) for individual records that could not be cleared
+    - An `error` entry if a scope fails entirely or the job could not be enqueued
+    - An `info` completion entry with the number of AI cache entries removed, broken down by scope
+
+    If you see an enqueue entry but no start entry, the job never reached a worker — check that your worker container is running.
+
+  </Accordion>
+
 </AccordionGroup>
