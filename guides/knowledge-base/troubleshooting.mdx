@@ -170,6 +170,28 @@ If a budget still shows spending from a transaction that was already deleted, th
 
 </AccordionGroup>
 
+## Chat fails immediately on a new account with a strict OpenAI-compatible provider
+
+Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests with a schema validation error when a family has no tags, merchants, or categories yet. This happens because the assistant's tool schemas include `enum` fields built from family data — an empty family produces `enum: []`, which is invalid JSON Schema.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this?">
+
+    Sure builds tool schemas dynamically from your family's data (account names, categories, merchants, tags, tickers). When none of that data exists yet, the schema contains `enum: []`, which is invalid JSON Schema. OpenAI tolerates it, but strict OpenAI-compatible providers reject the entire request before the model runs.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    Empty `enum` arrays are now pruned from tool schemas before they are sent. An empty enum falls back to a plain `string` type, which is valid. This fix applies to both chat tool definitions and the `/mcp` endpoint's `tools/list` response.
+
+    If you are on an affected version, upgrade to the latest release. No configuration change is needed.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Chat shows "assistant not available" before the model finishes
 
 Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the chat fail with "assistant not available" even though the model is still generating a reply and tokens are being billed.
