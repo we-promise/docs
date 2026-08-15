@@ -170,6 +170,58 @@ If a budget still shows spending from a transaction that was already deleted, th
 
 </AccordionGroup>
 
+## Rule runs fail silently
+
+If auto-categorization or merchant detection rules appear to do nothing, the background job may have failed without surfacing an error in the UI.
+
+<AccordionGroup>
+
+  <Accordion title="How do I see rule run failures?">
+
+    Async rule run failures are now logged to the debug log. Go to **Settings → Debug** and look for entries from the `rule_run` category. Each failed run includes the error class, message, and the rule that triggered it.
+
+    You can also check worker logs directly:
+
+    ```bash
+    docker compose logs worker
+    ```
+
+  </Accordion>
+
+  <Accordion title="What causes rule runs to fail?">
+
+    Common causes include:
+
+    - **LLM provider errors** — The AI provider returned an error or timed out. Check your `OPENAI_ACCESS_TOKEN` and provider connectivity.
+    - **Auto-categorize provider failures** — The provider returned an unexpected response format. These are now propagated and logged rather than silently swallowed.
+    - **Worker not running** — Rules run in the background via Sidekiq. Verify the `worker` container is healthy.
+
+  </Accordion>
+
+</AccordionGroup>
+
+## App crashes for a family with an invalid timezone
+
+If a family's timezone setting contains an unrecognized IANA zone name (for example, after a tzdata rename like `Europe/Kiev` → `Europe/Kyiv`), Sure now falls back to the application default timezone instead of crashing.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this?">
+
+    `Family#timezone` is a free-text field. If the stored value becomes stale — due to a tzdata rename, a database restore from an older backup, or a direct database edit — the app previously raised an `ArgumentError` on every request for that family, including the login page.
+
+  </Accordion>
+
+  <Accordion title="How is it handled now?">
+
+    Sure validates the timezone value against `ActiveSupport::TimeZone` before using it. If the value is unrecognized, the app falls back to the default timezone and logs a warning to **Settings → Debug** under the `timezone` category. The log is debounced to once per day per family so it does not flood the debug log.
+
+    To fix the root cause, update the family's timezone to a valid IANA zone name from **Settings → Profile**.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Chat shows "assistant not available" before the model finishes
 
 Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the chat fail with "assistant not available" even though the model is still generating a reply and tokens are being billed.
