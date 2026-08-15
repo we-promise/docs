@@ -318,6 +318,53 @@ These optional variables fine-tune provider selection and the behavior of the Op
 
 See [Token budget](#token-budget) for `LLM_CONTEXT_WINDOW`, `LLM_MAX_RESPONSE_TOKENS`, and related variables.
 
+## Chat response timeout
+
+Sure uses two separate timeouts for AI chat turns:
+
+- **`OPENAI_REQUEST_TIMEOUT`** — bounds each individual HTTP call to the model. The default is `60` seconds.
+- **`AI_RESPONSE_TIMEOUT`** — a whole-turn watchdog that starts when the message is queued and covers everything: queue wait, every model call, and all tool executions in between. The default is `90` seconds, which is sized for typical cloud latency.
+
+### Why the default 90 seconds is often too short for local models
+
+Custom OpenAI-compatible providers (Ollama, LM Studio, etc.) route through a synchronous code path, so nothing renders until the full reply is generated. On top of that, a tool-using turn runs multiple model calls in sequence. The total time the watchdog must cover is:
+
+```text
+(1 + ASSISTANT_MAX_TOOL_CALL_ITERATIONS) × OPENAI_REQUEST_TIMEOUT
+  + tool execution time + queue wait
+```
+
+With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=5`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 360 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
+
+### Recommended approach
+
+The cheapest lever is lowering `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` rather than setting a very large timeout. Fewer iterations means a shorter worst-case bound, and long tool chains fail with a clear limit error instead of a silent timeout.
+
+For a local Ollama setup with slow generation:
+
+```bash
+OPENAI_REQUEST_TIMEOUT=300
+ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
+# (1 + 2) × 300 = 900s model time + ~300s headroom = 1200
+AI_RESPONSE_TIMEOUT=1200
+```
+
+For cloud providers (OpenAI, Anthropic) the defaults are usually fine. If you see timeouts, raise `AI_RESPONSE_TIMEOUT` using the formula above.
+
+<Note>
+`AI_RESPONSE_TIMEOUT` must be larger than `OPENAI_REQUEST_TIMEOUT`. The watchdog covers the whole turn, so setting it equal to or below the per-call limit means any turn that uses a tool will always time out.
+</Note>
+
+### Configure via settings UI
+
+`AI_RESPONSE_TIMEOUT` is also configurable from the web interface:
+
+1. Go to **Settings** → **Self-Hosting**
+2. Scroll to the **AI Provider** section
+3. Set **Chat Response Timeout** to your desired value in seconds
+
+The environment variable takes precedence over the UI setting. The minimum accepted value is 30 seconds.
+
 ## Docker compose example
 
 ### Basic Ollama setup
