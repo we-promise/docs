@@ -245,6 +245,8 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
     **Note:** This will incur API costs if using a cloud provider.
 
+    The reset runs in the background. You can track its progress and see how many AI cache entries were removed in **Settings → Debug**, filtered by the `ai_cache_reset` category. Each run logs when it starts, how many entries were removed per scope, and any records that could not be cleared.
+
   </Accordion>
 
   <Accordion title="When should I reset the AI cache?">
