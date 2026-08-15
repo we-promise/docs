@@ -352,7 +352,14 @@ AI_RESPONSE_TIMEOUT=1200
 For cloud providers (OpenAI, Anthropic) the defaults are usually fine. If you see timeouts, raise `AI_RESPONSE_TIMEOUT` using the formula above.
 
 <Note>
-`AI_RESPONSE_TIMEOUT` must be larger than `OPENAI_REQUEST_TIMEOUT`. The watchdog covers the whole turn, so setting it equal to or below the per-call limit means any turn that uses a tool will always time out.
+`AI_RESPONSE_TIMEOUT` must be sized as a sum, not just set above `OPENAI_REQUEST_TIMEOUT`. The watchdog covers the entire turn — queue wait, every model call, and all tool executions — so the bound is:
+
+```text
+(1 + ASSISTANT_MAX_TOOL_CALL_ITERATIONS) × OPENAI_REQUEST_TIMEOUT
+  + tool execution time + queue wait
+```
+
+Setting `AI_RESPONSE_TIMEOUT` equal to or below `OPENAI_REQUEST_TIMEOUT` means any tool-using turn will always time out. The 90-second default is sized for typical cloud latency; use the formula above once per-call latency approaches the timeout.
 </Note>
 
 ### Configure via settings UI
