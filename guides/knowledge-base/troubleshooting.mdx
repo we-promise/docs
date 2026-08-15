@@ -170,6 +170,47 @@ If a budget still shows spending from a transaction that was already deleted, th
 
 </AccordionGroup>
 
+## Chat shows "assistant not available" before the model finishes
+
+Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the chat fail with "assistant not available" even though the model is still generating a reply and tokens are being billed.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this?">
+
+    Sure uses a whole-turn watchdog (`AI_RESPONSE_TIMEOUT`, default 90 seconds) that starts when the message is queued. Custom OpenAI-compatible providers use a synchronous code path — nothing renders until the full reply is generated — so the watchdog fires before the model finishes.
+
+    Tool-using turns make this worse: each tool call adds another full model round. The total time the watchdog must cover is:
+
+    ```text
+    (1 + ASSISTANT_MAX_TOOL_CALL_ITERATIONS) × OPENAI_REQUEST_TIMEOUT
+      + tool execution time + queue wait
+    ```
+
+    With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=5`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn can take up to 360 seconds of model time — far beyond the 90-second default.
+
+  </Accordion>
+
+  <Accordion title="How do I fix it?">
+
+    The most effective approach is to lower `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` (reducing the worst-case bound) and then size `AI_RESPONSE_TIMEOUT` using the formula above.
+
+    For a local Ollama setup:
+
+    ```bash
+    OPENAI_REQUEST_TIMEOUT=300
+    ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
+    AI_RESPONSE_TIMEOUT=1200
+    ```
+
+    You can also set **Chat Response Timeout** from **Settings → Self-Hosting → AI Provider** in the UI. The environment variable takes precedence.
+
+    See [Chat response timeout](/llm-support#chat-response-timeout) for full sizing guidance.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Why is Sure not running auto-categorization and merchant detection on the same transactions again?
 
 Sure caches AI-generated results to avoid redundant API calls and costs. Once a transaction has been processed by AI rules, it won't be re-processed unless you explicitly reset the AI cache.
