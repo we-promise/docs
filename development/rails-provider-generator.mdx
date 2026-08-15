@@ -574,6 +574,10 @@ end
 
 ## Troubleshooting
 
+### Reserved field name error
+
+If the generator raises `Thor::Error: '<field>' is a reserved field name`, remove that field from the command. The items table already defines it, so declaring it again would produce a duplicate migration column and inconsistent model code. See [Reserved field names](#reserved-field-names) for the full list.
+
 ### Panel not showing
 
 1. Check that the provider is excluded in `settings/providers_controller.rb`
