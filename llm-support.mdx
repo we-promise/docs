@@ -389,6 +389,10 @@ services:
       - OPENAI_ACCESS_TOKEN=ollama-local
       - OPENAI_URI_BASE=http://ollama:11434/v1
       - OPENAI_MODEL=llama3.1:13b
+      # Tune timeouts and tool-call depth for slow local models
+      # - OPENAI_REQUEST_TIMEOUT=300
+      # - ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
+      # - AI_RESPONSE_TIMEOUT=1200
       # Optional: raise token budget for larger-context models
       # - LLM_CONTEXT_WINDOW=8192
       # - LLM_MAX_RESPONSE_TOKENS=2048
