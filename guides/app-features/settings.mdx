@@ -134,6 +134,14 @@ The export list page automatically polls for updates when exports are in progres
 
 This ensures you always see the current status without manually refreshing the page.
 
+## Debug log
+
+The debug log at `/settings/debug` records diagnostic events from background jobs and integrations. Each entry captures a level, category, message, source, context IDs, and metadata.
+
+To make long entries easier to read, click the expand icon in the table's header strip to open the full log in a wide dialog. The expanded view gives all seven columns room to display without truncation. The expand button is always visible on touch devices and appears on hover or keyboard focus on pointer devices.
+
+You can filter entries by category — for example, `ai_cache_reset` — to trace a specific background job run from enqueue through completion.
+
 ## Account preferences
 
 Manage your personal account settings, including:
