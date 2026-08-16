@@ -38,6 +38,18 @@ Rules run automatically during family syncs or can be triggered manually. Unders
   </Accordion>
 </AccordionGroup>
 
+## Rule run failures not visible in the UI
+
+When an async rule run (triggered by a sync or background job) fails, the error is not surfaced in the main UI. Failures are written to the debug log so you can diagnose them without tailing worker logs.
+
+<AccordionGroup>
+  <Accordion title="How to find rule run failures">
+    Go to **Settings → Debug** and look for entries in the `rules` category. Each failed async run logs the error message so you can identify whether the failure is a provider error, a data issue, or a bug in a custom rule.
+
+    Auto-categorize provider failures are also propagated to the debug log, so a rule that fails because the AI provider is unavailable or returns an error will appear there as well.
+  </Accordion>
+</AccordionGroup>
+
 ## Category Rule Popup Behavior
 
 When a user selects a category for a transaction, a popup may appear to create an automatic categorization rule. This popup is intentionally gated by several conditions:
