@@ -36,6 +36,15 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     - **Manual transaction editing** - Same as above, only Account sync runs
     - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
   </Accordion>
+
+  <Accordion title="How do I see why a rule run failed?">
+    Failures during async rule runs (including auto-categorize provider failures) are written to the debug log. To view them:
+
+    1. Go to **Settings** → **Debug**
+    2. Look for entries with category **`rules`**
+
+    Each failed run includes the error message and the rule that triggered it.
+  </Accordion>
 </AccordionGroup>
 
 ## Category Rule Popup Behavior
