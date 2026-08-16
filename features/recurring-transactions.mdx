@@ -108,6 +108,10 @@ The system uses circular distance calculations to handle month-boundary patterns
 - Standard deviation threshold of 5 days for clustering
 - Median calculation on rotated day sequences for accurate expected day
 
+### Amount variance filtering
+
+When building or refreshing a manual recurring entry's expected amount range, the system only includes historical transactions whose amount is within 2× of the anchor amount (double or half). This prevents unrelated charges from the same merchant — for example, a small fee and a larger monthly due — from being blended into a single projected amount that matches neither real transaction.
+
 ### Cleanup logic
 
 Recurring transactions are automatically marked inactive when:
