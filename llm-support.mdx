@@ -29,12 +29,25 @@ Configure AI settings through the web interface:
 
 1. Go to **Settings** → **Self-Hosting**
 2. Scroll to the **AI Provider** section
-3. Choose your **LLM Provider** (`openai` or `anthropic`)
-4. Configure the matching credentials:
-   - **OpenAI**: Access Token, URI Base (optional), Model (required for custom endpoints)
-   - **Anthropic**: Access Token, Base URL (optional, for Bedrock / Vertex proxies), Model (defaults to `claude-sonnet-4-6`)
 
-Settings in the UI override environment variables.
+The AI Provider form contains the following fields:
+
+**Provider & credentials**
+- **LLM Provider** — `openai` or `anthropic`
+- **Access Token** — API key for the selected provider
+- **URI Base / Base URL** — Custom endpoint URL (leave blank for the default cloud endpoint)
+- **Model** — Model name (required for custom endpoints)
+
+**Behavior**
+- **JSON Mode** — Output mode: `auto`, `strict`, `json_object`, or `none`
+- **Chat Response Timeout** — Whole-turn watchdog in seconds (see [Chat response timeout](#chat-response-timeout))
+
+**Token Budget**
+- **Context Window** — Total tokens the model accepts (default: `2048`)
+- **Max Response Tokens** — Tokens reserved for the model's reply (default: `512`)
+- **Max Items Per Batch** — Upper bound for auto-categorize and merchant detection batches (default: `25`)
+
+Settings in the UI override environment variables. Environment variables take precedence when both are set.
 
 ## Choosing a provider
 
@@ -276,7 +289,11 @@ You might want to reset the cache when:
 3. Select **Reset AI cache**
 4. Confirm the action
 
-The cache is cleared asynchronously in the background.
+The cache is cleared asynchronously in the background. You can monitor the reset in **Settings → Debug** by filtering for the `ai_cache_reset` category, which logs:
+
+- When the reset is enqueued and when the job starts
+- Any individual records or scopes that could not be cleared
+- A completion summary with the number of AI cache entries removed, broken down by scope
 
 **Automatic reset:**
 
