@@ -38,6 +38,21 @@ Rules run automatically during family syncs or can be triggered manually. Unders
   </Accordion>
 </AccordionGroup>
 
+## Rule run failures not visible in the UI
+
+When rules run asynchronously (during a sync or via a background job), failures are not surfaced in the main UI. If auto-categorization or merchant detection appears to stop working silently, check the debug log.
+
+<AccordionGroup>
+  <Accordion title="Where are async rule failures logged?">
+    Failures from background rule runs — including auto-categorize provider errors — are written to the debug log. To view them:
+
+    1. Go to **Settings → Debug**
+    2. Filter by the relevant category (e.g., `rules` or `auto_categorize`)
+
+    A request that was enqueued but has no matching start entry in the log means the job never reached a worker.
+  </Accordion>
+</AccordionGroup>
+
 ## Category Rule Popup Behavior
 
 When a user selects a category for a transaction, a popup may appear to create an automatic categorization rule. This popup is intentionally gated by several conditions:
