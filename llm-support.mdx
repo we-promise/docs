@@ -362,6 +362,17 @@ ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
 AI_RESPONSE_TIMEOUT=1200
 ```
 
+In `compose.yml`, pass `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` alongside the other AI variables so the setting actually reaches the `web` and `worker` containers:
+
+```yaml
+x-rails-env: &rails_env
+  OPENAI_REQUEST_TIMEOUT: "300"
+  ASSISTANT_MAX_TOOL_CALL_ITERATIONS: ""   # leave empty to use the app default (5)
+  AI_RESPONSE_TIMEOUT: "1200"
+```
+
+Leave the value empty to let the app's own default govern, or set it explicitly to cap tool-call rounds.
+
 For cloud providers (OpenAI, Anthropic) the defaults are usually fine. If you see timeouts, raise `AI_RESPONSE_TIMEOUT` using the formula above.
 
 <Note>
