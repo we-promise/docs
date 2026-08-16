@@ -582,6 +582,30 @@ end
 2. Add encryption keys if missing
 3. Or use environment variables
 
+### Reserved field name error
+
+The generator rejects field names that collide with columns already defined on the items table. If you see a `Thor::Error` like:
+
+```
+Field "institution_id" is reserved and cannot be used as a provider field.
+The standard column already serves this purpose. Remove it from your command.
+```
+
+Drop the named field from your command — the standard column covers it. Reserved names include: `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `family_id`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`.
+
+Note that `family` (without `_id`) is **not** reserved — `t.references :family` creates `family_id`, so a field named `family` does not collide.
+
+### `NoMethodError: undefined method 'syncable'` during family sync
+
+If a freshly generated provider raises this error and takes down the nightly family sync, the generated item model is missing the `syncable` scope. Add it manually:
+
+```ruby
+# app/models/my_bank_item.rb
+scope :syncable, -> { active }
+```
+
+Providers generated after the fix include this scope automatically.
+
 ## Advanced: Creating a provider SDK
 
 For complex providers, consider creating a separate SDK class:
