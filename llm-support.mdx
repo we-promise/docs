@@ -29,10 +29,22 @@ Configure AI settings through the web interface:
 
 1. Go to **Settings** → **Self-Hosting**
 2. Scroll to the **AI Provider** section
-3. Choose your **LLM Provider** (`openai` or `anthropic`)
-4. Configure the matching credentials:
-   - **OpenAI**: Access Token, URI Base (optional), Model (required for custom endpoints)
-   - **Anthropic**: Access Token, Base URL (optional, for Bedrock / Vertex proxies), Model (defaults to `claude-sonnet-4-6`)
+
+The form is organized into three groups:
+
+**Provider & credentials**
+- **LLM Provider** — `openai` or `anthropic`
+- **OpenAI**: Access Token, URI Base (optional), Model (required for custom endpoints)
+- **Anthropic**: Access Token, Base URL (optional, for Bedrock / Vertex proxies), Model (defaults to `claude-sonnet-4-6`)
+- **JSON Mode** — output mode for structured responses (`auto`, `strict`, `json_object`, or `none`)
+
+**Token budget**
+- **Context Window** — total tokens the model accepts (default: `2048`)
+- **Max Response Tokens** — tokens reserved for the model's reply (default: `512`)
+- **Max Items Per Batch** — upper bound for auto-categorize and merchant detection batches (default: `25`)
+
+**Chat**
+- **Chat Response Timeout** — whole-turn watchdog in seconds (default: `90`). See [Chat response timeout](#chat-response-timeout) for sizing guidance.
 
 Settings in the UI override environment variables.
 
