@@ -116,6 +116,10 @@ Recurring transactions are automatically marked inactive when:
 - The system verifies no recent matches exist before marking inactive
 - For recurring transfers, matching uses transfer-pair detection (an outflow on the source account paired with an inflow on the destination account, within the usual amount and day-of-month tolerance) so transfers stay active while the pair recurs and are retired only when the pair stops
 
+### Amount variance band
+
+When the system calculates the expected amount range for a recurring transaction, it only includes historical entries whose amount is within 2× of the target amount (i.e., between half and double the target). This prevents unrelated charges from the same merchant — such as a small fee and a larger monthly payment — from being blended into a single projected amount.
+
 ### Data storage
 
 Each recurring transaction record stores:
