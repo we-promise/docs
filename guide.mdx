@@ -304,6 +304,18 @@ This ensures that money moved into investment accounts doesn't disappear from yo
 
 This feature eliminates the "black hole" effect where investment contributions would seem to vanish from your financial overview.
 
+## Reports
+
+### Clickable income and expense categories
+
+On the Reports page, income and expense category rows are clickable. Selecting a category row opens your transaction list pre-filtered to that category, so you can review the individual transactions behind any figure. Categories that contain only trade-type entries (such as **Other Investments**) are not clickable, since those entries cannot be shown in the standard transaction list.
+
+### Money In / Out widget drill-down links
+
+The **Money In / Out** widget on the dashboard links its Income and Expense totals through to a filtered transaction view. When your selected accounts match your full set of accessible accounts (the default), the link omits the account list from the URL to keep it short. If you have filtered the widget to a specific subset of accounts, the link includes those account IDs explicitly so the filtered view is scoped correctly.
+
+This change fixes an issue on self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forward-auth) where the full account list in the URL could exceed the proxy's header-size limit and return a 500 error.
+
 ## Next steps
 
 Now that you have your account set up:
