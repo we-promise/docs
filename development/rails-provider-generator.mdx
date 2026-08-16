@@ -238,6 +238,7 @@ class MyBankItem < ApplicationRecord
   has_many :accounts, through: :my_bank_accounts
 
   scope :active, -> { where(scheduled_for_deletion: false) }
+  scope :syncable, -> { active }
   scope :ordered, -> { order(created_at: :desc) }
   scope :needs_update, -> { where(status: :requires_update) }
 
@@ -486,6 +487,23 @@ class EnterpriseBankItem < ApplicationRecord
 end
 ```
 
+## Reserved field names
+
+The generator rejects field names that would collide with columns already defined on the items table. Passing a reserved name raises an error at generation time rather than failing silently at `db:migrate`.
+
+Reserved names include: `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`, `family_id`.
+
+Note that `family` (without `_id`) is **not** reserved — the migration writes `t.references :family`, which creates `family_id`, so a field named `family` is not a collision.
+
+```bash
+# This raises an error immediately
+rails g provider:family my_bank institution_id:string api_key:text:secret
+# => Thor::Error: 'institution_id' is a reserved field name. Remove it from your arguments.
+
+# This is fine
+rails g provider:family my_bank api_key:text:secret
+```
+
 ## Tips & best practices
 
 ### 1. Always run migrations
@@ -581,6 +599,17 @@ end
 1. Check credentials are configured: `rails credentials:edit`
 2. Add encryption keys if missing
 3. Or use environment variables
+
+### `NoMethodError: undefined method 'syncable'` during family sync
+
+`Family::Syncer` discovers item associations that include `Syncable` and calls `syncable` on them. If the generated item model is missing the `scope :syncable, -> { active }` line, the nightly sync raises this error and takes down the entire family sync — not just the new provider.
+
+The generator now emits this scope automatically. If you generated a provider before this fix, add it manually:
+
+```ruby
+# app/models/my_bank_item.rb
+scope :syncable, -> { active }
+```
 
 ## Advanced: Creating a provider SDK
 
