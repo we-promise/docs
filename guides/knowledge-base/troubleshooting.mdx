@@ -3,6 +3,15 @@ title: "Troubleshooting"
 ---
 
 
+## Debugging rule failures
+
+When an async rule run fails (for example, during a family sync or after a provider webhook), the error is written to the debug log. To view it:
+
+1. Go to **Settings → Debug**
+2. Filter by the `rules` category
+
+Each entry includes the error message and the rule that failed. This is useful for diagnosing why auto-categorization stopped working after a provider or model change.
+
 ## When Rules Are Triggered
 
 Rules run automatically during family syncs or can be triggered manually. Understanding when rules execute helps troubleshoot categorization issues.
