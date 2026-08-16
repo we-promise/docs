@@ -29,10 +29,23 @@ Configure AI settings through the web interface:
 
 1. Go to **Settings** → **Self-Hosting**
 2. Scroll to the **AI Provider** section
-3. Choose your **LLM Provider** (`openai` or `anthropic`)
-4. Configure the matching credentials:
-   - **OpenAI**: Access Token, URI Base (optional), Model (required for custom endpoints)
-   - **Anthropic**: Access Token, Base URL (optional, for Bedrock / Vertex proxies), Model (defaults to `claude-sonnet-4-6`)
+
+The form contains the following fields, grouped by function:
+
+**Provider & credentials**
+- **LLM Provider** — `openai` or `anthropic`
+- **Access Token** — API key for the selected provider
+- **URI Base** — Custom endpoint URL (OpenAI-compatible providers only; leave blank for OpenAI)
+- **Model** — Model name (required for custom endpoints)
+
+**Behavior**
+- **JSON Mode** — Output mode for structured responses: `auto`, `strict`, `json_object`, or `none`
+- **Chat Response Timeout** — Whole-turn watchdog in seconds (see [Chat response timeout](#chat-response-timeout))
+
+**Token budget**
+- **Context Window** — Total tokens the model accepts
+- **Max Response Tokens** — Tokens reserved for the model's reply
+- **Max Items Per Batch** — Upper bound for auto-categorize and merchant detection batches
 
 Settings in the UI override environment variables.
 
@@ -348,6 +361,17 @@ ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
 # (1 + 2) × 300 = 900s model time + ~300s headroom = 1200
 AI_RESPONSE_TIMEOUT=1200
 ```
+
+In `compose.yml`, pass `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` alongside the other AI variables so the setting actually reaches the `web` and `worker` containers:
+
+```yaml
+x-rails-env: &rails_env
+  OPENAI_REQUEST_TIMEOUT: "300"
+  ASSISTANT_MAX_TOOL_CALL_ITERATIONS: ""   # leave empty to use the app default (5)
+  AI_RESPONSE_TIMEOUT: "1200"
+```
+
+Leave the value empty to let the app's own default govern, or set it explicitly to cap tool-call rounds.
 
 For cloud providers (OpenAI, Anthropic) the defaults are usually fine. If you see timeouts, raise `AI_RESPONSE_TIMEOUT` using the formula above.
 
