@@ -29,10 +29,23 @@ Configure AI settings through the web interface:
 
 1. Go to **Settings** → **Self-Hosting**
 2. Scroll to the **AI Provider** section
-3. Choose your **LLM Provider** (`openai` or `anthropic`)
-4. Configure the matching credentials:
-   - **OpenAI**: Access Token, URI Base (optional), Model (required for custom endpoints)
-   - **Anthropic**: Access Token, Base URL (optional, for Bedrock / Vertex proxies), Model (defaults to `claude-sonnet-4-6`)
+
+The AI Provider form contains the following fields:
+
+**Provider & credentials**
+- **LLM Provider** — `openai` or `anthropic`
+- **Access Token** — API key for the selected provider
+- **URI Base / Base URL** — Custom endpoint URL (optional; required for Ollama, LM Studio, Bedrock, Vertex, etc.)
+- **Model** — Model name (required for custom endpoints)
+
+**Behavior**
+- **JSON Mode** — Output mode: `auto`, `strict`, `json_object`, or `none`
+- **Chat Response Timeout** — Whole-turn watchdog in seconds (see [Chat response timeout](#chat-response-timeout))
+
+**Token Budget**
+- **Context Window** — Total tokens the model accepts (default: `2048`)
+- **Max Response Tokens** — Tokens reserved for the model's reply (default: `512`)
+- **Max Items Per Batch** — Upper bound for auto-categorize and merchant detection batches (default: `25`)
 
 Settings in the UI override environment variables.
 
@@ -352,7 +365,14 @@ AI_RESPONSE_TIMEOUT=1200
 For cloud providers (OpenAI, Anthropic) the defaults are usually fine. If you see timeouts, raise `AI_RESPONSE_TIMEOUT` using the formula above.
 
 <Note>
-`AI_RESPONSE_TIMEOUT` must be larger than `OPENAI_REQUEST_TIMEOUT`. The watchdog covers the whole turn, so setting it equal to or below the per-call limit means any turn that uses a tool will always time out.
+`AI_RESPONSE_TIMEOUT` must be sized as a sum, not just set above `OPENAI_REQUEST_TIMEOUT`. The watchdog covers the entire turn — queue wait, every model call, and all tool executions — so the bound is:
+
+```text
+(1 + ASSISTANT_MAX_TOOL_CALL_ITERATIONS) × OPENAI_REQUEST_TIMEOUT
+  + tool execution time + queue wait
+```
+
+Setting `AI_RESPONSE_TIMEOUT` equal to or below `OPENAI_REQUEST_TIMEOUT` means any tool-using turn will always time out. The 90-second default is sized for typical cloud latency; use the formula above once per-call latency approaches the timeout.
 </Note>
 
 ### Configure via settings UI
