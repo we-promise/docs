@@ -289,7 +289,12 @@ You might want to reset the cache when:
 3. Select **Reset AI cache**
 4. Confirm the action
 
-The cache is cleared asynchronously in the background.
+The cache is cleared asynchronously in the background. You can monitor the reset in **Settings → Debug** — filter by the `ai_cache_reset` category to see:
+
+- When the reset was enqueued and when the job started
+- How many AI cache entries were removed, broken down by scope
+- Any individual records that could not be cleared (logged as warnings)
+- Errors if a scope failed outright or the job could not be enqueued
 
 **Automatic reset:**
 
