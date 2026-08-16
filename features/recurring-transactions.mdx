@@ -95,6 +95,8 @@ Use the trash icon to permanently remove a recurring transaction record.
 
 You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills).
 
+Two manual recurring transactions for the same payee are allowed as long as their amounts differ — for example, a $3.00 fee and a $19.68 charge from the same merchant are tracked as separate recurring entries. An exact duplicate (same account, payee, currency, and amount) is still blocked.
+
 ## Technical details
 
 ### Pattern clustering
@@ -113,6 +115,10 @@ Recurring transactions are automatically marked inactive when:
 - No matching transaction has occurred within the staleness threshold (2 months for automatically detected patterns, 6 months for manually marked patterns)
 - The system verifies no recent matches exist before marking inactive
 - For recurring transfers, matching uses transfer-pair detection (an outflow on the source account paired with an inflow on the destination account, within the usual amount and day-of-month tolerance) so transfers stay active while the pair recurs and are retired only when the pair stops
+
+### Amount variance band
+
+When the system calculates the expected amount range for a recurring transaction, it only includes historical entries whose amount is within 2× of the target amount (i.e., between half and double the target). This prevents unrelated charges from the same merchant — such as a small fee and a larger monthly payment — from being blended into a single projected amount.
 
 ### Data storage
 
@@ -156,6 +162,6 @@ Identify recurring income like:
 
 - Requires at least 3 occurrences in the last 3 months
 - Last occurrence must be within 45 days
-- Only detects patterns with consistent amounts
+- Projected amounts are calculated only from transactions within 2× of the target amount, so distinct charges from the same merchant are not blended together
 - Projected transactions hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
