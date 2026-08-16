@@ -486,6 +486,30 @@ class EnterpriseBankItem < ApplicationRecord
 end
 ```
 
+## Known constraints
+
+### Reserved field names
+
+The generator rejects field names that collide with columns already defined on the items table. Declaring a reserved name raises an error at generation time rather than failing silently during `db:migrate`.
+
+Reserved names include: `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`, `family_id`.
+
+```bash
+# This raises an error immediately
+rails g provider:family my_bank institution_id:string api_key:text:secret
+# => Error: 'institution_id' is a reserved field name. Remove it from your arguments.
+```
+
+Note that `family` (without `_id`) is **not** reserved — the migration writes `t.references :family`, which creates `family_id`, so a field named `family` is not a collision.
+
+### Syncable scope
+
+The generated item model includes a `scope :syncable` definition. This is required because `Family::Syncer` discovers the new `*_items` association reflectively and calls `syncable` on it. Without this scope, the nightly family sync raises a `NoMethodError` and takes down syncing for all providers, not just the new one.
+
+### i18n interpolation
+
+Locale strings in the generated files use `%{count}` (single percent) for I18n interpolation. Do not change these to `%%{count}` — the doubled form is not collapsed by Rails generator ERB and will render as a literal `%{count}` string in the UI.
+
 ## Tips & best practices
 
 ### 1. Always run migrations
