@@ -582,6 +582,24 @@ end
 2. Add encryption keys if missing
 3. Or use environment variables
 
+### Reserved field names
+
+The generator rejects field names that conflict with columns already present on every items table. If you pass a reserved name such as `institution_id` or `status`, the generator exits with an error naming the field and telling you to drop it.
+
+Reserved names include: `family_id`, `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`.
+
+The standard column already serves the same purpose, so you do not need to declare it again.
+
+### Nightly sync fails after adding a new provider
+
+The family syncer discovers item models that include `Syncable` and calls `syncable` on their accounts association. If the generated model is missing the `syncable` scope, the sync raises `NoMethodError` and takes down the entire nightly sync for all providers.
+
+The generator now emits `scope :syncable, -> { active }` automatically. If you generated a provider before this fix, add the scope manually to your item model:
+
+```ruby
+scope :syncable, -> { active }
+```
+
 ## Advanced: Creating a provider SDK
 
 For complex providers, consider creating a separate SDK class:
