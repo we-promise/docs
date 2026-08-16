@@ -238,6 +238,7 @@ class MyBankItem < ApplicationRecord
   has_many :accounts, through: :my_bank_accounts
 
   scope :active, -> { where(scheduled_for_deletion: false) }
+  scope :syncable, -> { active }
   scope :ordered, -> { order(created_at: :desc) }
   scope :needs_update, -> { where(status: :requires_update) }
 
@@ -581,6 +582,34 @@ end
 1. Check credentials are configured: `rails credentials:edit`
 2. Add encryption keys if missing
 3. Or use environment variables
+
+### Reserved field name rejected at generate time
+
+The generator rejects field names that collide with columns already defined on the items table (for example `institution_id`, `institution_name`, `status`). If you pass a reserved name you will see a `Thor::Error` naming the field:
+
+```
+Error: Field "institution_id" is reserved. Drop it from the command — the standard column already serves this purpose.
+```
+
+Remove the field from your command. The built-in column covers the same purpose and the generated code will be self-consistent.
+
+`family` is **not** reserved — the migration writes `t.references :family` which creates `family_id`, so a field named `family` does not collide.
+
+### `NoMethodError: undefined method 'syncable'` during family sync
+
+The generated item model includes `Syncable`, so `Family::Syncer` discovers the new `*_items` association and calls `syncable` on it. If the generated model is missing the `syncable` scope, the entire nightly family sync fails for all providers, not just the new one.
+
+Ensure the item model defines:
+
+```ruby
+scope :syncable, -> { active }
+```
+
+This scope is generated automatically for providers created with the current generator. If you have an older generated model, add it manually.
+
+### Locale strings show `%{count}` literally instead of the count
+
+The locale template uses `%{count}` for I18n interpolation. If your generated locale file contains `%%{count}` (double percent), the placeholder is rendered literally. Edit the locale file and replace `%%{count}` with `%{count}` in all affected strings.
 
 ## Advanced: Creating a provider SDK
 
