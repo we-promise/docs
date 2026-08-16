@@ -303,6 +303,17 @@ The AI cache is automatically cleared for all users when the OpenAI model settin
 - **AI enrichment records are deleted** - The history of AI changes is cleared
 - **User edits are preserved** - If you manually changed a category after AI set it, your change is kept
 
+### Monitoring a cache reset
+
+Every stage of the reset job is written to the debug log under the `ai_cache_reset` category. You can filter for it at **Settings → Debug**:
+
+- **info** — logged when the reset is enqueued from the rules page, and again when the job starts on a worker
+- **warn** — logged for individual records that could not be cleared (capped at 5 per scope) and when the job receives no family
+- **error** — logged when a scope fails outright or when the job could not be enqueued
+- **info (completion)** — logged when the job finishes, with a count of AI cache entries removed broken down by scope
+
+If you see an enqueue `info` entry but no matching start entry, the job never reached a worker. If you see a start entry but no completion entry, the job was interrupted mid-run.
+
 ## Evaluation system
 
 Test and compare different LLMs for your specific use case. The eval system helps you benchmark models for transaction categorization, merchant detection, and chat assistant functionality.
