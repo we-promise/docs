@@ -600,6 +600,17 @@ end
 2. Add encryption keys if missing
 3. Or use environment variables
 
+### `NoMethodError: undefined method 'syncable'` during family sync
+
+`Family::Syncer` discovers item associations that include `Syncable` and calls `syncable` on them. If the generated item model is missing the `scope :syncable, -> { active }` line, the nightly sync raises this error and takes down the entire family sync — not just the new provider.
+
+The generator now emits this scope automatically. If you generated a provider before this fix, add it manually:
+
+```ruby
+# app/models/my_bank_item.rb
+scope :syncable, -> { active }
+```
+
 ## Advanced: Creating a provider SDK
 
 For complex providers, consider creating a separate SDK class:
