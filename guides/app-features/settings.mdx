@@ -130,6 +130,38 @@ The export list page automatically polls for updates when exports are in progres
 
 This ensures you always see the current status without manually refreshing the page.
 
+## Debug log
+
+The debug log at `/settings/debug` records diagnostic events from background jobs and integrations, giving you visibility into what the app is doing behind the scenes.
+
+### Viewing the debug log
+
+The log table shows seven columns of diagnostic data — level, category, message, source, context IDs, and metadata. To read entries more comfortably, click the **expand** icon in the table header to open the full log in a wide dialog where all columns have room to display.
+
+The expand button is always visible on touch devices and appears on hover or keyboard focus on desktop.
+
+### Debug log categories
+
+| Category | What it tracks |
+|---|---|
+| `ai_cache_reset` | AI cache reset job lifecycle — enqueue, start, per-scope results, and completion with counts |
+| `rules` | Async rule run failures and auto-categorize provider errors |
+
+### AI cache reset logging
+
+When you trigger **Reset AI cache** from the rules page, the debug log records:
+
+- **info** — when the reset is enqueued and when the job starts on a worker
+- **error** — if the enqueue fails or a scope fails outright
+- **warn** — for individual records that could not be cleared (capped at 5 per scope), and if the job receives no family
+- **info** — on completion, with the number of AI cache entries removed broken down by scope, plus failure and skip counts in the metadata
+
+If you see an enqueue entry but no matching start entry, the job never reached a worker.
+
+### Rule run failure logging
+
+Failures from async rule runs and auto-categorize provider errors are written to the debug log under the `rules` category, so you can diagnose why a rule did not apply without digging through server logs.
+
 ## Account preferences
 
 Manage your personal account settings, including:
