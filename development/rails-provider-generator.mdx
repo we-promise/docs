@@ -563,6 +563,17 @@ class Provider::MyBankAdapterTest < ActiveSupport::TestCase
 end
 ```
 
+## Reserved field names
+
+The generator rejects field names that collide with columns already defined on the items table. Passing a reserved name raises an error at generate time rather than producing broken migrations or inconsistent models:
+
+```bash
+rails g provider:family my_bank institution_id:string api_key:text:secret
+# => Error: "institution_id" is a reserved field name. Remove it from your field list and re-run.
+```
+
+Reserved names include the standard item columns: `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`, and `family_id`. The name `family` (without `_id`) is **not** reserved — `t.references :family` creates `family_id`, so a field named `family` is not a collision.
+
 ## Troubleshooting
 
 ### Panel not showing
