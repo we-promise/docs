@@ -486,6 +486,32 @@ class EnterpriseBankItem < ApplicationRecord
 end
 ```
 
+## Reserved field names
+
+The generator rejects field names that conflict with columns already defined in the standard items table. Passing a reserved name raises an error at generation time rather than failing silently during `db:migrate`.
+
+**Reserved names** (cannot be used as custom fields):
+
+| Field | Reason |
+|-------|--------|
+| `institution_id` | Standard institution metadata column |
+| `institution_name` | Standard institution metadata column |
+| `institution_domain` | Standard institution metadata column |
+| `institution_url` | Standard institution metadata column |
+| `institution_color` | Standard institution metadata column |
+| `status` | Standard lifecycle column |
+| `scheduled_for_deletion` | Standard lifecycle column |
+| `pending_account_setup` | Standard lifecycle column |
+| `sync_start_date` | Standard sync column |
+| `raw_payload` | Standard raw data column |
+| `raw_institution_payload` | Standard raw data column |
+| `family_id` | Foreign key (created by `t.references :family`) |
+| `name` | Standard name column |
+
+Note that `family` itself is **not** reserved — the migration uses `t.references :family` which creates `family_id`, so a field named `family` does not collide.
+
+If you need to customize the behavior of a standard column, do so in the model after generation rather than re-declaring it as a custom field.
+
 ## Tips & best practices
 
 ### 1. Always run migrations
