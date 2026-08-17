@@ -95,6 +95,8 @@ Use the trash icon to permanently remove a recurring transaction record.
 
 You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills).
 
+Two manual recurring transactions to the same payee are allowed as long as their amounts differ (for example, a $3.00 fee and a $19.68 charge from the same merchant). An exact duplicate — same account, payee, currency, and amount — is still blocked.
+
 ## Technical details
 
 ### Pattern clustering
@@ -156,6 +158,6 @@ Identify recurring income like:
 
 - Requires at least 3 occurrences in the last 3 months
 - Last occurrence must be within 45 days
-- Only detects patterns with consistent amounts
+- Variance band matching uses a 2× ratio threshold: a historical transaction is only considered the same recurring charge if its amount is within double or half of the target amount. This prevents unrelated charges to the same merchant from being blended into a single recurring record.
 - Projected transactions hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
