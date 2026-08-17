@@ -88,6 +88,15 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
 - **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
+- **Derivatives not imported**: Options and other derivative instruments are filtered out and will not appear in holdings
+
+## Known issues and fixes
+
+### Holdings not appearing on newly connected accounts
+
+SnapTrade deprecated the `/positions`, `/holdings`, and `/options` endpoints for apps registered after their 2026 cutoff, returning HTTP 410 Gone. Sure now uses the `/positions/all` replacement endpoint, so newly connected accounts import holdings correctly.
+
+If you connected a brokerage before this fix and see a balance but no holdings, run a manual sync from the account card to pull positions using the updated endpoint.
 
 ## Troubleshooting
 

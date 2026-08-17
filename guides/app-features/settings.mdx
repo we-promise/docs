@@ -62,6 +62,12 @@ If you updated to `0.7.2` and do not see the Goals section yet, open `/settings/
 
 This is expected behavior in `0.7.2`, even after recreating containers or pulling a fresh image.
 
+#### Deleting a goal
+
+You can delete a goal directly from its page without archiving it first. Open the goal, click the kebab menu (⋮), and select **Delete**. The confirmation dialog describes what will be removed — linked account associations and any pledges — and what is unaffected (your transactions and account balances).
+
+Previously, the Delete option was only available after archiving. That requirement has been removed.
+
 ### AI sidebar on desktop
 
 If you do not want to use the AI assistant yet, you can hide the desktop AI sidebar with the **panel-right** button in the top bar.
@@ -117,6 +123,14 @@ The mobile app includes an enhanced AI chat experience:
 - **Auto-scroll**: The chat automatically scrolls to show new messages as they arrive
 - **Improved flow**: Chat creation is now lazy-loaded on first message send, eliminating loading delays
 
+## Debug log
+
+The debug event log at `/settings/debug` shows diagnostic events for your Sure instance. The table displays level, category, message, source, context IDs, and metadata for each entry.
+
+### Expanded view
+
+Click the expand icon in the table card header to open the full log in a wide dialog. The expanded view gives all columns room to display without truncation, and the header row stays fixed as you scroll through long logs. This is useful when diagnosing sync errors or reviewing detailed metadata.
+
 ## Data exports
 
 Sure allows you to export your financial data for backup or analysis purposes. When you create an export, the page automatically refreshes to show the latest status.
@@ -135,6 +149,8 @@ This ensures you always see the current status without manually refreshing the p
 Sure supports multiple display languages. You can change the interface language from **Settings → Preferences**.
 
 Supported languages include: English, French, German, Spanish, Portuguese (Brazil), Italian, Russian, Turkish, Arabic, Chinese (Simplified), Chinese (Traditional), Japanese, Korean, Indonesian, and Ukrainian.
+
+Spanish (`es`) translations are now complete, covering all views, models, breadcrumbs, mailers, and default strings.
 
 ## Account preferences
 
