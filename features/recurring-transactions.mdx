@@ -158,6 +158,6 @@ Identify recurring income like:
 
 - Requires at least 3 occurrences in the last 3 months
 - Last occurrence must be within 45 days
-- Only detects patterns with consistent amounts
+- Variance band matching uses a 2× ratio threshold: a historical transaction is only considered the same recurring charge if its amount is within double or half of the target amount. This prevents unrelated charges to the same merchant from being blended into a single recurring record.
 - Projected transactions hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
