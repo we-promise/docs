@@ -108,6 +108,10 @@ The system uses circular distance calculations to handle month-boundary patterns
 - Standard deviation threshold of 5 days for clustering
 - Median calculation on rotated day sequences for accurate expected day
 
+### Amount variance band
+
+When building the expected amount range for a manual recurring transaction, Sure only includes historical entries whose amount is within 2× of the target amount (i.e., between half and double the target). This prevents unrelated charges from the same merchant — such as a small fee alongside a larger monthly payment — from being blended into a single projected amount.
+
 ### Cleanup logic
 
 Recurring transactions are automatically marked inactive when:
