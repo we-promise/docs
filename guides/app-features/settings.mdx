@@ -62,6 +62,12 @@ If you updated to `0.7.2` and do not see the Goals section yet, open `/settings/
 
 This is expected behavior in `0.7.2`, even after recreating containers or pulling a fresh image.
 
+### Deleting a goal
+
+You can delete a goal directly from the goal's page without archiving it first. Open the goal, click the kebab menu (⋮), and select **Delete**. A confirmation dialog will describe what is removed.
+
+Deleting a goal removes the goal and its pledges. Any transactions that were matched to a pledge are unlinked from the goal, but the transactions themselves are not deleted.
+
 ### AI sidebar on desktop
 
 If you do not want to use the AI assistant yet, you can hide the desktop AI sidebar with the **panel-right** button in the top bar.
@@ -116,6 +122,14 @@ The mobile app includes an enhanced AI chat experience:
 - **Smooth animations**: The typing indicator uses a classic three-dot bounce animation
 - **Auto-scroll**: The chat automatically scrolls to show new messages as they arrive
 - **Improved flow**: Chat creation is now lazy-loaded on first message send, eliminating loading delays
+
+## Debug log
+
+The debug event log at `/settings/debug` shows raw diagnostic events from provider syncs and background jobs.
+
+### Expandable table view
+
+The log table has an expand button in the card header. Clicking it opens the full table in a wide dialog, giving all seven columns — level, category, message, source, context IDs, and metadata — enough room to read without truncation. The expanded view is accessible on both desktop and touch devices.
 
 ## Data exports
 
