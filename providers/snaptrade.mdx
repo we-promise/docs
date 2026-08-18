@@ -63,7 +63,7 @@ Brokerage-specific account subtypes such as IRA, Roth IRA, 401(k), TFSA, RRSP, m
 ### Brokerage syncing
 
 - **Brokerage aggregation**: Connect supported brokerages through a single provider
-- **Holdings sync**: Import securities positions and cash balances
+- **Holdings sync**: Import securities positions and cash balances using SnapTrade's `/positions/all` endpoint
 - **Activity sync**: Import brokerage activity and trade history
 - **Multiple brokerages**: Connect more than one brokerage under the same SnapTrade configuration
 - **Link existing accounts**: Attach a discovered SnapTrade account to an existing Sure investment or crypto account
@@ -88,6 +88,7 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
 - **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
+- **Derivatives not supported**: Options and other derivative instruments are filtered out during import; only equities, ETFs, mutual funds, and similar supported kinds are imported
 
 ## Troubleshooting
 
@@ -102,6 +103,11 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - Wait for the initial sync to finish and refresh the setup page
 - Check whether the brokerage was connected successfully in **Manage Connections**
 - Try running another sync from the SnapTrade account card in Sure
+
+### Holdings import successfully but balances look wrong
+
+- Accounts that hold only derivatives (options, futures) will show no holdings because Sure filters out unsupported instrument kinds before calculating balances
+- If your account holds a mix of equities and derivatives, only the equity positions contribute to the displayed balance
 
 ### Hit the free-tier connection limit
 
