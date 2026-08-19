@@ -97,6 +97,12 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - Re-open **Settings > Bank sync > SnapTrade** and save the credentials again
 - Try the **Connect Brokerage** button again so Sure can re-register the SnapTrade user if needed
 
+### Holdings are missing after a successful sync
+
+Some SnapTrade apps registered after SnapTrade's 2026 API cutoff receive an HTTP 410 Gone response from the legacy `/positions` endpoint. Sure handles this gracefully and the sync still reports success, but no holdings are imported.
+
+Sure uses the `/positions/all` endpoint to avoid this issue. If you connected a brokerage before this fix was applied and your holdings are still empty, disconnect and reconnect the brokerage to trigger a fresh sync against the updated endpoint.
+
 ### No accounts appear after connecting a brokerage
 
 - Wait for the initial sync to finish and refresh the setup page
