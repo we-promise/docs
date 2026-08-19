@@ -95,6 +95,8 @@ Use the trash icon to permanently remove a recurring transaction record.
 
 You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills).
 
+You can mark multiple transactions to the same payee as recurring even if they have different amounts — for example, two separate subscriptions to the same merchant at different price points. Each distinct amount creates its own recurring entry. An exact duplicate (same account, payee, currency, and amount) is still blocked to prevent accidental double-entries.
+
 ## Technical details
 
 ### Pattern clustering
@@ -105,6 +107,10 @@ The system uses circular distance calculations to handle month-boundary patterns
 - Clustering accounts for wrap-around (e.g., day 31 to day 1 is distance 1)
 - Standard deviation threshold of 5 days for clustering
 - Median calculation on rotated day sequences for accurate expected day
+
+### Amount variance banding
+
+When building or updating a recurring entry's expected amount range, the system only includes historical transactions whose amount is within 2× of the anchor amount (double or half). This prevents unrelated charges to the same merchant — for example, a $3 fee and a $19 subscription — from being blended into a single recurring entry with a fabricated average amount.
 
 ### Cleanup logic
 
