@@ -135,6 +135,28 @@ Sure uses WebSockets for certain pages. If some pages fail to render correctly o
 
 </AccordionGroup>
 
+## Transaction page size resets when switching accounts
+
+If the number of transactions shown per page resets to 10 every time you navigate to a different account, you may be on an older version of Sure.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this?">
+
+    The `per_page` preference was previously read only from the current request's query string. Navigating to a different account started a fresh request with no `per_page` parameter, so the activity feed always fell back to the default of 10 entries.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    Sure now stores your chosen page size in the session and reuses it across account navigation. The stored value is validated against the allowed options, so an invalid stored value falls back to the default safely. The preference also persists when you apply filters (for example, clicking a money-flow drill-down link from the dashboard).
+
+    Upgrade to the latest release to get this fix. No configuration change is needed.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
