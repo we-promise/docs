@@ -53,8 +53,21 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `create_category` | Create a unique category, optionally as a subcategory |
 | `update_category` | Update an existing category's name, color, or icon |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
+| `update_budget` | Update a budget category allocation |
 
 `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
+
+### Preview tools
+
+The following tools appear only when the MCP user has opted into preview features (**Settings > Preferences**). Until then they are absent from `tools/list`, and calling one by name returns an "Unknown tool" error. The Statement Vault tools additionally require the user to be an admin or member.
+
+| Tool | Description |
+| --- | --- |
+| `upload_account_statement` | Store a statement document (PDF/CSV/XLSX) in the Statement Vault; deduplicates by SHA-256 |
+| `list_account_statements` | List vault documents with their SHA-256, period, linked account, and review status |
+| `get_account_statement` | One statement's details and its reconciliation checks against the ledger — present only once someone has entered the statement's opening/closing balances in the web UI |
+| `get_statement_coverage` | Month-by-month statement coverage for an account: `covered`, `missing`, `mismatched`, `ambiguous`, `duplicate`, `not_expected`, each with a reconciliation status |
+| `record_valuation` | Record an account's value on a date, with a required source citation |
 
 ## Technical details
 
