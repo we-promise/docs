@@ -48,6 +48,8 @@ The **Connected clients** section under **Settings > MCP Server** lists clients 
 
 The current `Assistant.function_classes` registry exposes the following tools. Tool availability and schemas can vary by Sure version, so clients should use `tools/list` as the source of truth for their installation.
 
+Clients should use `tools/list` as the source of truth for tool availability and schemas, as these can vary by Sure version. The following table reflects the current base set.
+
 ### Read
 
 | Tool | Description |
@@ -73,8 +75,11 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `create_category` | Create a unique category, optionally as a subcategory |
 | `update_category` | Update an existing category's name, color, or icon |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
+| `update_budget` | Update a budget category allocation |
 
-`import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
+`import_bank_statement` requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
+
+Preview users may also see Statement Vault tools in `tools/list`.
 
 ## Technical details
 
