@@ -32,14 +32,16 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 
 | Tool | Description |
 | --- | --- |
-| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
-| `get_accounts` | List accounts with current and historical balances and account metadata |
+| `get_transactions` | Search transactions with filters (exact names or ids), sorting by date or absolute amount, and pagination; also accepts `types` (income/expense/transfer) and `statuses` (pending/confirmed) |
+| `get_recurring_transactions` | Detected and manual recurring transactions (subscriptions, bills, salaries) with expected dates and per-currency totals of active non-transfer items |
+| `get_accounts` | Accounts with ids and current balances; pass `include_balance_series: true` for a period-bounded history series |
 | `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
-| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
-| `get_income_statement` | Retrieve income and expenses by category for a date range |
+| `get_balance_sheet` | Net worth, assets and liabilities with a configurable history period and interval |
+| `get_income_statement` | Income and expenses for a period, with optional monthly series, prior-period comparison and account filtering |
 | `get_budget` | Compare a monthly budget with spending by category, with an optional prior-month trend comparison |
-| `get_tags` | List family tags alphabetically |
-| `get_categories` | List family categories hierarchically, including IDs and parent relationships |
+| `get_merchants` | Merchants with the ids `update_transaction` accepts and the exact names `get_transactions` filters on |
+| `get_tags` | List family tags alphabetically with pagination |
+| `get_categories` | List family categories hierarchically, including IDs and parent relationships, with pagination |
 | `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames |
 
 ### Create, update, and import
