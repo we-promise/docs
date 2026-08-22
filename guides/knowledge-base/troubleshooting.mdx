@@ -233,6 +233,32 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
 
 </AccordionGroup>
 
+## Sure NDJSON import fails on a full export
+
+Importing a full `all.ndjson` export can fail preflight validation even when the file is valid.
+
+<AccordionGroup>
+
+  <Accordion title="Import fails because a rule has no name">
+
+    Rules with a `null` name are valid in Sure's data model, but older preflight logic required `name` to be present. This caused a single unnamed rule to block the entire import.
+
+    This is fixed in the current release. If you are on an older version, upgrade and re-run the import.
+
+  </Accordion>
+
+  <Accordion title="Import fails due to a rejected transfer referencing a deleted transaction">
+
+    A `RejectedTransfer` row whose referenced transaction was later deleted previously raised a hard error during preflight, preventing the import from proceeding.
+
+    The importer now treats these references as advisory: the orphaned `RejectedTransfer` row is skipped and counted as a warning rather than blocking the import. The `data.warnings` array in the preflight response will include a human-readable message for each skipped row.
+
+    If you see warnings about missing references after upgrading, the import will still complete successfully — the orphaned rows are simply omitted.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Why is Sure not running auto-categorization and merchant detection on the same transactions again?
 
 Sure caches AI-generated results to avoid redundant API calls and costs. Once a transaction has been processed by AI rules, it won't be re-processed unless you explicitly reset the AI cache.
