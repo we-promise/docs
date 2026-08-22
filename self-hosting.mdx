@@ -481,6 +481,36 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## Monitoring
+
+### System health (super-admins only)
+
+Super-admins can check the live state of the background job worker at **Settings → Advanced → System health**. The page shows:
+
+- Number of running Sidekiq worker processes
+- Last heartbeat timestamp
+- Maximum queue latency
+- Job counters (processed, failed)
+- Per-queue depth
+
+If the Sidekiq worker container is not running, a warning banner appears at the top of every page for super-admins. The banner links directly to the system health page so you can diagnose the problem without digging through logs.
+
+#### Tuning health-check thresholds
+
+The health check uses conservative defaults that tolerate brief restarts and Redis blips. You can override them with environment variables:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT` | `120` (seconds) | How long a worker can go without a heartbeat before it is considered stale |
+| `SIDEKIQ_HEALTH_LATENCY_THRESHOLD` | `300` (seconds) | Maximum queue latency before the instance is flagged as unhealthy |
+| `SIDEKIQ_HEALTH_CACHE_TTL` | `60` (seconds) | How long the health snapshot is cached between checks |
+
+The system health page always bypasses the cache so you see fresh state immediately after restarting the worker.
+
+<Note>
+The Sidekiq health check only runs in self-hosted mode. Managed deployments are not affected.
+</Note>
+
 ## Troubleshooting
 
 ### Database connection errors
@@ -529,6 +559,24 @@ docker compose exec web env DRY_RUN=false bin/rails security:backfill_encryption
 ```
 
 The task is idempotent, so it is safe to rerun if needed.
+
+### Balances show zero or "No balance data available"
+
+If account balances show zero or the message "No balance data available for this date", the most common cause is that the Sidekiq worker container is not running. Balance calculations, net-worth updates, and account syncs all run as background jobs — if the worker is stopped, those jobs never execute.
+
+Check whether the worker is running:
+
+```bash
+docker compose ps worker
+```
+
+If the worker is not listed or shows a non-running state, start it:
+
+```bash
+docker compose up -d worker
+```
+
+Super-admins will also see a warning banner at the top of every page when Sidekiq is unhealthy. Follow the **View system health** link in the banner to see the live worker state.
 
 ### Slow CSV imports
 
