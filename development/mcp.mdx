@@ -28,18 +28,23 @@ The **Connected clients** section under **Settings > MCP Server** lists clients 
 
 The current `Assistant.function_classes` registry exposes the following tools. Tool availability and schemas can vary by Sure version, so clients should use `tools/list` as the source of truth for their installation.
 
-### Read
+### Default tools
+
+These tools are available to all MCP clients and to the built-in AI assistant.
 
 | Tool | Description |
 | --- | --- |
-| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
-| `get_accounts` | List accounts with current and historical balances and account metadata |
-| `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
-| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
-| `get_income_statement` | Retrieve income and expenses by category for a date range |
+| `get_transactions` | Search transactions with optional filters (accounts, categories, merchants, tags, types, statuses), sorting, and pagination |
+| `get_accounts` | List accounts with current balances, account metadata, and optional historical balance series |
+| `get_merchants` | List merchants with IDs and names; use IDs with `update_transaction` |
+| `get_holdings` | Search investment and crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
+| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with configurable period, date range, and interval |
+| `get_income_statement` | Retrieve income and expenses by category for a date range, with optional monthly trend series, prior-period comparison, and account scoping |
+| `get_recurring_transactions` | List detected and manual recurring transactions with status filter and optional upcoming-bill window |
 | `get_budget` | Compare a monthly budget with spending by category, with an optional prior-month trend comparison |
 | `get_tags` | List family tags alphabetically |
 | `get_categories` | List family categories hierarchically, including IDs and parent relationships |
+| `get_valuations` | List valuation entries for accessible accounts, newest first, with optional date range filter |
 | `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames |
 
 ### Create, update, and import
@@ -53,6 +58,15 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `create_category` | Create a unique category, optionally as a subcategory |
 | `update_category` | Update an existing category's name, color, or icon |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
+| `record_valuation` | Record a valuation entry for an account |
+
+### Preview tools
+
+Preview tools are available when the corresponding feature is enabled on your Sure instance. They do not appear on the default MCP surface.
+
+| Tool | Description |
+| --- | --- |
+| `get_insights` | Return the visible insights feed (type filter, acknowledged toggle, limit); does not mark insights as read |
 
 `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
