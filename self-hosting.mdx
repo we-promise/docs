@@ -530,6 +530,16 @@ docker compose exec web env DRY_RUN=false bin/rails security:backfill_encryption
 
 The task is idempotent, so it is safe to rerun if needed.
 
+### Sure NDJSON import file size limit
+
+By default, Sure NDJSON imports are limited to a fixed maximum file size. Self-hosted admins can raise this limit with an environment variable:
+
+```txt
+SURE_IMPORT_MAX_NDJSON_SIZE_MB=100
+```
+
+This setting applies to both the GUI upload and the API upload paths. Set the value to the maximum file size in megabytes that you want to allow.
+
 ### Slow CSV imports
 
 If CSV imports are processing rows slower than expected, check your worker logs for errors:
