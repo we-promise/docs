@@ -45,6 +45,21 @@ When there are uncategorized transactions, use the categorize flow to work throu
 
 Use subcategories when you want more detail within a broader category. For example, a parent category such as **Food & Dining** can contain subcategories such as **Groceries**, **Restaurants**, and **Coffee**. Budgets can use those subcategories individually or share the parent budget.
 
+## Transaction rules
+
+Rules let you automatically apply categories, merchants, tags, and other attributes to transactions that match a set of conditions. Manage rules from **Settings → Rules**.
+
+### Tag conditions
+
+Rules can now match transactions by their existing tags. Use the **Transaction tag** condition with either of these operators:
+
+- **Equal to**: matches transactions that have a specific tag applied
+- **Is empty**: matches transactions that have no tags at all
+
+This lets you build rules that act on already-tagged transactions — for example, applying a category to everything tagged **Reimbursable**, or flagging untagged transactions for review.
+
+You can combine tag conditions with other conditions (name, category, merchant, amount) using AND/OR logic. When you use multiple tag conditions joined by AND, each condition is evaluated independently, so a transaction can satisfy both by having both tags.
+
 ## Bulk edit transactions
 
 Select multiple transactions and choose **Edit** to apply the same details to all selected rows.
