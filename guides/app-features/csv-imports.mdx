@@ -56,7 +56,7 @@ The optional **Balance Date** column lets you specify when the opening balance s
 If you don't provide a balance date, Sure will use the current date for the opening balance.
 
 <Note>
-The date format should match your import settings. Common formats include MM/DD/YYYY, DD/MM/YYYY, and YYYY-MM-DD.
+The date format should match your import settings. Common formats include MM/DD/YYYY, DD/MM/YYYY, and YYYY-MM-DD. CSV imports also support the two-digit-year format `DD/MM/YY` (for example, `15/01/24`). Because two-digit years are ambiguous — Ruby interprets `%y` as 1969–2068 — this format is available for CSV imports only, where you can verify the parsed preview against your own data before publishing. It is not available as a global date preference.
 </Note>
 
 ### Supported account types
