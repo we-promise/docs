@@ -117,6 +117,15 @@ The mobile app includes an enhanced AI chat experience:
 - **Auto-scroll**: The chat automatically scrolls to show new messages as they arrive
 - **Improved flow**: Chat creation is now lazy-loaded on first message send, eliminating loading delays
 
+## Sure import (NDJSON)
+
+Sure can import a full `all.ndjson` export file to restore or migrate your data.
+
+### Compatibility notes
+
+- **Rules without a name**: Rules with a `null` name are valid and import correctly. A missing name no longer blocks the entire import.
+- **Orphaned rejected transfers**: If a `RejectedTransfer` row references a transaction that has since been deleted, the importer skips that row and counts it as a warning instead of aborting the import. Check the import summary after completion to see how many rows were skipped.
+
 ## Data exports
 
 Sure allows you to export your financial data for backup or analysis purposes. When you create an export, the page automatically refreshes to show the latest status.
