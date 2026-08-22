@@ -62,6 +62,31 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published.
 
+## Reconciliation against existing transactions
+
+When you assign an account to a PDF import, Sure automatically reconciles the extracted transactions against what that account already holds. Transactions that are already recorded — whether imported from a previous CSV, synced from a provider, or entered manually — are matched and marked reconciled rather than offered for import again.
+
+Matching uses the transaction amount and date (with a small date window to account for posting-date differences between the statement and the provider). Transaction names are not matched because statement descriptions and provider names for the same transaction rarely agree.
+
+The import review screen shows a breakdown of the statement:
+
+- **Extracted**: Total transactions found in the statement
+- **Already recorded**: Transactions matched to existing entries
+- **New**: Transactions not yet in Sure, offered for import
+- **Awaiting review**: New transactions not yet published
+
+A statement where every transaction was already recorded completes immediately with nothing to publish. You can view the summary at any time from the import detail screen.
+
+Provider-synced accounts are now available as import targets. Previously, PDF imports were restricted to manual accounts because importing into a synced account would create duplicates. Reconciliation removes that restriction.
+
+### Reconciliation state
+
+Entries matched by a statement import are marked **reconciled**. Reconciled means a statement was used as evidence for the transaction. The reconciled state:
+
+- Survives the statement being deleted (the timestamp is preserved, the statement link is cleared)
+- Is released if you reassign the import to a different account
+- Is set at review time, not at publish time, so the statement is the evidence regardless of whether you publish additional new transactions
+
 ## Tips for better matches
 
 - Keep the institution name in the filename.
