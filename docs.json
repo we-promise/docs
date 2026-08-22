@@ -80,6 +80,7 @@
               "providers/binance",
               "providers/coinbase",
               "providers/coinstats",
+              "providers/onchain-wallets",
               "providers/sophtron"
             ]
           },
