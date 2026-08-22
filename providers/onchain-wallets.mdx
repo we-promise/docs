@@ -1,0 +1,156 @@
+---
+title: Self-custody wallets
+description: Track Bitcoin, EVM, and Solana wallets natively without a third-party provider
+---
+
+Sure can track self-custody wallets directly by reading public blockchain data. No third-party account or API key is required for basic tracking — you provide a wallet address and Sure fetches balances and transaction history from public explorers.
+
+## Supported networks
+
+| Network | Address formats |
+| --- | --- |
+| Bitcoin | Base58 (P2PKH/P2SH), bech32 (segwit), bech32m (taproot) |
+| Ethereum | EVM hex (0x…) |
+| Base | EVM hex (0x…) |
+| Arbitrum | EVM hex (0x…) |
+| Optimism | EVM hex (0x…) |
+| Polygon | EVM hex (0x…) |
+| Zora | EVM hex (0x…) |
+| Solana | Base58 public key |
+
+## Linking a wallet
+
+<Steps>
+  <Step title="Open the connection panel">
+    Go to **Settings → Bank sync** and select **Self-custody wallets**.
+  </Step>
+  <Step title="Paste your address">
+    Enter a wallet address. Sure validates the format and checks each candidate network for activity.
+  </Step>
+  <Step title="Confirm the network">
+    If the address format matches more than one network (for example, a `0x` address is valid on all EVM networks), Sure shows which networks detected activity. Select the correct one or choose manually.
+  </Step>
+  <Step title="Review tokens">
+    Sure lists the assets found at that address. Assets that can be priced are pre-selected. Deselect any you do not want to track, then click **Track selected**.
+  </Step>
+</Steps>
+
+<Warning>
+Never enter a seed phrase or private key. Sure only needs a public wallet address.
+</Warning>
+
+## Pricing requirements
+
+Wallet balances are tracked by quantity regardless of your pricing configuration. To see a dollar value next to each holding, you need:
+
+1. **A crypto market data provider** — Sure uses a securities provider that quotes crypto symbols. Enable one under **Settings → Self-Hosting → Market data** (self-hosted) or **Settings → Market data** (managed). Without this, every wallet is valued at zero.
+
+2. **An exchange rate provider** (if your family currency is not USD) — The crypto provider quotes in USD. If your family uses EUR, GBP, or another currency, Sure needs an exchange rate provider to convert. [Frankfurter](https://www.frankfurter.app/) is a free option that requires no API key.
+
+If either requirement is missing, the linking flow shows a warning before you connect.
+
+## Token selection
+
+Sure surfaces up to 200 tokens per address by default. On EVM networks, tokens are ranked by market cap so the most significant assets appear first. On Solana, tokens are ordered by mint address.
+
+Tokens are pre-selected for tracking when:
+
+- **EVM**: The indexer can price the token and the holding is worth more than $1
+- **Solana**: The Jupiter verified token list vouches for the mint
+- **All networks**: The native coin (BTC, ETH, SOL, etc.) is always pre-selected
+
+Spam airdrops and unrecognized tokens are listed but not pre-selected. You can still track them by quantity.
+
+## Syncing
+
+Sure syncs linked wallets on a recurring schedule. Each sync:
+
+1. Reads the current balance for every tracked asset
+2. Fetches new transaction history
+3. Writes holdings and movements to the account
+
+Balances come from an address summary endpoint and are always up to date. Transaction history is paginated and may be capped (see [History limits](#history-limits) below).
+
+### History limits
+
+By default, Sure reads up to 10 pages of transaction history per address per sync. You can raise this with the `ONCHAIN_HISTORY_MAX_PAGES` environment variable (maximum 200).
+
+On Solana, each transaction is one RPC call rather than one page, so the per-transaction budget is scaled proportionally.
+
+When history is capped, the affected address is marked as having incomplete history. The **Manage wallets** screen shows this status. Balances are not affected — they come from a separate summary request.
+
+### Token cap
+
+If an address holds more tokens than the cap (default 200, configurable with `ONCHAIN_MAX_TOKENS_PER_ADDRESS`, maximum 5,000), the cap is noted on the affected rows and shown in the **Manage wallets** screen.
+
+Already-tracked tokens continue syncing regardless of the cap.
+
+## Managing a linked wallet
+
+From the **Manage wallets** screen you can:
+
+- **Review tokens** — Reopen the token selection screen to add or remove tracked assets without changing the address
+- **Change address** — Update the wallet address while keeping all existing accounts, holdings, and history intact
+- **Stop tracking an asset** — Remove one token from tracking while leaving the rest of the wallet connected
+- **Disconnect wallet** — Remove all tracked assets for that address; existing account data becomes a manual account that stops updating
+
+## Limitations
+
+### Bitcoin: single address only
+
+Bitcoin wallets are typically HD (hierarchical deterministic) wallets that derive thousands of addresses from one seed. Sure tracks one address at a time. If your funds are spread across derived addresses, the balance reported will be lower than your actual holdings.
+
+### DeFi positions are not tracked
+
+Staked ETH, liquidity pool tokens, Aave/Compound lending positions, and Solana stake accounts are not visible. Sure reads token balances at the address level; protocol-level positions require a separate DeFi provider such as [CoinStats](/providers/coinstats).
+
+### Pricing coverage
+
+The crypto market data provider quotes assets by symbol. A symbol is not a unique identifier — two different tokens can share a symbol, and many tokens have no listing at all. In practice, a wallet holding ten tokens may have only two or three priced. A zero value next to a token you know is worth something means the provider does not list it, not that the balance is wrong.
+
+## Environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `ONCHAIN_HISTORY_MAX_PAGES` | `10` | Maximum pages of transaction history per address per sync (capped at 200) |
+| `ONCHAIN_MAX_TOKENS_PER_ADDRESS` | `200` | Maximum tokens surfaced per address (capped at 5,000) |
+| `ONCHAIN_DETECTION_TIMEOUT` | `10` | Seconds allowed for network detection during linking |
+
+## Data sources
+
+| Network | Balances | Transaction history |
+| --- | --- | --- |
+| Bitcoin | [mempool.space](https://mempool.space) | [mempool.space](https://mempool.space) |
+| EVM (all networks) | [Blockscout](https://www.blockscout.com/) | Blockscout (default) or Etherscan (if key configured) |
+| Solana | Solana public RPC | Solana public RPC |
+
+### Optional Etherscan key
+
+Configuring an Etherscan API key on the Ethereum network raises the rate limit for transaction history fetches. Balances always come from Blockscout regardless of whether a key is set.
+
+Add your key under **Settings → Self-Hosting → Market data → Etherscan** or set it in your environment.
+
+## Troubleshooting
+
+### Wallet shows zero value
+
+Check in order:
+
+1. **No crypto provider** — Go to **Settings → Market data** and enable a provider that supports crypto (e.g. Yahoo Finance, Tiingo). The linking panel shows a warning if this is missing.
+2. **No exchange rate provider** (non-USD families) — Enable an exchange rate provider such as Frankfurter.
+3. **Token not listed** — The provider does not quote this token's symbol. The balance quantity is still correct.
+
+### History shows as incomplete
+
+The sync read more transactions than the page budget allows. Raise `ONCHAIN_HISTORY_MAX_PAGES` if you need deeper history. Balances are not affected.
+
+### Address not detected on the expected network
+
+- Make sure the address is correct and in the right format for that network.
+- Bitcoin bech32 addresses are case-insensitive; Sure normalizes them to lowercase.
+- EVM addresses are case-insensitive; Sure normalizes them to lowercase.
+- If the explorer for that network was slow or unreachable during detection, Sure may have shown "no activity". Try linking again.
+
+### Explorer unreachable
+
+Public explorers are rate-limited and occasionally slow. If a sync fails with an "explorer could not be reached" message, the next scheduled sync will retry automatically.
