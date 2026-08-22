@@ -62,6 +62,29 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published.
 
+### Reconciliation against existing transactions
+
+When you assign an account to a PDF import, Sure compares each extracted transaction against what the account already holds. Transactions that already exist — whether from a provider sync or a previous import — are marked as reconciled rather than offered for import again. Only genuinely new transactions appear in the review screen.
+
+This means you can safely import a PDF statement for a provider-backed account. Transactions that your bank sync already brought in are matched and skipped; only any gaps are offered for import.
+
+Matching uses amount and date (with a small date window to account for posting-date differences between statements and provider records). Transaction names are not matched because statement descriptions and provider names for the same transaction rarely agree.
+
+### Import summary
+
+After AI extraction and account assignment, Sure shows a summary of the statement broken down into:
+
+- **Extracted** — total transactions found in the statement
+- **Already recorded** — transactions that already exist in the account
+- **Imported** — transactions added by this import
+- **Awaiting review** — transactions not yet published
+
+A statement where every transaction was already on file completes with zero rows to import. The summary screen explains this outcome rather than showing a generic "Document analyzed" message.
+
+### Reverting a PDF import
+
+Reverting a PDF import removes the entries it created and releases the reconciliation marks it set on existing transactions. The import returns to a reviewable state so you can reassign the account or discard it.
+
 ## Tips for better matches
 
 - Keep the institution name in the filename.
