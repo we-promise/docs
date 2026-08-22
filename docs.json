@@ -76,6 +76,7 @@
               "providers/simplefin",
               "providers/plaid",
               "providers/redbark",
+              "providers/up-bank",
               "providers/snaptrade",
               "providers/binance",
               "providers/coinbase",
