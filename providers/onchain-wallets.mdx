@@ -1,0 +1,131 @@
+---
+title: Self-custody wallets
+description: Track Bitcoin, EVM, and Solana wallets natively without a third-party provider
+---
+
+Sure can track self-custody wallets directly — no third-party provider account required. You paste a public address, Sure reads the on-chain state, and your holdings and transaction history appear alongside your other accounts.
+
+Supported chains:
+
+| Chain | Networks |
+|-------|----------|
+| Bitcoin | Mainnet (P2PKH, P2SH, bech32 segwit, bech32m taproot) |
+| EVM | Ethereum, Arbitrum, Base, Optimism, Polygon, Avalanche |
+| Solana | Mainnet |
+
+## Prerequisites
+
+Before linking a wallet, make sure you have a crypto market data provider enabled. Without one, wallets are tracked by quantity only and valued at zero. Go to **Settings → Self-Hosting → Market data** to enable a provider.
+
+If your family currency is not USD, you also need an exchange rate provider configured. The crypto provider quotes in USD; a missing exchange rate means every wallet shows zero value regardless of holdings.
+
+<Note>
+Sure reads only public on-chain data. Never enter a seed phrase or private key anywhere in Sure.
+</Note>
+
+## Linking a wallet
+
+<Steps>
+  <Step title="Open the connection panel">
+    Go to **Settings → Bank sync** and find **Self-custody wallets** under Available connections.
+  </Step>
+  <Step title="Paste your address">
+    Enter a public wallet address. Sure detects which networks the address is active on.
+  </Step>
+  <Step title="Confirm the network">
+    If the address matches more than one chain (for example, a 0x address is valid on all EVM networks), Sure shows which networks have activity. Select the correct one. If no network shows activity, you can still choose manually.
+  </Step>
+  <Step title="Review and select assets">
+    Sure lists the assets found at that address. Assets that can be priced are pre-checked; spam airdrops and unrecognized tokens are listed but unchecked. Tick the assets you want to track and click **Connect**.
+  </Step>
+</Steps>
+
+Each selected asset becomes a separate crypto wallet account under the **Crypto** section of your accounts list.
+
+## Managing a linked wallet
+
+From **Settings → Bank sync → Self-custody wallets**, you can:
+
+- **Sync** — Manually trigger a sync for all linked addresses
+- **Review tokens** — Reopen the asset selection screen to add or remove tracked assets
+- **Change address** — Update the address while keeping all existing accounts, holdings, and history intact
+- **Disconnect asset** — Stop tracking a single asset while leaving others in place
+- **Disconnect wallet** — Remove the provider link; existing accounts become manual accounts and stop updating
+
+## How syncing works
+
+Sure reads each linked address on a recurring schedule. For each sync:
+
+1. Balances are fetched from the chain's indexer (one request per address)
+2. Transaction history is fetched up to the configured page limit
+3. Only addresses whose on-chain state changed since the last sync are reprocessed — an idle wallet writes nothing
+
+### Pricing and cost basis
+
+Movements are matched against price history on the exact date of the transfer. When a price is available, the movement is recorded as a trade (Buy or Sell) with a cost basis. When no price is available, a display-only entry is recorded instead.
+
+If price history is added later (for example, after enabling a market data provider), display-only entries are automatically upgraded to priced trades on the next sync.
+
+### History truncation
+
+Sure reads up to `ONCHAIN_HISTORY_MAX_PAGES` pages of history per address (default: 10, maximum: 200). If an address has more history than the budget allows, the affected accounts are marked as having incomplete history and a note appears in **Manage wallets**. Balances are always accurate — they come from an address summary, not from history.
+
+### Token cap
+
+Up to `ONCHAIN_MAX_TOKENS_PER_ADDRESS` tokens are surfaced per address (default: 200, maximum: 5,000). On EVM networks, tokens are ranked by market cap so the most significant assets are always included. Assets you are already tracking are never dropped by the cap.
+
+## Configuration
+
+These environment variables are available for self-hosted deployments:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ONCHAIN_HISTORY_MAX_PAGES` | `10` | Maximum pages of transaction history to read per address per sync. Capped at 200. |
+| `ONCHAIN_MAX_TOKENS_PER_ADDRESS` | `200` | Maximum tokens surfaced per address. Capped at 5,000. |
+| `ONCHAIN_DETECTION_TIMEOUT` | `10` | Seconds allowed for chain detection during linking. |
+
+## Limitations
+
+<AccordionGroup>
+  <Accordion title="Bitcoin: single address only">
+    Sure tracks one address at a time. A typical HD wallet (hardware wallet, mobile wallet) derives thousands of addresses from a single seed phrase and spreads funds across them. Tracking a single derived address under-reports such a wallet. Extended key (xpub) support is not available.
+  </Accordion>
+
+  <Accordion title="Token pricing coverage">
+    The crypto market data provider quotes assets by symbol. A symbol is not a unique identifier — some tokens cannot be priced because the provider does not list them, not because the balance is wrong. A zero value next to a token you know is worth something means the provider does not cover it.
+
+    On Solana, only tokens verified by the Jupiter token list are priced. Unverified mints are tracked by quantity only.
+  </Accordion>
+
+  <Accordion title="DeFi positions are not tracked">
+    Staked ETH, liquidity pool tokens, lending positions, and Solana stake accounts are not visible. A wallet holding most of its value in a staking protocol or DeFi protocol will report only the portion held directly at the address.
+
+    For DeFi tracking, use the [CoinStats](/providers/coinstats) integration instead.
+  </Accordion>
+
+  <Accordion title="EVM: six networks, not all chains">
+    The built-in EVM adapter covers Ethereum, Arbitrum, Base, Optimism, Polygon, and Avalanche. Other EVM-compatible chains are not supported natively.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Wallet shows zero value">
+    Check **Settings → Self-Hosting → Market data** and confirm a crypto-capable provider is enabled. If your family currency is not USD, also confirm an exchange rate provider is configured.
+
+    For individual tokens showing zero, the provider may not list that token. This is a coverage limitation, not a sync error — the quantity is still tracked correctly.
+  </Accordion>
+
+  <Accordion title="History is incomplete">
+    If the manage screen shows incomplete history for an address, the address has more transactions than the current page budget allows. Increase `ONCHAIN_HISTORY_MAX_PAGES` to read further back. Note that a higher limit increases the number of requests per sync.
+  </Accordion>
+
+  <Accordion title="An address was not detected on the expected network">
+    Detection probes each candidate network with a short timeout. A slow or rate-limited explorer may not respond in time and is reported as having no activity. Try linking again, or select the network manually from the chain chooser.
+  </Accordion>
+
+  <Accordion title="A tracked asset disappeared after a sync">
+    If an asset you were tracking no longer appears, check whether the token cap was reached for that address. Assets outside the cap are not zeroed if they were already tracked — but if the cap was recently lowered or the address gained many new tokens, a previously tracked asset could fall outside it. Review tokens from the manage screen to re-add it.
+  </Accordion>
+</AccordionGroup>
