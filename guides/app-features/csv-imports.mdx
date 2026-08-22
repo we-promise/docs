@@ -124,6 +124,8 @@ Date,Amount,Name,Account,Category,Notes
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
 
+If your CSV uses two-digit years (for example `15/01/24`), select the **DD/MM/YY** format. Sure interprets two-digit years as falling between 1969 and 2068, so verify the parsed preview before publishing the import.
+
 ### Accounts not found
 
 When importing transactions, ensure the account names in your CSV exactly match existing account names in Sure.
