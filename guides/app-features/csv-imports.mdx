@@ -148,6 +148,13 @@ Sure will import all rows from your CSV. Review your data before importing to av
 If a CSV import fails during upload or publish, check both the row count and the file size. An import can be under the row limit and still fail if the CSV file is larger than 10 MB.
 </Note>
 
+## Sure NDJSON imports
+
+When importing a full Sure data export (`.ndjson` file), Sure handles some edge cases gracefully:
+
+- **Rules with no name**: Rules are allowed to have a blank name. A `null` name in the export file is valid and will not block the import.
+- **Orphaned rejected transfers**: If a rejected transfer references a transaction that has since been deleted, Sure skips that row and counts it as a warning rather than failing the entire import. Check the import warnings after completion to see if any rows were skipped.
+
 ## Getting help
 
 If you encounter issues with CSV imports:

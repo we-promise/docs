@@ -60,6 +60,10 @@ Sure's SimpleFIN integration includes automatic retry logic:
 - Handles temporary connection issues gracefully
 - Prevents sync failures from intermittent network problems
 
+### Duplicate account names
+
+If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. This prevents one account from accidentally inheriting the connection or transactions of the other when their names match.
+
 ## API structure
 
 SimpleFIN uses a simple REST API with embedded authentication:
