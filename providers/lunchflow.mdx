@@ -98,6 +98,19 @@ For troubleshooting, you can enable debug logging to see the raw API responses:
 LUNCHFLOW_DEBUG_RAW=1
 ```
 
+## Category mapping for Up bank
+
+If you use [Up](https://up.com.au/) (an Australian neobank), Sure automatically maps Up's transaction categories to your Sure categories during import.
+
+Up assigns a category slug to each transaction (for example, `restaurants-and-cafes`, `groceries`, `transport`). Sure reads these slugs and applies the matching Sure category when one exists in your family.
+
+The mapping applies only to high-confidence matches. Up categories with no clear Sure equivalent (such as "Booze", "Pets", "Apps & Games", or "Life Admin") are left uncategorized so you can apply your own rules or let AI categorization handle them.
+
+The mapping is non-destructive:
+
+- If you have already set or locked a category on a transaction, the imported category does not overwrite it.
+- If your family has no categories set up yet, transactions import uncategorized. Category mapping resumes once you create categories through the normal setup flow.
+
 ## Limitations
 
 - Requires a paid Lunch Flow subscription
