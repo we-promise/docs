@@ -225,7 +225,7 @@ Environment variables take precedence over the settings UI.
 | Variable | Description | Default |
 | --- | --- | --- |
 | `LLM_CONTEXT_WINDOW` | Total tokens the model will accept | `2048` |
-| `LLM_MAX_RESPONSE_TOKENS` | Tokens reserved for the model's reply | `512` |
+| `LLM_MAX_RESPONSE_TOKENS` | Tokens reserved for the model's reply. When set, this value is sent to the provider as `max_tokens` (Chat Completions) or `max_output_tokens` (Responses API). Leave unset to use the provider's default uncapped behavior. | `512` |
 | `LLM_MAX_HISTORY_TOKENS` | Maximum tokens for conversation history. Derived automatically if unset (`context_window - max_response_tokens - system_prompt_reserve`) | Derived |
 | `LLM_SYSTEM_PROMPT_RESERVE` | Tokens reserved for the system prompt | `256` |
 | `LLM_MAX_ITEMS_PER_CALL` | Upper bound on auto-categorize / merchant detection batch size | `25` |
@@ -324,7 +324,7 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | `OPENAI_MODEL` | Model name (required for custom endpoints) | `gpt-4.1` |
 | `OPENAI_REQUEST_TIMEOUT` | HTTP timeout in seconds for each individual HTTP call to the model | `60` |
 | `AI_RESPONSE_TIMEOUT` | Whole-turn watchdog timeout in seconds. See [Chat response timeout](#chat-response-timeout) for sizing guidance | `90` |
-| `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `5` |
+| `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `8` |
 | `OPENAI_SUPPORTS_PDF_PROCESSING` | Set to `false` for endpoints without vision support | `true` |
 | `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` | Override Responses API vs Chat Completions routing | Auto-detected |
 | `LLM_JSON_MODE` | JSON output mode: `auto`, `strict`, `json_object`, or `none` | — |
@@ -347,7 +347,7 @@ Custom OpenAI-compatible providers (Ollama, LM Studio, etc.) route through a syn
   + tool execution time + queue wait
 ```
 
-With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=5`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 360 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
+With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=8`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 540 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
 
 ### Recommended approach
 
