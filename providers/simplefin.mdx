@@ -88,6 +88,12 @@ SimpleFIN is a paid service, but typically more affordable than alternatives lik
 
 ## Troubleshooting
 
+### Duplicate or merged accounts after sync
+
+If two upstream accounts share the same display name (for example, two "CHECKING (0001)" accounts at the same institution), Sure uses the upstream account ID — not just the name — to match them to your Sure accounts. This prevents one account from accidentally stealing the link and transactions of another.
+
+If you see accounts that appear merged or have unexpected transactions after a sync, check that each Sure account is linked to the correct upstream account ID in the account settings.
+
 ### Setup token issues
 
 If you receive a 403 error when claiming a setup token:
