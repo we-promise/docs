@@ -481,6 +481,55 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## System health (super-admins)
+
+When the Sidekiq worker container is not running, background jobs — balance calculations, net-worth updates, and account syncs — silently never execute. Sure surfaces this as a banner and a dedicated admin page so you can diagnose the problem quickly.
+
+### Health banner
+
+If Sidekiq is unhealthy, a warning banner appears at the top of every page for super-admins. The banner shows a short description of the problem and a **View system health** link.
+
+The banner only appears in self-hosted mode and only to super-admin users. Family members who cannot act on the issue see nothing.
+
+### System health page
+
+Navigate to **Settings → Advanced → System health** (super-admins only) to see a live snapshot of Sidekiq state:
+
+- Number of running worker processes
+- Last heartbeat timestamp
+- Maximum queue latency
+- Job counters (processed, failed, enqueued)
+- Per-queue depth
+
+The page bypasses the health cache and queries Sidekiq directly, so you see fresh state immediately after restarting the worker.
+
+### Health check thresholds
+
+Sure considers Sidekiq unhealthy when any of the following are true:
+
+| Condition | Default threshold | Environment variable |
+|---|---|---|
+| No worker processes registered | — | — |
+| Last heartbeat is stale | 2 minutes | `SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT` |
+| Highest queue latency | 5 minutes | `SIDEKIQ_HEALTH_LATENCY_THRESHOLD` |
+| Redis unreachable | — | — |
+
+The health snapshot is cached for 60 seconds to avoid hammering Redis on every page load. You can tune the TTL with `SIDEKIQ_HEALTH_CACHE_TTL` (seconds).
+
+### Common cause: missing worker container
+
+The most common self-hosted misconfiguration is starting only the `web` container without the `worker` container. Make sure both services are running:
+
+```bash
+docker compose up -d web worker
+```
+
+Verify the worker is healthy:
+
+```bash
+docker compose logs worker --tail 20
+```
+
 ## Troubleshooting
 
 ### Database connection errors
