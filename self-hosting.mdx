@@ -481,6 +481,47 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## Monitoring
+
+### System health (super-admin only)
+
+If the Sidekiq worker container is not running, background jobs — including balance calculations, net-worth updates, and account syncs — will silently stall. Sure surfaces this with a banner and a dedicated health page.
+
+**Banner**: When Sidekiq is unhealthy, a warning banner appears at the top of every page for super-admins. It describes the problem and links to the system health page.
+
+**System health page**: Navigate to **Settings > Advanced > System health** to see live Sidekiq state:
+
+- Number of running worker processes
+- Last heartbeat timestamp
+- Maximum queue latency
+- Job counters (processed, failed, enqueued)
+- Per-queue depth
+
+The health check is cached for 60 seconds by default. The system health page always bypasses the cache and shows fresh state, which is useful after restarting the worker container.
+
+#### Tuning health check thresholds
+
+You can adjust the detection thresholds with environment variables:
+
+```txt
+# How long a worker can go without a heartbeat before being considered stale (seconds, default: 120)
+SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT=120
+
+# Maximum queue latency before the instance is considered unhealthy (seconds, default: 300)
+SIDEKIQ_HEALTH_LATENCY_THRESHOLD=300
+
+# How long the health snapshot is cached (seconds, default: 60)
+SIDEKIQ_HEALTH_CACHE_TTL=60
+```
+
+<Note>
+The system health page and banner are only visible to super-admin users. Regular family members do not see the banner.
+</Note>
+
+<Note>
+The health check only runs in self-hosted mode. Managed deployments are not affected.
+</Note>
+
 ## Troubleshooting
 
 ### Database connection errors

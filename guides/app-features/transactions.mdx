@@ -35,7 +35,7 @@ Open a transaction to update the fields that affect reporting and review:
 - **Tags**: Extra labels for flexible filtering
 - **Notes**: Private context for the transaction
 
-You can also mark a transaction as excluded. Excluded transactions are removed from budgeting calculations and reports, which is useful for activity you do not want counted in normal spending analysis.
+You can also mark a transaction as excluded. Excluded transactions are removed from budgeting calculations and reports, which is useful for activity you do not want counted in normal spending analysis. Excluded transactions remain visible in the account activity list so you can toggle exclusion back off at any time.
 
 ## Categorize transactions
 
@@ -93,6 +93,38 @@ Sure prevents merges that would make the category hierarchy confusing or invalid
 - You cannot merge a category that has subcategories into another subcategory
 
 If a source category has subcategories and the target is a parent category, Sure reparents those subcategories under the target.
+
+## Transaction rules
+
+Go to **Settings > Rules** to create rules that automatically apply categories, merchants, tags, and other attributes to transactions as they are imported.
+
+### Condition filters
+
+Rules support the following condition types:
+
+| Condition | Operators |
+|---|---|
+| Transaction name | Contains, Does not contain, Equals |
+| Transaction amount | Greater than, Less than, Equals |
+| Transaction category | Equal to, Is empty |
+| Transaction merchant | Equal to, Is empty |
+| Transaction tag | Equal to, Is empty |
+
+The **Transaction tag** condition lets you match transactions that already have a specific tag applied. Use it to build rules that act on transactions you have previously tagged — for example, to also assign a category or merchant to everything tagged "Reimbursable".
+
+You can combine multiple conditions with AND or OR logic. When using multiple tag conditions with AND, each condition is evaluated independently, so a transaction must have all specified tags to match.
+
+### Actions
+
+Rules can apply the following actions when conditions match:
+
+- Set category
+- Set merchant
+- Set tags
+- Set name
+- Set investment activity label
+
+Rules run automatically during account syncs and can also be triggered manually from **Settings > Rules**.
 
 ## Related pages
 
