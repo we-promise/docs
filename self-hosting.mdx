@@ -481,6 +481,46 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## Monitoring system health
+
+When the Sidekiq worker container isn't running, background jobs silently never execute. Balance calculations, net-worth updates, and account syncs stall, and the UI may show zeros or "No balance data available" without explaining why.
+
+### Sidekiq health banner
+
+If Sure detects that Sidekiq is not processing jobs, a warning banner appears at the top of every page for super-admins. The banner indicates that data may be stale and links to the system health page.
+
+The check is conservative by design:
+- A worker process is considered stale if its heartbeat is older than 2 minutes, which tolerates brief deploy restarts and Redis blips.
+- A queue is considered backed up if its latency exceeds 5 minutes.
+
+The health snapshot is cached for 60 seconds to avoid extra Redis round-trips on every page load. You can override the thresholds and cache TTL with environment variables:
+
+```txt
+# Seconds before a worker heartbeat is considered stale (default: 120)
+SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT=120
+
+# Seconds of queue latency before the queue is considered backed up (default: 300)
+SIDEKIQ_HEALTH_LATENCY_THRESHOLD=300
+
+# Seconds to cache the health snapshot (default: 60)
+SIDEKIQ_HEALTH_CACHE_TTL=60
+```
+
+### System health page
+
+Super-admins can view live Sidekiq state at **Settings → Advanced → System health**. The page shows:
+
+- Worker process count and last heartbeat time
+- Maximum queue latency
+- Job counters (processed, failed, enqueued, retries)
+- Per-queue depth breakdown
+
+The system health page always bypasses the cache and fetches fresh state, so you can confirm a worker restart took effect immediately.
+
+<Note>
+The Sidekiq health banner and system health page are only available in self-hosted mode. Managed deployments do not show these features.
+</Note>
+
 ## Troubleshooting
 
 ### Database connection errors
