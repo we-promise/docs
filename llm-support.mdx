@@ -347,7 +347,7 @@ Custom OpenAI-compatible providers (Ollama, LM Studio, etc.) route through a syn
   + tool execution time + queue wait
 ```
 
-With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=5`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 360 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
+With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=8`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 540 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
 
 ### Recommended approach
 
