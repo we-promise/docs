@@ -102,6 +102,14 @@ Generate a new setup token from your SimpleFIN dashboard.
 
 Some institutions don't return pending transactions even when the `pending=1` parameter is set. This is a limitation of the institution's data feed, not a bug in SimpleFIN or Sure.
 
+### Duplicate accounts with the same name
+
+If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure now correctly tracks each account by its upstream account ID rather than its name alone. Previously, a stale linkage repair could cause one account to silently take over the other's connection, merging transactions and overwriting balances.
+
+If you notice transactions from one account appearing in another after a sync, disconnect and reconnect your SimpleFIN accounts to re-establish clean linkages.
+
+Skipped linkage repairs are recorded in **Settings → Debug** so you can see when Sure detected an ambiguous name match and chose not to act.
+
 ### Network errors
 
 If you experience intermittent sync failures:
