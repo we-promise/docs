@@ -62,6 +62,42 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published.
 
+## Statement reconciliation
+
+When you assign an account to a PDF import, Sure automatically reconciles each extracted transaction against what that account already holds. Only genuinely new transactions are offered for import; transactions that already exist in the account are marked reconciled and excluded from the review step.
+
+This prevents duplicates when a statement covers a period that has already been synced by a connected provider or a previous import.
+
+### How matching works
+
+Sure matches each extracted row against existing account entries by amount and date. A date window of a few days is used because statement posting dates can differ slightly from the dates a provider recorded. Transaction names are not matched because statement descriptions and provider names for the same transaction rarely agree.
+
+### Reconciliation status
+
+Entries have two reconciliation states:
+
+- **Cleared** — the institution acknowledged the transaction. This is set automatically when a provider sync claims a manually-entered transaction, and is derived from the entry's source and external ID. It cannot be edited directly.
+- **Reconciled** — a statement was matched against the transaction. This is set when a PDF import matches an existing entry, and can be unset if needed. The reconciliation record survives if the statement is later deleted.
+
+### Import summary
+
+After assigning an account, the import shows a summary of what was found in the statement:
+
+- **Extracted** — total transactions found in the PDF
+- **Already recorded** — transactions that already existed in the account
+- **Imported** — new transactions added by this import
+- **Awaiting review** — transactions not yet published
+
+A statement where all transactions were already on file completes immediately with zero rows to publish. The summary screen explains this outcome rather than showing a generic completion message.
+
+### Provider-backed accounts
+
+You can now import a PDF statement into an account that is connected to a provider (Plaid, SimpleFIN, Enable Banking, etc.). Previously, only manual accounts were available as import targets. Because reconciliation removes transactions that the provider already synced, importing into a synced account no longer creates duplicates.
+
+### Reverting a PDF import
+
+Reverting a PDF import releases all reconciliation records it created, so the matched entries return to their previous state. If every transaction in the statement was already recorded, the import completes immediately after revert rather than returning to a pending state with no rows.
+
 ## Tips for better matches
 
 - Keep the institution name in the filename.
