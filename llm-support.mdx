@@ -362,6 +362,10 @@ ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
 AI_RESPONSE_TIMEOUT=1200
 ```
 
+<Note>
+When the tool-call round limit is reached, the assistant sends one final request with no tools available, so the model must answer in prose with whatever it gathered. This means the assistant always returns a response rather than showing an error banner when the cap is hit.
+</Note>
+
 For cloud providers (OpenAI, Anthropic) the defaults are usually fine. If you see timeouts, raise `AI_RESPONSE_TIMEOUT` using the formula above.
 
 <Note>
