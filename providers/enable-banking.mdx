@@ -77,6 +77,12 @@ Enable Banking uses sessions to maintain access to your accounts:
 - You can revoke access at any time by deleting the session
 - Sessions automatically refresh to keep data current
 
+### Transaction period retries
+
+Some banks reject a sync request when the requested date range is outside the window they allow. Sure automatically retries with a shorter window when this happens.
+
+N26 reports this condition with `{"code": "PERIOD_INVALID", ...}` rather than the more common `WRONG_TRANSACTIONS_PERIOD` error shape. Sure recognizes both forms and applies the same retry ladder, so N26 syncs recover automatically instead of failing outright.
+
 ### Transaction syncing
 
 When syncing transactions, Sure imports both booked and pending transactions:
