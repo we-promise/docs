@@ -349,6 +349,10 @@ Custom OpenAI-compatible providers (Ollama, LM Studio, etc.) route through a syn
 
 With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=8`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 540 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
 
+### Tool-round cap and grace turn
+
+When the assistant reaches the tool-call limit, it is given one final round with no tools available. This forces the model to answer in prose using whatever it gathered, rather than returning an error banner. The hard limit remains as a backstop if the model still does not produce a text response.
+
 ### Recommended approach
 
 The cheapest lever is lowering `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` rather than setting a very large timeout. Fewer iterations means a shorter worst-case bound, and long tool chains fail with a clear limit error instead of a silent timeout.
