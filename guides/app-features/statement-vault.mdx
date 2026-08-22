@@ -62,6 +62,40 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published.
 
+## Reconciliation against existing transactions
+
+When you assign an account to a PDF import, Sure automatically reconciles each extracted transaction against what the account already holds. Only genuinely new transactions are offered for import; rows that match an existing transaction are marked reconciled and excluded from the review step.
+
+This prevents duplicates when some or all of the statement's transactions have already arrived through a bank sync or a previous import.
+
+### How matching works
+
+Sure matches each extracted row against existing account transactions by **date** (with a ±2-day window to account for posting-date differences between statements and providers) and **signed amount**. Transaction names are intentionally not matched because statement descriptions and provider names for the same transaction rarely agree.
+
+### Reconciliation states
+
+Sure tracks two reconciliation states on each transaction entry:
+
+| State | Meaning |
+|-------|---------|
+| **Cleared** | The institution acknowledged the transaction. Derived automatically from the entry's source and external ID; not editable. |
+| **Reconciled** | A statement was matched against the transaction. Set when a PDF import reconciles a row; can be unset if needed. Survives statement deletion. |
+
+### Import summary
+
+After AI extraction and account assignment, the import shows a summary of what was found:
+
+- **Extracted** — total transactions found in the statement
+- **Already recorded** — transactions already on file that were reconciled
+- **Imported** — new transactions added by this import
+- **Awaiting review** — rows still pending your review before publishing
+
+A statement where every transaction was already recorded completes automatically with no rows to publish.
+
+### Provider-backed accounts
+
+You can now import a PDF statement into an account that is connected to a bank sync provider. The duplicate-prevention matching ensures that synced transactions are not re-created.
+
 ## Tips for better matches
 
 - Keep the institution name in the filename.
