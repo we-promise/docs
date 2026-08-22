@@ -481,6 +481,30 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## System health
+
+Self-hosted instances include an admin system health page at **Settings → Advanced → System health** (visible to super-admins only). It shows live Sidekiq state: worker process count, last heartbeat, queue latency, job counters, and per-queue depth.
+
+### Sidekiq health banner
+
+If the Sidekiq worker container is not running or has stopped processing jobs, a warning banner appears at the top of every page for super-admins. The banner explains that background jobs are not running and links to the system health page.
+
+Common reasons Sidekiq may be unhealthy:
+
+- The `worker` container is not started (run `docker compose up -d worker`)
+- Redis is unreachable
+- The worker process has stalled (restart with `docker compose restart worker`)
+
+The health check is cached for 60 seconds by default. You can tune the thresholds with environment variables:
+
+```txt
+SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT=120   # seconds before a process is considered stale (default: 120)
+SIDEKIQ_HEALTH_LATENCY_THRESHOLD=300   # seconds of queue latency before flagging unhealthy (default: 300)
+SIDEKIQ_HEALTH_CACHE_TTL=60            # seconds to cache the health snapshot (default: 60)
+```
+
+The system health page always bypasses the cache so you see fresh state immediately after restarting the worker.
+
 ## Troubleshooting
 
 ### Database connection errors
