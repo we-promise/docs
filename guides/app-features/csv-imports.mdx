@@ -132,6 +132,13 @@ When importing transactions, ensure the account names in your CSV exactly match 
 
 Sure will import all rows from your CSV. Review your data before importing to avoid duplicates.
 
+### Sure NDJSON import fails on valid data
+
+When importing a full `all.ndjson` export, preflight previously rejected files that contained rules with a null name or rejected transfers whose referenced transaction had been deleted. Both cases are now handled gracefully:
+
+- **Rules with a null name** pass preflight and import correctly.
+- **Orphaned rejected transfers** (where the referenced transaction no longer exists) are skipped and counted rather than blocking the import. A warning is included in the preflight response.
+
 ## Limits
 
 - **Account imports**: Maximum 50 accounts per import
