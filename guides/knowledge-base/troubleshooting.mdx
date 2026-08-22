@@ -233,6 +233,20 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
 
 </AccordionGroup>
 
+## Excluded transactions disappear from account activity
+
+If you exclude a transaction from analytics and it no longer appears in the account activity list, you cannot toggle it back on from that view.
+
+<AccordionGroup>
+  <Accordion title="What causes this?">
+    Earlier versions of Sure filtered the account activity list to only show non-excluded entries. This meant excluded transactions — including investment trades excluded from analytics — were hidden entirely, with no way to re-include them from the account view.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The account activity list now shows excluded transactions in a greyed-out state, matching the behavior of the global Transactions page. You can click an excluded entry to open its detail drawer and toggle exclusion back off. Only split parent entries remain hidden, as they are internal bookkeeping rows.
+  </Accordion>
+</AccordionGroup>
+
 ## Why is Sure not running auto-categorization and merchant detection on the same transactions again?
 
 Sure caches AI-generated results to avoid redundant API calls and costs. Once a transaction has been processed by AI rules, it won't be re-processed unless you explicitly reset the AI cache.
