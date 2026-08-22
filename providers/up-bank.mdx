@@ -1,0 +1,54 @@
+---
+title: Up bank
+description: Connect your Up bank account to Sure
+---
+
+Up bank is an Australian neobank. Sure connects to it directly using the Up API, syncing your accounts, balances, and transactions automatically.
+
+## How it works
+
+1. Generate a personal access token in the Up app
+2. Paste the token into Sure
+3. Sure discovers your Up accounts and begins syncing balances and transactions
+4. Categories you have set in the Up app are mapped to your Sure categories on import
+
+## Setting up Up bank
+
+1. Open the Up app on your phone
+2. Go to **Settings > API** and create a personal access token
+3. In Sure, go to **Settings > Bank sync**, find the **Up** panel, and paste the token
+4. Link each discovered account to an existing Sure account or create a new one
+
+## Features
+
+### Account syncing
+
+- **Account listing**: All Up accounts (spending and savers) with current balances
+- **Transaction history**: Transactions are imported with date, amount, description, and category
+- **Deduplication**: Transactions are matched by their Up transaction ID, so re-syncing never creates duplicates
+
+### Category mapping
+
+When you import transactions from Up, Sure maps Up's category slugs to your existing Sure categories automatically. This means transactions you have already tagged in the Up app arrive in Sure with the correct category applied — no manual re-categorisation needed.
+
+The mapping uses high-confidence matches only. Up categories that do not have a clear Sure equivalent (for example, Booze, Pets, Apps & Games, Life Admin, and Technology) are left uncategorised so you can apply your own rules or let the AI assistant categorise them.
+
+If you have already set or locked a category on a transaction in Sure, a re-sync will not overwrite it.
+
+<Note>
+Category mapping only applies to your existing Sure categories. If your family has no categories set up yet, transactions will arrive uncategorised until you create categories through the normal setup flow.
+</Note>
+
+## Limitations
+
+- Australian accounts only
+- Personal access tokens are scoped to a single Up account holder
+- Data is read-only; Sure never writes anything back to Up
+
+## Troubleshooting
+
+**Missing categories after sync**: Check that you have categories configured in Sure under **Settings > Categories**. If no categories exist, Up transactions arrive uncategorised by design.
+
+**Transactions not updating**: Try triggering a manual sync from the account card. If the issue persists, check that your personal access token is still valid in the Up app.
+
+For more detail, see the [Up API documentation](https://developer.up.com.au/).
