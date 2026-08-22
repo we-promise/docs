@@ -481,6 +481,65 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## System health monitoring
+
+Super admins can check the health of background job processing from **Settings → Advanced → System health**.
+
+The system health page shows:
+
+- **Sidekiq process count**: Number of active worker processes
+- **Last heartbeat**: When the worker last reported in
+- **Queue latency**: Maximum time a job has been waiting to run
+- **Job counters**: Processed and failed job totals
+- **Per-queue depth**: Number of jobs waiting in each queue
+
+### Sidekiq health banner
+
+When the Sidekiq worker container is not running, a warning banner appears at the top of every page for super admins. The banner explains that background jobs are stalled and links directly to the system health page so you can diagnose the issue.
+
+Common reasons the banner appears:
+
+| Reason | Description |
+|--------|-------------|
+| No worker processes | The `worker` container is not running |
+| Stale heartbeat | The worker has not reported in for more than 2 minutes |
+| Queue backed up | A queue has been waiting more than 5 minutes |
+| Redis unreachable | The worker cannot connect to Redis |
+
+If you see the banner, check that the `worker` service is running:
+
+```bash
+docker compose ps worker
+docker compose logs worker --tail 50
+```
+
+If the worker is stopped, restart it:
+
+```bash
+docker compose up -d worker
+```
+
+The system health page bypasses the cache and always shows live state, so you can confirm the worker is healthy immediately after restarting it.
+
+### Tuning health check thresholds
+
+The default thresholds are conservative to avoid false positives during normal deploys and brief Redis blips. You can adjust them with environment variables:
+
+```txt
+# Seconds before a worker heartbeat is considered stale (default: 120)
+SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT=120
+
+# Seconds of queue latency before the instance is considered unhealthy (default: 300)
+SIDEKIQ_HEALTH_LATENCY_THRESHOLD=300
+
+# Seconds to cache the health snapshot across requests (default: 60)
+SIDEKIQ_HEALTH_CACHE_TTL=60
+```
+
+<Note>
+The system health page and Sidekiq banner are only available in self-hosted mode. Managed deployments do not show these controls.
+</Note>
+
 ## Troubleshooting
 
 ### Database connection errors
