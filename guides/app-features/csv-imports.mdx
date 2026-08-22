@@ -124,6 +124,10 @@ Date,Amount,Name,Account,Category,Notes
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
 
+<Note>
+The `DD/MM/YY` date format (two-digit year) is supported for CSV imports. Because two-digit years are ambiguous, this format is only available in CSV imports where you can verify the parsed preview against your data before confirming. It is not available as a global date preference. Ruby interprets `%y` as years 1969–2068.
+</Note>
+
 ### Accounts not found
 
 When importing transactions, ensure the account names in your CSV exactly match existing account names in Sure.
