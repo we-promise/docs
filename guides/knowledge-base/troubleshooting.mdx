@@ -204,6 +204,10 @@ If auto-categorization or merchant detection rules appear to do nothing, the bac
 
 If a family's timezone setting contains an unrecognized IANA zone name (for example, after a tzdata rename like `Europe/Kiev` → `Europe/Kyiv`), Sure now falls back to the application default timezone instead of crashing.
 
+## Chat fails immediately on a new account with a strict OpenAI-compatible provider
+
+Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests with a schema validation error when a family has no tags, merchants, or categories yet. This happens because the assistant's tool schemas include `enum` fields built from family data — an empty family produces `enum: []`, which is invalid JSON Schema.
+
 <AccordionGroup>
 
   <Accordion title="What causes this?">
@@ -217,6 +221,15 @@ If a family's timezone setting contains an unrecognized IANA zone name (for exam
     Sure validates the timezone value against `ActiveSupport::TimeZone` before using it. If the value is unrecognized, the app falls back to the default timezone and logs a warning to **Settings → Debug** under the `timezone` category. The log is debounced to once per day per family so it does not flood the debug log.
 
     To fix the root cause, update the family's timezone to a valid IANA zone name from **Settings → Profile**.
+    Sure builds tool schemas dynamically from your family's data (account names, categories, merchants, tags, tickers). When none of that data exists yet, the schema contains `enum: []`, which is invalid JSON Schema. OpenAI tolerates it, but strict OpenAI-compatible providers reject the entire request before the model runs.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    Empty `enum` arrays are now pruned from tool schemas before they are sent. An empty enum falls back to a plain `string` type, which is valid. This fix applies to both chat tool definitions and the `/mcp` endpoint's `tools/list` response.
+
+    If you are on an affected version, upgrade to the latest release. No configuration change is needed.
 
   </Accordion>
 
