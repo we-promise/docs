@@ -170,6 +170,30 @@ If a budget still shows spending from a transaction that was already deleted, th
 
 </AccordionGroup>
 
+## Chart shows a change between two points that display the same value
+
+If a chart shows a visible move or a colored trend indicator between two data points that both display the same amount (for example, two consecutive $0.00 values), the cause is a sub-cent residue in the underlying series data.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this?">
+
+    Chart series values are stored with full floating-point precision. Before this fix, a balance could move from `0.001` to `0.002` — both of which round to `$0.00` when displayed — but the chart would still draw a visible line between them and the trend indicator would report a change.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    Series values are now rounded to the currency's display precision before being sent to the chart. This means two points that display as the same value will also plot at the same position, and the trend indicator will correctly show no change.
+
+    The fix applies to account charts, the net worth breakdown chart on the reports page, and the trend summary shown above each chart.
+
+    Upgrade to the latest release to get this fix. No configuration change is needed.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Chat fails immediately on a new account with a strict OpenAI-compatible provider
 
 Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests with a schema validation error when a family has no tags, merchants, or categories yet. This happens because the assistant's tool schemas include `enum` fields built from family data — an empty family produces `enum: []`, which is invalid JSON Schema.
