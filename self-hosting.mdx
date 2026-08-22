@@ -540,6 +540,38 @@ docker compose logs worker
 
 Look for connection timeouts or Redis communication failures. The `sure-worker` container requires Redis to process CSV imports.
 
+## System health
+
+Super admins can check the health of the background worker from **Settings → Advanced → System health** (`/settings/admin/system_health`). The page shows:
+
+- Number of running Sidekiq worker processes
+- Last heartbeat timestamp
+- Maximum queue latency
+- Job counters (processed, failed, enqueued)
+- Per-queue depth
+
+### Worker health banner
+
+When the Sidekiq worker is not processing jobs, a banner appears at the top of every page for super admins. The banner explains that data may be stale and links directly to the system health page.
+
+Common reasons the worker may be unhealthy:
+
+- The `worker` container is not running — verify with `docker compose ps`
+- Redis is unreachable — check `docker compose logs worker` for connection errors
+- The worker process has stalled — restart with `docker compose restart worker`
+
+### Tuning health check thresholds
+
+The health check uses conservative defaults to avoid false positives during restarts. You can adjust them with environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT` | `120` | Seconds before a worker process is considered stale |
+| `SIDEKIQ_HEALTH_LATENCY_THRESHOLD` | `300` | Seconds of queue latency before the worker is considered unhealthy |
+| `SIDEKIQ_HEALTH_CACHE_TTL` | `60` | Seconds to cache the health snapshot between requests |
+
+The system health page always bypasses the cache so you see fresh state immediately after restarting the worker.
+
 ## Getting help
 
 If you find bugs or have feature requests:
