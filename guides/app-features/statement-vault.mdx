@@ -62,6 +62,34 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published.
 
+## Reconciliation against existing transactions
+
+When you assign an account to a PDF import, Sure automatically reconciles the extracted transactions against what the account already holds. Each extracted row is matched against existing transactions by amount and date (within a small window to account for posting date differences).
+
+- Rows that match an existing transaction are marked **reconciled** and will not be imported again. The matched transaction is stamped with the statement as its evidence.
+- Rows with no match are offered for review and import as new transactions.
+
+This means you can safely import a PDF statement even if some or all of its transactions have already synced from a connected provider. Only genuinely new transactions are offered for import.
+
+### Import summary
+
+After AI processing completes, Sure shows a summary of the statement broken down into:
+
+- **Transactions found** — total rows extracted from the statement
+- **Already recorded** — rows matched to transactions already in the account
+- **Imported** — rows that were published as new transactions
+- **Awaiting review** — rows not yet published
+
+You can access this summary from both the ready-for-review and completed import screens.
+
+### Provider-backed accounts
+
+PDF imports can now target provider-backed (synced) accounts in addition to manual accounts. Because reconciliation prevents duplicates at the row level, importing a statement into a synced account will not create duplicate transactions for activity the provider has already downloaded.
+
+### Reconciliation state
+
+A transaction is marked reconciled when a statement claims it as evidence. The reconciled state persists even if the statement is later deleted (the timestamp is kept; only the statement reference is cleared). You can unmark a reconciliation manually if needed.
+
 ## Tips for better matches
 
 - Keep the institution name in the filename.

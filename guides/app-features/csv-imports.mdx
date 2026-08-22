@@ -56,7 +56,7 @@ The optional **Balance Date** column lets you specify when the opening balance s
 If you don't provide a balance date, Sure will use the current date for the opening balance.
 
 <Note>
-The date format should match your import settings. Common formats include MM/DD/YYYY, DD/MM/YYYY, and YYYY-MM-DD.
+The date format should match your import settings. Common formats include MM/DD/YYYY, DD/MM/YYYY, DD/MM/YY, and YYYY-MM-DD.
 </Note>
 
 ### Supported account types
@@ -123,6 +123,8 @@ Date,Amount,Name,Account,Category,Notes
 ### Import fails with date errors
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
+
+Sure supports `DD/MM/YY` (two-digit year) as a CSV-only date format. This format is available in the import date format selector but is intentionally not available as a global date preference, because two-digit years are ambiguous (years are interpreted as 1969–2068). Always verify the parsed date preview in the import review step when using this format.
 
 ### Accounts not found
 
