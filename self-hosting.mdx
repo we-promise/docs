@@ -560,6 +560,24 @@ docker compose exec web env DRY_RUN=false bin/rails security:backfill_encryption
 
 The task is idempotent, so it is safe to rerun if needed.
 
+### Balances show zero or "No balance data available"
+
+If account balances show zero or the message "No balance data available for this date", the most common cause is that the Sidekiq worker container is not running. Balance calculations, net-worth updates, and account syncs all run as background jobs — if the worker is stopped, those jobs never execute.
+
+Check whether the worker is running:
+
+```bash
+docker compose ps worker
+```
+
+If the worker is not listed or shows a non-running state, start it:
+
+```bash
+docker compose up -d worker
+```
+
+Super-admins will also see a warning banner at the top of every page when Sidekiq is unhealthy. Follow the **View system health** link in the banner to see the live worker state.
+
 ### Slow CSV imports
 
 If CSV imports are processing rows slower than expected, check your worker logs for errors:
