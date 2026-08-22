@@ -94,6 +94,26 @@ Sure prevents merges that would make the category hierarchy confusing or invalid
 
 If a source category has subcategories and the target is a parent category, Sure reparents those subcategories under the target.
 
+## Rules and tags
+
+You can use tags as conditions in transaction rules. This lets you build rules that match transactions already carrying a specific tag and apply further actions to them.
+
+To add a tag condition to a rule:
+
+1. Go to **Settings → Rules** and open or create a rule
+2. Add a condition and select **Tag** from the condition type list
+3. Choose an operator:
+   - **Equal to** — matches transactions that have the selected tag
+   - **Is empty** — matches transactions with no tags assigned
+4. For **Equal to**, select the tag from the dropdown
+5. Save the rule
+
+Tag conditions work alongside all other condition types. Multiple tag conditions in the same rule use AND logic — a transaction must carry all specified tags to match.
+
+<Note>
+Tag-based rules survive export and import. If you export your family data and import it into another instance, tag conditions are remapped to the correct tags in the new instance.
+</Note>
+
 ## Related pages
 
 - [Budgets](/guides/app-features/budgets)
