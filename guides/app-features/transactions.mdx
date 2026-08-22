@@ -94,6 +94,38 @@ Sure prevents merges that would make the category hierarchy confusing or invalid
 
 If a source category has subcategories and the target is a parent category, Sure reparents those subcategories under the target.
 
+## Transaction rules
+
+Rules let you automatically apply actions to transactions that match a set of conditions. You can build rules from **Settings → Rules**.
+
+### Condition filters
+
+The rule builder supports the following condition types for transactions:
+
+| Condition | Operators |
+|---|---|
+| Transaction name | Contains, Does not contain, Equal to, Is empty |
+| Transaction amount | Greater than, Less than, Equal to |
+| Transaction category | Equal to, Is empty |
+| Transaction merchant | Equal to, Is empty |
+| Transaction tag | Equal to, Is empty |
+
+The **Transaction tag** condition lets you match transactions that already have a specific tag applied. Use it together with the **Set tags** action to build tag-based routing rules, or combine it with other conditions using AND/OR logic.
+
+### Actions
+
+Rules can apply the following actions to matching transactions:
+
+- Set category
+- Set merchant
+- Set name
+- Set tags
+- Add note
+
+### Export and import compatibility
+
+Tag-based rule conditions survive an export/import round-trip. When you export your data and re-import it, tag names are remapped correctly so tag conditions continue to work as expected.
+
 ## Related pages
 
 - [Budgets](/guides/app-features/budgets)
