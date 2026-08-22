@@ -233,6 +233,38 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
 
 </AccordionGroup>
 
+## Sure NDJSON import fails with a missing field error on rules or rejected transfers
+
+Importing a full `all.ndjson` export may fail preflight validation with errors about missing required fields, even when the export file is valid.
+
+<AccordionGroup>
+  <Accordion title="Rule with a null name blocks the import">
+    Earlier versions of Sure required the `name` field to be present for each rule during preflight. However, rule names are optional in the data model and can be `null`. A single rule with `"name": null` would block the entire import.
+
+    This has been fixed. Preflight now validates the rule `id` field instead of `name`, matching what the importer actually needs. Exports containing rules with null names import successfully.
+  </Accordion>
+
+  <Accordion title="Orphaned rejected transfer causes a hard error">
+    A `RejectedTransfer` record whose referenced transaction was deleted after the export was created previously caused a hard error during preflight, blocking the import.
+
+    This has been fixed. Orphaned rejected transfer references are now treated as warnings rather than errors. The importer skips the orphaned row and counts it as skipped, so the rest of the import proceeds normally. The preflight response includes a warning message for each skipped row.
+  </Accordion>
+</AccordionGroup>
+
+## Excluded transactions disappear from account activity
+
+If you exclude a transaction from analytics and it no longer appears in the account activity list, you cannot toggle it back on from that view.
+
+<AccordionGroup>
+  <Accordion title="What causes this?">
+    Earlier versions of Sure filtered the account activity list to only show non-excluded entries. This meant excluded transactions — including investment trades excluded from analytics — were hidden entirely, with no way to re-include them from the account view.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The account activity list now shows excluded transactions in a greyed-out state, matching the behavior of the global Transactions page. You can click an excluded entry to open its detail drawer and toggle exclusion back off. Only split parent entries remain hidden, as they are internal bookkeeping rows.
+  </Accordion>
+</AccordionGroup>
+
 ## Why is Sure not running auto-categorization and merchant detection on the same transactions again?
 
 Sure caches AI-generated results to avoid redundant API calls and costs. Once a transaction has been processed by AI rules, it won't be re-processed unless you explicitly reset the AI cache.
