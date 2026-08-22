@@ -54,6 +54,14 @@ rails g provider:global plaid \
 rails g provider:family <PROVIDER_NAME> field:type[:secret][:default=value] ...
 ```
 
+### Reserved field names
+
+The generator rejects field names that are already defined on the items table. Passing a reserved name raises a `Thor::Error` at generation time rather than producing broken migrations or inconsistent models.
+
+Reserved names include: `family_id`, `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`.
+
+Note that `family` (without `_id`) is **not** reserved — the migration writes `t.references :family`, which creates `family_id`, so a field named `family` is not a collision.
+
 ### Example: Adding a MyBank provider
 
 ```bash
@@ -565,6 +573,10 @@ end
 ```
 
 ## Troubleshooting
+
+### Reserved field name error
+
+If the generator raises `Thor::Error: '<field>' is a reserved field name`, remove that field from the command. The items table already defines it, so declaring it again would produce a duplicate migration column and inconsistent model code. See [Reserved field names](#reserved-field-names) for the full list.
 
 ### Panel not showing
 
