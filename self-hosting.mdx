@@ -481,6 +481,59 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## Monitoring system health
+
+Super-admins can check the live state of the background job worker from **Settings → Advanced → System health**.
+
+The page shows:
+
+- Number of active Sidekiq worker processes
+- Last heartbeat timestamp
+- Maximum queue latency
+- Job counters (processed, failed, enqueued, scheduled, retries)
+- Per-queue depth breakdown
+
+### Sidekiq health banner
+
+When the Sidekiq worker is not processing jobs, a warning banner appears at the top of every page for super-admins. The banner explains that data may be stale and links directly to the system health page.
+
+Common reasons the worker may be unhealthy:
+
+- The `worker` container is not running (most common in Docker Compose setups)
+- Redis is unreachable
+- No heartbeat received within the last 2 minutes
+- Queue latency exceeds 5 minutes
+
+If you see the banner after starting Sure, verify the worker container is running:
+
+```bash
+docker compose ps worker
+docker compose logs worker --tail 50
+```
+
+If the worker is stopped, restart it:
+
+```bash
+docker compose up -d worker
+```
+
+### Tuning health check thresholds
+
+The default thresholds work for most deployments. If your environment has slower Redis or longer-running jobs, you can override them with environment variables:
+
+```txt
+# Seconds before a process heartbeat is considered stale (default: 120)
+SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT=120
+
+# Seconds of queue latency before the worker is considered unhealthy (default: 300)
+SIDEKIQ_HEALTH_LATENCY_THRESHOLD=300
+
+# Seconds to cache the health snapshot (default: 60)
+SIDEKIQ_HEALTH_CACHE_TTL=60
+```
+
+The system health page always bypasses the cache and shows a fresh snapshot.
+
 ## Troubleshooting
 
 ### Database connection errors
