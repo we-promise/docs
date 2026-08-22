@@ -98,6 +98,21 @@ Date,Amount,Name,Account,Category,Notes
 01/20/2024,2500.00,Paycheck,Main Checking,Income,Bi-weekly salary
 ```
 
+## Supported date formats
+
+Sure supports the following date formats for CSV imports:
+
+| Format | Example |
+|--------|---------|
+| `MM/DD/YYYY` | 01/15/2024 |
+| `DD/MM/YYYY` | 15/01/2024 |
+| `YYYY-MM-DD` | 2024-01-15 |
+| `DD/MM/YY` | 15/01/24 |
+
+<Note>
+`DD/MM/YY` is available for CSV imports only and is not available as a global date preference. Two-digit years are interpreted by Ruby's `%y` rule, which maps `00–68` to `2000–2068` and `69–99` to `1969–1999`. Review the parsed preview before publishing to confirm dates are interpreted correctly.
+</Note>
+
 ## Import process
 
 1. **Navigate to imports**: Go to Settings → Imports or use the import button in the app

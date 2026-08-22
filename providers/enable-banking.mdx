@@ -150,3 +150,9 @@ For technical details about the Enable Banking API, see the [official documentat
 - Banks that use decoupled authentication (separate device approval) are not supported
 - Subject to Enable Banking API rate limits
 - Some banks may have additional authentication requirements
+
+## Known bank-specific behavior
+
+### N26
+
+N26 rejects out-of-range transaction periods with a `PERIOD_INVALID` error shape (`{"code": "PERIOD_INVALID", "detail": "dateFrom=...,dateTo=..."}`) rather than the standard `WRONG_TRANSACTIONS_PERIOD` shape. Sure recognizes both shapes and retries with a shorter date window automatically, so N26 syncs recover without manual intervention.
