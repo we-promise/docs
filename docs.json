@@ -77,7 +77,6 @@
               "providers/plaid",
               "providers/redbark",
               "providers/snaptrade",
-              "providers/binance",
               "providers/coinbase",
               "providers/coinstats",
               "providers/onchain-wallets",
