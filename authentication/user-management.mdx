@@ -256,6 +256,8 @@ To delete a user:
   </Step>
 </Steps>
 
+When a user is removed, Sure deactivates the account before deletion. Any active sessions are invalidated and new tokens cannot be issued for the deactivated account. If a session creation attempt occurs for a deleted user (for example, from a cached token), it is rejected rather than allowed through.
+
 ## User security settings
 
 ### Connected accounts in user settings
