@@ -1,0 +1,116 @@
+---
+title: "On-chain wallets"
+description: "Track self-custody Bitcoin, EVM, and Solana wallets natively in Sure"
+---
+
+Sure can track self-custody cryptocurrency wallets directly — no third-party aggregator required. Link a Bitcoin, EVM-compatible, or Solana address and Sure imports balances, token holdings, and transfer history automatically.
+
+## Supported networks
+
+| Network | Address format | Notes |
+| --- | --- | --- |
+| Bitcoin | Base58 (P2PKH/P2SH), bech32 (segwit), bech32m (taproot) | Single address only — see [limitations](#limitations) |
+| Ethereum | 0x hex | |
+| Base | 0x hex | |
+| Arbitrum | 0x hex | |
+| Optimism | 0x hex | |
+| Polygon | 0x hex | |
+| Solana | Base58 public key | SPL tokens supported |
+
+## How it works
+
+Linking a wallet is a three-step flow:
+
+1. **Paste an address** — Sure detects which networks the address is active on.
+2. **Confirm the network** — When an address is valid on more than one chain, Sure shows which ones have activity so you can pick the right one.
+3. **Choose what to track** — Sure lists the tokens found at that address. Assets that can be priced are pre-selected; spam airdrops are listed but unchecked. You can adjust the selection before importing.
+
+After linking, Sure syncs the wallet on a recurring schedule. Balances come from a direct address summary request; transfer history is paginated separately.
+
+## Pricing and valuation
+
+On-chain wallet values depend on your market data configuration:
+
+- **Crypto prices**: Sure uses your configured securities provider to look up prices by symbol. Enable a crypto-capable provider (such as Binance Public) from **Settings > Self-Hosting > Market data**.
+- **Currency conversion**: If your family currency is not USD, Sure also needs an exchange rate provider. [Frankfurter](https://www.frankfurter.app/) is a free option that requires no API key.
+
+<Warning>
+Without a crypto-capable market data provider, every wallet is tracked by quantity and valued at zero. The linking flow warns you before you connect a wallet, and links to the market data settings page where you can fix it.
+</Warning>
+
+### What gets priced and what does not
+
+Sure prices assets by symbol. A symbol is not a token's identity, so coverage is limited:
+
+- Well-known coins and tokens (BTC, ETH, SOL, USDC, and others) are priced correctly.
+- Bridged and wrapped variants (WETH, USDC.e, USDbC) are mapped to their canonical asset and priced as that asset.
+- Tokens whose symbol the provider does not list show a zero value. The quantity is still tracked correctly — a zero next to a token you know is worth something means the provider does not cover it, not that the balance is wrong.
+- DeFi positions (staked ETH, LP tokens, lending positions, Solana stake accounts) are not visible. A wallet holding most of its value in a staking protocol will report only the portion held directly.
+
+## Transfer history
+
+Sure imports transfer history and creates trade entries when a price is available for the transfer date. When no price is available, Sure records a display-only entry so the transfer is visible without fabricating a cost basis. Display-only entries are automatically upgraded to trades the next time a sync runs and the price becomes available.
+
+### History depth
+
+By default, Sure reads up to 10 pages of history per address. You can raise this limit with the `ONCHAIN_HISTORY_MAX_PAGES` environment variable (maximum 200). When an address has more history than the budget allows, the wallet's manage screen notes that the history is incomplete. Balances are always accurate regardless of history depth, because they come from an address summary rather than from history.
+
+## Token limits
+
+Sure surfaces at most 200 tokens per address by default. You can raise this with `ONCHAIN_MAX_TOKENS_PER_ADDRESS` (maximum 5,000). On EVM networks, tokens are ranked by market cap so real assets are kept and airdrops fall off the end. On Solana, tokens are ordered by mint address for stability between syncs.
+
+Tokens already being tracked are never dropped by the cap, even if they fall outside the surfaced set on a later sync.
+
+## Linking a wallet
+
+<Steps>
+  <Step title="Open the on-chain wallets panel">
+    Go to **Settings > Bank sync** and find **On-chain wallets** under Available connections.
+  </Step>
+  <Step title="Enter an address">
+    Paste a wallet address. Sure detects which supported networks show activity at that address.
+  </Step>
+  <Step title="Confirm the network">
+    If the address is active on more than one network, select the correct one. If only one network shows activity, it is selected automatically.
+  </Step>
+  <Step title="Review and select tokens">
+    Sure lists the tokens found. Assets that can be priced are pre-checked. Uncheck anything you do not want to track, then click **Link wallet**.
+  </Step>
+</Steps>
+
+<Note>
+Never enter a seed phrase or private key. Sure only needs a public wallet address.
+</Note>
+
+## Managing a linked wallet
+
+From the wallet's manage screen you can:
+
+- **Review tokens** — Reopen the token selection to add or remove tracked assets without changing the address.
+- **Change address** — Update the address while keeping all existing accounts, holdings, and history intact.
+- **Disconnect one asset** — Remove a single token from tracking. Its account becomes a manual account and stops syncing.
+- **Disconnect wallet** — Remove all tracked assets for an address. Each account becomes a manual account and stops syncing.
+
+Disconnecting never deletes an account. Holdings are detached and the account stops updating, but the history remains.
+
+## Etherscan API key (optional)
+
+For Ethereum addresses, you can supply an Etherscan API key to increase the rate limit on transfer history requests. Balances and token detection always use the keyless Blockscout indexer regardless of whether a key is set — Etherscan does not provide a reliable token balance endpoint, so adding a key only affects history throughput.
+
+Set the key from the on-chain wallets settings panel under **Ethereum API key**.
+
+## Environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `ONCHAIN_HISTORY_MAX_PAGES` | `10` | Maximum pages of transfer history per address per sync (capped at 200). |
+| `ONCHAIN_MAX_TOKENS_PER_ADDRESS` | `200` | Maximum tokens surfaced per address (capped at 5,000). |
+| `ONCHAIN_DETECTION_TIMEOUT` | `10` | Seconds allowed for chain detection during linking. |
+
+## Limitations
+
+- **Bitcoin: single address only.** A standard HD wallet derives thousands of addresses. Tracking one address under-reports such a wallet. Extended key (xpub) support is not available.
+- **DeFi positions are not tracked.** Staked assets, LP tokens, lending positions, and Solana stake accounts are not visible.
+- **Token pricing depends on symbol coverage.** Tokens the market data provider does not list are tracked by quantity only.
+- **History depth is capped.** Wallets with deep history may have incomplete cost basis reconstruction. Balances are not affected.
+- **One address per network per connection.** Each linked address is tracked independently. Link additional addresses separately.
