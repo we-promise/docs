@@ -221,6 +221,10 @@ If you see both a transfer and separate expense/income transactions:
 - Confirm or reject the transfer suggestion
 - Delete duplicate transactions if needed
 
+### Transfer matching stops mid-sync
+
+When two account syncs run at the same time, a race condition could previously cause transfer matching to stop processing remaining candidates after a conflict. This is now resolved — each candidate is matched in its own isolated savepoint, so a conflict on one pair no longer affects the others.
+
 ### Unmatched Transfers
 
 If Sure didn't automatically match a transfer:
