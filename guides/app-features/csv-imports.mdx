@@ -124,6 +124,8 @@ Date,Amount,Name,Account,Category,Notes
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
 
+Sure supports `DD/MM/YY` (two-digit year) as a CSV-only date format. This format is available in the import date format selector but is intentionally not available as a global date preference, because two-digit years are ambiguous (years are interpreted as 1969–2068). Always verify the parsed date preview in the import review step when using this format.
+
 ### Accounts not found
 
 When importing transactions, ensure the account names in your CSV exactly match existing account names in Sure.
