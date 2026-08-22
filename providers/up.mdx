@@ -1,0 +1,37 @@
+---
+title: "Up"
+description: "Sync your Up bank account transactions and balances into Sure"
+---
+
+Up is an Australian neobank. Sure connects to Up using the Up API to sync account balances and transaction history.
+
+## Setting up Up
+
+<Steps>
+  <Step title="Get an API token">
+    In the Up app, go to **Settings > API** and generate a personal access token.
+  </Step>
+  <Step title="Add the connection">
+    In Sure, go to **Settings > Bank sync**, find **Up**, and enter your API token.
+  </Step>
+</Steps>
+
+## What syncs
+
+- Account balances
+- Transaction history (name, amount, date, and category)
+
+## Automatic category mapping
+
+Up assigns a category to each transaction. Sure maps Up's category slugs to your existing Sure categories automatically during import, so transactions arrive pre-categorized without any manual work.
+
+Mappings are applied only when a matching Sure category already exists in your family. If you have not set up categories yet, transactions import uncategorized and the mapping applies once you create the relevant categories.
+
+Categories you have manually set or locked on a transaction are never overwritten by the mapping — a re-sync preserves your choice.
+
+High-confidence mappings are applied automatically. Up-specific categories with no clear Sure equivalent (such as Booze, Pets, Apps & Games, and Life Admin) are left uncategorized so you can apply your own rules or AI categorization.
+
+## Limitations
+
+- Read-only access — Sure cannot create or modify transactions in Up
+- Category mapping covers common spending categories; niche Up categories remain uncategorized
