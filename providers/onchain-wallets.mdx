@@ -1,0 +1,119 @@
+---
+title: "Self-custody wallets"
+description: "Track Bitcoin, EVM, and Solana wallets natively without a third-party provider"
+---
+
+Sure can track self-custody wallets directly — no CoinStats account or other third-party service required. Link a Bitcoin, EVM-compatible (Ethereum, Base, Arbitrum, Optimism, Polygon, Gnosis), or Solana address and Sure will sync balances, token holdings, and transaction history automatically.
+
+## How it works
+
+When you link a wallet address, Sure:
+
+1. Reads the current balance and token holdings from a public blockchain explorer
+2. Creates a crypto wallet account for each asset you choose to track
+3. Imports transaction history and reconstructs cost basis where price data is available
+4. Syncs on a recurring schedule — only writing new data when something changed
+
+Balances come from an address summary endpoint, not from transaction history, so they are always current even when history is capped.
+
+## Prerequisites
+
+- A crypto market data provider must be enabled to value your holdings. Without one, quantities are tracked correctly but every wallet shows a zero balance. Go to **Settings > Self-Hosting > Market data** to enable a provider, or use the one-click button in the wallet linking UI.
+- Families whose currency is not USD also need an exchange rate provider configured. Sure's default exchange rate provider (Twelve Data) requires an API key; [Frankfurter](https://www.frankfurter.app/) is a free keyless alternative.
+
+## Linking a wallet
+
+<Steps>
+  <Step title="Open the wallet panel">
+    Go to **Settings > Bank sync** and find **Self-custody wallets** under Available connections.
+  </Step>
+  <Step title="Paste your address">
+    Enter a wallet address. Sure validates the format and detects which networks the address is active on.
+  </Step>
+  <Step title="Confirm the network">
+    If the address matches more than one network (for example, a 0x address is valid on all six EVM networks), Sure checks each one for activity and shows you the results. Select the network or networks you want to track.
+  </Step>
+  <Step title="Choose what to track">
+    Sure lists the assets found at that address. Assets that can be priced are pre-selected; spam airdrops and unrecognized tokens are listed but unchecked. Tick or untick assets, then confirm.
+  </Step>
+</Steps>
+
+Sure creates one account per asset. Previewing an address creates no connection record — an abandoned flow leaves nothing behind.
+
+<Warning>
+Never enter a seed phrase or private key. Sure only needs a public wallet address.
+</Warning>
+
+## Supported networks
+
+| Network | Type | Notes |
+|---|---|---|
+| Bitcoin | Bitcoin | Single address only (see limitations) |
+| Ethereum | EVM | Optional Etherscan key for higher rate limits |
+| Base | EVM | |
+| Arbitrum | EVM | |
+| Optimism | EVM | |
+| Polygon | EVM | |
+| Gnosis | EVM | |
+| Solana | Solana | SPL tokens named via Jupiter verified token list |
+
+## Managing a linked wallet
+
+From **Settings > Bank sync > Self-custody wallets**, each linked wallet has four actions:
+
+- **Sync** — trigger an immediate sync
+- **Review tokens** — reopen the asset selection screen to add or remove tracked tokens without changing the address
+- **Change address** — update the address while keeping all existing accounts, holdings, entries, and balance history
+- **Disconnect wallet** — remove the provider link; existing accounts become manual and stop updating
+
+To stop tracking a single asset without disconnecting the whole wallet, use the per-asset **Disconnect** button next to that token in the wallet panel.
+
+## Transaction history and cost basis
+
+Sure imports movements as signed trades (Buy / Sell) when a price is available for that date, so cost basis and the value chart reconstruct back to acquisition. When no price is available, a display-only entry is recorded with the quantity preserved — it becomes a real trade automatically once price history is backfilled.
+
+History depth is capped at 10 pages per address by default (configurable with `ONCHAIN_HISTORY_MAX_PAGES`, max 200). When an address has more history than the cap allows, the wallet panel shows an incomplete history notice. Balances are never affected by the cap.
+
+## Token limits
+
+Sure surfaces at most 200 tokens per address by default (`ONCHAIN_MAX_TOKENS_PER_ADDRESS`, max 5,000). On EVM networks, tokens are ranked by market cap so real assets are kept and airdrops fall off the end. On Solana, tokens are ordered by mint address for stability between syncs. Any asset you are already tracking continues to sync regardless of the cap.
+
+## Pricing and valuation
+
+Sure prices crypto assets by symbol using your configured market data provider. This covers major coins and tokens but not every asset:
+
+- A zero balance next to a token you know is worth something means the provider does not list that symbol — the quantity is still tracked correctly.
+- DeFi positions (staked ETH, LP tokens, lending positions, Solana stake accounts) are not visible. A wallet holding most of its value in a staking protocol will under-report its total.
+- Bridged and wrapped variants (USDC.e, WETH, USDbC) are mapped to their canonical asset so they price correctly.
+
+## Self-hosting configuration
+
+### Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `ONCHAIN_HISTORY_MAX_PAGES` | `10` | Maximum pages of transaction history per address per sync (capped at 200) |
+| `ONCHAIN_MAX_TOKENS_PER_ADDRESS` | `200` | Maximum tokens surfaced per address (capped at 5,000) |
+| `ONCHAIN_DETECTION_TIMEOUT` | `10` | Seconds allowed for network detection during linking |
+
+### Blockchain explorers
+
+Sure uses public blockchain explorers by default. No API keys are required for basic use.
+
+| Network | Default explorer | Key variable |
+|---|---|---|
+| Bitcoin | mempool.space | — |
+| EVM (all networks) | Blockscout (per-network instance) | — |
+| Ethereum (history only) | Etherscan | `ETHERSCAN_API_KEY` |
+| Solana | Public RPC + Jupiter token list | — |
+
+An Etherscan key is optional. It only affects transaction history rate limits on Ethereum — balances and token detection always use the keyless Blockscout indexer. Adding a key does not change what is tracked.
+
+You can point Sure at your own Blockscout or mempool.space instance by overriding the explorer URLs in your environment configuration.
+
+## Limitations
+
+- **Bitcoin: single address only.** A standard HD wallet derives thousands of addresses; tracking one address under-reports a wallet whose funds are spread across derived addresses. Extended key (xpub) support is not yet available.
+- **DeFi positions are not tracked.** Staked assets, liquidity pool positions, lending balances, and Solana stake accounts are invisible to the address-balance approach used here. Use [CoinStats](/providers/coinstats) if you need DeFi coverage.
+- **Pricing is symbol-based.** Assets whose symbol the market data provider does not recognize are tracked by quantity only and valued at zero.
+- **Non-USD families need an exchange rate provider.** The crypto price provider quotes in USD; a family in EUR or another currency also needs FX rates configured.
