@@ -357,6 +357,8 @@ Configure in admin UI under **Role Mapping**:
 - **Default Role**: Assigned to all JIT-created users (e.g., `member`)
 - **Group Mappings**: Map IdP groups to application roles
 
+When a JIT login creates a new family, the user who creates it is assigned the `admin` role for that family regardless of the default role setting. Super admin accounts retain their elevated defaults. This ensures the first user of a new family always has the access needed to configure it.
+
 ## Role mapping
 
 ### Group-to-role mapping

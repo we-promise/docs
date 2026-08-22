@@ -1,0 +1,101 @@
+---
+title: "Transactions"
+description: "Review, categorize, and clean up transactions in Sure"
+---
+
+# Transactions
+
+Transactions are the day-to-day entries that drive Sure's budgets, reports, and account history. Use the Transactions screen to review imported activity, add manual entries, categorize spending, and keep related labels such as merchants and tags tidy.
+
+## Review transactions
+
+Open **Transactions** from the main navigation to see recent activity across your accounts.
+
+From this screen you can:
+
+- Search and filter by account, date, type, status, amount, category, tag, or merchant
+- Open a transaction to edit its details
+- Add a new manual transaction
+- Import transaction data from a CSV file
+- Review upcoming recurring transactions
+- Convert eligible investment cash activity into a security trade
+
+Pending transactions may change after they post. If Sure detects that a pending transaction might duplicate a posted one, you can merge the duplicate or keep both transactions.
+
+## Edit transaction details
+
+Open a transaction to update the fields that affect reporting and review:
+
+- **Name**: The display name for the transaction
+- **Date**: The transaction date
+- **Amount**: The transaction amount and direction
+- **Account**: The account the transaction belongs to
+- **Category**: The income or expense category used for budgets and reports
+- **Merchant**: The merchant or payee associated with the transaction
+- **Tags**: Extra labels for flexible filtering
+- **Notes**: Private context for the transaction
+
+You can also mark a transaction as excluded. Excluded transactions are removed from budgeting calculations and reports, which is useful for activity you do not want counted in normal spending analysis.
+
+## Categorize transactions
+
+Categories help Sure group income and expenses consistently. You can assign a category from the transaction detail view or directly from the transaction list.
+
+When there are uncategorized transactions, use the categorize flow to work through them in batches. You can assign a category to each transaction and optionally create a categorization rule so future matching transactions use the same category.
+
+Use subcategories when you want more detail within a broader category. For example, a parent category such as **Food & Dining** can contain subcategories such as **Groceries**, **Restaurants**, and **Coffee**. Budgets can use those subcategories individually or share the parent budget.
+
+## Bulk edit transactions
+
+Select multiple transactions and choose **Edit** to apply the same details to all selected rows.
+
+Bulk editing can update:
+
+- Name
+- Date
+- Category
+- Merchant
+- Tags
+- Notes
+
+Before saving, review the selected transactions so you do not apply a cleanup change to unrelated activity.
+
+## Manage categories, merchants, and tags
+
+The Transactions screen includes shortcuts for:
+
+- **Edit categories**
+- **Edit merchants**
+- **Edit tags**
+- **Edit imports**
+
+Use these management screens when the labels themselves need cleanup, not just one transaction assignment.
+
+## Merge categories
+
+Use **Edit categories** and then **Merge categories** when two or more categories represent the same kind of activity.
+
+When you merge categories, Sure asks you to choose:
+
+- **Target category**: The category to keep
+- **Source categories**: The categories to merge into the target
+
+Sure moves matching transactions from each source category to the target category. It also moves budget lines to the target category. If a budget already has lines for both the source and target categories, Sure combines their budgeted amounts into the target line.
+
+After the move, Sure deletes the source categories.
+
+### Merge guardrails
+
+Sure prevents merges that would make the category hierarchy confusing or invalid:
+
+- You cannot choose the same category as both the target and a source
+- You cannot merge a parent category into one of its own subcategories
+- You cannot merge a category that has subcategories into another subcategory
+
+If a source category has subcategories and the target is a parent category, Sure reparents those subcategories under the target.
+
+## Related pages
+
+- [Budgets](/guides/app-features/budgets)
+- [CSV imports](/guides/app-features/csv-imports)
+- [Recurring transactions](/features/recurring-transactions)

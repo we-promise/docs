@@ -37,8 +37,13 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
   </Accordion>
 
-  <Accordion title="How do I debug a rule that silently failed?">
-    Failures during async rule runs (background jobs) are written to the debug log. Go to **Settings → Debug** to see error entries for any rule that raised an exception during a sync. Auto-categorize provider failures are also propagated there.
+  <Accordion title="How do I see why a rule run failed?">
+    Failures during async rule runs (including auto-categorize provider failures) are written to the debug log. To view them:
+
+    1. Go to **Settings** → **Debug**
+    2. Look for entries with category **`rules`**
+
+    Each failed run includes the error message and the rule that triggered it.
   </Accordion>
 </AccordionGroup>
 
@@ -174,6 +179,76 @@ If a budget still shows spending from a transaction that was already deleted, th
 
 </AccordionGroup>
 
+## Chat fails immediately on a fresh family with a strict OpenAI-compatible provider
+
+Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests with a schema validation error when a family has no accounts, categories, merchants, tags, or tickers yet.
+
+## Rule runs fail silently
+
+If auto-categorization or merchant detection rules appear to do nothing, the background job may have failed without surfacing an error in the UI.
+
+<AccordionGroup>
+
+  <Accordion title="How do I see rule run failures?">
+
+    Async rule run failures are now logged to the debug log. Go to **Settings → Debug** and look for entries from the `rule_run` category. Each failed run includes the error class, message, and the rule that triggered it.
+
+    You can also check worker logs directly:
+
+    ```bash
+    docker compose logs worker
+    ```
+
+  </Accordion>
+
+  <Accordion title="What causes rule runs to fail?">
+
+    Common causes include:
+
+    - **LLM provider errors** — The AI provider returned an error or timed out. Check your `OPENAI_ACCESS_TOKEN` and provider connectivity.
+    - **Auto-categorize provider failures** — The provider returned an unexpected response format. These are now propagated and logged rather than silently swallowed.
+    - **Worker not running** — Rules run in the background via Sidekiq. Verify the `worker` container is healthy.
+
+  </Accordion>
+
+</AccordionGroup>
+
+## App crashes for a family with an invalid timezone
+
+If a family's timezone setting contains an unrecognized IANA zone name (for example, after a tzdata rename like `Europe/Kiev` → `Europe/Kyiv`), Sure now falls back to the application default timezone instead of crashing.
+
+## Chat fails immediately on a new account with a strict OpenAI-compatible provider
+
+Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests with a schema validation error when a family has no tags, merchants, or categories yet. This happens because the assistant's tool schemas include `enum` fields built from family data — an empty family produces `enum: []`, which is invalid JSON Schema.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this?">
+
+    Sure builds tool schemas for the assistant using family data (account names, categories, merchants, tags, tickers). A family with none of this data produces `enum: []` for those fields, which is invalid JSON Schema. OpenAI tolerates it, but strict providers reject the entire request before the model runs.
+    `Family#timezone` is a free-text field. If the stored value becomes stale — due to a tzdata rename, a database restore from an older backup, or a direct database edit — the app previously raised an `ArgumentError` on every request for that family, including the login page.
+
+  </Accordion>
+
+  <Accordion title="How is it handled now?">
+
+    Sure validates the timezone value against `ActiveSupport::TimeZone` before using it. If the value is unrecognized, the app falls back to the default timezone and logs a warning to **Settings → Debug** under the `timezone` category. The log is debounced to once per day per family so it does not flood the debug log.
+
+    To fix the root cause, update the family's timezone to a valid IANA zone name from **Settings → Profile**.
+    Sure builds tool schemas dynamically from your family's data (account names, categories, merchants, tags, tickers). When none of that data exists yet, the schema contains `enum: []`, which is invalid JSON Schema. OpenAI tolerates it, but strict OpenAI-compatible providers reject the entire request before the model runs.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    Empty enum arrays are now pruned from tool schemas before the request is sent, falling back to a plain `string` type. This fix applies to both chat tool definitions and the `/mcp` endpoint's `tools/list`.
+
+    If you are on an older version and cannot upgrade, add at least one account, category, or tag to the family — this populates the enum and avoids the empty-array case.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Chat shows "assistant not available" before the model finishes
 
 Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the chat fail with "assistant not available" even though the model is still generating a reply and tokens are being billed.
@@ -249,6 +324,8 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
     **Note:** This will incur API costs if using a cloud provider.
 
+    The reset runs in the background. You can track its progress and see how many AI cache entries were removed in **Settings → Debug**, filtered by the `ai_cache_reset` category. Each run logs when it starts, how many entries were removed per scope, and any records that could not be cleared.
+
   </Accordion>
 
   <Accordion title="When should I reset the AI cache?">
@@ -264,18 +341,21 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
   </Accordion>
 
-  <Accordion title="How do I check if the AI cache reset ran?">
+  <Accordion title="How do I verify the reset actually ran?">
 
-    The cache reset runs as a background job. You can verify it ran and see a breakdown of what was cleared in **Settings → Debug** by filtering for the `ai_cache_reset` category.
+    The reset runs as a background job. You can confirm it completed — and see a breakdown of how many AI cache entries were removed — in the debug log:
 
-    The debug log records:
-    - An `info` entry when the reset is enqueued from the rules page
-    - An `info` entry when the job starts on a worker
-    - `warn` entries (up to 5 per scope) for individual records that could not be cleared
-    - An `error` entry if a scope fails entirely or the job could not be enqueued
-    - An `info` completion entry with the number of AI cache entries removed, broken down by scope
+    1. Go to **Settings** → **Debug**
+    2. Filter by category **`ai_cache_reset`**
 
-    If you see an enqueue entry but no start entry, the job never reached a worker — check that your worker container is running.
+    You will see:
+    - An **info** entry when the reset is enqueued from the rules page
+    - An **info** entry when the job starts on a worker
+    - A **completion** entry with the number of enrichments deleted, broken down by scope
+    - **warn** entries for any individual records that could not be cleared
+    - An **error** entry if the job could not be enqueued at all
+
+    If you see the enqueue entry but no start entry, the job never reached a worker — check that your worker container is running.
 
   </Accordion>
 
