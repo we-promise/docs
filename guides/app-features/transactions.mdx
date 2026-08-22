@@ -94,6 +94,33 @@ Sure prevents merges that would make the category hierarchy confusing or invalid
 
 If a source category has subcategories and the target is a parent category, Sure reparents those subcategories under the target.
 
+## Transaction rules
+
+Rules automatically apply actions to transactions that match a set of conditions. Create and manage rules from **Settings > Rules**.
+
+### Condition types
+
+| Condition | Operators | Notes |
+|---|---|---|
+| Transaction name | Contains, Does not contain, Equals | Matches the transaction display name |
+| Amount | Greater than, Less than, Equals | Absolute value |
+| Account | Equals | Matches a specific account |
+| Category | Equal to, Is empty | Matches the assigned category |
+| Merchant | Equal to, Is empty | Matches the assigned merchant |
+| Tag | Equal to, Is empty | Matches any tag assigned to the transaction |
+
+Multiple conditions can be combined with AND or OR logic. When using multiple tag conditions with AND, each condition is evaluated independently — a transaction matches when it carries all of the specified tags.
+
+### Action types
+
+Rules can set the category, merchant, tags, notes, or investment activity label on matching transactions.
+
+### When rules run
+
+Rules run automatically during family syncs and can be triggered manually from **Settings > Rules** using **Re-apply** (single rule) or **Apply all**.
+
+Rules do not run on manual transaction creation or editing — only on syncs.
+
 ## Related pages
 
 - [Budgets](/guides/app-features/budgets)
