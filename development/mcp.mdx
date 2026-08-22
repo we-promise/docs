@@ -32,15 +32,26 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 
 | Tool | Description |
 | --- | --- |
-| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
-| `get_accounts` | List accounts with current and historical balances and account metadata |
+| `get_transactions` | Search transactions with optional filters (account IDs, category names, merchant names, tag names, types, statuses) and pagination; useful for finding transactions and calculating statistics for small groups of results |
+| `get_accounts` | List accounts with current balances, account metadata, and optional historical balance series (opt-in via `include_balance_series`) |
 | `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
-| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
-| `get_income_statement` | Retrieve income and expenses by category for a date range |
+| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with configurable period, interval, and historical series |
+| `get_income_statement` | Retrieve income and expenses by category for a date range, with optional monthly trend breakdown, prior-period comparison, and account-scoped totals |
 | `get_budget` | Compare a monthly budget with spending by category, with an optional prior-month trend comparison |
+| `get_merchants` | List merchants with IDs, exact names, and source; use IDs with `update_transaction` to set a merchant |
+| `get_recurring_transactions` | List detected and manual recurring transactions with status filter and optional upcoming-window; includes per-currency totals for active non-transfer items |
 | `get_tags` | List family tags alphabetically |
 | `get_categories` | List family categories hierarchically, including IDs and parent relationships |
+| `get_valuations` | List valuation entries for accessible accounts, newest first, with optional date-range filter |
 | `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames |
+
+### Preview (feature-gated)
+
+These tools are available only when the corresponding preview feature is enabled for the family.
+
+| Tool | Description |
+| --- | --- |
+| `get_insights` | Return the visible Insights feed (type filter, acknowledged toggle, limit); does not mark items as read |
 
 ### Create, update, and import
 
