@@ -174,6 +174,16 @@ If you enable passkeys or security keys on a public hostname, also set `WEBAUTHN
 If you only want Cloudflare Tunnel access, do not leave port `3000` broadly exposed to the internet. Keep the host firewall closed or bind the published port more narrowly.
 </Warning>
 
+### Sure import file size
+
+Self-hosted admins can raise the maximum allowed size for Sure NDJSON imports by setting:
+
+```txt
+SURE_IMPORT_MAX_NDJSON_SIZE_MB=200
+```
+
+This limit applies to both the GUI upload (Settings → Imports) and the API upload paths. If you previously set this variable and found the GUI still rejected large files, update to the latest version — the GUI now correctly reads this setting.
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
