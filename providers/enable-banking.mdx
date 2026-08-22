@@ -115,6 +115,10 @@ When syncing transactions from Enable Banking, Sure automatically detects certai
 
 See [transfers](/guides/key-concepts/transfers) for more details on how transfer types affect budgets.
 
+### Transaction naming
+
+Sure extracts a clean merchant name from the remittance information your bank provides. For banks that return multi-line remittance data (common with Austrian and German banks), Sure skips technical card-terminal descriptor lines (such as POS terminal identifiers) and uses the first descriptive line as the transaction name. Known payment processor prefixes (SumUp, Square, iZettle, PayPal) are also stripped. If the merchant matches one already in your family's merchant list, Sure assigns it automatically.
+
 ### Duplicate transaction handling
 
 Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
