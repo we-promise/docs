@@ -67,6 +67,16 @@ These tools are available only when the corresponding preview feature is enabled
 
 `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
+## Responder loop
+
+The assistant processes each chat turn through a tool-call loop:
+
+- The default cap is **8 tool-call rounds** per turn (overridable with `ASSISTANT_MAX_TOOL_CALL_ITERATIONS`).
+- On the final permitted round, the assistant sends no tools so the model must answer in prose with whatever it has gathered. This prevents a hard error banner when the cap is reached.
+- Tool failures return a structured `{error, hint}` result to the model so it can retry with corrected arguments rather than aborting the turn.
+
+See [Chat response timeout](/llm-support#chat-response-timeout) for how to size `AI_RESPONSE_TIMEOUT` against the round cap.
+
 ## Technical details
 
 Sure serves MCP over JSON-RPC 2.0 at the URL displayed in **Settings > MCP Server**. The endpoint supports `initialize`, `tools/list`, and `tools/call` over HTTP `POST` requests. MCP-compatible clients use this URL and handle browser-based sign-in and authorization with Sure.
