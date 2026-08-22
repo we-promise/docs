@@ -109,3 +109,9 @@ If you experience intermittent sync failures:
 - Sure automatically retries failed requests up to 3 times
 - Network errors are logged for troubleshooting
 - Manual sync attempts may succeed where automatic syncs fail
+
+### Two accounts with the same name merging incorrectly
+
+If you have two accounts at the same institution with identical display names (for example, two checking accounts both named "CHECKING (0001)"), Sure previously could confuse them during account discovery. This has been fixed: Sure now matches accounts by their upstream account ID rather than by name alone, and skips ambiguous name matches instead of picking the first result.
+
+If you notice transactions from one account appearing in another, disconnect and reconnect the affected SimpleFIN connection to re-run account discovery with the corrected matching logic.
