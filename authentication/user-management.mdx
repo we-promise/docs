@@ -234,25 +234,33 @@ Restore access for a suspended user:
   </Step>
 </Steps>
 
-### Deleting users
+### Removing users
+
+Admins can safely remove a user from the instance. The removal process:
+
+- Immediately marks the user as inactive so they cannot log in
+- Revokes all active sessions and tokens
+- Queues a background job to delete the user's data
+
+If a session is in progress when removal is triggered, it is terminated at the next request. New sessions cannot be created for an inactive user.
 
 <Warning>
-Deleting a user is permanent and cannot be undone. All user data, including connected accounts and activity history, will be removed.
+User removal is permanent and cannot be undone. All user data, including connected accounts and activity history, will be removed.
 </Warning>
 
-To delete a user:
+To remove a user:
 
 <Steps>
   <Step title="Select user">
-    Navigate to the user's detail page
+    Navigate to the user's detail page at `/admin/users`.
   </Step>
   
-  <Step title="Click delete">
-    Click "Delete User" button
+  <Step title="Click remove">
+    Click **Remove User**.
   </Step>
   
-  <Step title="Confirm deletion">
-    Type the user's email to confirm deletion
+  <Step title="Confirm removal">
+    Confirm the action in the dialog. The user is deactivated immediately and their data is queued for deletion.
   </Step>
 </Steps>
 
