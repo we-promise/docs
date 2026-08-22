@@ -225,7 +225,7 @@ Environment variables take precedence over the settings UI.
 | Variable | Description | Default |
 | --- | --- | --- |
 | `LLM_CONTEXT_WINDOW` | Total tokens the model will accept | `2048` |
-| `LLM_MAX_RESPONSE_TOKENS` | Tokens reserved for the model's reply | `512` |
+| `LLM_MAX_RESPONSE_TOKENS` | Tokens reserved for the model's reply. When set, this value is sent to the provider as `max_tokens` (Chat Completions) or `max_output_tokens` (Responses API). Leave unset to use the provider's default uncapped behavior. | `512` |
 | `LLM_MAX_HISTORY_TOKENS` | Maximum tokens for conversation history. Derived automatically if unset (`context_window - max_response_tokens - system_prompt_reserve`) | Derived |
 | `LLM_SYSTEM_PROMPT_RESERVE` | Tokens reserved for the system prompt | `256` |
 | `LLM_MAX_ITEMS_PER_CALL` | Upper bound on auto-categorize / merchant detection batch size | `25` |
