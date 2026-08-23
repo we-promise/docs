@@ -20,7 +20,8 @@
               "quickstart",
               "guide",
               "self-hosting",
-              "self-hosting-helm"
+              "self-hosting-helm",
+              "guides/clients"
             ]
           },
           {
