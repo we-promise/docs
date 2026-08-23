@@ -19,6 +19,7 @@
               "index",
               "quickstart",
               "guide",
+              "clients",
               "self-hosting",
               "self-hosting-helm"
             ]
