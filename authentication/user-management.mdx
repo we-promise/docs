@@ -240,6 +240,8 @@ Restore access for a suspended user:
 Deleting a user is permanent and cannot be undone. All user data, including connected accounts and activity history, will be removed.
 </Warning>
 
+Sure performs safe user removal: active sessions are invalidated, any pending token issuance for the account is rejected, and the deletion fails closed if session cleanup cannot complete — preventing a partially-removed account from remaining accessible.
+
 To delete a user:
 
 <Steps>
@@ -255,6 +257,10 @@ To delete a user:
     Type the user's email to confirm deletion
   </Step>
 </Steps>
+
+<Note>
+If a deleted user's session token is presented after removal, Sure rejects it at the session creation step rather than allowing access. Inactive users are also blocked from receiving new tokens.
+</Note>
 
 ## User security settings
 
