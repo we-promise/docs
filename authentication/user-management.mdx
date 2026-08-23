@@ -234,27 +234,46 @@ Restore access for a suspended user:
   </Step>
 </Steps>
 
-### Deleting users
+### Removing users
 
-<Warning>
-Deleting a user is permanent and cannot be undone. All user data, including connected accounts and activity history, will be removed.
-</Warning>
+Admins can safely remove a user from the instance via the admin user list at `/admin/users`. The removal flow is designed to prevent accidental lockouts and data loss.
 
-To delete a user:
+**What happens when a user is removed:**
+
+- The user's account is deactivated immediately, ending any active sessions
+- Their financial data (accounts, transactions, holdings) is preserved and remains accessible to other family members
+- Any active OAuth tokens and API keys are revoked
+- The user can no longer sign in
+
+**Safety checks before removal:**
+
+- You cannot remove yourself
+- You cannot remove the last admin on the instance — promote another user to admin first
+- If the user is the sole owner of a family with no other members, you are warned before proceeding
+
+To remove a user:
 
 <Steps>
-  <Step title="Select user">
-    Navigate to the user's detail page
+  <Step title="Navigate to admin users">
+    Go to `/admin/users`
   </Step>
-  
-  <Step title="Click delete">
-    Click "Delete User" button
+
+  <Step title="Find the user">
+    Search or scroll to find the user you want to remove
   </Step>
-  
-  <Step title="Confirm deletion">
-    Type the user's email to confirm deletion
+
+  <Step title="Click Remove">
+    Click the **Remove** action next to the user
+  </Step>
+
+  <Step title="Confirm removal">
+    Review the confirmation dialog and confirm the action
   </Step>
 </Steps>
+
+<Note>
+Removed users are deactivated, not deleted. Their financial data remains intact. If you need to permanently delete all data for a user, use the family data reset tools.
+</Note>
 
 ## User security settings
 
