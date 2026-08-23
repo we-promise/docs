@@ -77,10 +77,10 @@
               "providers/plaid",
               "providers/redbark",
               "providers/snaptrade",
-              "providers/binance",
               "providers/coinbase",
               "providers/coinstats",
-              "providers/sophtron"
+              "providers/sophtron",
+              "providers/onchain-wallets"
             ]
           },
           {
