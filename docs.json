@@ -70,7 +70,10 @@
             "pages": [
               "providers/overview",
               "providers/market-data",
+              "providers/onchain-wallets",
               "providers/binance",
+              "providers/coinbase",
+              "providers/coinstats",
               "providers/enable-banking",
               "providers/lunchflow",
               "providers/wise",
@@ -78,9 +81,6 @@
               "providers/plaid",
               "providers/redbark",
               "providers/snaptrade",
-              "providers/binance",
-              "providers/coinbase",
-              "providers/coinstats",
               "providers/sophtron"
             ]
           },
