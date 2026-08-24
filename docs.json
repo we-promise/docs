@@ -30,13 +30,15 @@
               "guides/key-concepts/untitled-page",
               "guides/key-concepts/debt-accounts",
               "guides/key-concepts/investment-accounts",
-              "guides/key-concepts/transfers"
+              "guides/key-concepts/transfers",
+              "guides/key-concepts/clients"
             ]
           },
           {
             "group": "App features",
             "pages": [
               "guides/app-features/assistant-sidebar",
+              "guides/app-features/transactions",
               "guides/app-features/budgets",
               "guides/app-features/csv-imports",
               "guides/app-features/statement-vault",
@@ -68,7 +70,10 @@
             "pages": [
               "providers/overview",
               "providers/market-data",
+              "providers/onchain-wallets",
               "providers/binance",
+              "providers/coinbase",
+              "providers/coinstats",
               "providers/enable-banking",
               "providers/lunchflow",
               "providers/wise",
@@ -76,9 +81,6 @@
               "providers/plaid",
               "providers/redbark",
               "providers/snaptrade",
-              "providers/binance",
-              "providers/coinbase",
-              "providers/coinstats",
               "providers/sophtron"
             ]
           },

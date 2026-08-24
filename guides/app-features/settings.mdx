@@ -64,7 +64,7 @@ This is expected behavior in `0.7.2`, even after recreating containers or pullin
 
 #### Deleting a goal
 
-You can delete a goal at any time — archiving it first is not required. Open the goal's detail page, click the kebab menu (⋮), and select **Delete**. The confirmation dialog lists exactly what will be removed (linked accounts and pledges). Transactions that were matched to a pledge are not deleted; only the pledge association is cleared.
+You can delete a goal directly from the goal's page using the **Delete** option in the kebab menu — no need to archive it first. The confirmation dialog describes exactly what will be removed (linked accounts and pledges). Deleting a goal does not affect your transactions or account balances.
 
 ### AI sidebar on desktop
 
@@ -121,6 +121,14 @@ The mobile app includes an enhanced AI chat experience:
 - **Auto-scroll**: The chat automatically scrolls to show new messages as they arrive
 - **Improved flow**: Chat creation is now lazy-loaded on first message send, eliminating loading delays
 
+## Debug log
+
+The debug event log at **Settings → Debug** records diagnostic events from background jobs and provider syncs.
+
+### Expandable table view
+
+The log table has an **expand** button in the card header (the same pattern used by the dashboard cashflow chart). Clicking it opens the full table in a wide dialog, giving all seven columns — level, category, message, source, context IDs, and metadata — enough room to be read without truncation. The expanded view is also useful on smaller screens where the inline table is cramped.
+
 ## Data exports
 
 Sure allows you to export your financial data for backup or analysis purposes. When you create an export, the page automatically refreshes to show the latest status.
@@ -134,13 +142,13 @@ The export list page automatically polls for updates when exports are in progres
 
 This ensures you always see the current status without manually refreshing the page.
 
-## Debug log
+## Localization
 
-The debug log at `/settings/debug` records diagnostic events from background jobs and integrations. Each entry captures a level, category, message, source, context IDs, and metadata.
+Sure supports multiple display languages. You can change the interface language from **Settings → Preferences**.
 
-To make long entries easier to read, click the expand icon in the table's header strip to open the full log in a wide dialog. The expanded view gives all seven columns room to display without truncation. The expand button is always visible on touch devices and appears on hover or keyboard focus on pointer devices.
+Supported languages include: English, French, German, Spanish, Portuguese (Brazil), Italian, Russian, Turkish, Arabic, Chinese (Simplified), Chinese (Traditional), Japanese, Korean, Indonesian, and Ukrainian.
 
-You can filter entries by category — for example, `ai_cache_reset` — to trace a specific background job run from enqueue through completion.
+Spanish (`es`) translations are now complete, covering all views, models, breadcrumbs, mailers, and default strings.
 
 ## Account preferences
 
