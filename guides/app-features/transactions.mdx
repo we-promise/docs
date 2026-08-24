@@ -35,15 +35,17 @@ Open a transaction to update the fields that affect reporting and review:
 - **Tags**: Extra labels for flexible filtering
 - **Notes**: Private context for the transaction
 
-You can also mark a transaction as excluded. Excluded transactions are removed from budgeting calculations and reports, which is useful for activity you do not want counted in normal spending analysis.
+You can also mark a transaction as excluded. Excluded transactions are removed from budgeting calculations and reports, which is useful for activity you do not want counted in normal spending analysis. Excluded transactions remain visible in the account activity list so you can review or re-include them at any time.
 
 ## Categorize transactions
 
 Categories help Sure group income and expenses consistently. You can assign a category from the transaction detail view or directly from the transaction list.
 
+If the category you need doesn't exist yet, you can create it inline from the category selector in the transaction form — no need to navigate away to manage categories first. Type a new name and select the option to create it.
+
 When there are uncategorized transactions, use the categorize flow to work through them in batches. You can assign a category to each transaction and optionally create a categorization rule so future matching transactions use the same category.
 
-You can also create a new category directly from the transaction form without leaving the transaction. Type a new category name in the category field and select **Create category** to add it on the spot.
+If the category you need does not exist yet, you can create it inline from the category selector without leaving the transaction form. Type a new name in the selector and choose the option to create it.
 
 Use subcategories when you want more detail within a broader category. For example, a parent category such as **Food & Dining** can contain subcategories such as **Groceries**, **Restaurants**, and **Coffee**. Budgets can use those subcategories individually or share the parent budget.
 
@@ -95,6 +97,37 @@ Sure prevents merges that would make the category hierarchy confusing or invalid
 - You cannot merge a category that has subcategories into another subcategory
 
 If a source category has subcategories and the target is a parent category, Sure reparents those subcategories under the target.
+
+## Transaction rules
+
+Rules let you automatically apply categories, merchants, tags, and other attributes to transactions that match a set of conditions. You can create and manage rules from **Settings → Rules**.
+
+### Condition types
+
+Rules support the following condition types:
+
+- **Transaction name** – match on the transaction name or description
+- **Amount** – match on the transaction amount
+- **Account** – match on the account the transaction belongs to
+- **Category** – match transactions that already have a specific category assigned, or that have no category
+- **Merchant** – match on the merchant associated with the transaction
+- **Tag** – match transactions that already have a specific tag applied, or that have no tags
+
+The tag condition uses **Equal to** and **Is empty** operators, matching the same pattern as the category and merchant conditions. When you combine multiple tag conditions with AND, each condition is evaluated independently, so a transaction with both tags will match correctly.
+
+### Rule actions
+
+Rules can set:
+
+- Category
+- Merchant
+- Tags
+- Notes
+- Name
+
+### Applying rules
+
+Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run every active rule against your existing transactions.
 
 ## Related pages
 

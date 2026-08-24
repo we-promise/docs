@@ -115,6 +115,12 @@ When syncing transactions from Enable Banking, Sure automatically detects certai
 
 See [transfers](/guides/key-concepts/transfers) for more details on how transfer types affect budgets.
 
+### Transaction name cleanup
+
+For banks that return remittance information as a multi-line array (common with Austrian and German banks such as BankDirekt/Raiffeisen), Sure automatically selects the most descriptive line as the transaction name. Technical terminal descriptor lines — such as `POS 45,13 AT D6 31.07. 10:27` — are skipped in favour of the actual merchant name.
+
+Sure also strips known small-merchant payment-processor prefixes (SumUp, Square, iZettle, PayPal) from the selected line, and matches the transaction against your family's known merchants for a cleaner display name.
+
 ### Duplicate transaction handling
 
 Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
@@ -141,6 +147,12 @@ When connecting a bank, Sure validates the selected account type against the typ
 ## API reference
 
 For technical details about the Enable Banking API, see the [official documentation](https://enablebanking.com/docs/api/reference/).
+
+## Troubleshooting
+
+### N26 and PERIOD_INVALID errors
+
+N26 (and some other ASPSPs via Enable Banking) rejects out-of-range transaction date windows with a `PERIOD_INVALID` error rather than the more common `WRONG_TRANSACTIONS_PERIOD` shape. Sure recognizes both error shapes and automatically retries the sync with a shorter date window, so you should not need to take any action if a sync fails with this error.
 
 ## Limitations
 
