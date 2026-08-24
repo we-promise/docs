@@ -32,26 +32,17 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 
 | Tool | Description |
 | --- | --- |
-| `get_transactions` | Search transactions with optional filters (account IDs, categories, merchants, tags, types, statuses) and pagination |
-| `get_accounts` | List accounts with current balances and account metadata; pass `include_balance_series` to include historical balance data |
+| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
+| `get_recurring_transactions` | Detected and manual recurring transactions (subscriptions, bills, salaries) with expected dates and per-currency totals |
+| `get_accounts` | List accounts with current and historical balances and account metadata |
 | `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
-| `get_balance_sheet` | Retrieve balance-sheet and net-worth data; accepts a named period or custom date range and interval |
-| `get_income_statement` | Retrieve income and expenses by category for a date range; supports monthly grouping, prior-period comparison, and account-scoped totals |
+| `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
+| `get_income_statement` | Retrieve income and expenses by category for a date range |
 | `get_budget` | Compare a monthly budget with spending by category, with an optional prior-month trend comparison |
-| `get_merchants` | List merchants with IDs, exact names, and source; use IDs with `update_transaction` |
-| `get_recurring_transactions` | List detected and manual recurring transactions with per-currency totals; filter by status and upcoming window |
+| `get_merchants` | List merchants with the IDs that `update_transaction` accepts and the exact names that `get_transactions` filters on |
 | `get_tags` | List family tags alphabetically |
 | `get_categories` | List family categories hierarchically, including IDs and parent relationships |
-| `get_valuations` | List valuation entries for accessible accounts, newest first, with kind and citation notes |
-| `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames |
-
-### Preview tools
-
-These tools are available when the corresponding feature is enabled on your Sure instance.
-
-| Tool | Description |
-| --- | --- |
-| `get_insights` | Return the visible insights feed; supports type filter, acknowledged toggle, and limit |
+| `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames. This is the vector-store document index, not the Statement Vault — statements archived via `upload_account_statement` are not searchable through it |
 
 ### Create, update, and import
 
@@ -64,9 +55,25 @@ These tools are available when the corresponding feature is enabled on your Sure
 | `create_category` | Create a unique category, optionally as a subcategory |
 | `update_category` | Update an existing category's name, color, or icon |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
-| `record_valuation` | Record a valuation entry for an account |
+| `update_budget` | Update budget allocations for a month |
 
 `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
+
+### Preview tools
+
+These tools appear only when the MCP user has opted into preview features under **Settings > Preferences**. Until then they are absent from `tools/list`, and calling one by name returns an "Unknown tool" error. The Statement Vault tools also require the user to be an admin or member, matching the permissions enforced in the web UI.
+
+| Tool | Description |
+| --- | --- |
+| `upload_account_statement` | Store a statement document (PDF/CSV/XLSX) in the Statement Vault; deduplicates by SHA-256 |
+| `list_account_statements` | List vault documents with their SHA-256, period, linked account, and review status |
+| `get_account_statement` | One statement's details and its reconciliation checks against the ledger. Present only after the opening and closing balances have been entered in the web UI. Does not return the file; stored documents are served only to a signed-in browser session |
+| `get_statement_coverage` | Month-by-month statement coverage for an account: `covered`, `missing`, `mismatched`, `ambiguous`, `duplicate`, `not_expected`, each with a reconciliation status |
+| `record_valuation` | Record an account's value on a date, with a required source citation |
+| `get_valuations` | List recorded valuations newest first, including the citation stored in each entry's notes; the read pair for `record_valuation` |
+| `get_insights` | Read the proactive insights feed (spending anomalies, cash-flow warnings, subscription audits, and more) without marking anything read |
+
+These tools are designed for agents that maintain a document-backed record of a family's wealth over time.
 
 ## Technical details
 

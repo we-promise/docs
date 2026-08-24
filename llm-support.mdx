@@ -30,24 +30,48 @@ Configure AI settings through the web interface:
 1. Go to **Settings** → **Self-Hosting**
 2. Scroll to the **AI Provider** section
 
-The AI Provider form contains the following fields:
+The form contains the following fields, grouped by function:
 
 **Provider & credentials**
 - **LLM Provider** — `openai` or `anthropic`
 - **Access Token** — API key for the selected provider
-- **URI Base / Base URL** — Custom endpoint URL (optional; required for Ollama, LM Studio, Bedrock, Vertex, etc.)
+- **URI Base** — Custom endpoint URL (OpenAI-compatible providers only; leave blank for OpenAI)
 - **Model** — Model name (required for custom endpoints)
 
 **Behavior**
-- **JSON Mode** — Output mode: `auto`, `strict`, `json_object`, or `none`
+- **JSON Mode** — Output mode for structured responses: `auto`, `strict`, `json_object`, or `none`
 - **Chat Response Timeout** — Whole-turn watchdog in seconds (see [Chat response timeout](#chat-response-timeout))
 
-**Token Budget**
-- **Context Window** — Total tokens the model accepts (default: `2048`)
-- **Max Response Tokens** — Tokens reserved for the model's reply (default: `512`)
-- **Max Items Per Batch** — Upper bound for auto-categorize and merchant detection batches (default: `25`)
+**Token budget**
+- **Context Window** — Total tokens the model accepts
+- **Max Response Tokens** — Tokens reserved for the model's reply
+- **Max Items Per Batch** — Upper bound for auto-categorize and merchant detection batches
 
-Settings in the UI override environment variables.
+3. Choose your **LLM Provider** (`openai` or `anthropic`)
+4. Configure the matching credentials and options:
+
+**OpenAI / OpenAI-compatible provider fields:**
+
+| Field | Description |
+| --- | --- |
+| **Access Token** | API key for the provider (maps to `OPENAI_ACCESS_TOKEN`) |
+| **URI Base** | Custom endpoint URL — leave blank for OpenAI (maps to `OPENAI_URI_BASE`) |
+| **Model** | Model name — required for custom endpoints (maps to `OPENAI_MODEL`) |
+| **JSON Mode** | Output mode: Auto, Strict, JSON Object, or None (maps to `LLM_JSON_MODE`) |
+| **Context Window** | Total tokens the model accepts (maps to `LLM_CONTEXT_WINDOW`, default `2048`) |
+| **Max Response Tokens** | Tokens reserved for the model's reply (maps to `LLM_MAX_RESPONSE_TOKENS`, default `512`) |
+| **Max Items Per Batch** | Upper bound for auto-categorize / merchant detection batches (maps to `LLM_MAX_ITEMS_PER_CALL`, default `25`) |
+| **Chat Response Timeout** | Whole-turn watchdog in seconds (maps to `AI_RESPONSE_TIMEOUT`, default `90`) |
+
+**Anthropic provider fields:**
+
+| Field | Description |
+| --- | --- |
+| **Access Token** | API key for Anthropic (maps to `ANTHROPIC_ACCESS_TOKEN`) |
+| **Base URL** | Custom endpoint URL for Bedrock / Vertex proxies (maps to `ANTHROPIC_BASE_URL`) |
+| **Model** | Model name — required when Base URL is set (maps to `ANTHROPIC_MODEL`, default `claude-sonnet-4-6`) |
+
+Settings in the UI override environment variables. If an environment variable is set, the corresponding field is disabled in the UI.
 
 ## Choosing a provider
 
@@ -289,7 +313,7 @@ You might want to reset the cache when:
 3. Select **Reset AI cache**
 4. Confirm the action
 
-The cache is cleared asynchronously in the background.
+The cache is cleared asynchronously in the background. You can monitor the reset's progress and any errors in **Settings → Debug** by filtering for the `ai_cache_reset` category. Each run logs when the job is enqueued, when it starts, how many AI cache entries were removed (broken down by scope), and any records that could not be cleared.
 
 **Automatic reset:**
 
@@ -311,6 +335,68 @@ See the [evaluation framework](/evals) documentation for details on:
 - Comparing models
 - Creating custom datasets
 - Langfuse integration for tracking experiments
+
+## Vector store (document search)
+
+Sure's AI assistant can search documents uploaded to a family's vault. Documents are indexed in a vector store, and the assistant retrieves relevant passages when answering questions.
+
+### Supported backends
+
+| Backend | Status | Best for | Requirements |
+| --- | --- | --- | --- |
+| **OpenAI** (default) | Ready | Cloud deployments, zero setup | `OPENAI_ACCESS_TOKEN` |
+| **Pgvector** | Ready | Self-hosted, full data privacy | PostgreSQL with `pgvector` extension + embedding model |
+| **Qdrant** | Scaffolded — not yet functional | Self-hosted, dedicated vector DB | Running Qdrant instance |
+
+### OpenAI (default)
+
+No extra configuration is needed. If you have `OPENAI_ACCESS_TOKEN` set for the AI assistant, document search works automatically.
+
+### Pgvector (self-hosted)
+
+Use PostgreSQL's pgvector extension for fully local document search. All data stays on your infrastructure.
+
+**Requirements:**
+- Use the `pgvector/pgvector:pg16-trixie` Docker image instead of `postgres:16`
+- An embedding model served via an OpenAI-compatible `/v1/embeddings` endpoint (for example, Ollama with `mxbai-embed-large`)
+- Run migrations with `VECTOR_STORE_PROVIDER=pgvector` set to create the `vector_store_chunks` table
+
+```bash
+VECTOR_STORE_PROVIDER=pgvector
+
+EMBEDDING_MODEL=mxbai-embed-large           # Default: mxbai-embed-large
+EMBEDDING_DIMENSIONS=1024                   # Must match your embedding model (default: 1024)
+EMBEDDING_URI_BASE=http://ollama:11434/v1   # Falls back to OPENAI_URI_BASE if not set
+EMBEDDING_ACCESS_TOKEN=                     # Optional; falls back to OPENAI_ACCESS_TOKEN
+```
+
+The LLM and embedding endpoints are independent. A common fully local setup uses an OpenAI-compatible chat model via `OPENAI_URI_BASE`, pgvector for storage, and a separate embedding model via `EMBEDDING_URI_BASE`.
+
+Sure enables the `vector` extension automatically when it first provisions the chunks table, provided the database user has permission. If the AI status page reports the extension is available but not enabled, connect as the PostgreSQL superuser and run:
+
+```sql
+CREATE EXTENSION vector;
+```
+
+If you use Ollama, pull the embedding model before starting Sure:
+
+```bash
+docker compose exec ollama ollama pull mxbai-embed-large
+```
+
+<Warning>
+Do not change `EMBEDDING_MODEL` for an existing pgvector index without rebuilding it. Vectors from different models are not comparable even when they have the same dimensions. Remove existing documents from Sure, drop the chunks table, update the embedding settings, restart Sure, and re-upload the source documents.
+</Warning>
+
+### Verifying the configuration
+
+Super-admins can open **System health → AI** at `/admin/system_health?tab=ai` to run live checks. The tab verifies:
+
+- The configured LLM model is accessible
+- The vector store responds correctly
+- The embedding endpoint returns vectors with the expected dimensions
+
+See [AI status tab](/self-hosting#ai-status-tab) in the self-hosting guide for details on the checks and how to tune probe timeouts.
 
 ## Additional environment variables
 
@@ -361,6 +447,17 @@ ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
 # (1 + 2) × 300 = 900s model time + ~300s headroom = 1200
 AI_RESPONSE_TIMEOUT=1200
 ```
+
+In `compose.yml`, pass `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` alongside the other AI variables so the setting actually reaches the `web` and `worker` containers:
+
+```yaml
+x-rails-env: &rails_env
+  OPENAI_REQUEST_TIMEOUT: "300"
+  ASSISTANT_MAX_TOOL_CALL_ITERATIONS: ""   # leave empty to use the app default (5)
+  AI_RESPONSE_TIMEOUT: "1200"
+```
+
+Leave the value empty to let the app's own default govern, or set it explicitly to cap tool-call rounds.
 
 For cloud providers (OpenAI, Anthropic) the defaults are usually fine. If you see timeouts, raise `AI_RESPONSE_TIMEOUT` using the formula above.
 
