@@ -62,11 +62,9 @@ If you updated to `0.7.2` and do not see the Goals section yet, open `/settings/
 
 This is expected behavior in `0.7.2`, even after recreating containers or pulling a fresh image.
 
-### Deleting a goal
+#### Deleting a goal
 
-You can delete a goal directly from the goal's page without archiving it first. Open the goal, click the kebab menu (⋮), and select **Delete**. A confirmation dialog will describe what is removed.
-
-Deleting a goal removes the goal and its pledges. Any transactions that were matched to a pledge are unlinked from the goal, but the transactions themselves are not deleted.
+You can delete a goal directly from the goal's page using the **Delete** option in the kebab menu — no need to archive it first. The confirmation dialog describes exactly what will be removed (linked accounts and pledges). Deleting a goal does not affect your transactions or account balances.
 
 ### AI sidebar on desktop
 
@@ -125,11 +123,11 @@ The mobile app includes an enhanced AI chat experience:
 
 ## Debug log
 
-The debug event log at `/settings/debug` shows raw diagnostic events from provider syncs and background jobs.
+The debug event log at **Settings → Debug** records diagnostic events from background jobs and provider syncs.
 
 ### Expandable table view
 
-The log table has an expand button in the card header. Clicking it opens the full table in a wide dialog, giving all seven columns — level, category, message, source, context IDs, and metadata — enough room to read without truncation. The expanded view is accessible on both desktop and touch devices.
+The log table has an **expand** button in the card header (the same pattern used by the dashboard cashflow chart). Clicking it opens the full table in a wide dialog, giving all seven columns — level, category, message, source, context IDs, and metadata — enough room to be read without truncation. The expanded view is also useful on smaller screens where the inline table is cramped.
 
 ## Data exports
 

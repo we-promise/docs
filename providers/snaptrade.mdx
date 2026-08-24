@@ -97,17 +97,15 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - Re-open **Settings > Bank sync > SnapTrade** and save the credentials again
 - Try the **Connect Brokerage** button again so Sure can re-register the SnapTrade user if needed
 
+### Holdings show as empty after connecting a brokerage
+
+SnapTrade deprecated the `/positions` endpoint for apps registered after their 2026 cutoff. Sure now uses the `/positions/all` replacement endpoint, so holdings should import correctly for all new and existing connections. If you connected a brokerage before this fix and see no holdings, run a manual sync from the account card to refresh.
+
 ### No accounts appear after connecting a brokerage
 
 - Wait for the initial sync to finish and refresh the setup page
 - Check whether the brokerage was connected successfully in **Manage Connections**
 - Try running another sync from the SnapTrade account card in Sure
-
-### Account balance syncs but holdings are empty
-
-SnapTrade deprecated the `/positions`, `/holdings`, and `/options` endpoints for apps registered after their 2026 cutoff. Affected apps receive an HTTP 410 Gone response, which Sure previously treated as an empty portfolio rather than an error — so the sync appeared to succeed while no holdings were imported.
-
-Sure now uses the `/positions/all` replacement endpoint. If you connected your brokerage before this fix was deployed and your holdings are still missing, disconnect and reconnect the brokerage to trigger a fresh sync.
 
 ### Hit the free-tier connection limit
 

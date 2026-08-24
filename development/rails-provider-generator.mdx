@@ -54,6 +54,14 @@ rails g provider:global plaid \
 rails g provider:family <PROVIDER_NAME> field:type[:secret][:default=value] ...
 ```
 
+### Reserved field names
+
+The generator rejects field names that are already defined on the items table. Passing a reserved name raises a `Thor::Error` at generation time rather than producing broken migrations or inconsistent models.
+
+Reserved names include: `family_id`, `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`.
+
+Note that `family` (without `_id`) is **not** reserved — the migration writes `t.references :family`, which creates `family_id`, so a field named `family` is not a collision.
+
 ### Example: Adding a MyBank provider
 
 ```bash
@@ -238,6 +246,7 @@ class MyBankItem < ApplicationRecord
   has_many :accounts, through: :my_bank_accounts
 
   scope :active, -> { where(scheduled_for_deletion: false) }
+  scope :syncable, -> { active }
   scope :ordered, -> { order(created_at: :desc) }
   scope :needs_update, -> { where(status: :requires_update) }
 
@@ -486,6 +495,32 @@ class EnterpriseBankItem < ApplicationRecord
 end
 ```
 
+## Reserved field names
+
+The generator rejects field names that conflict with columns already defined in the standard items table. Passing a reserved name raises an error at generation time rather than failing silently during `db:migrate`.
+
+**Reserved names** (cannot be used as custom fields):
+
+| Field | Reason |
+|-------|--------|
+| `institution_id` | Standard institution metadata column |
+| `institution_name` | Standard institution metadata column |
+| `institution_domain` | Standard institution metadata column |
+| `institution_url` | Standard institution metadata column |
+| `institution_color` | Standard institution metadata column |
+| `status` | Standard lifecycle column |
+| `scheduled_for_deletion` | Standard lifecycle column |
+| `pending_account_setup` | Standard lifecycle column |
+| `sync_start_date` | Standard sync column |
+| `raw_payload` | Standard raw data column |
+| `raw_institution_payload` | Standard raw data column |
+| `family_id` | Foreign key (created by `t.references :family`) |
+| `name` | Standard name column |
+
+Note that `family` itself is **not** reserved — the migration uses `t.references :family` which creates `family_id`, so a field named `family` does not collide.
+
+If you need to customize the behavior of a standard column, do so in the model after generation rather than re-declaring it as a custom field.
+
 ## Tips & best practices
 
 ### 1. Always run migrations
@@ -565,6 +600,10 @@ end
 
 ## Troubleshooting
 
+### Reserved field name error
+
+If the generator raises `Thor::Error: '<field>' is a reserved field name`, remove that field from the command. The items table already defines it, so declaring it again would produce a duplicate migration column and inconsistent model code. See [Reserved field names](#reserved-field-names) for the full list.
+
 ### Panel not showing
 
 1. Check that the provider is excluded in `settings/providers_controller.rb`
@@ -581,6 +620,30 @@ end
 1. Check credentials are configured: `rails credentials:edit`
 2. Add encryption keys if missing
 3. Or use environment variables
+
+### Reserved field name error
+
+The generator rejects field names that collide with columns already defined on the items table. If you see a `Thor::Error` like:
+
+```
+Field "institution_id" is reserved and cannot be used as a provider field.
+The standard column already serves this purpose. Remove it from your command.
+```
+
+Drop the named field from your command — the standard column covers it. Reserved names include: `institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `family_id`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`.
+
+Note that `family` (without `_id`) is **not** reserved — `t.references :family` creates `family_id`, so a field named `family` does not collide.
+
+### `NoMethodError: undefined method 'syncable'` during family sync
+
+If a freshly generated provider raises this error and takes down the nightly family sync, the generated item model is missing the `syncable` scope. Add it manually:
+
+```ruby
+# app/models/my_bank_item.rb
+scope :syncable, -> { active }
+```
+
+Providers generated after the fix include this scope automatically.
 
 ## Advanced: Creating a provider SDK
 
