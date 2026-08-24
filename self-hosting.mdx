@@ -540,6 +540,78 @@ docker compose logs worker
 
 Look for connection timeouts or Redis communication failures. The `sure-worker` container requires Redis to process CSV imports.
 
+## AI features, external assistant, and Pipelock
+
+Sure ships a separate compose file for AI-related features: `compose.example.ai.yml`. It adds:
+
+- **Pipelock** (always on): AI agent security proxy for outbound tunnel controls and inbound MCP scanning
+- **Ollama + Open WebUI** (optional `--profile local-ai`): local LLM inference
+
+### Using the AI compose file
+
+```bash
+# Download both compose files
+curl -o compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+curl -o compose.ai.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.ai.yml
+curl -o pipelock.example.yaml https://raw.githubusercontent.com/we-promise/sure/main/pipelock.example.yaml
+
+# Run with Pipelock (no local LLM)
+docker compose -f compose.ai.yml up -d
+
+# Run with Pipelock + Ollama
+docker compose -f compose.ai.yml --profile local-ai up -d
+```
+
+### Setting up the external AI assistant
+
+The external assistant delegates chat to a remote AI agent. The agent calls back to Sure's `/mcp` endpoint for financial data.
+
+1. Set the MCP endpoint credentials in your `.env`:
+
+```txt
+MCP_API_TOKEN=generate-a-random-token-here
+MCP_USER_EMAIL=your@email.com   # must match an existing Sure user
+```
+
+2. Set the external assistant connection:
+
+```txt
+EXTERNAL_ASSISTANT_URL=https://your-agent/v1/chat/completions
+EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
+```
+
+3. Activate per family in the UI (**Settings > Self-Hosting > AI Assistant**, select "External"), or set `ASSISTANT_TYPE=external` to force it globally.
+
+To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile:
+
+```bash
+docker compose -f compose.ai.yml --profile external-assistant up -d
+```
+
+### Pipelock security proxy
+
+Pipelock sits between Sure and external services and provides:
+
+- MCP request and response scanning for secret exfiltration, prompt injection, and tool poisoning
+- HTTPS tunnel controls for destination, SSRF, rate, budget, and CONNECT headers
+
+When using `compose.example.ai.yml`, Pipelock is always running. External AI agents should connect to port `8889` (Pipelock's MCP reverse proxy) instead of directly to Sure's `/mcp` on port `3000`.
+
+<Note>
+The example compose file does not enable TLS interception, so Pipelock controls the tunnel destination but cannot read encrypted request or response bodies. Docker Compose also does not prevent a client from bypassing the proxy.
+</Note>
+
+## Local development bind
+
+For `bin/dev` on your own machine, the server defaults to `localhost` (`127.0.0.1` and `[::1]`), reachable only from the same machine. If you need external access (phone on the same Wi-Fi, devcontainer port forwarding, LAN testing), set the `BINDING` environment variable:
+
+```bash
+BINDING=0.0.0.0 bin/dev   # reachable from LAN
+BINDING=::       bin/dev  # IPv6 dual-stack
+```
+
+The bundled devcontainer at `.devcontainer/docker-compose.yml` already sets `BINDING: "0.0.0.0"`, so Docker port forwarding works without a manual override when using the devcontainer.
+
 ## Getting help
 
 If you find bugs or have feature requests:
