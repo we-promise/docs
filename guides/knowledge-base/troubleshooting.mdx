@@ -159,6 +159,43 @@ Sure uses WebSockets for certain pages. If some pages fail to render correctly o
 
 </AccordionGroup>
 
+## Money In / Out links return 500 errors behind a forward-auth proxy
+
+Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forward-auth, etc.) may see 500 errors when clicking the **Income** or **Expense** drill-down links on the dashboard's Money In / Out widget. The links work fine when accessed directly.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this issue?">
+
+    The drill-down links previously included every accessible account ID as explicit query parameters. With many accounts, the resulting URL could exceed several thousand characters. Forward-auth proxies forward the full URL to the auth service in a request header; if that header exceeds the proxy's read-buffer or header-size limit, the request fails with a 500 before it reaches Sure.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    Sure now omits the `account_ids` parameter when the widget's selected accounts exactly match the user's full set of accessible accounts — the same default the transactions page uses when no filter is applied. The result is identical, but the URL stays short.
+
+    When a family has accounts excluded from reports or tax-advantaged accounts (so the eligible set differs from the accessible set), the IDs remain explicit to preserve the correct scope.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+
+  </Accordion>
+
+  <Accordion title="Workaround for older versions">
+
+    If you cannot upgrade immediately, increase the header buffer size in your proxy. For Nginx acting as a forward-auth proxy:
+
+    ```nginx
+    proxy_buffer_size 16k;
+    proxy_buffers 4 16k;
+    ```
+
+    For Traefik, set `forwardAuth.tls.insecureSkipVerify` is unrelated — instead configure your auth service to accept larger headers.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
