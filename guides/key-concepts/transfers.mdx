@@ -221,12 +221,20 @@ If you see both a transfer and separate expense/income transactions:
 - Confirm or reject the transfer suggestion
 - Delete duplicate transactions if needed
 
+### Transfer matching stops mid-sync
+
+When two account syncs run at the same time, a race condition could previously cause transfer matching to stop processing remaining candidates after a conflict. This is now resolved — each candidate is matched in its own isolated savepoint, so a conflict on one pair no longer affects the others.
+
 ### Unmatched Transfers
 
 If Sure didn't automatically match a transfer:
 - The amounts may not match exactly (due to fees or timing)
 - The dates may be too far apart
 - You can manually create a transfer to link them
+
+### Concurrent syncs dropping transfer matches
+
+If two account syncs run at the same time for the same family, Sure may occasionally skip a transfer candidate due to a database uniqueness conflict. The skipped candidate is not matched, but the sync continues and matches all remaining candidates. If you notice a transfer that wasn't auto-matched after a sync, confirm it manually from the transaction detail view.
 
 ### Wrong Transfer Type
 

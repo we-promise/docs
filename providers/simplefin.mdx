@@ -88,6 +88,12 @@ SimpleFIN is a paid service, but typically more affordable than alternatives lik
 
 ## Troubleshooting
 
+### Duplicate accounts with the same name
+
+If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure's sync logic previously could confuse them — the unlinked account would silently steal the linked account's connection, merge in its transactions, and overwrite its balance on every sync.
+
+This has been fixed. Sure now tracks each account by its upstream account ID rather than by display name alone. Ambiguous same-name matches are skipped rather than resolved incorrectly. If you were affected, re-syncing after upgrading to the fixed version will restore the correct linkage.
+
 ### Setup token issues
 
 If you receive a 403 error when claiming a setup token:
@@ -98,9 +104,19 @@ If you receive a 403 error when claiming a setup token:
 
 Generate a new setup token from your SimpleFIN dashboard.
 
+### Duplicate accounts with the same name
+
+If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. Previously, a stale-linkage repair could incorrectly reassign one account's connection to the other. This is now resolved — each account is matched by its unique upstream ID, not just its name.
+
+If you notice an account that appears to have lost its transaction history after a sync, check **Settings → Debug** for any skipped stale-linkage repair entries that may indicate an ambiguous name match.
+
 ### Missing pending transactions
 
 Some institutions don't return pending transactions even when the `pending=1` parameter is set. This is a limitation of the institution's data feed, not a bug in SimpleFIN or Sure.
+
+### Duplicate accounts with the same name
+
+If you have two distinct accounts at the same institution that share a display name (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. Only accounts whose ID is genuinely absent from the upstream response are treated as stale and eligible for re-linking. Ambiguous cases where multiple local accounts share a name are skipped rather than resolved automatically, preventing one account from silently inheriting another's transaction history.
 
 ### Network errors
 

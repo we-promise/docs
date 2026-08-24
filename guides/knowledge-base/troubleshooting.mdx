@@ -3,6 +3,15 @@ title: "Troubleshooting"
 ---
 
 
+## Debugging rule failures
+
+When an async rule run fails (for example, during a family sync or after a provider webhook), the error is written to the debug log. To view it:
+
+1. Go to **Settings → Debug**
+2. Filter by the `rules` category
+
+Each entry includes the error message and the rule that failed. This is useful for diagnosing why auto-categorization stopped working after a provider or model change.
+
 ## When Rules Are Triggered
 
 Rules run automatically during family syncs or can be triggered manually. Understanding when rules execute helps troubleshoot categorization issues.
@@ -35,6 +44,30 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     - **Manual transaction creation** - Only triggers an Account sync (not Family sync)
     - **Manual transaction editing** - Same as above, only Account sync runs
     - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
+  </Accordion>
+
+  <Accordion title="How do I see why a rule run failed?">
+    Failures during async rule runs (including auto-categorize provider failures) are written to the debug log. To view them:
+
+    1. Go to **Settings** → **Debug**
+    2. Look for entries with category **`rules`**
+
+    Each failed run includes the error message and the rule that triggered it.
+  </Accordion>
+</AccordionGroup>
+
+## Rule run failures not visible in the UI
+
+When rules run asynchronously (during a sync or via a background job), failures are not surfaced in the main UI. If auto-categorization or merchant detection appears to stop working silently, check the debug log.
+
+<AccordionGroup>
+  <Accordion title="Where are async rule failures logged?">
+    Failures from background rule runs — including auto-categorize provider errors — are written to the debug log. To view them:
+
+    1. Go to **Settings → Debug**
+    2. Filter by the relevant category (e.g., `rules` or `auto_categorize`)
+
+    A request that was enqueued but has no matching start entry in the log means the job never reached a worker.
   </Accordion>
 </AccordionGroup>
 
@@ -135,6 +168,43 @@ Sure uses WebSockets for certain pages. If some pages fail to render correctly o
 
 </AccordionGroup>
 
+## Money In / Out links return 500 errors behind a forward-auth proxy
+
+Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forward-auth, etc.) may see 500 errors when clicking the **Income** or **Expense** drill-down links on the dashboard's Money In / Out widget. The links work fine when accessed directly.
+
+<AccordionGroup>
+
+  <Accordion title="What causes this issue?">
+
+    The drill-down links previously included every accessible account ID as explicit query parameters. With many accounts, the resulting URL could exceed several thousand characters. Forward-auth proxies forward the full URL to the auth service in a request header; if that header exceeds the proxy's read-buffer or header-size limit, the request fails with a 500 before it reaches Sure.
+
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+
+    Sure now omits the `account_ids` parameter when the widget's selected accounts exactly match the user's full set of accessible accounts — the same default the transactions page uses when no filter is applied. The result is identical, but the URL stays short.
+
+    When a family has accounts excluded from reports or tax-advantaged accounts (so the eligible set differs from the accessible set), the IDs remain explicit to preserve the correct scope.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+
+  </Accordion>
+
+  <Accordion title="Workaround for older versions">
+
+    If you cannot upgrade immediately, increase the header buffer size in your proxy. For Nginx acting as a forward-auth proxy:
+
+    ```nginx
+    proxy_buffer_size 16k;
+    proxy_buffers 4 16k;
+    ```
+
+    For Traefik, set `forwardAuth.tls.insecureSkipVerify` is unrelated — instead configure your auth service to accept larger headers.
+
+  </Accordion>
+
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
@@ -169,6 +239,10 @@ If a budget still shows spending from a transaction that was already deleted, th
   </Accordion>
 
 </AccordionGroup>
+
+## Chat fails immediately on a fresh family with a strict OpenAI-compatible provider
+
+Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests with a schema validation error when a family has no accounts, categories, merchants, tags, or tickers yet.
 
 ## Rule runs fail silently
 
@@ -212,6 +286,7 @@ Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests
 
   <Accordion title="What causes this?">
 
+    Sure builds tool schemas for the assistant using family data (account names, categories, merchants, tags, tickers). A family with none of this data produces `enum: []` for those fields, which is invalid JSON Schema. OpenAI tolerates it, but strict providers reject the entire request before the model runs.
     `Family#timezone` is a free-text field. If the stored value becomes stale — due to a tzdata rename, a database restore from an older backup, or a direct database edit — the app previously raised an `ArgumentError` on every request for that family, including the login page.
 
   </Accordion>
@@ -227,9 +302,9 @@ Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests
 
   <Accordion title="How was it fixed?">
 
-    Empty `enum` arrays are now pruned from tool schemas before they are sent. An empty enum falls back to a plain `string` type, which is valid. This fix applies to both chat tool definitions and the `/mcp` endpoint's `tools/list` response.
+    Empty enum arrays are now pruned from tool schemas before the request is sent, falling back to a plain `string` type. This fix applies to both chat tool definitions and the `/mcp` endpoint's `tools/list`.
 
-    If you are on an affected version, upgrade to the latest release. No configuration change is needed.
+    If you are on an older version and cannot upgrade, add at least one account, category, or tag to the family — this populates the enum and avoids the empty-array case.
 
   </Accordion>
 
@@ -275,6 +350,23 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
   </Accordion>
 
 </AccordionGroup>
+
+## "Add transaction" button does nothing when no account is selected
+
+If you click **Add transaction** on the new transaction form without selecting an account, the button previously appeared to do nothing (the request returned a 404 error). The form now re-renders with a validation error so you can see what is missing and correct it.
+
+## Excluded transactions disappear from account activity
+
+Transactions marked as excluded were previously hidden from the account activity feed entirely. This made it impossible to re-include them because there was no row to click. Excluded transactions now appear greyed-out in the account activity list so you can still open them and toggle exclusion off if needed.
+
+## Import fails on rules with no name or deleted rejected transfers
+
+Importing an `all.ndjson` export could fail with two unrelated errors:
+
+- **Rule with `"name": null`** — The import preflight incorrectly required a name for every rule, but the rule model allows a null name. The preflight now requires the rule's `id` instead, matching what the importer actually uses.
+- **RejectedTransfer referencing a deleted transaction** — A rejected transfer whose original transaction was later deleted caused the import to abort with a hard error. These orphaned rows are now skipped with a warning instead of blocking the entire import.
+
+If a previous import attempt failed for either of these reasons, retry the import after upgrading.
 
 ## Why is Sure not running auto-categorization and merchant detection on the same transactions again?
 
@@ -324,6 +416,24 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
     - **Testing** - During development or evaluation of AI features
 
     The AI cache is automatically cleared when you change the OpenAI model setting.
+
+  </Accordion>
+
+  <Accordion title="How do I verify the reset actually ran?">
+
+    The reset runs as a background job. You can confirm it completed — and see a breakdown of how many AI cache entries were removed — in the debug log:
+
+    1. Go to **Settings** → **Debug**
+    2. Filter by category **`ai_cache_reset`**
+
+    You will see:
+    - An **info** entry when the reset is enqueued from the rules page
+    - An **info** entry when the job starts on a worker
+    - A **completion** entry with the number of enrichments deleted, broken down by scope
+    - **warn** entries for any individual records that could not be cleared
+    - An **error** entry if the job could not be enqueued at all
+
+    If you see the enqueue entry but no start entry, the job never reached a worker — check that your worker container is running.
 
   </Accordion>
 
