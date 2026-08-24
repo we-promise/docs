@@ -206,6 +206,32 @@ ALPHA_VANTAGE_API_KEY="your-key-here"
 Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over the UI setting. Leave it unset to manage providers from the UI only.
 </Note>
 
+### On-chain wallet variables
+
+On-chain wallet tracking uses public block explorers by default. You can override any endpoint with your own instance, and tune history and token limits.
+
+```txt
+# Override block explorer / RPC endpoints (no trailing slash)
+MEMPOOL_SPACE_URL="https://mempool.space"
+BLOCKSCOUT_ETHEREUM_URL="https://eth.blockscout.com"
+BLOCKSCOUT_BASE_URL="https://base.blockscout.com"
+BLOCKSCOUT_ARBITRUM_URL="https://arbitrum.blockscout.com"
+BLOCKSCOUT_OPTIMISM_URL="https://optimism.blockscout.com"
+BLOCKSCOUT_POLYGON_URL="https://polygon.blockscout.com"
+BLOCKSCOUT_GNOSIS_URL="https://gnosis.blockscout.com"
+SOLANA_RPC_URL="https://api.mainnet-beta.solana.com"
+SOLANA_TOKEN_LIST_URL="https://lite-api.jup.ag"
+
+# History depth per address (default: 10, max: 200)
+# Solana transaction budget scales proportionally
+ONCHAIN_HISTORY_MAX_PAGES="10"
+
+# Max tokens surfaced per address in the review screen (default: 200, max: 5000)
+ONCHAIN_MAX_TOKENS_PER_ADDRESS="200"
+```
+
+To enable crypto pricing for on-chain wallets, include `binance_public` in `SECURITIES_PROVIDERS`. If your family currency is not USD, also set `EXCHANGE_RATE_PROVIDER` to a provider that needs no API key (e.g. `frankfurter`). See [on-chain wallets](/providers/onchain-wallets) for details.
+
 ## Running the application
 
 ### Start the application
@@ -644,6 +670,16 @@ docker compose exec web env DRY_RUN=false bin/rails security:backfill_encryption
 ```
 
 The task is idempotent, so it is safe to rerun if needed.
+
+### Sure NDJSON import file size limit
+
+By default, Sure NDJSON imports are limited to a fixed maximum file size. Self-hosted admins can raise this limit with an environment variable:
+
+```txt
+SURE_IMPORT_MAX_NDJSON_SIZE_MB=100
+```
+
+This setting applies to both the GUI upload and the API upload paths. Set the value to the maximum file size in megabytes that you want to allow.
 
 ### Slow CSV imports
 
