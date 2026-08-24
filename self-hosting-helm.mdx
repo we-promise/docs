@@ -345,7 +345,7 @@ Create a manual backup of your PostgreSQL database:
 
 ```bash
 # Get the primary pod name
-PRIMARY_POD=$(kubectl get pod -n sure -l cnpg.io/cluster=sure-db,role=primary -o name)
+PRIMARY_POD=$(kubectl get pod -n sure -l cnpg.io/cluster=sure-db,role=primary -o jsonpath='{.items[0].metadata.name}')
 
 # Create a backup
 kubectl exec -n sure $PRIMARY_POD -- pg_dump -U sure sure_production > backup.sql

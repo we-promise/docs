@@ -309,19 +309,21 @@ docker compose up -d db
 docker compose exec -T db psql -U sure_user -d sure_production < /path/to/backup.sql
 ```
 
-5. Restart the app:
-
-```bash
-docker compose up -d web worker
-```
+5. If your deployment uses local uploaded files, restore them before restarting the app. If you use external object storage, verify that provider's backup or versioning recovery has completed.
 
 ### Restore local uploaded files
 
 If your Sure instance stores uploaded files on the local filesystem, restoring the database alone is not enough. You must also restore the app's storage directory from the matching file backup.
 
-The exact host path depends on how you mapped volumes in `compose.yml`. Restore the same directory that Sure uses for local storage, then restart the app containers.
+The exact host path depends on how you mapped volumes in `compose.yml`. Restore the same directory that Sure uses for local storage before starting the app containers.
 
 If you are using external object storage instead of local disk, restore those files using that provider's backup or versioning workflow instead.
+
+When the database and any uploaded files are restored, restart the app:
+
+```bash
+docker compose up -d web worker
+```
 
 ### Verify the restore
 
