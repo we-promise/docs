@@ -196,6 +196,31 @@ ALPHA_VANTAGE_API_KEY="your-key-here"
 Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over the UI setting. Leave it unset to manage providers from the UI only.
 </Note>
 
+### On-chain wallet variables
+
+Sure tracks self-custody wallets (Bitcoin, EVM networks, Solana) using free public endpoints by default. You can override any endpoint with your own node or indexer, and tune history and token limits.
+
+```txt
+# Override default data source endpoints (optional)
+MEMPOOL_SPACE_URL="https://mempool.space"
+BLOCKSCOUT_ETHEREUM_URL="https://eth.blockscout.com"
+BLOCKSCOUT_BASE_URL="https://base.blockscout.com"
+BLOCKSCOUT_ARBITRUM_URL="https://arbitrum.blockscout.com"
+BLOCKSCOUT_OPTIMISM_URL="https://optimism.blockscout.com"
+BLOCKSCOUT_POLYGON_URL="https://polygon.blockscout.com"
+BLOCKSCOUT_GNOSIS_URL="https://gnosis.blockscout.com"
+SOLANA_RPC_URL="https://api.mainnet-beta.solana.com"
+SOLANA_TOKEN_LIST_URL="https://lite-api.jup.ag"
+
+# Max transfer history pages per sync (default: 10, max: 200)
+ONCHAIN_HISTORY_MAX_PAGES="10"
+
+# Max tokens surfaced per address in the review screen (default: 200, max: 5000)
+ONCHAIN_MAX_TOKENS_PER_ADDRESS="200"
+```
+
+To enable crypto pricing, include `binance_public` in `SECURITIES_PROVIDERS`. If your family currency is not USD, also set `EXCHANGE_RATE_PROVIDER` to a provider that needs no API key, such as `frankfurter`. See [on-chain wallets](/providers/onchain-wallets) for full details.
+
 ## Running the application
 
 ### Start the application
