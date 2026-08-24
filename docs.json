@@ -30,7 +30,8 @@
               "guides/key-concepts/untitled-page",
               "guides/key-concepts/debt-accounts",
               "guides/key-concepts/investment-accounts",
-              "guides/key-concepts/transfers"
+              "guides/key-concepts/transfers",
+              "guides/key-concepts/clients"
             ]
           },
           {
@@ -69,18 +70,18 @@
             "pages": [
               "providers/overview",
               "providers/market-data",
+              "providers/onchain-wallets",
               "providers/binance",
+              "providers/coinbase",
+              "providers/coinstats",
               "providers/enable-banking",
               "providers/lunchflow",
               "providers/wise",
               "providers/simplefin",
               "providers/plaid",
               "providers/redbark",
+              "providers/up-bank",
               "providers/snaptrade",
-              "providers/binance",
-              "providers/coinbase",
-              "providers/coinstats",
-              "providers/onchain-wallets",
               "providers/sophtron"
             ]
           },

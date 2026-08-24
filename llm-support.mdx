@@ -249,7 +249,7 @@ Environment variables take precedence over the settings UI.
 | Variable | Description | Default |
 | --- | --- | --- |
 | `LLM_CONTEXT_WINDOW` | Total tokens the model will accept | `2048` |
-| `LLM_MAX_RESPONSE_TOKENS` | Tokens reserved for the model's reply | `512` |
+| `LLM_MAX_RESPONSE_TOKENS` | Tokens reserved for the model's reply. When set, this value is sent to the provider as `max_tokens` (Chat Completions) or `max_output_tokens` (Responses API). Leave unset to use the provider's default uncapped behavior. | `512` |
 | `LLM_MAX_HISTORY_TOKENS` | Maximum tokens for conversation history. Derived automatically if unset (`context_window - max_response_tokens - system_prompt_reserve`) | Derived |
 | `LLM_SYSTEM_PROMPT_RESERVE` | Tokens reserved for the system prompt | `256` |
 | `LLM_MAX_ITEMS_PER_CALL` | Upper bound on auto-categorize / merchant detection batch size | `25` |
@@ -336,6 +336,68 @@ See the [evaluation framework](/evals) documentation for details on:
 - Creating custom datasets
 - Langfuse integration for tracking experiments
 
+## Vector store (document search)
+
+Sure's AI assistant can search documents uploaded to a family's vault. Documents are indexed in a vector store, and the assistant retrieves relevant passages when answering questions.
+
+### Supported backends
+
+| Backend | Status | Best for | Requirements |
+| --- | --- | --- | --- |
+| **OpenAI** (default) | Ready | Cloud deployments, zero setup | `OPENAI_ACCESS_TOKEN` |
+| **Pgvector** | Ready | Self-hosted, full data privacy | PostgreSQL with `pgvector` extension + embedding model |
+| **Qdrant** | Scaffolded — not yet functional | Self-hosted, dedicated vector DB | Running Qdrant instance |
+
+### OpenAI (default)
+
+No extra configuration is needed. If you have `OPENAI_ACCESS_TOKEN` set for the AI assistant, document search works automatically.
+
+### Pgvector (self-hosted)
+
+Use PostgreSQL's pgvector extension for fully local document search. All data stays on your infrastructure.
+
+**Requirements:**
+- Use the `pgvector/pgvector:pg16-trixie` Docker image instead of `postgres:16`
+- An embedding model served via an OpenAI-compatible `/v1/embeddings` endpoint (for example, Ollama with `mxbai-embed-large`)
+- Run migrations with `VECTOR_STORE_PROVIDER=pgvector` set to create the `vector_store_chunks` table
+
+```bash
+VECTOR_STORE_PROVIDER=pgvector
+
+EMBEDDING_MODEL=mxbai-embed-large           # Default: mxbai-embed-large
+EMBEDDING_DIMENSIONS=1024                   # Must match your embedding model (default: 1024)
+EMBEDDING_URI_BASE=http://ollama:11434/v1   # Falls back to OPENAI_URI_BASE if not set
+EMBEDDING_ACCESS_TOKEN=                     # Optional; falls back to OPENAI_ACCESS_TOKEN
+```
+
+The LLM and embedding endpoints are independent. A common fully local setup uses an OpenAI-compatible chat model via `OPENAI_URI_BASE`, pgvector for storage, and a separate embedding model via `EMBEDDING_URI_BASE`.
+
+Sure enables the `vector` extension automatically when it first provisions the chunks table, provided the database user has permission. If the AI status page reports the extension is available but not enabled, connect as the PostgreSQL superuser and run:
+
+```sql
+CREATE EXTENSION vector;
+```
+
+If you use Ollama, pull the embedding model before starting Sure:
+
+```bash
+docker compose exec ollama ollama pull mxbai-embed-large
+```
+
+<Warning>
+Do not change `EMBEDDING_MODEL` for an existing pgvector index without rebuilding it. Vectors from different models are not comparable even when they have the same dimensions. Remove existing documents from Sure, drop the chunks table, update the embedding settings, restart Sure, and re-upload the source documents.
+</Warning>
+
+### Verifying the configuration
+
+Super-admins can open **System health → AI** at `/admin/system_health?tab=ai` to run live checks. The tab verifies:
+
+- The configured LLM model is accessible
+- The vector store responds correctly
+- The embedding endpoint returns vectors with the expected dimensions
+
+See [AI status tab](/self-hosting#ai-status-tab) in the self-hosting guide for details on the checks and how to tune probe timeouts.
+
 ## Additional environment variables
 
 These optional variables fine-tune provider selection and the behavior of the OpenAI-compatible provider. See [Anthropic environment variables](#anthropic-environment-variables) for the Anthropic-specific options.
@@ -348,7 +410,7 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | `OPENAI_MODEL` | Model name (required for custom endpoints) | `gpt-4.1` |
 | `OPENAI_REQUEST_TIMEOUT` | HTTP timeout in seconds for each individual HTTP call to the model | `60` |
 | `AI_RESPONSE_TIMEOUT` | Whole-turn watchdog timeout in seconds. See [Chat response timeout](#chat-response-timeout) for sizing guidance | `90` |
-| `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `5` |
+| `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `8` |
 | `OPENAI_SUPPORTS_PDF_PROCESSING` | Set to `false` for endpoints without vision support | `true` |
 | `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` | Override Responses API vs Chat Completions routing | Auto-detected |
 | `LLM_JSON_MODE` | JSON output mode: `auto`, `strict`, `json_object`, or `none` | — |
@@ -371,7 +433,7 @@ Custom OpenAI-compatible providers (Ollama, LM Studio, etc.) route through a syn
   + tool execution time + queue wait
 ```
 
-With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=5`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 360 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
+With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=8`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn takes up to 540 seconds of model time — far beyond the 90-second watchdog. The chat will report "assistant not available" even though the model is still generating a reply.
 
 ### Recommended approach
 

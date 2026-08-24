@@ -68,20 +68,28 @@ Available providers include Yahoo Finance, Twelve Data, Tiingo, EODHD, Alpha Van
 
 ### Australian users
 
+**Up bank** connects directly to your Up bank account using the Up API, syncing accounts, balances, and transactions. Categories you have set in the Up app are mapped to your Sure categories automatically on import.
+
+- **Best for**: Up bank customers in Australia
+- **Pricing**: Free (requires an Up personal access token)
+- **Documentation**: [Up bank](/providers/up-bank)
+
 **Redbark** connects Australian bank accounts through the Consumer Data Right (CDR) open banking framework, with read-only consented access.
 
 - **Best for**: Users with Australian bank accounts
 - **Pricing**: Paid service (API access requires a Redbark Developer or Professional plan)
 - **Documentation**: [Redbark](redbark)
 
+**Up** bank accounts can be connected through Lunch Flow. Sure automatically maps Up's category slugs to your existing Sure categories on import, so transactions arrive pre-categorised based on the tags you've already set in the Up app. Categories you've manually set or locked in Sure are always preserved during re-syncs. Up-specific categories with no clear Sure equivalent (such as Booze, Pets, or Life Admin) are left uncategorised so you can apply your own rules or AI categorisation.
+
 ## Cryptocurrency providers
 
 ### On-chain wallets (self-custody)
 
-**On-chain wallets** lets you track Bitcoin, EVM networks (Ethereum, Base, Arbitrum, Optimism, Polygon, Gnosis), and Solana wallets directly by public address — no API key required for any chain.
+**On-chain wallets** lets you track Bitcoin, EVM networks (Ethereum, Base, Arbitrum, Optimism, Polygon, Gnosis), and Solana wallets directly from their public addresses — no API key, no third-party account required.
 
-- **Best for**: Tracking self-custody wallets without sharing keys or using a third-party aggregator
-- **Pricing**: Free (uses public block explorers by default)
+- **Best for**: Tracking self-custody wallets across Bitcoin, Ethereum, and Solana without sharing private keys
+- **Pricing**: Free (uses public blockchain explorers by default)
 - **Documentation**: [On-chain wallets](/providers/onchain-wallets)
 
 ### Binance

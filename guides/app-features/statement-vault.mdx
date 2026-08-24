@@ -60,7 +60,43 @@ PDF transaction imports use the Statement Vault as their storage layer, but acco
 
 When you upload a PDF through the import flow, Sure first stores it as an unmatched statement, then creates a PDF import and queues AI processing. The AI processing classifies the document and may extract transactions for bank or credit card statements. That AI extraction does not currently improve the account suggestion; the suggestion comes from the statement metadata matching described above.
 
-After transactions are extracted, the import still needs an account before it can be published.
+After transactions are extracted, the import still needs an account before it can be published. You can target any account — including provider-synced accounts — because Sure reconciles extracted transactions against what the account already holds before presenting them for review.
+
+### Reconciliation
+
+When you assign an account to a PDF import, Sure matches each extracted transaction against the account's existing entries by amount and date (with a small date window to account for posting-date differences). Transactions that are already on file are marked reconciled and excluded from the import; only genuinely new transactions are offered for review.
+
+The import summary shows:
+
+- **Extracted** — total transactions found in the statement
+- **Already recorded** — transactions matched to existing entries
+- **Imported** — transactions added by this import
+- **Awaiting review** — transactions not yet published
+
+A statement whose transactions are all already on file completes with zero rows to import. This is expected when the account has already synced the same period from a provider.
+
+Reconciliation is reversible. If you reassign an import to a different account, Sure releases the previous account's reconciliations and re-evaluates the rows against the new account. Reverting a published import also releases any reconciliations it created.
+
+## Duplicate detection and reconciliation
+
+When you assign an account to a PDF import, Sure automatically compares each extracted transaction against what that account already holds. Transactions that already exist — whether imported earlier or synced from a provider — are marked as reconciled and excluded from the review step. Only genuinely new transactions are offered for import.
+
+This means:
+
+- A statement whose transactions are all already on file will complete with zero rows to review. The import summary shows how many transactions were found in the statement, how many were already recorded, and how many were imported.
+- Provider-synced accounts can now be used as import targets. The duplicate check prevents re-importing transactions that sync already brought in.
+- Matching uses amount and date (with a small date window to account for posting-date differences). Transaction names are not matched because statement descriptions and provider names for the same transaction rarely agree.
+
+If you reassign a PDF import to a different account, Sure releases the previous account's reconciliation marks and re-evaluates the statement against the new account.
+
+### Import summary
+
+After AI processing completes or after you publish, you can view a summary of the import that breaks down:
+
+- **Transactions found**: Total transactions extracted from the statement
+- **Already recorded**: Transactions matched to existing entries
+- **Imported**: New transactions added by this import
+- **Awaiting review**: Transactions not yet published
 
 ## Tips for better matches
 

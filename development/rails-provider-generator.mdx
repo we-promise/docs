@@ -598,6 +598,25 @@ class Provider::MyBankAdapterTest < ActiveSupport::TestCase
 end
 ```
 
+## Reserved field names
+
+The `provider:family` generator rejects field names that collide with columns already present on every items table. Passing a reserved name raises an error at generation time rather than failing silently at `db:migrate`.
+
+**Reserved names** (cannot be used as custom fields):
+
+`institution_id`, `institution_name`, `institution_domain`, `institution_url`, `institution_color`, `status`, `scheduled_for_deletion`, `pending_account_setup`, `sync_start_date`, `raw_payload`, `raw_institution_payload`, `family_id`
+
+If you need to store data that overlaps with one of these columns, use the built-in column directly — it already exists on the generated table.
+
+```bash
+# This will raise an error at generation time:
+rails g provider:family my_bank institution_id:string api_key:text:secret
+# => Error: 'institution_id' is a reserved field name. Drop it from the command.
+
+# Use the built-in column instead:
+rails g provider:family my_bank api_key:text:secret
+```
+
 ## Troubleshooting
 
 ### Reserved field name error
