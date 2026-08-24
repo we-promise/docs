@@ -62,35 +62,26 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published.
 
-## Transaction reconciliation
+## Duplicate detection and reconciliation
 
-When you assign an account to a PDF import, Sure automatically compares each extracted transaction against what that account already holds and marks matching transactions as **reconciled**. Only genuinely new transactions are offered for review and import.
+When you assign an account to a PDF import, Sure automatically compares each extracted transaction against what that account already holds. Transactions that already exist — whether imported earlier or synced from a provider — are marked as reconciled and excluded from the review step. Only genuinely new transactions are offered for import.
 
-This prevents duplicates when a statement covers a period that has already been synced by a connected provider. Provider-backed accounts are available as import targets for this reason.
+This means:
 
-### Reconciliation states
+- A statement whose transactions are all already on file will complete with zero rows to review. The import summary shows how many transactions were found in the statement, how many were already recorded, and how many were imported.
+- Provider-synced accounts can now be used as import targets. The duplicate check prevents re-importing transactions that sync already brought in.
+- Matching uses amount and date (with a small date window to account for posting-date differences). Transaction names are not matched because statement descriptions and provider names for the same transaction rarely agree.
 
-- **Reconciled**: A statement was matched against the transaction. The reconciliation timestamp and the statement that provided the evidence are stored on the transaction. Reconciliation survives the statement being deleted (the link nullifies, but the timestamp remains).
-- **Cleared**: Derived automatically from whether a transaction has a provider source and external ID. This is a fact about provenance and cannot be edited directly.
+If you reassign a PDF import to a different account, Sure releases the previous account's reconciliation marks and re-evaluates the statement against the new account.
 
 ### Import summary
 
-After AI extraction and account assignment, Sure shows a summary of the statement broken down into:
+After AI processing completes or after you publish, you can view a summary of the import that breaks down:
 
-- **Transactions found**: Total number of transactions extracted from the statement
-- **Already recorded**: Transactions that were already on file and have been reconciled
-- **Imported**: Transactions that were new and have been added to your account
-- **Awaiting review**: Transactions that are ready to review and publish
-
-The complete screen explains a fully reconciled import (where all transactions were already on file) rather than reporting zero transactions found.
-
-### Reassigning an account
-
-You can reassign a PDF import to a different account before publishing. Reassigning releases the reconciliations on the previous account and re-evaluates each extracted transaction against the new account. An import that has already been published cannot be reassigned.
-
-### Reverting an import
-
-Reverting a PDF import removes the transactions it created and releases any reconciliation evidence it held. Transactions that were only matched (not imported) return to their previous state.
+- **Transactions found**: Total transactions extracted from the statement
+- **Already recorded**: Transactions matched to existing entries
+- **Imported**: New transactions added by this import
+- **Awaiting review**: Transactions not yet published
 
 ## Tips for better matches
 

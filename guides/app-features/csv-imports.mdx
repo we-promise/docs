@@ -56,7 +56,7 @@ The optional **Balance Date** column lets you specify when the opening balance s
 If you don't provide a balance date, Sure will use the current date for the opening balance.
 
 <Note>
-The date format should match your import settings. Common formats include MM/DD/YYYY, DD/MM/YYYY, and YYYY-MM-DD.
+The date format should match your import settings. Common formats include MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD, and DD/MM/YY. The DD/MM/YY format (two-digit year) is available for CSV imports only. Two-digit years are interpreted as 1969–2068, so verify the parsed preview before confirming the import.
 </Note>
 
 ### Supported account types
@@ -144,6 +144,14 @@ When importing transactions, ensure the account names in your CSV exactly match 
 ### Duplicate transactions
 
 Sure will import all rows from your CSV. Review your data before importing to avoid duplicates.
+
+### Sure NDJSON import fails with a null rule name
+
+Rules exported from Sure may have a `null` name field, which is valid. If a full `all.ndjson` export fails preflight with an error about a missing rule name, ensure you are using a current version of Sure — older versions incorrectly required the name field to be present.
+
+### Sure NDJSON import fails with a missing reference on rejected transfers
+
+If your export contains rejected transfers whose original transactions were later deleted, Sure will skip those orphaned rows and report them as warnings rather than blocking the import. Check the preflight warnings in the import response for details on any skipped records.
 
 ## Limits
 
