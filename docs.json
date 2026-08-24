@@ -51,6 +51,7 @@
             "pages": [
               "llm-support",
               "development/mcp",
+              "development/clients",
               "evals",
               "development/rails-provider-generator",
               "development/llm-benchmarks"
