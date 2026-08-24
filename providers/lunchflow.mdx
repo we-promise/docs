@@ -104,3 +104,11 @@ LUNCHFLOW_DEBUG_RAW=1
 - Subject to Lunch Flow API rate limits
 - Holdings data not available for all account types
 - Coverage varies by country and institution
+
+## Troubleshooting
+
+### Pending transactions stuck with a "Pending" badge
+
+Lunch Flow assigns stable IDs to most transactions. When a transaction moves from pending to posted under the same ID, Sure detects that the stored snapshot has changed and refreshes it automatically on the next sync, clearing the pending status.
+
+Some pending transactions from Lunch Flow have no ID. Sure deduplicates these by content hash within a single sync response, so two genuinely identical purchases in the same response are each preserved rather than collapsed into one. If a pending transaction with no ID is still showing after it has posted, trigger a manual sync to force a fresh fetch.
