@@ -88,6 +88,12 @@ SimpleFIN is a paid service, but typically more affordable than alternatives lik
 
 ## Troubleshooting
 
+### Duplicate accounts with the same name
+
+If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure's sync logic previously could confuse them — the unlinked account would silently steal the linked account's connection, merge in its transactions, and overwrite its balance on every sync.
+
+This has been fixed. Sure now tracks each account by its upstream account ID rather than by display name alone. Ambiguous same-name matches are skipped rather than resolved incorrectly. If you were affected, re-syncing after upgrading to the fixed version will restore the correct linkage.
+
 ### Setup token issues
 
 If you receive a 403 error when claiming a setup token:
