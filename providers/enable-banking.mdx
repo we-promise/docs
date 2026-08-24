@@ -148,6 +148,12 @@ When connecting a bank, Sure validates the selected account type against the typ
 
 For technical details about the Enable Banking API, see the [official documentation](https://enablebanking.com/docs/api/reference/).
 
+## Troubleshooting
+
+### N26 and PERIOD_INVALID errors
+
+N26 (and some other ASPSPs via Enable Banking) rejects out-of-range transaction date windows with a `PERIOD_INVALID` error rather than the more common `WRONG_TRANSACTIONS_PERIOD` shape. Sure recognizes both error shapes and automatically retries the sync with a shorter date window, so you should not need to take any action if a sync fails with this error.
+
 ## Limitations
 
 - Only supports banks in EU/EEA countries
