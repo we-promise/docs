@@ -174,6 +174,16 @@ If you enable passkeys or security keys on a public hostname, also set `WEBAUTHN
 If you only want Cloudflare Tunnel access, do not leave port `3000` broadly exposed to the internet. Keep the host firewall closed or bind the published port more narrowly.
 </Warning>
 
+### Import size variables
+
+By default, Sure NDJSON imports are limited to a fixed maximum file size. Self-hosted admins can raise this limit with:
+
+```txt
+SURE_IMPORT_MAX_NDJSON_SIZE_MB=50
+```
+
+This applies to both the GUI upload and the API upload paths. If you do not set this variable, the default limit is used.
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
@@ -223,7 +233,7 @@ On first run, register a new account:
 After creating your initial admin account, you can control how other people join your self-hosted instance from **Settings > Self-Hosting > Onboarding**.
 
 - **Open**: Anyone can create an account from the registration page.
-- **Invite-only**: Signups stay enabled, but a valid invite code is required.
+- **Invite-only**: Signups stay enabled, but a valid invite code is required unless a default family is configured for invite-only onboarding.
 - **Closed**: The registration page is disabled for new signups.
 
 If you do not want additional self-service registrations, switch the instance to **Closed** after the initial setup.
@@ -293,6 +303,20 @@ docker compose up --no-deps -d web worker
 
 The Docker Compose configuration includes an optional backup service that automatically backs up your PostgreSQL database.
 
+<Warning>
+  The backup service only creates PostgreSQL backups. It does not back up local files stored in Sure's `storage` directory.
+  If your deployment uses local file storage, back up that directory separately. If you use external object storage such as S3 or R2, make sure that storage is protected with its own backup and retention policy.
+</Warning>
+
+### What to back up
+
+For a complete recovery plan, make sure you know which of these apply to your deployment:
+
+- **PostgreSQL database**: accounts, transactions, settings, users, and metadata
+- **Local file storage**: uploaded files stored on disk by the app
+- **External object storage**: uploaded files stored in S3, R2, or another object store
+- **Environment and deployment config**: your `.env`, `compose.yml`, secrets, and any reverse proxy or DNS setup needed to bring the app back online
+
 ### Enabling backups
 
 The backup service uses Docker Compose profiles and is disabled by default. To enable it:
@@ -340,27 +364,57 @@ You can use cron syntax or these shortcuts:
 - `@monthly` - Once per month
 - Custom cron: `0 2 * * *` (2 AM daily)
 
-### Restoring from backup
+### Restore from a PostgreSQL backup
 
-To restore your database from a backup:
+Use this process when you have a SQL dump created by the backup service or with `pg_dump`.
 
-1. Stop the application:
+> [!NOTE]
+> If you customized the PostgreSQL username, password, or database name in your `.env` or `compose.yml`, replace `sure_user` and `sure_production` in the commands below.
+
+1. Stop the application containers so they do not write to the database during the restore:
+
 ```bash
-docker compose down
+docker compose stop web worker
 ```
 
-2. Locate your backup file in the backup directory (e.g., `/opt/sure-data/backups`)
+2. Start or keep the database container running:
 
-3. Restore the backup:
 ```bash
 docker compose up -d db
+```
+
+3. Locate the backup file in your backup directory, for example `/opt/sure-data/backups`.
+
+4. Restore the SQL backup into PostgreSQL:
+
+```bash
 docker compose exec -T db psql -U sure_user -d sure_production < /path/to/backup.sql
 ```
 
-4. Restart the application:
+5. If your deployment uses local uploaded files, restore them before restarting the app. If you use external object storage, verify that provider's backup or versioning recovery has completed.
+
+### Restore local uploaded files
+
+If your Sure instance stores uploaded files on the local filesystem, restoring the database alone is not enough. You must also restore the app's storage directory from the matching file backup.
+
+The exact host path depends on how you mapped volumes in `compose.yml`. Restore the same directory that Sure uses for local storage before starting the app containers.
+
+If you are using external object storage instead of local disk, restore those files using that provider's backup or versioning workflow instead.
+
+When the database and any uploaded files are restored, restart the app:
+
 ```bash
-docker compose up -d
+docker compose up -d web worker
 ```
+
+### Verify the restore
+
+After restoring, check the following:
+
+- You can sign in successfully
+- Your accounts and transactions appear as expected
+- Uploaded files open correctly, if you use uploads
+- The web and worker containers start cleanly without repeated errors
 
 ### Verifying backups
 
@@ -481,6 +535,67 @@ For production deployments:
 - Use `SMTP_OPENSSL_VERIFY_MODE=peer`
 - If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
+## Monitoring system health
+
+When the Sidekiq worker container isn't running, background jobs silently never execute. Balance calculations, net-worth updates, and account syncs stall, and the UI may show zeros or "No balance data available" without explaining why.
+
+### Sidekiq health banner
+
+If Sure detects that Sidekiq is not processing jobs, a warning banner appears at the top of every page for super-admins. The banner indicates that data may be stale and links to the system health page.
+
+The check is conservative by design:
+- A worker process is considered stale if its heartbeat is older than 2 minutes, which tolerates brief deploy restarts and Redis blips.
+- A queue is considered backed up if its latency exceeds 5 minutes.
+
+The health snapshot is cached for 60 seconds to avoid extra Redis round-trips on every page load. You can override the thresholds and cache TTL with environment variables:
+
+```txt
+# Seconds before a worker heartbeat is considered stale (default: 120)
+SIDEKIQ_HEALTH_HEARTBEAT_TIMEOUT=120
+
+# Seconds of queue latency before the queue is considered backed up (default: 300)
+SIDEKIQ_HEALTH_LATENCY_THRESHOLD=300
+
+# Seconds to cache the health snapshot (default: 60)
+SIDEKIQ_HEALTH_CACHE_TTL=60
+```
+
+### System health page
+
+Super-admins can view live Sidekiq state at **Settings → Advanced → System health**. The page shows:
+
+- Worker process count and last heartbeat time
+- Maximum queue latency
+- Job counters (processed, failed, enqueued, retries)
+- Per-queue depth breakdown
+
+The system health page always bypasses the cache and fetches fresh state, so you can confirm a worker restart took effect immediately.
+
+### AI status tab
+
+The system health page has an **AI** tab at `/admin/system_health?tab=ai`. Opening it runs bounded, non-destructive live checks against the effective AI configuration:
+
+- **LLM probe** — Queries the models list on the configured provider (OpenAI, Anthropic, or any OpenAI-compatible endpoint) and verifies the configured model is available.
+- **Vector store probe** — For OpenAI vector stores, confirms a list request succeeds without creating or modifying a store. For pgvector, checks that the `vector` extension is enabled and the chunks table exists.
+- **Embedding probe** — For pgvector, sends a short test embedding request and verifies the returned vector matches `EMBEDDING_DIMENSIONS`. The test vector is not stored.
+
+The tab also shows the active provider, model, endpoint (credentials are always redacted), PDF processing support, and pgvector extension and table status.
+
+When `OPENAI_URI_BASE` points to a custom endpoint, the page identifies the provider where possible — Ollama, OpenRouter, Together AI, Kilo, Cloudflare Workers AI or AI Gateway — and labels unrecognized services as **Custom endpoint**.
+
+Results are cached for 60 seconds by default. Click **Run checks again** to bypass the cache and get fresh results. Failures are written to the system debug log and to `Rails.logger`; credentials are never included.
+
+You can tune the AI status checks with these environment variables:
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `AI_HEALTH_PROBE_TIMEOUT` | Per-request timeout in seconds for each live check | `5` |
+| `AI_HEALTH_PROBE_CACHE_TTL` | Seconds to cache probe results. Also deduplicates failure log entries | `60` |
+
+<Note>
+The Sidekiq health banner, system health page, and AI status tab are only available in self-hosted mode. Managed deployments do not show these features.
+</Note>
+
 ## Troubleshooting
 
 ### Database connection errors
@@ -549,6 +664,78 @@ docker compose logs worker
 ```
 
 Look for connection timeouts or Redis communication failures. The `sure-worker` container requires Redis to process CSV imports.
+
+## AI features, external assistant, and Pipelock
+
+Sure ships a separate compose file for AI-related features: `compose.example.ai.yml`. It adds:
+
+- **Pipelock** (always on): AI agent security proxy for outbound tunnel controls and inbound MCP scanning
+- **Ollama + Open WebUI** (optional `--profile local-ai`): local LLM inference
+
+### Using the AI compose file
+
+```bash
+# Download both compose files
+curl -o compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+curl -o compose.ai.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.ai.yml
+curl -o pipelock.example.yaml https://raw.githubusercontent.com/we-promise/sure/main/pipelock.example.yaml
+
+# Run with Pipelock (no local LLM)
+docker compose -f compose.ai.yml up -d
+
+# Run with Pipelock + Ollama
+docker compose -f compose.ai.yml --profile local-ai up -d
+```
+
+### Setting up the external AI assistant
+
+The external assistant delegates chat to a remote AI agent. The agent calls back to Sure's `/mcp` endpoint for financial data.
+
+1. Set the MCP endpoint credentials in your `.env`:
+
+```txt
+MCP_API_TOKEN=generate-a-random-token-here
+MCP_USER_EMAIL=your@email.com   # must match an existing Sure user
+```
+
+2. Set the external assistant connection:
+
+```txt
+EXTERNAL_ASSISTANT_URL=https://your-agent/v1/chat/completions
+EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
+```
+
+3. Activate per family in the UI (**Settings > Self-Hosting > AI Assistant**, select "External"), or set `ASSISTANT_TYPE=external` to force it globally.
+
+To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile:
+
+```bash
+docker compose -f compose.ai.yml --profile external-assistant up -d
+```
+
+### Pipelock security proxy
+
+Pipelock sits between Sure and external services and provides:
+
+- MCP request and response scanning for secret exfiltration, prompt injection, and tool poisoning
+- HTTPS tunnel controls for destination, SSRF, rate, budget, and CONNECT headers
+
+When using `compose.example.ai.yml`, Pipelock is always running. External AI agents should connect to port `8889` (Pipelock's MCP reverse proxy) instead of directly to Sure's `/mcp` on port `3000`.
+
+<Note>
+The example compose file does not enable TLS interception, so Pipelock controls the tunnel destination but cannot read encrypted request or response bodies. Docker Compose also does not prevent a client from bypassing the proxy.
+</Note>
+
+## Local development bind
+
+For `bin/dev` on your own machine, the server defaults to `localhost` (`127.0.0.1` and `[::1]`), reachable only from the same machine. If you need external access (phone on the same Wi-Fi, devcontainer port forwarding, LAN testing), set the `BINDING` environment variable:
+
+```bash
+BINDING=0.0.0.0 bin/dev   # reachable from LAN
+BINDING=::       bin/dev  # IPv6 dual-stack
+```
+
+The bundled devcontainer at `.devcontainer/docker-compose.yml` already sets `BINDING: "0.0.0.0"`, so Docker port forwarding works without a manual override when using the devcontainer.
 
 ## Getting help
 
