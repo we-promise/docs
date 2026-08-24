@@ -71,6 +71,9 @@
               "providers/overview",
               "providers/market-data",
               "providers/binance",
+              "providers/coinbase",
+              "providers/coinstats",
+              "providers/onchain-wallets",
               "providers/enable-banking",
               "providers/lunchflow",
               "providers/wise",
@@ -78,10 +81,8 @@
               "providers/plaid",
               "providers/redbark",
               "providers/snaptrade",
-              "providers/binance",
-              "providers/coinbase",
-              "providers/coinstats",
-              "providers/sophtron"
+              "providers/sophtron",
+              "providers/up"
             ]
           },
           {
