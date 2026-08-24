@@ -1,0 +1,54 @@
+---
+title: Up
+description: Connect your Up bank account to sync transactions and balances
+---
+
+Up is an Australian bank that provides a personal API for accessing your account data. Sure uses this API to sync your Up accounts, balances, and transactions.
+
+## How it works
+
+Sure connects to Up using a personal access token you generate from the Up app. Once connected, Sure syncs:
+
+- **Account balances** for your Up accounts
+- **Transaction history** with merchant and category data
+- **Automatic category mapping** from Up's categories to your Sure categories
+
+## Setting up Up
+
+<Steps>
+  <Step title="Get a personal access token">
+    Open the Up app, go to **Settings → API**, and generate a personal access token.
+  </Step>
+  <Step title="Add the connection in Sure">
+    In Sure, go to **Settings → Providers**, select **Up**, and enter your personal access token.
+  </Step>
+  <Step title="Select accounts to sync">
+    Choose which Up accounts to link to Sure.
+  </Step>
+</Steps>
+
+## Category mapping
+
+Sure automatically maps Up's transaction categories to your Sure categories on import. This means transactions you have already categorised in Up arrive in Sure with the matching category applied, rather than landing uncategorised.
+
+The mapping uses Up's child category slugs. High-confidence mappings are applied automatically. Up-specific categories with no clear Sure equivalent — such as Booze, Pets, Apps & Games, Life Admin, and Technology — are left uncategorised so your own rules or AI can handle them. A wrong auto-category is worse than none.
+
+The category is applied through Sure's enrichment system, so a category you have already set or locked on a transaction is preserved on re-sync.
+
+If your family has no categories set up yet, transactions import uncategorised rather than creating the full default category set. Mapping resumes once you set up categories through the normal UI flow.
+
+## Supported features
+
+| Feature | Supported |
+|---|---|
+| Account balances | Yes |
+| Transaction history | Yes |
+| Automatic category mapping | Yes |
+| Merchant data | Yes |
+| Automatic periodic sync | Yes |
+
+## Limitations
+
+- Requires a personal access token from the Up app
+- Only supports Up bank accounts (Australian bank)
+- Subject to Up API rate limits
