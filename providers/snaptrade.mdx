@@ -9,30 +9,48 @@ It is a good fit if you want to import holdings, balances, and brokerage activit
 
 ## How it works
 
-Sure uses your SnapTrade **Client ID** and **Consumer Key** from a Commercial API key to create a per-family SnapTrade user, open the SnapTrade connection portal, and sync the accounts you authorize. Personal API keys are not supported because they do not use SnapTrade's Register User flow.
+Sure uses your SnapTrade **Client ID** from an OAuth app to create a per-family SnapTrade user and sync the accounts you authorize. Personal API keys are not supported because they do not use SnapTrade's Register User flow.
 
-The flow looks like this:
+Sure supports two ways to authorize a brokerage connection, and the setup steps differ slightly between them.
 
-1. Create a SnapTrade app with a Commercial API key in the SnapTrade dashboard
-2. Copy the **Client ID** and **Consumer Key** into Sure
-3. Sure registers a SnapTrade user for your family
-4. You open the SnapTrade connection portal and sign in to your brokerage
-5. Sure discovers the connected brokerage accounts
-6. You choose which accounts to link to Sure
-7. Sure imports balances, holdings, and brokerage activity
+### Device code flow
+
+The device code flow (RFC 8628) requires only a **Client ID**. When you connect a brokerage, Sure displays a short code that you confirm on the SnapTrade website. No redirect URI registration is needed, so this works on any deployment including those that cannot expose a public callback URL.
+
+### Authorization code flow (browser redirect)
+
+The browser redirect flow requires a **Client ID** and a **Client Secret**, plus the redirect URI `https://<your-host>/snaptrade_items/oauth_callback` registered on your OAuth app. When you connect a brokerage, you are sent to SnapTrade in the same browser tab and redirected back after approval.
+
+Sure prefers the browser redirect when both flows are available, because it is the shorter path for the user.
+
+Both flows produce the same access and refresh tokens and result in the same ongoing sync behavior — holdings, activity, and token rotation all work identically after authorization.
 
 ## Setting up SnapTrade
 
 To connect your brokerage accounts:
 
 1. Create an account at [dashboard.snaptrade.com](https://dashboard.snaptrade.com/)
-2. Create or open a SnapTrade app with a Commercial API key and copy its **Client ID** and **Consumer Key**
+2. Create or open a SnapTrade OAuth app and copy its **Client ID**
 3. In Sure, go to **Settings > Bank sync > SnapTrade**
 4. Paste the credentials and click **Save Configuration**
-5. Click **Connect Brokerage** and complete the SnapTrade connection flow
-6. After the redirect back to Sure, open the account setup screen and choose which discovered brokerage accounts to link
+5. Click **Connect Brokerage** and complete the authorization flow
+6. After authorization, open the account setup screen and choose which discovered brokerage accounts to link
+
+If you are using the browser redirect flow, also:
+
+- Copy the **Client Secret** from your SnapTrade OAuth app and paste it into the Sure settings alongside the Client ID
+- Register `https://<your-host>/snaptrade_items/oauth_callback` as a redirect URI on the OAuth app
 
 If you already have an unlinked investment or crypto account in Sure, you can link the SnapTrade account to that existing account instead of creating a duplicate.
+
+## Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `SNAPTRADE_OAUTH_CLIENT_ID` | Yes | Client ID from your SnapTrade OAuth app. Enables the device code flow on its own. |
+| `SNAPTRADE_OAUTH_CLIENT_SECRET` | No | Client Secret from your SnapTrade OAuth app. Required only for the browser redirect flow. |
+
+Setting only `SNAPTRADE_OAUTH_CLIENT_ID` enables the device code flow. Setting both variables enables the browser redirect flow as the default, with the device code flow available as a fallback where shown.
 
 ## Managing connections
 
@@ -94,7 +112,8 @@ Fresh brokerage connections may take a little longer to finish importing activit
 
 ### Credentials save, but brokerage connection does not start
 
-- Verify the **Client ID** and **Consumer Key** were copied from the correct SnapTrade app
+- Verify the **Client ID** was copied from the correct SnapTrade OAuth app
+- If using the browser redirect flow, confirm the **Client Secret** is also set and the redirect URI is registered
 - Re-open **Settings > Bank sync > SnapTrade** and save the credentials again
 - Try the **Connect Brokerage** button again so Sure can re-register the SnapTrade user if needed
 
@@ -113,6 +132,10 @@ SnapTrade deprecated the `/positions` endpoint for apps registered after their 2
 - Open **Manage Connections** in Sure and delete old brokerage connections you no longer use
 - Delete unused or stale brokerage connections first; the limit applies to brokerage connections, not registrations alone
 - Upgrade your SnapTrade plan if you need more simultaneous brokerage connections
+
+### Device code expires before confirmation
+
+The device code has a limited validity window. If Sure shows an error saying the code has expired, start a new connection attempt to receive a fresh code. Errors during polling that say "not confirmed yet" retry automatically without needing a restart.
 
 ## API reference
 

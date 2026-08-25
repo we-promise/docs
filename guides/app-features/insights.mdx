@@ -1,0 +1,71 @@
+---
+title: Insights
+description: Proactive, AI-written financial observations delivered to your family nightly
+---
+
+## Overview
+
+Insights are short, actionable observations about your finances that Sure generates nightly. Each insight spots a pattern or event in your data — a spending anomaly, a milestone crossed, a budget running over — and writes a plain-language summary so you understand what changed and why.
+
+Insights appear in the dashboard feed and, on the native iOS app, as push notifications.
+
+## Insight types
+
+| Type | What it flags |
+|---|---|
+| `spending_anomaly` | A category's projected month-end spend is 25 %+ above the three-month baseline |
+| `cash_flow_warning` | Income is falling short of expenses in the current period |
+| `net_worth_milestone` | Net worth has crossed a round-number milestone within the last 30 days |
+| `subscription_audit` | Subscriptions that have increased in price or have been inactive |
+| `savings_rate_change` | Savings rate has shifted materially compared to recent months |
+| `idle_cash` | A cash account has a large balance that has been untouched for 60+ days |
+| `budget_at_risk` | Budget categories are near or over their monthly limit |
+| `budget_on_track` | All budget categories are on track (shown after the month is at least half over) |
+
+## Priority
+
+Each insight carries one of three priority levels:
+
+- **High** — requires prompt attention (e.g. significantly over budget)
+- **Medium** — worth reviewing soon
+- **Low** — a gentle nudge (e.g. idle cash)
+
+The dashboard feed and API response order insights by priority first, then by recency.
+
+## Statuses
+
+| Status | Meaning |
+|---|---|
+| `active` | New — not yet seen |
+| `read` | Viewed but not dismissed |
+| `acknowledged` | Dismissed by the user |
+| `expired` | The underlying condition cleared; no longer shown in the feed |
+
+`active` and `read` insights appear in the feed. Acknowledged insights can be unacknowledged — this restores them to `read` without treating them as new.
+
+## Dashboard feed
+
+The dashboard shows the three highest-priority, unacknowledged insights. Clicking an insight marks it `read`. Dismissing it marks it `acknowledged`.
+
+## Native iOS app (experimental)
+
+The Swift-native Sure Insights app receives push notifications when new insights are generated. Notifications respect your locale and honor per-insight notification preferences.
+
+To enable push notifications in your native app, register the device token using the Push Subscriptions API (`POST /api/v1/push_subscriptions`). The app sends the APNs token at launch and removes it on sign-out.
+
+The native iOS app is experimental. Features and behavior may change.
+
+## Requirements
+
+Insights are a preview feature. You must have preview features enabled in your account settings for insights to appear in the API or in the native app.
+
+## API access
+
+You can read your family's insights via the API:
+
+- `GET /api/v1/insights` — list all visible insights
+
+Push notification device tokens are managed separately:
+
+- `POST /api/v1/push_subscriptions` — register a device token
+- `DELETE /api/v1/push_subscriptions/{id}` — unregister a device token
