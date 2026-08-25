@@ -81,6 +81,14 @@ Sure serves MCP over JSON-RPC 2.0 at the URL displayed in **Settings > MCP Serve
 
 Sure authenticates each MCP request with an active OAuth access token that has the `read_write` scope. The token's resource owner determines the Sure user and family available to the tools. Sure creates a fresh transient session for that user for the request so an existing browser or impersonation session is not reused.
 
+### Protocol version and transport
+
+Sure supports protocol versions `2025-03-26` and `2025-06-18`. The current default is `2025-06-18`, which introduces the Streamable HTTP transport used by clients such as Bifrost v1.6.3 and later.
+
+During the `initialize` handshake, the client sends its preferred version in `params.protocolVersion`. Sure selects that version if it is supported, or falls back to `2025-06-18` otherwise. The agreed version is returned in the `initialize` response body and echoed in the `Mcp-Protocol-Version` response header on every subsequent response.
+
+The `initialize` response also includes a `sessionId` field. Sure records the session in a server-side cache for 24 hours. Subsequent requests may include this value in the `Mcp-Session-Id` request header; Sure validates the session and echoes the ID in the corresponding response header. Clients that do not send a session ID are still served normally.
+
 ### Legacy environment-token fallback
 
 Self-hosted deployments can optionally support older clients that cannot complete the browser authorization flow. Set both `MCP_API_TOKEN` to a high-entropy secret and `MCP_USER_EMAIL` to an existing Sure user's email. The client sends the configured token as a bearer token, and the selected user's family data is exposed to the available MCP tools.
