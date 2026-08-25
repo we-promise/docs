@@ -443,9 +443,9 @@ For a local Ollama setup with slow generation:
 
 ```bash
 OPENAI_REQUEST_TIMEOUT=300
-ASSISTANT_MAX_TOOL_CALL_ITERATIONS=2
-# (1 + 2) × 300 = 900s model time + ~300s headroom = 1200
-AI_RESPONSE_TIMEOUT=1200
+ASSISTANT_MAX_TOOL_CALL_ITERATIONS=3
+# (1 + 3) × 300 = 1200s model time + ~300s headroom = 1500
+AI_RESPONSE_TIMEOUT=1500
 ```
 
 In `compose.yml`, pass `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` alongside the other AI variables so the setting actually reaches the `web` and `worker` containers:
