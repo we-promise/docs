@@ -1458,6 +1458,18 @@ components:
         source:
           type: string
           nullable: true
+        user_modified:
+          type: boolean
+          description: Whether the transaction has been marked as user-modified,
+            which protects it from being silently overwritten by a provider sync
+        amount_cents:
+          type: integer
+          description: Absolute transaction amount in minor currency units (e.g.
+            cents for USD). Always positive regardless of income/expense classification
+        signed_amount_cents:
+          type: integer
+          description: Signed transaction amount in minor currency units. Positive
+            for income, negative for expense
         classification:
           type: string
         account:
@@ -7542,6 +7554,12 @@ paths:
                         type: string
                         format: uuid
                       description: Array of tag IDs
+                    user_modified:
+                      type: boolean
+                      description: When true, marks the transaction as user-modified
+                        immediately after creation. This protects the entry from
+                        being silently overwritten by a later provider sync (e.g.
+                        Plaid or SimpleFin) that matches on date, amount, and currency
                   required:
                   - account_id
                   - date
