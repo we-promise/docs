@@ -1429,6 +1429,8 @@ components:
       - id
       - date
       - amount
+      - amount_cents
+      - signed_amount_cents
       - currency
       - name
       - classification
@@ -1445,6 +1447,12 @@ components:
           format: date
         amount:
           type: string
+        amount_cents:
+          type: integer
+          description: Absolute transaction amount in currency minor units (e.g. cents for USD). Always positive.
+        signed_amount_cents:
+          type: integer
+          description: Signed transaction amount in currency minor units. Negative for expenses/outflows, positive for income/inflows.
         currency:
           type: string
         name:
@@ -1458,6 +1466,12 @@ components:
         source:
           type: string
           nullable: true
+        user_modified:
+          type: boolean
+          description: >
+            Whether this transaction has been flagged as user-modified. When true,
+            the next bank sync will not overwrite fields the API client already set
+            (name, category, etc.), matching the protection applied to manual edits.
         classification:
           type: string
         account:
@@ -7542,6 +7556,14 @@ paths:
                         type: string
                         format: uuid
                       description: Array of tag IDs
+                    user_modified:
+                      type: boolean
+                      description: >
+                        Set to true to mark this transaction as user-modified. When set,
+                        the next bank sync will not overwrite the fields this API client
+                        has set (name, category, etc.), giving the same sync-protection
+                        as a manual edit. Useful when writing into an account that is
+                        also linked to a bank-sync provider.
                   required:
                   - account_id
                   - date
