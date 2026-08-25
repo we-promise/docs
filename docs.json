@@ -43,6 +43,7 @@
               "guides/app-features/csv-imports",
               "guides/app-features/statement-vault",
               "features/recurring-transactions",
+              "guides/app-features/insights",
               "guides/app-features/family-sharing",
               "guides/app-features/settings"
             ]
@@ -341,6 +342,21 @@
               "POST /api/v1/valuations",
               "GET /api/v1/valuations/{id}",
               "PATCH /api/v1/valuations/{id}"
+            ]
+          },
+          {
+            "group": "Insights",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/insights"
+            ]
+          },
+          {
+            "group": "Push Subscriptions",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "POST /api/v1/push_subscriptions",
+              "DELETE /api/v1/push_subscriptions/{id}"
             ]
           },
           {

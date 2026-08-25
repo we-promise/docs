@@ -3217,6 +3217,92 @@ components:
             plaid_items:
               type: integer
               minimum: 0
+    Insight:
+      type: object
+      required:
+      - id
+      - type
+      - title
+      - body
+      - priority
+      - status
+      - generated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - spending_anomaly
+          - cash_flow_warning
+          - net_worth_milestone
+          - subscription_audit
+          - savings_rate_change
+          - idle_cash
+          - budget_at_risk
+          - budget_on_track
+          description: The insight type that describes the financial observation.
+        title:
+          type: string
+          description: Short summary of the insight.
+        body:
+          type: string
+          description: Full prose explanation of the insight, written by the LLM from pre-computed numbers.
+        priority:
+          type: string
+          enum:
+          - high
+          - medium
+          - low
+        status:
+          type: string
+          enum:
+          - active
+          - read
+          - acknowledged
+          - expired
+          description: >
+            User-facing status of the insight. `active` and `read` are visible in the feed;
+            `acknowledged` means the user dismissed it; `expired` means the underlying
+            condition cleared.
+        generated_at:
+          type: string
+          format: date-time
+          nullable: true
+    InsightCollection:
+      type: object
+      required:
+      - insights
+      properties:
+        insights:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Insight"
+    PushSubscription:
+      type: object
+      required:
+      - id
+      - environment
+      - platform
+      - last_registered_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        environment:
+          type: string
+          enum:
+          - sandbox
+          - production
+        platform:
+          type: string
+          enum:
+          - ios
+        last_registered_at:
+          type: string
+          format: date-time
+          description: When the device last registered this token.
 paths:
   "/api/v1/accounts":
     get:
@@ -7989,3 +8075,102 @@ paths:
                       type: string
                       description: Additional notes
         required: true
+  "/api/v1/insights":
+    get:
+      summary: List insights
+      description: >
+        Returns all visible (active and read) insights for the authenticated user's family,
+        ordered by priority then recency. Requires preview features to be enabled for the user.
+      tags:
+      - Insights
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: insights retrieved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/InsightCollection"
+        '403':
+          description: preview features not enabled
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/push_subscriptions":
+    post:
+      summary: Register a push subscription
+      description: >
+        Registers an APNs device token for push notifications. If the token already
+        exists for the user it is updated in place. Requires write scope.
+      tags:
+      - Push Subscriptions
+      security:
+      - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - token
+              - environment
+              - platform
+              properties:
+                token:
+                  type: string
+                  description: >
+                    APNs device token (hex string, 64–200 lowercase hex characters).
+                environment:
+                  type: string
+                  enum:
+                  - sandbox
+                  - production
+                  description: APNs environment the token belongs to.
+                platform:
+                  type: string
+                  enum:
+                  - ios
+                  description: The platform of the device. Currently only `ios` is supported.
+      responses:
+        '201':
+          description: push subscription registered or updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PushSubscription"
+        '422':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/push_subscriptions/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Push subscription ID
+      schema:
+        type: string
+    delete:
+      summary: Remove a push subscription
+      description: >
+        Unregisters a device token. Call this when the user signs out or revokes
+        notification permission so the device stops receiving push notifications.
+        Requires write scope.
+      tags:
+      - Push Subscriptions
+      security:
+      - apiKeyAuth: []
+      responses:
+        '204':
+          description: push subscription removed
+        '404':
+          description: push subscription not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
