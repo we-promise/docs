@@ -62,6 +62,12 @@ If you updated to `0.7.2` and do not see the Goals section yet, open `/settings/
 
 This is expected behavior in `0.7.2`, even after recreating containers or pulling a fresh image.
 
+#### Linking accounts to a goal
+
+When you link an account to a goal, you can either dedicate the account's entire balance to that goal or earmark a fixed amount. An account's full balance can only be dedicated to one active goal at a time. If another active goal already claims an account in full, Sure asks you to enter a specific amount instead of claiming the whole balance. This prevents the same money from being counted toward two goals simultaneously.
+
+If you archive a goal that claimed an account in full, that account becomes available for another goal to claim in full. Restoring the archived goal while the account is already claimed in full by another goal will fail with a message identifying the conflicting goal. To restore it, either update the conflicting goal to use a fixed amount, or restore the archived goal and set a fixed amount on that account link.
+
 #### Deleting a goal
 
 You can delete a goal directly from the goal's page using the **Delete** option in the kebab menu — no need to archive it first. The confirmation dialog describes exactly what will be removed (linked accounts and pledges). Deleting a goal does not affect your transactions or account balances.
