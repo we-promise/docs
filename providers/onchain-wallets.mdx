@@ -13,7 +13,7 @@ For each asset Sure records:
 
 - The **quantity** held, read from the chain
 - A **holding** valued at the current price, or at zero when no price is available
-- The **transfers** in and out, as investment trades when the price for that day is known, so cost basis and the value chart reconstruct back to acquisition. When that day's price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
+- The **transfers** in and out, recorded as investment trades labeled "Transfer" when the price for that day is known, so cost basis and the value chart reconstruct back to acquisition. When that day's price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
 
 Balances are read-only and always derived from the chain. Editing them by hand is pointless: the next sync overwrites them.
 
@@ -85,12 +85,11 @@ Go to **Settings → Providers → On-chain wallets → Manage wallets**.
 |---|---|
 | **Review tokens** | Reopens the asset selection with the address unchanged. Use this to start tracking a token that arrived later, or stop tracking one you no longer want. |
 | **Stop tracking** (per asset) | Drops one asset. |
-| **Change address** | Corrects the address while keeping the accounts, holdings, and balance history attached to it. |
 | **Disconnect wallet** | Drops every asset at one address. |
 
 Disconnecting never deletes an account. The provider link is removed, holdings are detached, and what you can see stays as a manual account that no longer updates. Delete the account itself if you want it gone.
 
-An address can only be tracked once per network. To change which assets are tracked, use **Review tokens** rather than adding the address again.
+An address can only be tracked once per network. To change which assets are tracked, use **Review tokens** rather than adding the address again. To correct an address, remove it and add the new one — the history follows the address you remove, not the one you add.
 
 ## Rate limits and request cost
 
