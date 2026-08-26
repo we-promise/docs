@@ -154,9 +154,57 @@ You can save a budget that only sets an overall monthly amount without splitting
 
 You can always add category allocations later by editing the budget.
 
+## Rolling over unspent money
+
+Some expenses don't fit neatly into a single month — an annual insurance premium, a holiday fund, or a car-service reserve accumulates over time. Rollover lets a category carry its unspent balance forward instead of resetting to zero each month.
+
+### Enabling rollover for a category
+
+Turn on the **Rollover** toggle on any budget category card. Once enabled, the unspent amount from that month is automatically carried into the next month and added to whatever you allocate there.
+
+The category card shows two figures side by side: the month's allocation and the amount carried in from the previous month. The **available to spend** total combines both.
+
+Rollover is a standing choice for the envelope. Switching it on applies forward to all open and future months for that category. You can switch it off for a specific month to forfeit that month's surplus without changing the setting for months that follow.
+
+### How the carry is calculated
+
+```
+carried amount = max(0, previous allocation + previous carry − previous spending)
+```
+
+Only a surplus carries — an overspend does not carry as a negative. The carry stops if you change the category's currency.
+
+### Rollover in family budgets
+
+Each budget owner's rollover chain is independent. The household budget's carry is calculated using the whole family's shared accounts, so every member sees the same household carry regardless of who loaded the page.
+
+A parent category's carry is net of its individually funded subcategories' carries. Those subcategories track their own rollover, so the parent only carries its own reserve to avoid counting the same money twice.
+
+## Moving money between envelopes
+
+When one category is running short and another has a surplus, you can move the allocation between them in a single step instead of editing both categories separately.
+
+Open the **Move money** dialog from any category that has an allocation to give. Select the destination category, enter the amount, and confirm. Both allocations update at the same time, so the budget is never briefly over-allocated during the transfer.
+
+### Limits on moving money
+
+The following moves are not allowed:
+
+- Moving zero or a negative amount
+- Moving more than the source category has allocated
+- Moving between categories that belong to different budgets
+- Moving from a category to itself
+- Moving between a category and its direct parent or child
+
+The last restriction exists because a parent's allocation is derived from the sum of its children. Moving money across that boundary would be reversed automatically when the parent recalculates, so the total would not actually change.
+
+The dialog disables destination options that the move would not be allowed to proceed with.
+
 ## Tips for Effective Budgeting
 
 1. **Start simple** - Begin with just a few major categories before adding detail
 2. **Review monthly** - Check your budgets at the end of each month and adjust as needed
 3. **Use shared budgets** for categories where you want flexibility between subcategories
 4. **Use individual limits** when you need strict control over specific spending
+5. **Use rollover** for irregular or long-horizon expenses so unspent money accumulates month to month
+6. **Use Move money** to rebalance envelopes mid-month without losing track of your total allocation
