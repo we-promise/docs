@@ -112,10 +112,13 @@ Rules support the following condition types:
 
 - **Transaction name** – match on the transaction name or description
 - **Amount** – match on the transaction amount
-- **Account** – match on the account the transaction belongs to
-- **Category** – match transactions that already have a specific category assigned, or that have no category
+- **Transaction type** – match on whether the transaction is income, expense, or transfer
 - **Merchant** – match on the merchant associated with the transaction
+- **Category** – match transactions that already have a specific category assigned, or that have no category
 - **Tag** – match transactions that already have a specific tag applied, or that have no tags
+- **Transaction details** – search within provider-specific metadata such as SimpleFin payee, description, or memo fields
+- **Notes** – match on the notes you have added to a transaction
+- **Account** – match on the account the transaction belongs to
 
 The tag condition uses **Equal to** and **Is empty** operators, matching the same pattern as the category and merchant conditions. When you combine multiple tag conditions with AND, each condition is evaluated independently, so a transaction with both tags will match correctly.
 
