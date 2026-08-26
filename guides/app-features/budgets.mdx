@@ -154,6 +154,28 @@ You can save a budget that only sets an overall monthly amount without splitting
 
 You can always add category allocations later by editing the budget.
 
+## Available cash panel
+
+<Note>This panel is a preview feature. Enable preview features in **Settings → Preferences** to see it.</Note>
+
+Below the plan on the budget page, a separate panel shows what you actually have in cash — a real-money view that complements the forecast above it.
+
+The plan answers "what did I plan to spend?" and uses numbers you typed (`budgeted_spending`, `expected_income`). The cash panel answers "what do I actually have?" and reads live account balances.
+
+The panel shows three figures:
+
+| Figure | What it means |
+| --- | --- |
+| **Available** | Sum of all your cash account balances (checking, savings, and similar depository accounts), converted to your budget currency |
+| **Earmarked for goals** | The portion of those same cash accounts already claimed by active goals |
+| **Really free** | Available minus earmarked (floored at zero) |
+
+The earmarked amount only covers cash accounts, not investment accounts. Goals can be backed by brokerage or investment accounts, but those balances are never counted in "available" and are therefore not subtracted from it.
+
+In a multi-currency household, each account balance is converted to the budget currency before the figures are summed.
+
+A link to the Goals page appears in the panel so you can inspect what is earmarked and why.
+
 ## Tips for Effective Budgeting
 
 1. **Start simple** - Begin with just a few major categories before adding detail
