@@ -184,6 +184,30 @@ SURE_IMPORT_MAX_NDJSON_SIZE_MB=50
 
 This applies to both the GUI upload and the API upload paths. If you do not set this variable, the default limit is used.
 
+### Encryption keys for bank sync
+
+When you configure a bank sync provider (such as Plaid, SimpleFin, or Brex) on a self-hosted instance that has not set explicit Active Record encryption keys, Sure shows a warning before you save your credentials:
+
+> **Encryption keys missing** — This self-hosted install has not configured explicit Active Record encryption keys. Configure `primary_key`, `deterministic_key`, and `key_derivation_salt` before saving provider credentials in production.
+
+The trust statement on the provider form also changes to remind you that credentials will not be stored encrypted until you configure those keys.
+
+If encryption is not configured at all when you visit **Settings > Bank Sync**, Sure blocks access and redirects you with the same "Encryption keys missing" message.
+
+To resolve the warning, add these three variables to your `.env` file before saving any provider credentials in production:
+
+```txt
+ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY=your-primary-key
+ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=your-deterministic-key
+ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=your-key-derivation-salt
+```
+
+You can generate values with `openssl rand -hex 32` for each one. Once all three are present, the warning disappears and credentials are stored encrypted.
+
+<Note>
+Sure can derive these values from `SECRET_KEY_BASE` automatically, so the warning only appears when none of the three environment variables are explicitly set. If you already set `SECRET_KEY_BASE`, encryption is still active — you will only see the warning if you want to use dedicated keys instead. See [Turning on Active Record encryption after first boot](#turning-on-active-record-encryption-after-first-boot) if you need to backfill existing data.
+</Note>
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
