@@ -1,0 +1,128 @@
+---
+title: Savings goals
+description: Set savings targets, track your progress, and link accounts to fund one-time goals and ongoing reserves
+---
+
+Goals let you set a savings target, link one or more accounts as the funding source, and track progress toward that target over time. Two goal kinds cover different saving patterns: one-off goals for things you save toward once, and maintained goals (reserves) for floors you want to keep.
+
+## Goal kinds
+
+### One-off goals
+
+A one-off goal has a single target to reach. When your balance hits the target, you can mark it complete. Completing a one-off goal releases the earmark on its linked accounts, freeing that balance for other goals.
+
+Use one-off goals for: a vacation, a down payment, a large purchase, or any discrete saving effort with a clear finish line.
+
+### Maintained goals (reserves)
+
+A maintained goal is a floor to hold, not a line to cross. An emergency fund, for example, is not an achievement to file away — it is a level to sustain. When you are at or above the target, the status shows **funded**. When you drop below it, the status shows **depleted**.
+
+Maintained goals cannot be completed. They do not release their earmarks until you archive them.
+
+Use maintained goals for: an emergency fund, a buffer account, or any reserve that should stay above a minimum level indefinitely.
+
+## Setting a target amount
+
+Goals support two ways to express the target:
+
+- **Fixed amount**: You type the exact number you want to save.
+- **Months of expenses**: For maintained goals only. Sure calculates your median monthly expenses from your transaction history and multiplies it by the number of months you choose. This figure updates automatically each month so the floor adjusts as your spending changes.
+
+## Linking accounts
+
+Each goal must be linked to at least one account. The accounts you link act as the funding source — their balances (or a portion of them) count toward the goal's progress.
+
+### Whole-account links vs. earmarks
+
+When you link an account without specifying an earmark amount, the account's full balance (minus what other goals have already claimed) counts toward this goal. When you set an earmark, only the earmarked amount is reserved for this goal, and the rest of the account remains available for other goals.
+
+An account can only be linked exclusively to one goal. If another goal already has a whole-account link on the same account, you must use an earmark to share it.
+
+### Supported account types
+
+- Cash accounts (checking, savings, and similar deposit accounts) use balance changes and incoming transfers to track progress.
+- Investment accounts default to the contributions progress basis (see below).
+
+## Progress basis
+
+By default, a goal's progress is calculated from the **balance** of its linked accounts. For investment-backed goals, progress defaults to **contributions** instead — the total amount deposited — because market fluctuations would otherwise make the progress ring jump around.
+
+You can switch between the two bases when creating or editing a goal:
+
+- **Balance**: Progress reflects the current balance (or earmarked portion) of the linked accounts.
+- **Contributions**: Progress reflects only the money deposited into the linked accounts since the goal was created.
+
+## Pledges
+
+A pledge is a commitment to move money toward a goal. When you create a pledge, Sure watches for a matching transaction over the next seven days:
+
+- For accounts linked to a provider (synced accounts), Sure looks for an incoming transfer that matches the pledge amount within $0.50 or 1%, dated within five days.
+- For manual accounts, Sure watches for a balance increase (via a manual valuation update) that matches the pledge amount within the same tolerance.
+
+Once a matching transaction or balance change arrives, the pledge is marked **matched** and the contribution is recorded. Unmatched pledges expire after seven days. You can extend or renew an expired pledge from the goal detail page.
+
+## Goal states
+
+| State | Description |
+| --- | --- |
+| **Active** | The goal is open and tracking progress. |
+| **Paused** | Tracking is suspended. The goal stays visible but pace calculations stop. |
+| **Completed** | The one-off goal was reached and closed. The earmark is released. |
+| **Archived** | The goal is hidden from the active list. The earmark is released. |
+
+State transitions:
+
+- Active → Paused (pause)
+- Paused → Active (resume)
+- Active or Paused → Completed (one-off goals only, when target is reached)
+- Active, Paused, or Completed → Archived
+- Archived → Active (unarchive)
+- Completed → Active (reopen)
+
+## Progress statuses
+
+For one-off goals:
+
+| Status | Meaning |
+| --- | --- |
+| **Reached** | Target met or goal completed. |
+| **On track** | Current pace is sufficient to hit the target by the deadline. |
+| **Behind** | Current pace will not reach the target in time. |
+| **No target date** | Open-ended goal; no deadline set. |
+
+For maintained goals:
+
+| Status | Meaning |
+| --- | --- |
+| **Funded** | Balance is at or above the target floor. |
+| **Depleted** | Balance has fallen below the target floor. |
+
+## Creating a goal
+
+1. Go to **Goals** in the sidebar.
+2. Click **New goal**.
+3. In the first step, choose a name, icon, and color for the goal.
+4. In the second step:
+   - Select a goal kind (one-off or maintained).
+   - Enter the target amount or choose months of expenses (maintained only).
+   - Set a target date if you want pace tracking (one-off only).
+   - Link one or more accounts and optionally set earmark amounts.
+5. Click **Create goal**.
+
+## Editing a goal
+
+Open the goal from the index, then click the edit button in the header. You can change the name, color, target amount, target date, linked accounts, and earmark amounts at any time. The goal kind is locked once any amount has been consumed.
+
+## Viewing progress
+
+The goal detail page shows:
+
+- A progress ring with the current percentage toward the target.
+- The current balance across linked accounts.
+- The remaining amount still needed.
+- The pace (monthly saving rate) and whether it is on track.
+- A projection chart showing the estimated completion date at the current pace.
+- Per-account funding breakdown with each account's contribution.
+- Any open (pending) pledges.
+
+The goal index shows a card for each goal with the progress ring, remaining amount, and status. Goals that need attention (behind pace or depleted reserves) sort to the top.
