@@ -47,13 +47,13 @@ The dashboard feed and API response order insights by priority first, then by re
 
 The dashboard shows the three highest-priority, unacknowledged insights. Clicking an insight marks it `read`. Dismissing it marks it `acknowledged`.
 
-## Native iOS app (experimental)
+## Sure Insights app (experimental)
 
-The Swift-native Sure Insights app receives push notifications when new insights are generated. Notifications respect your locale and honor per-insight notification preferences.
+The Sure Insights app is a native Swift iOS app that receives push notifications when new insights are generated. Notifications respect your locale and honor per-insight notification preferences.
 
-To enable push notifications in your native app, register the device token using the Push Subscriptions API (`POST /api/v1/push_subscriptions`). The app sends the APNs token at launch and removes it on sign-out.
+To enable push notifications, register the device token using the Push Subscriptions API (`POST /api/v1/push_subscriptions`). The app sends the APNs token at launch and removes it on sign-out.
 
-The native iOS app is experimental. Features and behavior may change.
+Sure Insights is experimental. Features and behavior may change.
 
 ## Requirements
 
