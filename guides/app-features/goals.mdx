@@ -1,0 +1,111 @@
+---
+title: Goals
+description: Save toward specific targets, track your progress, and record when you spend the money you set aside.
+---
+
+# Goals
+
+Goals let you earmark money inside your existing accounts toward something specific — a holiday, an emergency fund, a down payment. Sure tracks progress using the balances of the accounts you link, so you do not need to move money anywhere.
+
+## Goal types
+
+| Type | What it means |
+|---|---|
+| One-off | A target to reach and close — you save up, spend the money, and the goal is done. |
+| Reserve to maintain | A floor to hold, like an emergency fund. There is no finish line; the goal stays open and flags if the balance drops below target. |
+
+## Creating a goal
+
+1. Go to **Goals** and click **New goal**.
+2. Give it a name and set a target amount.
+3. Choose a goal type: **One-off goal** or **Reserve to maintain**.
+4. Optionally set a target date. Sure uses it to project a finish line and calculate your required monthly pace.
+5. Link one or more funding accounts. The balance of those accounts (or the portion you earmark) counts toward your progress.
+6. Click **Create goal**.
+
+### Linking accounts
+
+Only depository and investment accounts can fund a goal. For each linked account you can either:
+
+- **Dedicate the whole balance** — the account's full balance is reserved for this goal.
+- **Earmark a specific amount** — only that amount counts toward this goal, leaving the rest of the balance available for other purposes.
+
+When two goals share an account, Sure uses earmarked amounts to prevent double-counting: one goal cannot claim the same dollars as another.
+
+## Tracking progress
+
+Progress is calculated as:
+
+```
+(money currently backing the goal + money you have already spent on it) / target
+```
+
+The ring and percentage on the goal page reflect this. If you have spent money from the goal using **Record a spend** (see below), that spent amount continues to count toward progress so the goal does not look like it fell behind.
+
+### Status labels
+
+| Status | Meaning |
+|---|---|
+| On track | At the current savings pace, you will hit your target by the deadline. |
+| Behind | The current pace is not enough to reach the target on time. |
+| Open | No target date set; the goal runs indefinitely. |
+| Funded / Reserve intact | A reserve goal is at or above its floor. |
+| Depleted / Needs topping up | A reserve goal has dropped below its floor. |
+| Paused | Contributions have stopped; the earmark is still held. |
+| Completed | The goal was closed after reaching its target. |
+| Archived | The goal is hidden from the main list but still exists as a record. |
+
+### Projection chart
+
+When a target date is set, the projection chart shows your current savings trajectory alongside the pace you need to reach the target on time. If you are behind, the chart shows by how much and calculates the extra monthly amount required to catch up.
+
+## Recording a spend
+
+When you spend the money a goal was saving for — for example, you come home from a holiday the goal funded — use **I used some of this money** on the goal page. This opens the **Record a spend** dialog.
+
+Enter the amount you spent. If the goal is backed by more than one account, choose which account the money came out of.
+
+What happens when you record a spend:
+
+- The spent amount is added to `consumed_amount`, which continues to count toward your progress. The goal does not drop in progress just because you spent the money.
+- The earmark on the linked account shrinks by the same amount, releasing that reserved share so your other goals on the same account get their backing back.
+
+Restrictions:
+
+- Only active, one-off goals can record a spend. Reserves are drawn down and refilled, not spent.
+- You cannot record more than the earmark the chosen account holds for this goal.
+- You cannot record more than the total target the goal set out to save.
+- The goal must still be active (not completed or archived).
+
+## Lifecycle actions
+
+From the goal's action menu or page, you can:
+
+| Action | What it does |
+|---|---|
+| Pause | Stops tracking pace. The earmark is still held. Resume to continue. |
+| Resume | Returns a paused goal to active. |
+| Mark complete | Closes the goal and records what you reached. Releases the earmark so sibling goals get their backing back. |
+| Archive | Hides the goal from the main list. Does not record what you reached — mark complete first if you want that kept. |
+| Restore | Returns an archived goal to the main list. |
+| Reopen | Returns a completed goal to active, resetting the frozen completion amount. |
+| Delete | Permanently removes the goal and its pledge history. Linked accounts and balances are not affected. |
+
+## Pledges
+
+A pledge records a transfer or manual balance edit you plan to make toward a goal. Sure confirms it automatically on the next sync when a matching deposit appears on the linked account.
+
+- **Transfer pledge** — log a bank transfer you have already made. Confirms when Sure spots the matching deposit.
+- **Manual pledge** — log money you have set aside in a manual account. Confirms on your next manual balance edit.
+
+Pledges expire after a set number of days. You can extend a pending pledge by 7 days or cancel it at any time.
+
+## Reserves vs. one-off goals
+
+A **reserve** (maintained goal) works differently from a one-off goal in a few ways:
+
+- It has no target date and no projection.
+- Progress of 100% means the floor is intact, not that the goal is done.
+- When the balance drops below the target, the goal shows as **Depleted** and surfaces the shortfall.
+- You cannot record a spend against a reserve — withdrawals from the account simply reduce the balance, and the goal reports the shortfall directly.
+- A goal that has recorded a spend cannot be converted to a reserve after the fact.
