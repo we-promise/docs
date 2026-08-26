@@ -601,7 +601,7 @@ The system health page always bypasses the cache and fetches fresh state, so you
 
 The system health page has an **AI** tab at `/admin/system_health?tab=ai`. Opening it runs bounded, non-destructive live checks against the effective AI configuration:
 
-- **LLM probe** — Queries the models list on the configured provider (OpenAI, Anthropic, or any OpenAI-compatible endpoint) and verifies the configured model is available.
+- **LLM probe** — Verifies the configured model is available. For standard OpenAI, it queries the models list. For OpenAI-compatible endpoints (Ollama, OpenRouter, etc.), it sends a short chat completion request instead, since many compatible providers do not implement the models list endpoint.
 - **Vector store probe** — For OpenAI vector stores, confirms a list request succeeds without creating or modifying a store. For pgvector, checks that the `vector` extension is enabled and the chunks table exists.
 - **Embedding probe** — For pgvector, sends a short test embedding request and verifies the returned vector matches `EMBEDDING_DIMENSIONS`. The test vector is not stored.
 
