@@ -113,6 +113,10 @@ LUNCHFLOW_DEBUG_RAW=1
 
 When the Lunch Flow API rejects fetches — for example due to rate limiting or a transient network error — Sure marks the sync as unhealthy and surfaces a warning in the UI. The warning message indicates how many accounts or transaction fetches failed. Once the Lunch Flow API becomes available again, trigger a manual sync from the Accounts page to clear the error and import the missing data.
 
+### Balances during rate limits
+
+If the Lunch Flow balance endpoint returns an error (for example a 429 rate-limit response), Sure keeps the existing balance on your account rather than resetting it to zero. The account balance stays unchanged until a successful balance fetch updates it on the next sync.
+
 ### Pending transactions stuck with a "Pending" badge
 
 Lunch Flow assigns stable IDs to most transactions. When a transaction moves from pending to posted under the same ID, Sure detects that the stored snapshot has changed and refreshes it automatically on the next sync, clearing the pending status.
