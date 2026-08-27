@@ -1,75 +1,109 @@
 ---
-title: Goals
-description: Track savings goals and maintain financial reserves like an emergency fund
-keywords: ['goals', 'savings', 'reserve', 'emergency fund', 'one-off', 'maintained']
+title: "Goals"
+description: "Set savings goals and emergency fund reserves, track progress, and record pledges in Sure"
 ---
 
-## Overview
+# Goals
 
-Goals let you earmark money in your linked accounts toward specific targets. You can track a one-time savings target — a vacation, down payment, or new car — or maintain a standing reserve that you keep topped up at all times, like an emergency fund.
+Goals let you earmark money in your accounts toward specific targets — a vacation fund, a new car, or an emergency reserve. Sure reads the live balance of the linked accounts to show you progress, projected completion, and how much you need to save each month.
 
-## Goal kinds
+<Note>
+Goals require preview features to be enabled. Go to **Settings → Preferences** and turn on **Enable preview features** to access Goals.
+</Note>
 
-When you create a goal you choose its kind. The kind changes what 100% means, whether the goal can be closed, and how it appears in your list.
+## Goal types
 
-### One-off goal
+Every goal is one of two kinds:
 
-A one-off goal has a finish line. Once you reach it, Sure offers to close it, which releases the earmarked money. You can set a target date and Sure will tell you whether your current savings pace will get you there on time.
+**One-off goals** are saved toward once and then closed. You set a target amount, an optional deadline, and Sure tracks how close you are. When the target is reached you can mark it complete. A vacation fund, a car down-payment, or a home repair budget are all one-off goals.
 
-**Statuses for one-off goals:**
+**Maintained goals** are floors to hold, not milestones to cross. An emergency fund is a maintained goal: reaching the target is good, but the goal keeps running so you know when the balance drops below the floor. Maintained goals cannot be completed — they can only be paused or archived.
 
-| Status | Meaning |
-|---|---|
-| `reached` | Balance meets or exceeds the target — goal can be closed |
-| `on_track` | Pace is sufficient to reach the target by the deadline |
-| `behind` | Pace is not sufficient to reach the target by the deadline |
-| `no_target_date` | Open-ended — no deadline set |
+## Progress basis
 
-### Reserve to maintain
+For goals backed by **depository accounts** (checking, savings), Sure uses the account balance to measure progress.
 
-A reserve goal is a floor you hold, not an achievement you file away. An emergency fund is the typical example: once it is full you do not close it — you keep it there, and any withdrawal is a shortfall to rebuild.
-
-A maintained reserve:
-
-- Cannot be closed. Closing would release the earmarked money, which is the opposite of what a reserve is for. You can archive or pause it instead.
-- Has no target date and no pace calculation. "Save $X per month to catch up" advice is not relevant when there is no deadline.
-- Does not count toward the "goals on track" tile. A funded reserve is working exactly as intended; it is neither on track nor behind.
-
-**Statuses for maintained reserves:**
-
-| Status | Meaning |
-|---|---|
-| `funded` | Balance meets the target level — reserve is whole |
-| `depleted` | Balance is below the target level — shortfall needs rebuilding |
-
-A depleted reserve sorts alongside `behind` goals in your list and triggers a high-priority insight (see [Insights](/guides/app-features/insights)).
-
-## Display order
-
-Active goals appear in this order: goals needing attention first (behind or depleted), then on-track goals, then open-ended goals, then funded reserves. Paused goals sort last.
+For goals backed by **investment accounts**, Sure defaults to the **contributions basis**: the net amount deposited into the account, excluding market gains. This prevents a market decline from making a goal look behind even when you have kept up with savings.
 
 ## Creating a goal
 
-You can create a goal from the Goals page. Link at least one depository or investment account. The linked accounts are what Sure reads the balance from — no money moves automatically.
+1. Open **Goals** from the main navigation.
+2. Click **New goal**.
+3. Choose a kind (**One-off** or **Maintained**).
+4. Enter a name, target amount, currency, and optional deadline (one-off only).
+5. Pick one or more accounts to link. Accounts must be depository or investment type.
+6. Optionally add a color, icon, and notes.
+7. Save.
 
-When you select "Reserve to maintain" the target date field is hidden. Any date stored from a previous kind is cleared.
+### Emergency fund targets
 
-## Linked accounts and earmarks
+When creating a maintained goal you can set the target as a **fixed amount** or as **N months of expenses**. With the months-of-expenses mode Sure calculates the target from your family's median monthly spend and updates the figure automatically on the first of each month so the floor stays meaningful as your spending changes.
 
-Each linked account can contribute either a fixed earmark (a specific dollar amount reserved for this goal) or its entire remaining balance after other goals' fixed earmarks.
+## Tracking progress
 
-Goals denominated in a currency different from their linked accounts are blocked at save time.
+Each goal card shows:
 
-## Pausing and archiving
+- Current balance of linked accounts toward the target
+- Progress percentage
+- Monthly saving rate needed to reach a deadline (one-off goals with a target date)
+- Current pace (rolling 90-day average net inflow into the linked accounts, divided by three months)
+- Status pill
 
-- **Pause** — stops the pace clock without releasing the earmark. A paused goal still reserves its money.
-- **Archive** — releases the earmark. The accounts are free for other goals or general use.
-- **Reopen** — moves a completed goal back to active. For a reserve, you must reopen it before you can change its kind.
+### Status values
+
+| Status | Meaning |
+| --- | --- |
+| On track | You are saving at or above the required monthly rate |
+| Behind | Your pace is below what you need to hit the deadline |
+| Reached | The balance meets or exceeds the target (one-off) |
+| No target date | Open-ended goal, no deadline |
+| Funded | The reserve is at or above its floor (maintained) |
+| Depleted | The reserve has fallen below its floor (maintained) |
+
+Paused goals show a **Paused** badge instead of a status, because the pace clock is intentionally stopped.
 
 ## Pledges
 
-A pledge records that you have saved or transferred money toward a goal. Sure matches it to the next qualifying transaction on the linked account and marks the pledge fulfilled. Unmatched pledges expire after a set window.
+A pledge is a recorded intent to add money toward a goal. Use it when you want to track a specific deposit you plan to make.
 
-## Plan hub
+**To add a pledge:**
 
-The Plan hub shows a summary card across all active goals. The progress bar reflects the count of goals that need attention — behind one-offs and depleted reserves both count.
+1. Open the goal's page.
+2. Click **I'm saving toward this**.
+3. Choose an account, enter the amount, and confirm.
+
+Sure watches incoming transactions and account-balance updates for the pledge window. When a matching deposit arrives — within $0.50 or 1% of the pledge amount and within the pledge window — Sure marks the pledge as matched and links it to the transaction.
+
+Pledges expire after seven days if no matching transaction arrives. You can extend a pledge's window or renew it.
+
+## Recording spending from a goal
+
+When you use money saved toward a goal — for example, you pay for the trip your vacation fund covered — record the spend so the goal's progress stays accurate.
+
+1. Open the goal's page.
+2. Choose **I used some of this** from the menu.
+3. Enter the amount spent and the account it came from.
+
+Sure reduces the goal's earmark on the linked account by the same amount, so the money is freed up for other goals or regular spending.
+
+## Goal states
+
+A goal moves through the following states:
+
+| State | Meaning |
+| --- | --- |
+| Active | Running normally |
+| Paused | Saving stopped intentionally; the earmark is preserved |
+| Completed | Target was reached and the goal was closed (one-off only) |
+| Archived | Kept as a record; the earmark is released back to the account |
+
+Deleting a goal removes it and its pledges entirely. It does not affect your account balances or transactions.
+
+## Linked accounts and earmarks
+
+A goal earmarks the balance of its linked accounts. If you link a single account to two goals, both goals count the full balance — be aware that the balance is not split between them automatically. To split a balance you can allocate a specific portion to each goal using the earmark controls in the goal form.
+
+## Background jobs
+
+- **SweepExpiredGoalPledgesJob** — runs every 15 minutes and marks pledges that have passed their window as expired.
+- **RefreshMaintainedGoalTargetsJob** — runs at 3:00 AM on the first of each month and recalculates the target amount for any maintained goal using the months-of-expenses mode.
