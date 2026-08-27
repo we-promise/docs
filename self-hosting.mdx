@@ -174,6 +174,16 @@ If you enable passkeys or security keys on a public hostname, also set `WEBAUTHN
 If you only want Cloudflare Tunnel access, do not leave port `3000` broadly exposed to the internet. Keep the host firewall closed or bind the published port more narrowly.
 </Warning>
 
+### Reverse proxy sub-path deployments
+
+Sure can be served under a path prefix by a reverse proxy — for example `https://home.example.com/sure` instead of the root. The web app works at that address with no extra configuration.
+
+When using the macOS desktop app with a sub-path deployment, enter the full mounted URL (including the path prefix) when adding the server. The app probes the health endpoint at the address you enter and walks up to the origin to find the correct mount point, so pasting a deep link such as `https://home.example.com/sure/sessions/new` also works.
+
+<Note>
+The `RAILS_RELATIVE_URL_ROOT` environment variable tells Rails that it is mounted under a prefix. Set it to the path portion if your reverse proxy strips the prefix before forwarding, or configure the proxy to preserve the path and leave the variable unset.
+</Note>
+
 ### Import size variables
 
 By default, Sure NDJSON imports are limited to a fixed maximum file size. Self-hosted admins can raise this limit with:
