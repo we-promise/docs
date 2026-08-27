@@ -72,6 +72,44 @@ Sure shows helpful daily suggestions like "\$29.91 suggested per day for 11 rema
 
 When editing a subcategory's budget, you'll see "Shared" as the placeholder text. Leave the field empty or set it to \$0 to share the parent category's budget. Hover over the field to see the tooltip: "Leave empty to share parent's budget".
 
+## Budget rollover
+
+By default, a category's budget resets to zero at the start of each month. Rollover lets you carry any unspent balance forward so it accumulates over time — useful for irregular expenses like an annual insurance payment, a holiday fund, or car servicing.
+
+### Enabling rollover for a category
+
+Open the budget and edit any category. Toggle **Rollover** on to enable it. Once enabled, any surplus left at the end of the month carries into the next month's envelope for that category.
+
+The setting persists: you don't have to re-enable it each month. Turning it off for a specific month stops the carry in both directions for that month — the category neither receives a carry from the previous month nor sends one to the next.
+
+### How the carry is calculated
+
+```
+carried_in = rollover_enabled
+             ? max(0, budgeted_last_month + carried_in_last_month - spent_last_month)
+             : 0
+```
+
+Only a surplus carries — an overspend never reduces next month's envelope. The carry is shown alongside the monthly allocation on the category card so you can see both figures.
+
+### What rollover affects
+
+| Field | Effect |
+|---|---|
+| `available_to_spend` | Includes the carried amount |
+| `percent_of_budget_spent` | Counts the carried amount as part of the envelope |
+| `display_budgeted_spending` | Shows the current month's allocation only, not the carry |
+
+The top-of-page budget totals (`budgeted_spending`, `allocated_spending`, `available_to_allocate`) are not affected by the carry.
+
+### Rollover and personal budgets
+
+Each budget owner's rollover chain is independent. A household budget's carry is shared across all family members and is not influenced by who views the page. A personal budget's carry follows only that member's own accounts.
+
+### Currency changes
+
+If a category's currency changes, the rollover chain stops at the point of the change. The carry will not cross a currency boundary.
+
 ## Subcategories and Shared Budgets
 
 You can organize your spending further with subcategories. For example, "Food & Dining" might include:
