@@ -36,6 +36,8 @@ The macOS desktop app is a Tauri 2 shell that renders the full Sure web app in a
 
 Use it when someone wants a desktop app experience without a separate desktop data model. It uses the same server, authentication, MFA, and permissions as the browser.
 
+The app supports servers hosted under a sub-path. If your self-hosted instance is mounted behind a reverse proxy at a path prefix — for example `https://home.example.com/sure` — enter that full URL when adding the server. The app probes the health endpoint starting at the address you entered and walks up to the origin to find the actual mount point. You can also paste a deep link (such as a session URL copied from your browser) and the app will resolve the correct base automatically.
+
 ## Mobile app
 
 The mobile app is a Flutter companion app for iOS and Android. It connects to a Sure server through the API and currently focuses on core mobile flows such as authentication and viewing account balances.
