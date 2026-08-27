@@ -779,14 +779,16 @@ docker compose -f compose.ai.yml --profile external-assistant up -d
 
 Pipelock sits between Sure and external services and provides:
 
-- MCP request and response scanning for secret exfiltration, prompt injection, and tool poisoning
-- HTTPS tunnel controls for destination, SSRF, rate, budget, and CONNECT headers
+- MCP request and response scanning for DLP, prompt injection, and tool poisoning
+- HTTPS tunnel controls for destination, SSRF, rate, budget, CONNECT headers, and optional signed receipts
 
 When using `compose.example.ai.yml`, Pipelock is always running. External AI agents should connect to port `8889` (Pipelock's MCP reverse proxy) instead of directly to Sure's `/mcp` on port `3000`.
 
 <Note>
 The example compose file does not enable TLS interception, so Pipelock controls the tunnel destination but cannot read encrypted request or response bodies. Docker Compose also does not prevent a client from bypassing the proxy.
 </Note>
+
+For full Pipelock configuration including signed receipts, see the [Pipelock documentation](https://github.com/we-promise/sure/blob/main/docs/hosting/pipelock.md).
 
 ## Local development bind
 
