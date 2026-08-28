@@ -147,6 +147,31 @@ PLAID_ENV=production  # Use 'production' for Full/Limited Production Access, or 
 
 After updating your configuration, restart your Sure instance. You should now see the **Link account** option in the Sure UI.
 
+## Managing accounts
+
+### Adding accounts to an existing connection
+
+If you have an existing US Plaid connection and want to add more accounts from the same institution, you do not need to create a new connection.
+
+1. Go to **Settings > Providers** and find your Plaid connection
+2. Click **Add accounts** next to the connection
+3. The Plaid Link flow opens with account selection enabled
+4. Select the additional accounts you want to add
+5. Complete the flow — Sure will sync the new accounts automatically
+
+The **Add accounts** button is only available for US Plaid connections.
+
+### Linking an unlinked Plaid account to an existing Sure account
+
+If you have a Plaid account that is not yet linked to any Sure account, you can connect it to an existing account rather than creating a new one.
+
+1. Go to **Settings > Providers** and find the account you want to link
+2. Open the account menu and choose the option to link to a Plaid account
+3. A dialog lists all unlinked Plaid accounts available in your family
+4. Select the Plaid account and click **Link account**
+
+If no accounts appear in the list, all of your Plaid accounts are already linked. Connect a new Plaid account first.
+
 ## Features
 
 - **US bank coverage**: Comprehensive support for US financial institutions
