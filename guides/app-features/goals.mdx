@@ -84,7 +84,12 @@ When you use money saved toward a goal — for example, you pay for the trip you
 2. Choose **I used some of this** from the menu.
 3. Enter the amount spent and the account it came from.
 
-Sure reduces the goal's earmark on the linked account by the same amount, so the money is freed up for other goals or regular spending.
+Sure records the spend and adjusts the goal's earmark on the linked account so the money is freed up for other goals or regular spending.
+
+- For goals with a **fixed earmark** (a specific amount allocated to the goal), the earmark is reduced by the amount spent.
+- For goals linked to a **whole account** (no fixed amount set), the whole-account link is converted to a fixed earmark equal to what the goal still needs to reach its target, capped by what the account currently backs. This prevents the consumed amount from being counted twice when the account balance catches up after the transaction syncs.
+
+If the amount you enter exceeds what the account currently backs for this goal, the spend is refused.
 
 ## Goal states
 
@@ -101,7 +106,12 @@ Deleting a goal removes it and its pledges entirely. It does not affect your acc
 
 ## Linked accounts and earmarks
 
-A goal earmarks the balance of its linked accounts. If you link a single account to two goals, both goals count the full balance — be aware that the balance is not split between them automatically. To split a balance you can allocate a specific portion to each goal using the earmark controls in the goal form.
+A goal earmarks the balance of its linked accounts. You can link an account to a goal in two ways:
+
+- **Whole account** — the goal claims the entire account balance. Only one active goal at a time can hold a whole-account link on any given account. Trying to add a second whole-account link to the same account is refused.
+- **Fixed earmark** — you allocate a specific amount of the account balance to the goal. Multiple goals can each hold a fixed earmark on the same account, provided the total does not exceed the balance.
+
+To split a balance between goals, allocate a specific portion to each goal using the earmark controls in the goal form.
 
 ## Background jobs
 
