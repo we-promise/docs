@@ -29,8 +29,8 @@ Open a transaction to update the fields that affect reporting and review:
 - **Name**: The display name for the transaction
 - **Date**: The transaction date
 - **Amount**: The transaction amount and direction
-- **Account**: The account the transaction belongs to
-- **Category**: The income or expense category used for budgets and reports
+- **Account**: The account the transaction belongs to. When adding a new transaction, the account selector includes a search box so you can find the right account quickly.
+- **Category**: The income or expense category used for budgets and reports. Subcategories appear indented under their parent in every category selector across the app, so the hierarchy is always visible when you assign or change a category.
 - **Merchant**: The merchant or payee associated with the transaction
 - **Tags**: Extra labels for flexible filtering
 - **Notes**: Private context for the transaction
@@ -51,7 +51,7 @@ When there are uncategorized transactions, use the categorize flow to work throu
 
 If the category you need does not exist yet, you can create it inline from the category selector without leaving the transaction form. Type a new name in the selector and choose the option to create it.
 
-Use subcategories when you want more detail within a broader category. For example, a parent category such as **Food & Dining** can contain subcategories such as **Groceries**, **Restaurants**, and **Coffee**. Budgets can use those subcategories individually or share the parent budget.
+Use subcategories when you want more detail within a broader category. For example, a parent category such as **Food & Dining** can contain subcategories such as **Groceries**, **Restaurants**, and **Coffee**. Subcategories are displayed indented under their parent in all category selectors — including the transaction form, bulk edit, rule builder, search filters, and import mapping — so the full hierarchy is always visible. Budgets can use subcategories individually or share the parent budget.
 
 ### Create a category inline
 
@@ -116,10 +116,13 @@ Rules support the following condition types:
 
 - **Transaction name** – match on the transaction name or description
 - **Amount** – match on the transaction amount
-- **Account** – match on the account the transaction belongs to
-- **Category** – match transactions that already have a specific category assigned, or that have no category
+- **Transaction type** – match on whether the transaction is income, expense, or transfer
 - **Merchant** – match on the merchant associated with the transaction
+- **Category** – match transactions that already have a specific category assigned, or that have no category
 - **Tag** – match transactions that already have a specific tag applied, or that have no tags
+- **Transaction details** – search within provider-specific metadata such as SimpleFin payee, description, or memo fields
+- **Notes** – match on the notes you have added to a transaction
+- **Account** – match on the account the transaction belongs to
 
 The tag condition uses **Equal to** and **Is empty** operators, matching the same pattern as the category and merchant conditions. When you combine multiple tag conditions with AND, each condition is evaluated independently, so a transaction with both tags will match correctly.
 
