@@ -88,6 +88,19 @@ SimpleFIN is a paid service, but typically more affordable than alternatives lik
 
 ## Troubleshooting
 
+### Incorrect balance sign on credit cards or loans
+
+SimpleFIN reports liability balances from the bank's perspective (positive = you owe money). Sure converts these into the correct sign for net worth calculations — liabilities reduce net worth, so their balances are stored as negative values.
+
+For **loans**, Sure trusts the bank's sign directly and stores the absolute value of the reported balance. Earlier versions incorrectly ran a transaction-history heuristic on loans, which could invert the balance and make the loan appear to add to your net worth instead of subtracting from it. This is now fixed.
+
+For **credit cards**, Sure uses recent transaction history to determine whether a positive balance represents debt (normal) or an overpayment credit (unusual). When there is not enough transaction history to decide, Sure falls back to sign-based normalization using both the posted and available balances reported by the institution.
+
+If a credit card or loan balance looks wrong after syncing:
+
+1. Re-sync the account from **Settings → Providers → SimpleFIN**.
+2. If the balance is still incorrect, check whether the account type is set to **Credit Card** or **Loan** in your account settings. An incorrect account type can cause the wrong normalization to be applied.
+
 ### Duplicate accounts with the same name
 
 If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure's sync logic previously could confuse them — the unlinked account would silently steal the linked account's connection, merge in its transactions, and overwrite its balance on every sync.
