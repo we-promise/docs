@@ -100,6 +100,15 @@ Sure tracks cost basis from three sources, in order of priority:
 
 This hierarchy ensures your manual entries always take precedence, calculated values override provider data, and provider data is used when nothing else is available.
 
+### Transfers and cost basis
+
+When securities are transferred **into** an account, Sure cannot determine what those units originally cost. Because the purchase happened elsewhere — at a price nothing in this account recorded — any calculated cost basis for that position would be fabricated rather than real. Sure marks the position's cost basis as unknown so you are not shown a misleading figure.
+
+When securities are transferred **out** of an account, Sure does not touch the cost basis of the shares that remain. Those remaining shares came from real purchases this account recorded, and their cost basis is correct. You can set it manually if you need to record it explicitly.
+
+> [!NOTE]
+> Only a calculated cost basis is cleared on an inbound transfer. If you have set a manual cost basis, or your institution provided one, Sure keeps that value — it represents an explicit assertion about what the position cost, which the app respects.
+
 ### Setting Cost Basis Manually
 
 You can set cost basis in two ways:
