@@ -102,3 +102,11 @@ MFAPI is a free, open-source API for Indian mutual fund NAV (Net Asset Value) da
 - **Rate limits**: No strict limits
 - **Coverage**: Indian mutual funds only (BSE-listed schemes)
 - **API key**: Not required
+
+## Price freshness
+
+When Sure cannot fetch a real price for a given date (for example, on weekends or market holidays when providers return no data), it carries the last known price forward to fill the gap. These gap-filled prices are marked as **provisional**.
+
+Provisional prices are automatically replaced the next time a sync runs and the provider returns a real value for that date. Sure re-checks provisional prices within a 7-day rolling window, so a Friday price carried forward over a weekend is corrected as soon as Monday's data is available.
+
+Prices older than 7 days that were gap-filled are kept as-is and are not re-fetched. Prices you edit manually are never marked provisional and are not overwritten by syncs.
