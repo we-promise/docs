@@ -17,7 +17,7 @@ Every goal is one of two kinds:
 
 **One-off goals** are saved toward once and then closed. You set a target amount, an optional deadline, and Sure tracks how close you are. When the target is reached you can mark it complete. A vacation fund, a car down-payment, or a home repair budget are all one-off goals.
 
-**Maintained goals** are floors to hold, not milestones to cross. An emergency fund is a maintained goal: reaching the target is good, but the goal keeps running so you know when the balance drops below the floor. Maintained goals cannot be completed — they can only be paused or archived.
+**Maintained goals** are target balances to hold, not milestones to cross. An emergency fund is a maintained goal: reaching the target is good, but the goal keeps running so you know when the balance drops below the target balance. Maintained goals cannot be completed — they can only be paused or archived.
 
 ## Progress basis
 
@@ -37,7 +37,9 @@ For goals backed by **investment accounts**, Sure defaults to the **contribution
 
 ### Emergency fund targets
 
-When creating a maintained goal you can set the target as a **fixed amount** or as **N months of expenses**. With the months-of-expenses mode Sure calculates the target from your family's median monthly spend and updates the figure automatically on the first of each month so the floor stays meaningful as your spending changes.
+When creating a maintained goal you can set the target balance as a **fixed amount** or as **N months of expenses**. With the months-of-expenses mode Sure calculates the target balance from your family's median monthly spend and updates the figure automatically on the first of each month so the target balance stays meaningful as your spending changes.
+
+In months mode the target balance field is replaced by a derived display. If your family has no spending history yet, the form shows "Worked out when you save" and keeps the field editable so you can enter an initial amount manually. Once a history exists, the form shows the calculated figure instead of a text input.
 
 ## Tracking progress
 
@@ -59,8 +61,8 @@ When you have recorded spending from a goal, a secondary line reads **"Including
 | Behind | Your pace is below what you need to hit the deadline |
 | Reached | The balance meets or exceeds the target (one-off) |
 | No target date | Open-ended goal, no deadline |
-| Funded | The reserve is at or above its floor (maintained) |
-| Depleted | The reserve has fallen below its floor (maintained) |
+| Funded | The reserve is at or above its target balance (maintained) |
+| Depleted | The reserve has fallen below its target balance (maintained) |
 
 Paused goals show a **Paused** badge instead of a status, because the pace clock is intentionally stopped.
 
