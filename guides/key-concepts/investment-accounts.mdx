@@ -264,7 +264,7 @@ Fees are particularly important for:
 | **Sweep Out** | Cash swept out of the account |
 | **Fee** | Account or transaction fees |
 | **Exchange** | Currency or security exchanges |
-| **Transfer** | Internal transfers |
+| **Transfer** | Asset moved between accounts you own |
 | **Other** | Miscellaneous transactions |
 
 > [!NOTE]
@@ -296,6 +296,16 @@ Example rules:
 
 > [!NOTE]
 > Internal movement labels (Transfer, Sweep In, Sweep Out, Exchange) are automatically excluded from budget calculations since they represent cash management rather than income or expenses.
+
+### Transfers and cost basis
+
+A trade labeled **Transfer** is not an acquisition. Sure cannot know what a transferred asset originally cost — the purchase happened in an account that was never tracked here. Treating the transfer date as a cost would produce a figure that looks calculated but is wrong.
+
+Because of this, if any trade in a position is labeled Transfer, the entire position's cost basis is marked unknown. Averaging only the non-transfer purchases and applying that to every unit would be the same fabrication in a quieter form.
+
+The trend indicator for that holding will not display until you enter a manual cost basis. Balances and current value are not affected — they come from the holdings data, not from trade history.
+
+If you know what the asset cost you before the transfer, set a manual cost basis on the holding. Manual and provider-supplied values are preserved and are not cleared by the transfer guard.
 
 ## Tax Treatment Categories
 
