@@ -153,6 +153,12 @@ Rules exported from Sure may have a `null` name field, which is valid. If a full
 
 If your export contains rejected transfers whose original transactions were later deleted, Sure will skip those orphaned rows and report them as warnings rather than blocking the import. Check the preflight warnings in the import response for details on any skipped records.
 
+### Sure NDJSON import fails with a duplicate category or tag name
+
+Category and tag names must be unique within a family. If your NDJSON file contains two or more Category (or Tag) records with the same name, preflight will reject the import with a `duplicate_taxonomy_name` error. Remove or rename the duplicate entries in your export file before retrying.
+
+If the duplicate names already exist in your Sure database from before this constraint was enforced, Sure automatically merges them during the upgrade migration. The oldest record (by creation date) is kept, and all references — transactions, rules, budget lines, and import mappings — are updated to point to the surviving record.
+
 ## Limits
 
 - **Account imports**: Maximum 50 accounts per import

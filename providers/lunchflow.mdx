@@ -109,6 +109,10 @@ LUNCHFLOW_DEBUG_RAW=1
 
 ## Troubleshooting
 
+### Connection fails with a validation error
+
+If you submit the Lunchflow connection form with a missing or blank API key, Sure redirects back to the Accounts page and displays an alert describing the validation error (for example, "Api key can't be blank"). Correct the API key and try again.
+
 ### Sync marked unhealthy after a fetch failure
 
 When the Lunch Flow API rejects fetches — for example due to rate limiting or a transient network error — Sure marks the sync as unhealthy and surfaces a warning in the UI. The warning message indicates how many accounts or transaction fetches failed. Once the Lunch Flow API becomes available again, trigger a manual sync from the Accounts page to clear the error and import the missing data.
