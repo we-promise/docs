@@ -73,6 +73,29 @@ If your goals on the same account add up to more than its balance, Sure shows a 
 
 When another goal already claims an account's full balance, you must enter an explicit earmark amount to add that account to a second goal.
 
+#### Linking accounts to a goal
+
+When you link an account to a goal, you can either dedicate the account's entire balance to that goal or earmark a fixed amount. An account's full balance can only be dedicated to one active goal at a time. If another active goal already claims an account in full, Sure asks you to enter a specific amount instead of claiming the whole balance. This prevents the same money from being counted toward two goals simultaneously.
+
+If you archive a goal that claimed an account in full, that account becomes available for another goal to claim in full. Restoring the archived goal while the account is already claimed in full by another goal will fail with a message identifying the conflicting goal. To restore it, either update the conflicting goal to use a fixed amount, or restore the archived goal and set a fixed amount on that account link.
+
+#### Completing a goal
+
+When a goal reaches its target, a celebration panel appears on the goal's page. For one-off goals (goals with a fixed target you save toward once), the panel offers a **Close** action. Closing a goal does two things:
+
+- **Releases the earmark** — the money the goal was reserving on your linked accounts is freed. Other goals sharing those accounts can now claim that balance.
+- **Freezes the reached amount** — the figure is stamped at the moment you close the goal, so spending from those accounts afterward does not walk the goal's history back.
+
+Until you explicitly close a reached goal, it continues to reserve its earmark and compete with sibling goals on the same accounts.
+
+Maintained goals (reserves you hold indefinitely, such as an emergency fund) are never asked to close. A maintained goal at 100% is in its normal state and keeps its reservation.
+
+A closed goal can be reopened from the kebab menu, which thaws the frozen amount and returns the goal to active status.
+
+#### Archiving a goal
+
+Archiving moves a goal off the active list. An archived goal releases its earmark — any accounts it claimed in full become available to other goals. If you later unarchive a goal, Sure checks whether another goal has since claimed one of its whole-account links. If so, the restore fails with a message identifying the conflicting goal and account, so you can resolve the overlap manually.
+
 #### Deleting a goal
 
 You can delete a goal directly from the goal's page using the **Delete** option in the kebab menu — no need to archive it first. The confirmation dialog describes exactly what will be removed (linked accounts and pledges). Deleting a goal does not affect your transactions or account balances.
