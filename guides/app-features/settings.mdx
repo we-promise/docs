@@ -68,6 +68,38 @@ The Goals section is gated behind preview features. To access it, enable **Previ
 
 Once enabled, Goals appears in the main navigation. See [Goals](/guides/app-features/goals) for full details.
 
+#### Reserve target: months of expenses
+
+When creating or editing a maintained goal (such as an emergency fund), you can set the target as a number of months of your household's spending rather than a fixed amount.
+
+**To use a months-based target:**
+
+1. Create or open a maintained goal.
+2. Under **Target**, choose **Months of expenses** instead of **Fixed amount**.
+3. Enter the number of months (for example, 3 or 6).
+4. Sure calculates the target from your family's median monthly spending and saves it immediately.
+
+Sure recalculates and updates the target amount on the 1st of each month so the floor stays current as your spending changes. If your family has no spending history yet, the previous target amount is kept until enough data is available.
+
+The target amount field is read-only in months mode because Sure derives it automatically. Changing the number of months or switching back to a fixed amount updates the target right away.
+
+#### Funding accounts and earmarks
+
+When you create or edit a goal, each eligible depository account shows how much of its balance is still available to earmark.
+
+- Leave the amount field blank to dedicate that account's whole balance to the goal.
+- Enter a specific amount to reserve only that portion, leaving the rest available for other goals.
+
+If your goals on the same account add up to more than its balance, Sure shows a message explaining that they will progress pro rata — it is not an error. A goal in progress legitimately claims more than its account currently holds.
+
+When another goal already claims an account's full balance, you must enter an explicit earmark amount to add that account to a second goal.
+
+#### Linking accounts to a goal
+
+When you link an account to a goal, you can either dedicate the account's entire balance to that goal or earmark a fixed amount. An account's full balance can only be dedicated to one active goal at a time. If another active goal already claims an account in full, Sure asks you to enter a specific amount instead of claiming the whole balance. This prevents the same money from being counted toward two goals simultaneously.
+
+If you archive a goal that claimed an account in full, that account becomes available for another goal to claim in full. Restoring the archived goal while the account is already claimed in full by another goal will fail with a message identifying the conflicting goal. To restore it, either update the conflicting goal to use a fixed amount, or restore the archived goal and set a fixed amount on that account link.
+
 #### Completing a goal
 
 When a goal reaches its target, a celebration panel appears on the goal's page. For one-off goals (goals with a fixed target you save toward once), the panel offers a **Close** action. Closing a goal does two things:
