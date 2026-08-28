@@ -122,6 +122,33 @@ rails:
           key: redis-url
 ```
 
+### Redis Sentinel (high availability)
+
+The OT-CONTAINER-KIT Redis Operator supports a Sentinel failover layer for production HA deployments. When you enable Sentinel mode, the chart automatically injects `REDIS_SENTINEL_HOSTS` and `REDIS_SENTINEL_MASTER` into the web and worker pods so Sidekiq can do automatic master discovery and failover.
+
+```yaml
+redisOperator:
+  enabled: true
+  managed:
+    enabled: true
+  mode: sentinel             # enables RedisSentinel CR in addition to RedisReplication
+  sentinel:
+    enabled: true            # must be true when mode=sentinel
+    masterGroupName: mymaster
+  replicas: 3
+  auth:
+    existingSecret: sure-secrets
+    passwordKey: redis-password
+  persistence:
+    className: longhorn
+    size: 8Gi
+```
+
+- The application receives `REDIS_SENTINEL_HOSTS` (comma-separated Sentinel endpoints) and `REDIS_SENTINEL_MASTER` instead of `REDIS_URL`.
+- Sentinel authentication uses username `default` by default. Override with `REDIS_SENTINEL_USERNAME` if needed.
+- Provider precedence: explicit `rails.extraEnv.REDIS_URL` → `redisOperator.managed` (with Sentinel if configured) → `redisSimple`.
+- Only one in-cluster Redis provider should be enabled at a time.
+
 ### Active Record encryption keys
 
 In self-hosted mode, Sure can derive Active Record encryption keys from `SECRET_KEY_BASE` automatically. If you want dedicated keys instead, provide these values through your app secret:
@@ -454,6 +481,144 @@ This will not delete PersistentVolumeClaims. Before deleting PVCs, make sure the
 kubectl get pvc -n sure
 kubectl delete pvc -n sure <sure-pvc-name>
 ```
+## Pipelock (AI agent security proxy)
+
+[Pipelock](https://github.com/luckyPipewrench/pipelock) is an optional security proxy that scans AI agent traffic for secret exfiltration, prompt injection, tool poisoning, and SSRF. It runs as a separate Deployment with two listeners:
+
+- **Forward proxy** (port 8888): Applies destination, SSRF, rate, budget, CONNECT-header DLP, and receipt controls to HTTPS tunnels from clients that honor the proxy variables. The chart does not configure TLS interception, so encrypted bodies stay opaque.
+- **MCP reverse proxy** (port 8889): Scans inbound MCP traffic from external AI assistants.
+
+The chart pins Pipelock 3.4.0 by tag and multi-architecture image digest. Read the [Pipelock release notes](https://github.com/luckyPipewrench/pipelock/releases/tag/v3.4.0) before overriding that pin.
+
+### Enabling Pipelock
+
+```yaml
+pipelock:
+  enabled: true
+  image:
+    tag: "3.4.0@sha256:2e6caa43967a5ef19cacbce00188d829c1b5de1eb0ad304a51d2085f32c5694c"
+  mode: balanced   # strict, balanced, or audit
+```
+
+This creates a separate Deployment, Service, and ConfigMap. The chart auto-injects `HTTPS_PROXY`, `HTTP_PROXY`, and `NO_PROXY` into web and worker pods.
+
+### Request body scanning
+
+Request body scanning covers cleartext HTTP, reverse-proxy, and WebSocket bodies. HTTPS tunnel bodies remain opaque without TLS interception.
+
+Enabled by default with `action: warn`. Review findings in logs before switching to `action: block`.
+
+```yaml
+pipelock:
+  requestBodyScanning:
+    enabled: true
+    action: warn          # warn or block
+    maxBodyBytes: 5242880 # 5 MB; fail-closed above this
+    scanHeaders: true
+    headerMode: sensitive # "sensitive" or "all"
+```
+
+### Health watchdog
+
+The wedge-detection watchdog returns `503` on `/health` when a subsystem heartbeat goes stale. It is enabled by default. Use `exposeSubsystems: true` to add per-subsystem detail to the health payload.
+
+```yaml
+pipelock:
+  healthWatchdog:
+    enabled: true
+    intervalSeconds: 2
+    exposeSubsystems: true
+```
+
+### Signed action receipts
+
+Pipelock can write hash-chained, Ed25519-signed receipts for proxied decisions. Recording is inert until you mount both a storage volume and a signing key.
+
+Generate a key and create a secret:
+
+```bash
+pipelock signing key generate --purpose receipt-signing --out "$PWD/flight-recorder-signing.key" --id sure-k8s
+kubectl create namespace sure
+kubectl create secret generic sure-pipelock-receipts \
+  --namespace sure \
+  --from-file=flight-recorder-signing.key=./flight-recorder-signing.key
+```
+
+If you do not have the `pipelock` binary installed, generate the key with the pinned image:
+
+```bash
+docker run --rm -v "$PWD:/out" ghcr.io/luckypipewrench/pipelock:3.4.0@sha256:2e6caa43967a5ef19cacbce00188d829c1b5de1eb0ad304a51d2085f32c5694c \
+  signing key generate --purpose receipt-signing --out /out/flight-recorder-signing.key --id sure-k8s
+```
+
+Example Helm values using an existing PVC named `sure-pipelock-evidence`:
+
+```yaml
+pipelock:
+  enabled: true
+  flightRecorder:
+    enabled: true
+    dir: /var/lib/pipelock/evidence
+    signingKeyPath: /run/secrets/pipelock/flight-recorder-signing.key
+    requireReceipts: false
+    redact: true
+  extraVolumes:
+    - name: pipelock-evidence
+      persistentVolumeClaim:
+        claimName: sure-pipelock-evidence
+    - name: pipelock-receipt-key
+      secret:
+        secretName: sure-pipelock-receipts
+        defaultMode: 0440
+  extraVolumeMounts:
+    - name: pipelock-evidence
+      mountPath: /var/lib/pipelock/evidence
+    - name: pipelock-receipt-key
+      mountPath: /run/secrets/pipelock
+      readOnly: true
+```
+
+Keep `requireReceipts: false` until you confirm receipts are being written. When set to `true`, allow-path requests are blocked if Pipelock cannot sign or write the receipt.
+
+### Require Pipelock for external assistants
+
+By default, the chart rejects an external AI assistant deployment without Pipelock:
+
+```yaml
+pipelock:
+  requireForExternalAssistant: true
+```
+
+`helm template` and `helm install` fail when `rails.externalAssistant.enabled=true` and `pipelock.enabled=false`. Set `requireForExternalAssistant: false` only when you accept direct external-assistant traffic without scanning.
+
+### Exposing the MCP proxy externally
+
+Enable the Pipelock Ingress so external agents can reach the MCP reverse proxy:
+
+```yaml
+pipelock:
+  enabled: true
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: pipelock.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts: [pipelock.example.com]
+        secretName: pipelock-tls
+```
+
+Or port-forward for testing:
+
+```bash
+kubectl port-forward svc/sure-pipelock 8889:8889 -n sure
+```
+
+For full Pipelock configuration options, see [Self-hosting with Docker](/self-hosting#pipelock-security-proxy) and the `pipelock.example.yaml` reference file in the Sure repository.
+
 ## Getting help
 
 If you find bugs or have feature requests:

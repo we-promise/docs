@@ -90,6 +90,8 @@ Go to **Settings → Providers → On-chain wallets → Manage wallets**.
 
 Disconnecting never deletes an account. The provider link is removed, holdings are detached, and what you can see stays as a manual account that no longer updates. Delete the account itself if you want it gone.
 
+Deleting an account directly — rather than disconnecting or using **Stop tracking** — is safe. The next time you add that address, Sure detects that the internal tracking record left behind is no longer linked to any account and clears it automatically before creating the new one.
+
 An address can only be tracked once per network. To change which assets are tracked, use **Review tokens** rather than adding the address again.
 
 ## Rate limits and request cost
@@ -143,6 +145,8 @@ The native coin is never affected, and anything already tracked keeps syncing re
 **Sync says the explorer could not be reached.** The public endpoint is down, throttling you, or too slow to answer. Retry later, or point the relevant `*_URL` override at your own instance.
 
 **Solana shows balances but no transfers.** The free endpoint throttles the history methods; balances are kept and the history is marked incomplete. Set `SOLANA_RPC_URL` to your own node or a paid endpoint to get the transfers.
+
+**Adding an address fails with "already tracked" even though no account exists for it.** The address has a leftover internal record from a previously deleted account. Adding the address again clears that record automatically. If you are on a self-hosted instance that has not yet received the fix, you can work around it by using **Review tokens** on any existing wallet that still has that address, then unticking all assets; the orphan record is removed when you save.
 
 **A token I received is not showing up.** New assets are never imported automatically. Use **Review tokens** and tick it.
 
