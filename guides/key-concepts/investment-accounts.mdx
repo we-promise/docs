@@ -100,6 +100,15 @@ Sure tracks cost basis from three sources, in order of priority:
 
 This hierarchy ensures your manual entries always take precedence, calculated values override provider data, and provider data is used when nothing else is available.
 
+### Transfers and cost basis
+
+When securities are transferred **into** an account, Sure cannot determine what those units originally cost. Because the purchase happened elsewhere — at a price nothing in this account recorded — any calculated cost basis for that position would be fabricated rather than real. Sure marks the position's cost basis as unknown so you are not shown a misleading figure.
+
+When securities are transferred **out** of an account, Sure does not touch the cost basis of the shares that remain. Those remaining shares came from real purchases this account recorded, and their cost basis is correct. You can set it manually if you need to record it explicitly.
+
+> [!NOTE]
+> Only a calculated cost basis is cleared on an inbound transfer. If you have set a manual cost basis, or your institution provided one, Sure keeps that value — it represents an explicit assertion about what the position cost, which the app respects.
+
 ### Setting Cost Basis Manually
 
 You can set cost basis in two ways:
@@ -296,16 +305,6 @@ Example rules:
 
 > [!NOTE]
 > Transfer, Sweep In, and Sweep Out are excluded from budget calculations and from the investment sales report, since they represent assets moving between accounts you own rather than actual sales. Exchange is excluded from budget calculations, but security exchanges remain in the investment sales report because they can represent a taxable disposition.
-
-### Transfers and cost basis
-
-A trade labeled **Transfer** is not an acquisition. Sure cannot know what a transferred asset originally cost — the purchase happened in an account that was never tracked here. Treating the transfer date as a cost would produce a figure that looks calculated but is wrong.
-
-Because of this, if any trade in a position is labeled Transfer, the entire position's cost basis is marked unknown. Averaging only the non-transfer purchases and applying that to every unit would be the same fabrication in a quieter form.
-
-The trend indicator for that holding will not display until you enter a manual cost basis. Balances and current value are not affected — they come from the holdings data, not from trade history.
-
-If you know what the asset cost you before the transfer, set a manual cost basis on the holding. Manual and provider-supplied values are preserved and are not cleared by the transfer guard.
 
 ## Tax Treatment Categories
 
