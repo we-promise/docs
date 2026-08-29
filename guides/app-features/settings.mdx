@@ -40,6 +40,12 @@ The Brandfetch integration provides:
 
 This feature works automatically once enabled, no additional configuration required.
 
+## API keys
+
+Generate API keys for programmatic access to your Sure data from **Settings → API Keys**. Each key carries a permission scope — Read Only or Read/Write — and is authenticated using the `X-Api-Key` request header.
+
+See [API keys](/guides/app-features/api-keys) for details on creating keys, scopes, and rate limits.
+
 ## Bank sync settings
 
 Configure third-party bank, brokerage, crypto, and data sync integrations from Settings → Bank sync. See the [providers documentation](/providers/overview) for detailed setup instructions.
@@ -64,18 +70,18 @@ Once enabled, Goals appears in the main navigation. See [Goals](/guides/app-feat
 
 #### Reserve target: months of expenses
 
-When creating or editing a maintained goal (such as an emergency fund), you can set the target as a number of months of your household's spending rather than a fixed amount.
+When creating or editing a maintained goal (such as an emergency fund), you can set the target balance as a number of months of your household's spending rather than a fixed amount.
 
 **To use a months-based target:**
 
 1. Create or open a maintained goal.
-2. Under **Target**, choose **Months of expenses** instead of **Fixed amount**.
+2. Under **Target balance**, choose **Months of expenses** instead of **Fixed amount**.
 3. Enter the number of months (for example, 3 or 6).
-4. Sure calculates the target from your family's median monthly spending and saves it immediately.
+4. Sure calculates the target balance from your family's median monthly spending and saves it immediately.
 
-Sure recalculates and updates the target amount on the 1st of each month so the floor stays current as your spending changes. If your family has no spending history yet, the previous target amount is kept until enough data is available.
+Sure recalculates and updates the target balance on the 1st of each month so it stays current as your spending changes. If your family has no spending history yet, the form keeps a manual entry field so you can set an initial target balance directly. Once spending history is available, the form shows the calculated figure instead of a text input.
 
-The target amount field is read-only in months mode because Sure derives it automatically. Changing the number of months or switching back to a fixed amount updates the target right away.
+Changing the number of months or switching back to a fixed amount updates the target balance right away.
 
 #### Funding accounts and earmarks
 
@@ -84,9 +90,14 @@ When you create or edit a goal, each eligible depository account shows how much 
 - Leave the amount field blank to dedicate that account's whole balance to the goal.
 - Enter a specific amount to reserve only that portion, leaving the rest available for other goals.
 
+The hint beneath each account row tells you what the goal will claim when the amount is left blank:
+
+- If no other goal has earmarked any portion of that account, the hint reads **"This goal will use this account's whole balance."**
+- If other goals already hold earmarks on the same account, the hint reads **"This account will fund whatever is left after the other earmarks."**
+
 If your goals on the same account add up to more than its balance, Sure shows a message explaining that they will progress pro rata — it is not an error. A goal in progress legitimately claims more than its account currently holds.
 
-When another goal already claims an account's full balance, you must enter an explicit earmark amount to add that account to a second goal.
+When another goal already holds a whole-account link on an account, that account shows as unavailable. You must enter a specific amount to add it to a second goal.
 
 #### Linking accounts to a goal
 

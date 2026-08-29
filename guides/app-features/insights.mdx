@@ -7,7 +7,7 @@ description: Proactive, AI-written financial observations delivered to your fami
 
 Insights are short, actionable observations about your finances that Sure generates nightly. Each insight spots a pattern or event in your data — a spending anomaly, a milestone crossed, a budget running over — and writes a plain-language summary so you understand what changed and why.
 
-Insights appear in the dashboard feed and, on the native iOS app, as push notifications.
+Insights appear in the dashboard feed.
 
 ## Insight types
 
@@ -21,7 +21,7 @@ Insights appear in the dashboard feed and, on the native iOS app, as push notifi
 | `idle_cash` | A cash account has a large balance that has been untouched for 60+ days |
 | `budget_at_risk` | Budget categories are near or over their monthly limit |
 | `budget_on_track` | All budget categories are on track (shown after the month is at least half over) |
-| `maintained_goal_depleted` | A reserve goal has fallen below its target level |
+| `maintained_goal_depleted` | A reserve goal has fallen below its target balance |
 
 ## Priority
 
@@ -47,14 +47,6 @@ The dashboard feed and API response order insights by priority first, then by re
 ## Dashboard feed
 
 The dashboard shows the three highest-priority, unacknowledged insights. Clicking an insight marks it `read`. Dismissing it marks it `acknowledged`.
-
-## Sure Insights app (experimental)
-
-The Sure Insights app is a native Swift iOS app that receives push notifications when new insights are generated. Notifications respect your locale and honor per-insight notification preferences.
-
-To enable push notifications, register the device token using the Push Subscriptions API (`POST /api/v1/push_subscriptions`). The app sends the APNs token at launch and removes it on sign-out.
-
-Sure Insights is experimental. Features and behavior may change.
 
 ## Requirements
 
