@@ -263,8 +263,8 @@ Fees are particularly important for:
 | **Sweep In** | Cash swept into the account |
 | **Sweep Out** | Cash swept out of the account |
 | **Fee** | Account or transaction fees |
-| **Exchange** | Currency or security exchanges |
-| **Transfer** | Internal transfers |
+| **Exchange** | Currency or security exchanges; security exchanges appear in the sales report |
+| **Transfer** | Asset moved to another account you own; excluded from sales report |
 | **Other** | Miscellaneous transactions |
 
 > [!NOTE]
@@ -295,7 +295,7 @@ Example rules:
 - IF name contains "FEE" THEN set label to "Fee"
 
 > [!NOTE]
-> Internal movement labels (Transfer, Sweep In, Sweep Out, Exchange) are automatically excluded from budget calculations since they represent cash management rather than income or expenses.
+> Transfer, Sweep In, and Sweep Out are excluded from budget calculations and from the investment sales report, since they represent assets moving between accounts you own rather than actual sales. Exchange is excluded from budget calculations, but security exchanges remain in the investment sales report because they can represent a taxable disposition.
 
 ## Tax Treatment Categories
 
@@ -329,6 +329,10 @@ If you bought 10 shares at $100 ($1,000 total) and they're now worth $1,200, you
 Actual gains or losses from securities you've sold. These are what matter for taxes.
 
 The **Trend** indicator on each holding shows your unrealized gain or loss, calculated from your cost basis. If cost basis is unknown (no trades and no manual entry), the trend won't display.
+
+Trades labeled **Transfer**, **Sweep In**, or **Sweep Out** are not counted as sales in the investment report. These labels mean the asset moved to another account you own, so no gain or loss is realized. The investment report excludes them and `realized_gain_loss` returns nothing for them.
+
+Trades labeled **Exchange** are included in the report. For cash this label means a currency exchange, which is internal. For a security it covers a security-for-security exchange, which can dispose of an appreciated asset. Because the two cases are not distinguishable by label alone, and because a missing realized gain is harder to spot than an extra line, exchange trades on securities remain visible so you can review them.
 
 ## Crypto-Specific Features
 
