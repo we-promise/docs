@@ -1,11 +1,11 @@
 ---
 title: User management
-description: Manage users, connected accounts, and SSO authentication settings
+description: Manage users, families, roles, and authentication settings from the admin panel
 ---
 
 ## Overview
 
-The user management interface provides administrators with comprehensive tools to manage users, their connected SSO accounts, roles, and authentication settings. This includes viewing user details, managing connected accounts, manually adjusting roles, and troubleshooting authentication issues.
+Super admins can manage all users on the instance from `/admin/users`. The page groups users by family and lets you change roles, move users between families, set passwords for local-login users, and permanently delete accounts.
 
 ## Accessing user management
 
@@ -15,482 +15,152 @@ Navigate to the user management page in your admin dashboard:
 https://your-domain.com/admin/users
 ```
 
+You must have the `super_admin` role to access this page.
+
 ## User list
 
-The user list displays all users in the application with key information:
+Users are grouped by family and sorted by activity (most active families first). Each user row shows:
 
 | Column | Description |
 |--------|-------------|
-| Name | User's display name |
+| Name | Display name with a role badge (`guest`, `member`, `admin`, or `super_admin`) |
 | Email | User's email address |
-| Roles | Assigned application roles |
-| Auth method | How the user authenticates (SSO provider or local) |
-| Last login | Timestamp of most recent login |
-| Status | Active, inactive, or suspended |
-| Created | Account creation date |
+| Auth type | A pill indicating local password, SSO, or both. Hover the info icon next to an SSO pill to see the provider name. |
+| Last login | Timestamp of the user's most recent login |
+| Sessions | Number of active sessions |
+| Family | The family/group this user belongs to |
 
-### Filtering and search
+### Filtering
 
-Use the search and filter tools to find specific users:
+- **Filter by role**: Show only users with a specific role (`guest`, `member`, `admin`, `super_admin`)
+- **Filter by trial status**: Show users with expiring-soon or active trials
 
-- **Search**: Search by name, email, or username
-- **Filter by role**: Show only users with specific roles
-- **Filter by auth method**: Show users by authentication provider
-- **Filter by status**: Show active, inactive, or suspended users
-- **Sort**: Sort by any column (name, email, last login, etc.)
+## Managing users
 
-## User details
+All per-user actions are in the **actions popover** next to each row. Open it to see the options available for that user.
 
-Click on a user to view detailed information:
+### Changing a user's role
 
-### Basic information
-
-- Full name
-- Email address
-- Username (if applicable)
-- Profile picture
-- Account creation date
-- Last login timestamp
-- Account status
-
-### Connected accounts
-
-View all SSO providers the user has connected:
-
-| Provider | Connected | Last used | Actions |
-|----------|-----------|-----------|---------|
-| Google | Yes | 2 hours ago | Disconnect |
-| Okta SAML | Yes | 1 day ago | Disconnect |
-| GitHub | No | - | - |
+Select the desired role from the popover and save. Available roles are `guest`, `member`, `admin`, and `super_admin`.
 
 <Note>
-Users can have multiple connected accounts from different SSO providers. They can log in using any connected provider.
+You cannot demote the last remaining active super admin. Sure blocks this to prevent losing access to the admin panel.
 </Note>
 
-### Roles and permissions
+### Moving a user to a different family
 
-View and manage the user's assigned roles:
+Super admins can transfer a user to an existing family or create a new one.
 
-- Current roles
-- Role source (default, group mapping, or manual)
-- Last role sync timestamp
-- Manual role adjustments
+To move to an **existing family**, select it from the family dropdown in the popover and save.
 
-### Authentication history
-
-View recent authentication events:
-
-- Login attempts (successful and failed)
-- Provider used
-- IP address
-- Timestamp
-- User agent
-
-## Managing connected accounts
-
-### Viewing connected accounts
-
-For each user, you can see:
-- Which SSO providers they've connected
-- When each account was first connected
-- When each account was last used for authentication
-- Provider-specific user identifiers
-
-### Disconnecting accounts
+To create a **new family**, type the new family name in the name field. A new family is created and the user is transferred atomically.
 
 <Warning>
-Disconnecting a user's only authentication method will prevent them from logging in. Ensure they have an alternative login method before disconnecting.
+You cannot change a user's family and set their password in the same submission. Submit one change at a time.
 </Warning>
 
-To disconnect an SSO account:
+### Setting a password for local users
+
+For users who authenticate with a local password, super admins can set a new password from the actions popover. The password must meet all registration criteria:
+
+- At least 8 characters
+- At least one uppercase and one lowercase letter
+- At least one digit
+- At least one special character (`!@#$%^&*(),.?":{}|<>`)
+
+Password changes are silently ignored for SSO-only users — they must authenticate through their identity provider.
+
+### Deleting a family
+
+Empty families (no members) can be deleted from the admin user list. Families with active users cannot be deleted.
+
+## Deleting users
+
+Super admins can permanently delete a user from the instance.
+
+**What happens when a user is deleted:**
+
+- The user's account and all associated data are permanently removed
+- Any active sessions are ended immediately
+- Active OAuth tokens and API keys are revoked
+- An SSO audit log entry records who deleted the account and when
+- The action cannot be undone
+
+**Safety checks:**
+
+- You cannot delete your own account. The **Delete User** action is hidden on your own row.
+- You cannot delete the last active super admin — promote another user first.
+
+To delete a user:
 
 <Steps>
-  <Step title="Navigate to user details">
-    Select the user from the user list
+  <Step title="Go to /admin/users">
+    Navigate to the admin user list.
   </Step>
-  
-  <Step title="Go to connected accounts">
-    View the "Connected Accounts" section
+
+  <Step title="Open the actions popover">
+    Click the actions menu next to the user you want to delete.
   </Step>
-  
-  <Step title="Click disconnect">
-    Click "Disconnect" next to the provider you want to remove
+
+  <Step title="Click Delete User">
+    A confirmation dialog opens.
   </Step>
-  
-  <Step title="Confirm action">
-    Confirm the disconnection in the dialog
+
+  <Step title="Type the user's email to confirm">
+    Enter the user's exact email address and submit.
   </Step>
 </Steps>
 
-The user will no longer be able to log in using that provider.
-
-### Forcing reconnection
-
-If a user is experiencing authentication issues with a specific provider:
-
-1. Disconnect the problematic account
-2. Ask the user to log in again using that provider
-3. The account will be reconnected with fresh credentials
-
-## Managing user roles
-
-### Viewing role assignments
-
-For each user, you can see:
-- **Current roles**: All roles currently assigned
-- **Role source**: How each role was assigned
-  - `default`: From provider's default roles
-  - `group_mapping`: From IdP group-to-role mapping
-  - `manual`: Manually assigned by an administrator
-- **Last sync**: When roles were last synchronized from IdP
-
-### Manual role assignment
-
-Override or supplement automatic role assignment:
-
-<Steps>
-  <Step title="Navigate to user details">
-    Select the user from the user list
-  </Step>
-  
-  <Step title="Go to roles section">
-    View the "Roles & Permissions" section
-  </Step>
-  
-  <Step title="Click edit roles">
-    Click "Edit Roles" button
-  </Step>
-  
-  <Step title="Add or remove roles">
-    Select roles to add or remove from the user
-  </Step>
-  
-  <Step title="Save changes">
-    Click "Save" to apply the role changes
-  </Step>
-</Steps>
-
-<Note>
-Manually assigned roles persist across logins and are not affected by role synchronization from IdP groups.
-</Note>
-
-### Syncing roles from IdP
-
-Force a role synchronization from the identity provider:
-
-<Steps>
-  <Step title="Navigate to user details">
-    Select the user from the user list
-  </Step>
-  
-  <Step title="Click sync roles">
-    Click "Sync Roles from SSO" button
-  </Step>
-  
-  <Step title="Confirm sync">
-    Confirm the synchronization action
-  </Step>
-</Steps>
-
-This fetches the latest group information from the user's identity provider and updates their roles based on current group-to-role mappings.
-
-## User actions
-
-### Suspending users
-
-Temporarily disable a user's access:
-
-<Steps>
-  <Step title="Select user">
-    Navigate to the user's detail page
-  </Step>
-  
-  <Step title="Click suspend">
-    Click "Suspend User" button
-  </Step>
-  
-  <Step title="Confirm suspension">
-    Confirm the action in the dialog
-  </Step>
-</Steps>
-
-Suspended users cannot log in until their account is reactivated.
-
-### Reactivating users
-
-Restore access for a suspended user:
-
-<Steps>
-  <Step title="Select user">
-    Navigate to the suspended user's detail page
-  </Step>
-  
-  <Step title="Click reactivate">
-    Click "Reactivate User" button
-  </Step>
-  
-  <Step title="Confirm reactivation">
-    Confirm the action
-  </Step>
-</Steps>
-
-### Removing users
-
-Admins can safely remove a user from the instance via the admin user list at `/admin/users`. The removal flow is designed to prevent accidental lockouts and data loss.
-
-**What happens when a user is removed:**
-
-- The user's account is deactivated immediately, ending any active sessions
-- Their financial data (accounts, transactions, holdings) is preserved and remains accessible to other family members
-- Any active OAuth tokens and API keys are revoked
-- The user can no longer sign in
-
-**Safety checks before removal:**
-
-- You cannot remove yourself
-- You cannot remove the last admin on the instance — promote another user to admin first
-- If the user is the sole owner of a family with no other members, you are warned before proceeding
-
-To remove a user:
-
-<Steps>
-  <Step title="Navigate to admin users">
-    Go to `/admin/users`
-  </Step>
-
-  <Step title="Find the user">
-    Search or scroll to find the user you want to remove
-  </Step>
-
-  <Step title="Click Remove">
-    Click the **Remove** action next to the user
-  </Step>
-
-  <Step title="Confirm removal">
-    Review the confirmation dialog and confirm the action
-  </Step>
-</Steps>
-
-<Note>
-Removed users are deactivated, not deleted. Their financial data remains intact. If you need to permanently delete all data for a user, use the family data reset tools.
-</Note>
-
-## User security settings
-
-### Connected accounts in user settings
-
-Users can manage their own connected accounts from their security settings:
-
-```
-https://your-domain.com/settings/security
-```
-
-From this page, users can:
-- View all connected SSO providers
-- Connect additional SSO providers
-- Disconnect SSO providers (if they have alternative login methods)
-- See when each account was last used
-
-### User-initiated connections
-
-Users can connect additional SSO providers:
-
-<Steps>
-  <Step title="Navigate to security settings">
-    User goes to Settings → Security
-  </Step>
-  
-  <Step title="View available providers">
-    See list of available SSO providers
-  </Step>
-  
-  <Step title="Click connect">
-    Click "Connect" next to the desired provider
-  </Step>
-  
-  <Step title="Authenticate">
-    Complete the SSO authentication flow
-  </Step>
-  
-  <Step title="Confirm connection">
-    The provider is now connected to their account
-  </Step>
-</Steps>
-
-## Bulk operations
-
-### Bulk role assignment
-
-Assign roles to multiple users at once:
-
-<Steps>
-  <Step title="Select users">
-    Check the boxes next to users in the user list
-  </Step>
-  
-  <Step title="Click bulk actions">
-    Click "Bulk Actions" dropdown
-  </Step>
-  
-  <Step title="Select assign roles">
-    Choose "Assign Roles"
-  </Step>
-  
-  <Step title="Choose roles">
-    Select roles to assign to all selected users
-  </Step>
-  
-  <Step title="Confirm action">
-    Confirm the bulk role assignment
-  </Step>
-</Steps>
-
-### Bulk suspension
-
-Suspend multiple users at once:
-
-<Steps>
-  <Step title="Select users">
-    Check the boxes next to users to suspend
-  </Step>
-  
-  <Step title="Click bulk actions">
-    Click "Bulk Actions" dropdown
-  </Step>
-  
-  <Step title="Select suspend">
-    Choose "Suspend Users"
-  </Step>
-  
-  <Step title="Confirm action">
-    Confirm the bulk suspension
-  </Step>
-</Steps>
+<Warning>
+Deleting a user is permanent. All of their data is removed and cannot be recovered.
+</Warning>
 
 ## Troubleshooting user issues
 
 ### User can't log in
 
-**Problem**: User reports they cannot log in
-
-**Steps to diagnose**:
-1. Check user status (active, suspended, or deleted)
-2. Review connected accounts - ensure they have at least one
-3. Check authentication history for failed login attempts
+1. Check the user's auth type pill — if it shows only SSO and their provider is misconfigured, they won't be able to log in
+2. Verify the SSO provider is enabled and configured correctly under `/admin/sso_providers`
+3. If they have a local password, you can reset it from the actions popover
 4. Review audit logs for specific error messages
-5. Verify the SSO provider is enabled and configured correctly
 
-### User has wrong roles
+### User has the wrong role
 
-**Problem**: User doesn't have expected permissions
-
-**Steps to diagnose**:
-1. Review current role assignments
-2. Check role source (default, group mapping, or manual)
-3. Verify group-to-role mappings in provider configuration
-4. Check user's groups in the identity provider
-5. Try syncing roles from SSO
-6. Review audit logs for role change events
+Open the actions popover for the user and update their role. Note that super admin role changes are logged for auditing.
 
 ### Duplicate accounts
 
-**Problem**: User has multiple accounts with different email addresses
-
-**Solution**:
 1. Identify the primary account to keep
-2. Manually transfer any necessary data or permissions
-3. Delete the duplicate account
-4. Update the user's email in the identity provider if needed
-
-### Connected account not working
-
-**Problem**: User can't log in with a specific SSO provider
-
-**Steps to diagnose**:
-1. Check if the provider is enabled
-2. Review provider configuration
-3. Check authentication history for error messages
-4. Try disconnecting and reconnecting the account
-5. Verify the provider works for other users
-6. Review audit logs for provider-specific errors
+2. Delete the duplicate account from the actions popover (requires email confirmation)
+3. Update the user's email in the identity provider if needed
 
 ## Best practices
 
 <AccordionGroup>
-  <Accordion title="Regular audits">
-    Periodically review user accounts, roles, and connected accounts to ensure they align with your security policies.
+  <Accordion title="Offboarding">
+    Delete user accounts promptly when someone leaves. This revokes all sessions, API keys, and OAuth tokens immediately.
   </Accordion>
-  
-  <Accordion title="Principle of least privilege">
-    Assign users the minimum roles necessary for their job functions. Use group-based role assignment when possible.
+
+  <Accordion title="Protect the last super admin">
+    Always have at least two super admins on the instance. Sure prevents you from deleting or demoting the last one, but having a backup avoids getting into that state.
   </Accordion>
-  
-  <Accordion title="Monitor authentication">
-    Regularly review authentication history and failed login attempts to detect potential security issues.
-  </Accordion>
-  
-  <Accordion title="Document manual changes">
-    Keep notes when manually adjusting user roles or disconnecting accounts for future reference.
-  </Accordion>
-  
-  <Accordion title="Offboarding process">
-    Establish a clear process for suspending or deleting user accounts when employees leave.
+
+  <Accordion title="Password resets">
+    Use the admin password-set feature when a local user is locked out and cannot receive a reset email. Prefer the self-service reset flow when email is available.
   </Accordion>
 </AccordionGroup>
-
-## Reporting
-
-### User statistics
-
-View aggregate statistics about your users:
-
-- Total users
-- Active users (logged in within last 30 days)
-- Users by authentication method
-- Users by role
-- New users (created in last 30 days)
-
-### Export user data
-
-Export user information for reporting or compliance:
-
-<Steps>
-  <Step title="Navigate to user list">
-    Go to Admin → Users
-  </Step>
-  
-  <Step title="Apply filters">
-    Filter users as needed (optional)
-  </Step>
-  
-  <Step title="Click export">
-    Click "Export" button
-  </Step>
-  
-  <Step title="Choose format">
-    Select CSV or JSON format
-  </Step>
-  
-  <Step title="Download file">
-    Download the exported user data
-  </Step>
-</Steps>
 
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Role mapping" icon="users" href="/authentication/role-mapping">
-    Configure automatic role assignment from IdP groups
-  </Card>
-  
   <Card title="Audit logging" icon="list" href="/authentication/audit-logging">
     Monitor user authentication and account changes
   </Card>
-  
+
   <Card title="Admin UI" icon="gear" href="/authentication/admin-ui">
     Manage SSO providers and configuration
   </Card>
-  
+
   <Card title="OIDC setup" icon="key" href="/authentication/oidc">
     Configure OIDC authentication providers
   </Card>

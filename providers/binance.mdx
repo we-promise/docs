@@ -4,10 +4,6 @@ description: Connect your Binance account to track cryptocurrency holdings, bala
 ---
 
 Binance integration allows you to sync your cryptocurrency accounts, track holdings across spot, margin, and earn products, and monitor trades directly in Sure using the Binance API.
-description: Connect your Binance account to track cryptocurrency holdings and transactions
----
-
-Binance integration allows you to sync your cryptocurrency accounts, track holdings, and monitor transactions directly in Sure using the Binance API.
 
 <Note>
 This integration is currently in beta. Please report any issues you encounter.
@@ -94,6 +90,10 @@ Sure creates a daily holding record for each asset, including:
 - Price data from Binance market data
 - Valuations converted to your family's preferred currency
 
+When Binance reports that an asset is no longer in your wallet, Sure removes it from today's holdings so your portfolio stays accurate. Assets are removed based on what the latest sync reports, not on individual price lookups — a temporary pricing outage does not cause a holding to disappear.
+
+If one of the Binance sources (spot, margin, or earn) is temporarily unavailable during a sync, Sure carries forward the last known positions for that source rather than treating the silence as an empty wallet. The held positions are refreshed as soon as that source responds again.
+
 ### Trade syncing
 
 Sure syncs your spot trade history, including:
@@ -146,17 +146,9 @@ Sure automatically syncs your Binance account on a regular schedule along with y
 
 - Only spot, cross-margin, and Simple Earn accounts are supported — futures, options, and other Binance products are not included
 - Margin balances reflect net assets (assets minus borrowed), not gross positions
+- Margin and Earn transaction history is not currently synced (only current balances)
 - Historical trade data depends on Binance API availability and retention
 - Real-time price updates depend on Binance market data availability
-To manually sync your Binance accounts:
-
-1. Navigate to **Settings** > **Bank sync**
-2. Find your Binance connection
-3. Click **Sync**
-
-### Automatic sync
-
-Sure automatically syncs your Binance accounts on a regular schedule along with your other connected accounts.
 
 ## Troubleshooting
 
@@ -174,7 +166,10 @@ If balances are missing:
 
 1. Manually trigger a sync
 2. Check that the asset has a non-zero balance on Binance
-3. Verify the account is linked in Sure
+3. Verify the account type (spot, margin, earn) is supported
+4. Verify the account is linked in Sure
+
+If a source such as margin or Earn is temporarily unavailable, Sure preserves the last known positions for that source and logs the issue to **Settings** > **Debug** against the connection. Check there for details on any sync warnings.
 
 ### Missing trades
 
@@ -183,17 +178,10 @@ If trades are missing:
 1. Check that your API key has trade history read permissions
 2. Verify the trade exists in your Binance account
 3. Ensure the sync start date is set before the trade date
-2. Ensure your API key hasn't been revoked or expired
-3. Check that your API key has read permissions enabled
-4. Confirm your Binance account is active and in good standing
 
-### Missing balances
+### Stale holdings after selling
 
-If some balances are missing:
-
-1. Manually trigger a sync
-2. Verify the asset exists in your Binance account
-3. Check that the account type (spot, margin, earn) is supported
+If a sold asset continues to appear in your portfolio, manually trigger a sync. Sure removes holdings that Binance no longer reports as part of the wallet during each sync.
 
 ### Stale rate warnings
 
@@ -206,12 +194,6 @@ If you have trouble linking accounts:
 1. Ensure you've completed the account setup after connecting
 2. When linking to an existing account, verify it's a manual crypto account
 3. Try unlinking and relinking the account
-
-## Limitations
-
-- Historical trade data is limited to spot trades
-- Some asset types may not have real-time pricing available
-- Margin and Earn transaction history is not currently synced (only current balances)
 
 ## Getting help
 
