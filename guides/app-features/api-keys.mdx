@@ -1,0 +1,89 @@
+---
+title: API keys
+description: Create and manage API keys for programmatic access to your Sure data
+---
+
+API keys let scripts, services, and third-party tools access your Sure data without going through the web UI. Each key is tied to your user account and carries a permission scope that controls what the caller can do.
+
+## Creating an API key
+
+1. Go to **Settings → API Keys**.
+2. Click **New API Key**.
+3. Enter a descriptive name — for example, "Budget export script" or "Portfolio tracker".
+4. Select a permission scope (see [Scopes](#scopes) below).
+5. Click **Save API Key**.
+
+Sure displays the full key value once immediately after creation. Copy it and store it securely. The raw value is not shown again — if you lose it, revoke the key and create a new one.
+
+## Scopes
+
+Each API key has exactly one permission scope:
+
+| Scope | Label in UI | What it allows |
+| --- | --- | --- |
+| `read` | Read Only | View accounts, transactions, balances, and related data |
+| `read_write` | Read/Write | View data and create or update transactions |
+
+Choose the narrowest scope that satisfies your use case. A read-only key cannot write data even if an endpoint would normally accept it.
+
+## Using an API key
+
+Include the key in the `X-Api-Key` request header:
+
+```bash
+curl https://your-sure-instance.com/api/v1/transactions \
+  -H "X-Api-Key: your-key-here"
+```
+
+The API also accepts OAuth2 bearer tokens for registered OAuth clients. See the [API reference](/openapi.yaml) for endpoint details.
+
+## Rate limits
+
+Rate limits apply to API key requests. Limits reset at the top of each hour.
+
+| Tier | Requests per hour |
+| --- | --- |
+| Standard | 100 |
+| Premium | 1,000 |
+| Enterprise | 10,000 |
+
+All keys start on the standard tier. The current tier is shown on the key's detail page in settings.
+
+When a key exceeds its limit, the API returns HTTP `429 Too Many Requests`. The response includes:
+
+```json
+{
+  "error": "rate_limit_exceeded",
+  "message": "Rate limit exceeded. Try again in 300 seconds.",
+  "details": {
+    "limit": 100,
+    "current": 100,
+    "reset_in_seconds": 300
+  }
+}
+```
+
+Every API response includes rate limit headers:
+
+| Header | Description |
+| --- | --- |
+| `X-RateLimit-Limit` | Maximum requests allowed in the current window |
+| `X-RateLimit-Remaining` | Requests remaining in the current window |
+| `X-RateLimit-Reset` | Seconds until the window resets |
+
+<Note>
+Rate limiting only applies to hosted instances. Self-hosted deployments have no rate limit applied to API key requests.
+</Note>
+
+## Revoking a key
+
+To revoke a key, go to **Settings → API Keys**, find the key, and click **Revoke**. Revocation takes effect immediately. Any request using a revoked key receives an `unauthorized` response.
+
+Removing a user from a family also revokes all of their API keys.
+
+## Security considerations
+
+- Store API keys as secrets, not in source code or version control.
+- Use a read-only key whenever write access is not required.
+- Revoke keys that are no longer in use.
+- If a key is exposed, revoke it immediately and create a replacement.
