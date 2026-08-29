@@ -13,9 +13,11 @@ For each asset Sure records:
 
 - The **quantity** held, read from the chain
 - A **holding** valued at the current price, or at zero when no price is available
-- The **transfers** in and out, recorded as investment trades labeled "Transfer" when the price for that day is known, so cost basis and the value chart reconstruct back to acquisition. When that day's price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
+- The **transfers** in and out, recorded as investment trades labeled "Transfer" when the price for that day is known. When that day's price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
 
 Balances are read-only and always derived from the chain. Editing them by hand is pointless: the next sync overwrites them.
+
+Because a transfer is not an acquisition, Sure cannot know what the asset cost you before it arrived. A holding with any transfer in its history will show no cost basis and no gain/loss trend. To see those figures, set a manual cost basis on the holding.
 
 ## Prices need two settings, not one
 
