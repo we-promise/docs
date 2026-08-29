@@ -112,8 +112,15 @@ Deleting a goal removes it and its pledges entirely. It does not affect your acc
 
 A goal earmarks the balance of its linked accounts. You can link an account to a goal in two ways:
 
-- **Whole account** — the goal claims the entire account balance. Only one active goal at a time can hold a whole-account link on any given account. Trying to add a second whole-account link to the same account is refused.
+- **Whole account** — the goal claims the entire account balance. Leave the amount field blank to use this mode. Only one active goal at a time can hold a whole-account link on any given account. Trying to add a second whole-account link to the same account is refused.
 - **Fixed earmark** — you allocate a specific amount of the account balance to the goal. Multiple goals can each hold a fixed earmark on the same account, provided the total does not exceed the balance.
+
+When you leave the amount field blank, the hint beneath the account row tells you what the goal will claim:
+
+- If no other goal has earmarked any portion of that account, the hint reads **"This goal will use this account's whole balance."**
+- If other goals already hold earmarks on the same account, the hint reads **"This account will fund whatever is left after the other earmarks."**
+
+When another goal already holds a whole-account link on an account, that account shows as unavailable. You must enter a specific amount to add it to a second goal.
 
 To split a balance between goals, allocate a specific portion to each goal using the earmark controls in the goal form.
 
