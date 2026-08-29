@@ -205,6 +205,18 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Deleting an account with many transfers is slow
+
+When you delete an account, Sure removes all transfers linked to its transactions. In older versions, this process issued a separate database query for each transfer's associated transaction records, causing it to slow significantly when an account had hundreds of transfers.
+
+<AccordionGroup>
+  <Accordion title="How was it fixed?">
+    Sure now loads all transfer transaction associations in a single query before starting the deletion loop. Deleting an account with a large transfer history completes in roughly constant time regardless of the number of transfers involved.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
