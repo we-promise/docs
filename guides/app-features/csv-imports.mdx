@@ -153,6 +153,8 @@ Rules exported from Sure may have a `null` name field, which is valid. If a full
 
 If your export contains rejected transfers whose original transactions were later deleted, Sure will skip those orphaned rows and report them as warnings rather than blocking the import. Check the preflight warnings in the import response for details on any skipped records.
 
+Preflight missing-reference error and warning messages are displayed in your configured interface language (set under **Settings → Preferences → Language**).
+
 ### Sure NDJSON import fails with a duplicate category or tag name
 
 Category and tag names must be unique within a family. If your NDJSON file contains two or more Category (or Tag) records with the same name, preflight will reject the import with a `duplicate_taxonomy_name` error. Remove or rename the duplicate entries in your export file before retrying.
