@@ -185,7 +185,13 @@ Only users with `@company.com` emails can authenticate, and they must be pre-cre
 
 ## Bootstrap first admin
 
-The first super admin must be set via Rails console:
+The first user to register on a fresh instance is automatically assigned the `super_admin` role. No Rails console step is needed.
+
+If you are using SSO with JIT provisioning, the first user whose login creates a new family is also automatically assigned `super_admin`. Subsequent users get the role defined by your provider's default role setting.
+
+Once a super admin exists, they can promote other users via the web UI at `/admin/users`.
+
+If you need to promote a user to `super_admin` on an existing instance (for example, after a data migration), use the Rails console:
 
 ```bash
 bin/rails console
@@ -194,8 +200,6 @@ bin/rails console
 ```ruby
 User.find_by(email: "admin@example.com").update!(role: :super_admin)
 ```
-
-Once set, super admins can promote other users via the web UI at `/admin/users`.
 
 ## Troubleshooting
 
