@@ -637,7 +637,7 @@ The system health page has an **AI** tab at `/admin/system_health?tab=ai`. Openi
 
 - **LLM probe** — Verifies the configured model is available. For standard OpenAI, it queries the models list. For OpenAI-compatible endpoints (Ollama, OpenRouter, etc.), it sends a short chat completion request instead, since many compatible providers do not implement the models list endpoint.
 - **PDF text extraction probe** — Sends a synthetic PDF to the model and checks that the response correctly identifies the institution name embedded in the document. This probe only runs when the effective provider is OpenAI and the model reports PDF text extraction support. The synthetic document contains no customer data.
-- **PDF vision processing probe** — Same synthetic PDF check using the vision processing path. Runs for any provider that reports vision-based PDF support, including Anthropic. The synthetic document contains no customer data.
+- **PDF vision processing probe** — Same synthetic PDF check using the vision processing path. Runs for any provider that reports vision-based PDF support, including Anthropic. The synthetic document contains no customer data. If the probe fails with "The pdftoppm renderer (poppler-utils) is not available in this container", your image predates the fix that bundled `poppler-utils`; pull the latest image and restart.
 - **Vector store probe** — For OpenAI vector stores, confirms a list request succeeds without creating or modifying a store. For pgvector, checks that the `vector` extension is enabled and the chunks table exists.
 - **Embedding probe** — For pgvector, sends a short test embedding request and verifies the returned vector matches `EMBEDDING_DIMENSIONS`. The test vector is not stored.
 
