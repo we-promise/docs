@@ -172,12 +172,25 @@ If you have a Plaid account that is not yet linked to any Sure account, you can 
 
 If no accounts appear in the list, all of your Plaid accounts are already linked. Connect a new Plaid account first.
 
+## How Sure selects Plaid products
+
+When you initiate a Plaid Link flow, Sure requests a specific set of Plaid products based on the type of account you are linking. Plaid filters out any institution that does not support every product in the requested set, so the product selection directly controls which institutions appear in the Link UI.
+
+| Account type | Primary product | Additional consented products |
+|---|---|---|
+| Investment | `investments` | `transactions` |
+| Credit card / Loan | `liabilities` | `transactions`, `investments` |
+| Depository (and others) | `transactions` | `investments` |
+
+Because `liabilities` is only requested when linking a liability account (credit card or loan), investment-only institutions such as E*TRADE that do not offer Plaid's liabilities product are now visible when you link an investment account. Previously, requesting `liabilities` for every account type caused those institutions to be silently hidden in the Link flow.
+
 ## Features
 
 - **US bank coverage**: Comprehensive support for US financial institutions
 - **Real-time data**: Access to account balances and transactions
 - **OAuth support**: Secure authentication for supported banks
 - **Multiple accounts**: Connect accounts from different institutions
+- **Investment-only institutions**: Brokerages that do not offer liabilities (such as E*TRADE) can be linked as investment accounts
 
 ## Pricing
 
