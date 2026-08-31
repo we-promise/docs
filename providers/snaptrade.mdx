@@ -135,7 +135,11 @@ SnapTrade deprecated the `/positions` endpoint for apps registered after their 2
 
 ### Device code expires before confirmation
 
-The device code has a limited validity window. If Sure shows an error saying the code has expired, start a new connection attempt to receive a fresh code. Errors during polling that say "not confirmed yet" retry automatically without needing a restart.
+The device code has a limited validity window. If Sure shows "This device code expired. Start the authorization again.", click the start button to request a fresh code.
+
+If Sure shows "SnapTrade hasn't seen your confirmation yet. Approve the code in SnapTrade, then try again.", the confirmation is still pending. Approve the code in the SnapTrade app and click the complete button again.
+
+If Sure shows "SnapTrade authorization was declined.", the authorization was rejected. Start a new connection attempt if you want to try again.
 
 ## API reference
 
