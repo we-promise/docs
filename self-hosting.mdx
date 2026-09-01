@@ -193,6 +193,14 @@ Changing `WEBAUTHN_RP_ID` after people register credentials can make existing pa
 
 See [Passkeys and security keys](/guides/app-features/passkeys) for user setup steps.
 
+Passwordless passkey login is enabled by default:
+
+```txt
+AUTH_PASSKEY_LOGIN_ENABLED="true"
+```
+
+Set it to `"false"` if you only want registered passkeys and security keys to work as a second factor after email/password sign-in.
+
 ### Reverse proxy sub-path deployments
 
 Sure can be served under a path prefix by a reverse proxy — for example `https://home.example.com/sure` instead of the root. The web app works at that address with no extra configuration.
