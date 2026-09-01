@@ -565,9 +565,27 @@ The callback URL is shown in admin UI when editing a provider (with copy button)
 
 ### Rate limiting
 
-- Admin endpoints: 10 requests/minute per IP
-- OAuth token endpoint: 10 requests/minute per IP
-- Failed login attempts monitored separately
+Sure uses Rack::Attack to throttle credential-checking endpoints in production and staging. Rate limiting is disabled in development and test environments to avoid flakiness.
+
+Every endpoint that checks a password, TOTP code, or backup code is throttled by **both** IP address and a credential-identifying discriminator (email address, or the session-bound user ID for MFA step-up). Both throttles must pass — an attacker cannot bypass one by rotating IPs against a single target or by spraying many addresses from one IP.
+
+| Endpoint | Throttle keys | Limit |
+| --- | --- | --- |
+| `POST /sessions` — web login | IP + email | 10 req/min each |
+| `POST /mfa/verify` — TOTP and backup codes | IP + session user ID | 10 req/min each |
+| `POST /password_reset` — password reset | IP + email | 10 req/min each |
+| `POST /oidc_account/create_link` — SSO identity linking | IP + email | 10 req/min each |
+| `POST /api/v1/auth/login` — mobile/API login | IP + email | 10 req/min each |
+| `POST /api/v1/auth/sso_link` — mobile SSO identity linking | IP + email | 10 req/min each |
+| `POST /oauth/token` — OAuth token endpoint | IP | 10 req/min |
+| `POST /register` — OAuth registration | IP | 10 req/min |
+| `POST /mfa/webauthn_options`, `/mfa/verify_webauthn`, `/sessions/passkey` — WebAuthn MFA | IP | 10 req/min |
+| `POST /sessions/passkey_options` — passkey challenge (conditional mediation) | IP | 30 req/min |
+| Admin endpoints (`/admin/*`) | IP | 10 req/min |
+
+Requests that exceed a limit receive HTTP 429. The throttle also matches format-suffixed paths (e.g. `/sessions.json`) so scripted clients cannot bypass it by appending a file extension.
+
+For JSON API requests (`Content-Type: application/json`), the email discriminator is extracted from the request body before Rails parses parameters. The body is rewound after reading so the controller still receives it intact. Non-rewindable input streams (Rack 3 servers that do not support rewind) skip the email throttle and fall back to IP-only throttling for those requests.
 
 ## Example configurations
 

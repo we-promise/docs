@@ -642,7 +642,7 @@ The system health page has an **AI** tab at `/admin/system_health?tab=ai`. Openi
 - **Vector store probe** — For OpenAI vector stores, confirms a list request succeeds without creating or modifying a store. For pgvector, checks that the `vector` extension is enabled and the chunks table exists.
 - **Embedding probe** — For pgvector, sends a short test embedding request and verifies the returned vector matches `EMBEDDING_DIMENSIONS`. The test vector is not stored.
 
-The tab also shows the active provider, model, endpoint (credentials are always redacted), function calling status, PDF text extraction and vision processing status, and pgvector extension and table status. The model settings field links super-admins to this tab and notes that the assistant requires a model with function-calling support.
+The tab also shows the active provider, model, endpoint (credentials are always redacted), function calling status, LLM request timeout, health-check probe timeout, PDF text extraction and vision processing status, and pgvector extension and table status. The model settings field links super-admins to this tab and notes that the assistant requires a model with function-calling support. The LLM request timeout and health-check probe timeout are displayed as separate rows because they bound different operations: the LLM request timeout covers normal chat and PDF import calls, while the health-check probe timeout covers only the live checks run on this page.
 
 When `OPENAI_URI_BASE` points to a custom endpoint, the page identifies the provider where possible — Ollama, OpenRouter, Together AI, Kilo, Cloudflare Workers AI or AI Gateway — and labels unrecognized services as **Custom endpoint**.
 
