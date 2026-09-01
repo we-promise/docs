@@ -11,7 +11,7 @@ The recurring transactions feature automatically identifies patterns in your tra
 
 ### Automatic pattern detection
 
-The system analyzes your transaction history to identify recurring patterns based on:
+Pattern detection analyzes your transaction history to identify recurring patterns based on:
 
 - **Merchant matching**: Groups transactions by the same merchant
 - **Amount consistency**: Looks for transactions with the same amount
@@ -43,7 +43,7 @@ Projected transactions only appear when no filters are applied to the transactio
 
 The projected recurring list is cached per user and refreshed automatically when any of the following change: your recurring transactions, account statuses, the merchants attached to your recurring transactions, or your account sharing access. The cache also resets at the start of each new day, since the list shows charges due within the next 10 days.
 
-## Account Scoping
+## Account scoping
 
 Recurring transactions respect account sharing and permissions:
 
@@ -83,7 +83,7 @@ Click **Identify Patterns** to manually trigger pattern detection. This analyzes
 
 #### Clean up stale
 
-Click **Clean Up Stale** to mark recurring transactions as inactive if they haven't occurred recently. Automatically detected recurring transactions use a 2-month threshold; manually marked recurring transactions use a 6-month threshold. Recurring transfers are matched by their transfer pair (an outflow on the source account paired with an inflow on the destination account) rather than by name, so transfers stay active as long as the pair keeps occurring and are retired only when the pair stops.
+Click **Clean Up Stale** to mark recurring transactions as inactive if they haven't occurred recently. Staleness is measured in the series' own cycles — two missed cycles of the cadence — so quarterly and annual bills are not incorrectly retired just because they have long gaps between normal occurrences. The minimum floor is 2 months for automatically detected patterns and 6 months for manually marked patterns. Recurring transfers are matched by their transfer pair (an outflow on the source account paired with an inflow on the destination account) rather than by name, so transfers stay active as long as the pair keeps occurring and are retired only when the pair stops.
 
 #### Toggle status
 
@@ -99,40 +99,124 @@ You can manually mark any individual transaction as recurring from the transacti
 
 Two manual recurring entries for the same payee are allowed as long as their amounts differ (for example, a $3.00 fee and a $19.68 charge from the same merchant). An exact duplicate — same account, payee, currency, and amount — is still blocked.
 
+## Schedules and cadences
+
+Recurring transactions support a range of cadences beyond monthly:
+
+| Cadence | Description |
+|---|---|
+| Monthly | Once per month on a given day (e.g., the 15th) |
+| Weekly | Once per week on a given weekday |
+| Biweekly | Every two weeks on a given weekday |
+| Semimonthly | Twice per month on two fixed days (e.g., the 1st and 15th) |
+| Quarterly | Every three months on a given day |
+| Semiannual | Every six months on a given day |
+| Annual | Once per year on a given month and day |
+
+When a recurring transaction uses an interval-based cadence (biweekly, quarterly, semiannual), an anchor date is required to establish the phase of the schedule.
+
+### Weekend adjustment
+
+When a bill falls on a weekend you can choose how the due date adjusts:
+
+- **None**: No adjustment; the bill is due on the scheduled date regardless of day of week
+- **Skip**: The occurrence is skipped entirely on weekends
+- **Before**: The due date moves to the preceding Friday
+- **After**: The due date moves to the following Monday
+
+### End conditions
+
+A recurring transaction can be set to end in three ways:
+
+- **Never**: The series continues indefinitely
+- **On date**: The series ends on a specific calendar date
+- **After count**: The series ends after a fixed number of occurrences (up to 600)
+
+## Bill types
+
+Each recurring transaction carries a type that describes the nature of the series:
+
+| Type | Description |
+|---|---|
+| Bill | A recurring expense you owe, such as rent or utilities |
+| Subscription | A recurring charge for a service, like a streaming plan |
+| Installment | A fixed-count payment plan, such as loan installments |
+| Income | A recurring inflow, such as a salary or dividend |
+| Transfer | A recurring move between your own accounts (set automatically) |
+| Other | Anything that doesn't fit a specific category |
+
+Transfers are typed automatically when the recurring transaction has a destination account.
+
+## Bill fields
+
+### Payment URL
+
+You can store a payment link on a bill. When set, you can open the link directly from the bill's detail view to navigate to the payment portal.
+
+### Autopay
+
+Mark a bill as autopay to indicate that the payment is handled automatically. Autopay bills still appear in your bill list but are not flagged as requiring action.
+
+### Notes
+
+Free-text notes stored on the recurring transaction for your own reference.
+
+## Status lifecycle
+
+A recurring transaction moves through the following statuses:
+
+| Status | Meaning |
+|---|---|
+| Suggested | Detected by pattern matching; waiting for your confirmation before generating projected occurrences |
+| Active | Live and generating projected upcoming charges |
+| Paused | Temporarily suspended by you; resumable |
+| Inactive | Automatically retired by the system after going stale |
+| Ended | Reached its end condition, was cancelled, or was dismissed from the suggestion queue. The detector will not recreate an ended series. |
+
+The API accepts only `active` and `inactive` on write. The other statuses are owned by the detection pipeline and the UI.
+
 ## Technical details
 
 ### Pattern clustering
 
-The system uses circular distance calculations to handle month-boundary patterns:
+The pattern detector uses circular distance calculations to handle month-boundary patterns:
 
-- Days are normalized on a circular scale (1-31)
+- Days are normalized on a circular scale (1–31)
 - Clustering accounts for wrap-around (e.g., day 31 to day 1 is distance 1)
 - Standard deviation threshold of 5 days for clustering
 - Median calculation on rotated day sequences for accurate expected day
 
 ### Amount variance filtering
 
-When building or refreshing a manual recurring entry's expected amount range, the system only includes historical transactions whose amount is within 2× of the anchor amount (double or half). This prevents unrelated charges from the same merchant — for example, a small fee and a larger monthly due — from being blended into a single projected amount that matches neither real transaction.
+When building or refreshing a manual recurring entry's expected amount range, only historical transactions whose amount is within 2× of the anchor amount (double or half) are included. This prevents unrelated charges from the same merchant — for example, a small fee and a larger monthly due — from being blended into a single projected amount that matches neither real transaction.
 
 ### Cleanup logic
 
-Recurring transactions are automatically marked inactive when:
+Recurring transactions are automatically marked inactive when no matching transaction has occurred within two cycles of the series' own cadence, subject to a minimum floor:
 
-- No matching transaction has occurred within the staleness threshold (2 months for automatically detected patterns, 6 months for manually marked patterns)
-- The system verifies no recent matches exist before marking inactive
-- For recurring transfers, matching uses transfer-pair detection (an outflow on the source account paired with an inflow on the destination account, within the usual amount and day-of-month tolerance) so transfers stay active while the pair recurs and are retired only when the pair stops
+- **Automatically detected patterns**: minimum 2 months
+- **Manually marked patterns**: minimum 6 months
+
+This means a quarterly bill is not retired after two months of silence — it is allowed two full quarters of inactivity before being considered stale. An annual bill is given two full years.
+
+For recurring transfers, matching uses transfer-pair detection (an outflow on the source account paired with an inflow on the destination account, within the usual amount and day-of-month tolerance) so transfers stay active while the pair recurs and are retired only when the pair stops.
 
 ### Data storage
 
 Each recurring transaction record stores:
 
-- Family and merchant associations
+- Family, account, and merchant associations
 - Amount and currency
-- Expected day of month (1-31)
+- Bill type
+- Expected day of month (1–31)
+- Anchor date (required for interval-based cadences)
 - Last occurrence date
 - Next expected date
-- Status (active/inactive)
+- Status
 - Occurrence count
+- Payment URL, autopay flag, and notes
+- End condition (never, on date, or after count)
+- Weekend adjustment rule
 
 ## Use cases
 
@@ -162,8 +246,10 @@ Identify recurring income like:
 
 ## Limitations
 
-- Requires at least 3 occurrences in the last 3 months
-- Last occurrence must be within 45 days
+- Requires at least 3 occurrences in the last 3 months for automatic detection
+- Last occurrence must be within 45 days for automatic detection
 - Amount variance for manual recurring entries is bounded to 2× the anchor amount; charges outside that range are treated as separate recurring entries
-- Projected transactions hidden when filters are applied
+- Projected transactions are hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
+- Interval-based cadences (biweekly, quarterly, semiannual) require an anchor date
+- The API writes only `active` and `inactive` status; other statuses are managed by the detection pipeline
