@@ -174,6 +174,25 @@ If you enable passkeys or security keys on a public hostname, also set `WEBAUTHN
 If you only want Cloudflare Tunnel access, do not leave port `3000` broadly exposed to the internet. Keep the host firewall closed or bind the published port more narrowly.
 </Warning>
 
+### Passkeys and security keys
+
+If people will use passkeys, Touch ID, Windows Hello, or hardware security keys as MFA credentials, pin the WebAuthn relying party settings in `.env`:
+
+```txt
+WEBAUTHN_RP_ID="example.com"
+WEBAUTHN_ALLOWED_ORIGINS="https://sure.example.com"
+```
+
+`WEBAUTHN_RP_ID` should usually be the registrable domain, not a full URL. For example, use `example.com` for `https://sure.example.com`.
+
+`WEBAUTHN_ALLOWED_ORIGINS` must include the full origin where people access Sure, including `https://`.
+
+<Warning>
+Changing `WEBAUTHN_RP_ID` after people register credentials can make existing passkeys and security keys unavailable. Configure it before rollout and keep it stable across reverse proxy, domain, and hostname changes.
+</Warning>
+
+See [Passkeys and security keys](/guides/app-features/passkeys) for user setup steps.
+
 ### Reverse proxy sub-path deployments
 
 Sure can be served under a path prefix by a reverse proxy — for example `https://home.example.com/sure` instead of the root. The web app works at that address with no extra configuration.
