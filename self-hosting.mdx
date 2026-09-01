@@ -641,7 +641,7 @@ The system health page has an **AI** tab at `/admin/system_health?tab=ai`. Openi
 - **Vector store probe** — For OpenAI vector stores, confirms a list request succeeds without creating or modifying a store. For pgvector, checks that the `vector` extension is enabled and the chunks table exists.
 - **Embedding probe** — For pgvector, sends a short test embedding request and verifies the returned vector matches `EMBEDDING_DIMENSIONS`. The test vector is not stored.
 
-The tab also shows the active provider, model, endpoint (credentials are always redacted), PDF text extraction and vision processing status, and pgvector extension and table status.
+The tab also shows the active provider, model, endpoint (credentials are always redacted), LLM request timeout, health-check probe timeout, PDF text extraction and vision processing status, and pgvector extension and table status. The LLM request timeout and health-check probe timeout are displayed as separate rows because they bound different operations: the LLM request timeout covers normal chat and PDF import calls, while the health-check probe timeout covers only the live checks run on this page.
 
 When `OPENAI_URI_BASE` points to a custom endpoint, the page identifies the provider where possible — Ollama, OpenRouter, Together AI, Kilo, Cloudflare Workers AI or AI Gateway — and labels unrecognized services as **Custom endpoint**.
 
@@ -788,7 +788,7 @@ When using `compose.example.ai.yml`, Pipelock is always running. External AI age
 The example compose file does not enable TLS interception, so Pipelock controls the tunnel destination but cannot read encrypted request or response bodies. Docker Compose also does not prevent a client from bypassing the proxy.
 </Note>
 
-For full Pipelock configuration including signed receipts, see the [Pipelock documentation](https://github.com/we-promise/sure/blob/main/docs/hosting/pipelock.md).
+For full Pipelock configuration including signed receipts, see [Self-hosting with Helm](/self-hosting-helm#pipelock-ai-agent-security-proxy) for Kubernetes options and the `pipelock.example.yaml` reference file in the Sure repository.
 
 ## Local development bind
 
