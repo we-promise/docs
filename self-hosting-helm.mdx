@@ -580,6 +580,30 @@ pipelock:
 
 Keep `requireReceipts: false` until you confirm receipts are being written. When set to `true`, allow-path requests are blocked if Pipelock cannot sign or write the receipt.
 
+### Validating your config
+
+Pipelock includes CLI tools for config validation and deployment diagnostics. Run them from the Pipelock container or using the pinned image locally:
+
+```bash
+# Create and run a broader assessment workspace
+pipelock assess init --config pipelock.yaml
+
+# Score your config's security posture (0-100)
+pipelock audit score --config pipelock.yaml
+
+# Report whether configured protections are actually enforceable
+pipelock doctor
+
+# Explain a block and the exact config knob that applies
+pipelock explain --config pipelock.yaml "https://example.com/path"
+```
+
+In Kubernetes, run these against the running Pipelock pod:
+
+```bash
+kubectl exec -n sure deploy/sure-pipelock -- /pipelock doctor --config /etc/pipelock/pipelock.yaml
+```
+
 ### Require Pipelock for external assistants
 
 By default, the chart rejects an external AI assistant deployment without Pipelock:
