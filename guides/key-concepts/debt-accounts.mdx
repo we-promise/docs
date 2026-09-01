@@ -130,12 +130,18 @@ To add a debt account:
 2. Select the liability type (Credit Card, Loan, or Other Liability)
 3. Enter your account details:
    - Account name
-   - Current balance (the amount you owe)
-   - For loans: interest rate, term, and rate type
+   - Current balance (the amount you currently owe)
+   - For loans: original balance (the principal when the loan started), interest rate, term, and rate type
 4. Click **Create Account**
 
 > [!IMPORTANT]
 > Make sure to select a liability account type (Credit Card, Loan, or Other Liability) when adding debt. If you accidentally create a Cash account for your credit card, the balance calculations will be incorrect.
+
+### Loans with a different opening and current balance
+
+When you add a loan, you can enter both the original principal (opening balance) and your current remaining balance. These two figures are often different — for example, a mortgage you took out years ago has a much lower remaining balance today than when it started.
+
+Sure preserves both values: the original principal is recorded as the opening balance on the loan's start date, and your current remaining balance is anchored to today. The first sync uses your current balance as the baseline and calculates forward from there, so the balance you entered is never overwritten.
 
 ## Understanding Loan Payments
 
