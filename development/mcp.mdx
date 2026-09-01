@@ -101,4 +101,4 @@ This is a compatibility fallback: Sure tries OAuth access-token authentication f
 
 Sure's AI Docker Compose example exposes Pipelock's MCP listener on port `8889` and forwards it to Sure's internal `/mcp` endpoint. The Helm chart can similarly expose a Pipelock MCP ingress. Operators who deploy it should provide users with the proxied MCP address. Pipelock adds scanning; it does not replace Sure's browser sign-in and authorization or require users to configure OAuth manually.
 
-Operators can see Sure's [Pipelock configuration](https://github.com/we-promise/sure/blob/main/docs/hosting/pipelock.md) for deployment and policy options. Use TLS, restrict direct access to `/mcp` when practical, and ensure clients use the proxied URL so they cannot bypass scanning.
+Operators can see the [Pipelock section in the Helm guide](/self-hosting-helm#pipelock-ai-agent-security-proxy) for deployment and policy options. Use TLS, restrict direct access to `/mcp` when practical, and ensure clients use the proxied URL so they cannot bypass scanning.
