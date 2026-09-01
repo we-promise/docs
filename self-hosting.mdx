@@ -288,6 +288,8 @@ On first run, register a new account:
 2. Enter your email
 3. Enter a password
 
+The first user to register on a fresh instance is automatically assigned the `super_admin` role. If two registrations happen at the same time, Sure uses a database lock to ensure exactly one of them becomes `super_admin` and the other becomes `admin`.
+
 ### Restrict future signups
 
 After creating your initial admin account, you can control how other people join your self-hosted instance from **Settings > Self-Hosting > Onboarding**.
