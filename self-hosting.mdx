@@ -390,7 +390,7 @@ docker compose up --no-deps -d web worker
 
 ## Backup service
 
-The Docker Compose configuration includes an optional backup service that automatically backs up your PostgreSQL database.
+The Docker Compose configuration includes an optional backup service that automatically backs up your PostgreSQL database and uploads it to any cloud storage provider supported by [rclone](https://rclone.org/) — including S3, Cloudflare R2, Google Drive, SFTP, and 70+ others.
 
 <Warning>
   The backup service only creates PostgreSQL backups. It does not back up local files stored in Sure's `storage` directory.
@@ -416,42 +416,49 @@ docker compose --profile backup up -d
 
 ### Configure backup settings
 
-The backup service uses the following default settings:
+Add the following variables to your `.env` file to configure the backup destination and schedule. `BACKUP_DESTINATION` is required; all other variables are optional.
 
-- **Schedule**: Daily at midnight
-- **Retention**: 7 daily backups, 4 weekly backups, 6 monthly backups
-- **Location**: `/opt/sure-data/backups` on your host machine
+```txt
+# Required: rclone remote format — remote:bucket/path (e.g. "s3:my-bucket" or "r2:my-bucket/backups")
+BACKUP_DESTINATION="s3:my-bucket"
 
-To customize these settings, edit the `backup` service in your `compose.yml` file:
+# Cron schedule for backups (default: every day at 2 AM)
+BACKUP_SCHEDULE="0 2 * * *"
 
-```yml
-backup:
-  profiles:
-    - backup
-  image: prodrigestivill/postgres-backup-local
-  restart: unless-stopped
-  volumes:
-    - /your/custom/path:/backups  # Change this to your desired location
-  environment:
-    - POSTGRES_HOST=db
-    - POSTGRES_DB=${POSTGRES_DB:-sure_production}
-    - POSTGRES_USER=${POSTGRES_USER:-sure_user}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sure_password}
-    - SCHEDULE=@daily              # Change schedule (e.g., @hourly, @weekly)
-    - BACKUP_KEEP_DAYS=7           # Number of daily backups to keep
-    - BACKUP_KEEP_WEEKS=4          # Number of weekly backups to keep
-    - BACKUP_KEEP_MONTHS=6         # Number of monthly backups to keep
+# true  → always write backup_latest.sql.gz (overwrites previous file)
+# false → write backup_YYYY-MM-DD_HH-MM-SS.sql.gz and keep rolling files (default)
+BACKUP_OVERWRITE="false"
+
+# Number of days to keep timestamped backup files (default: 7, only used when BACKUP_OVERWRITE=false)
+BACKUP_KEEP_DAYS="7"
+
+# Scopes backups under BACKUP_DESTINATION/<INSTANCE_ID> — useful when multiple
+# deployments share the same bucket so retention operations do not overlap (default: "default")
+INSTANCE_ID="default"
 ```
+
+Then configure your rclone storage provider. The example below uses an S3-compatible provider (such as Cloudflare R2):
+
+```txt
+RCLONE_CONFIG_S3_TYPE=s3
+RCLONE_CONFIG_S3_PROVIDER=Cloudflare
+RCLONE_CONFIG_S3_ACCESS_KEY_ID=your-access-key-id
+RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=your-secret-access-key
+RCLONE_CONFIG_S3_ENDPOINT=https://your-account.r2.cloudflarestorage.com
+```
+
+For providers other than S3 (Google Drive, SFTP, Backblaze B2, etc.), replace the `RCLONE_CONFIG_S3_*` variables with the equivalent variables for your provider. See the [rclone documentation](https://rclone.org/docs/) for the full list of supported providers and their configuration variables.
+
+The `compose.yml` maps the S3 variables by default. If you use a different provider, add the corresponding variables to both your `.env` file and the `backup` service's `environment` block in `compose.yml`.
 
 ### Backup schedule options
 
-You can use cron syntax or these shortcuts:
+`BACKUP_SCHEDULE` accepts standard cron syntax. Some examples:
 
-- `@hourly` - Every hour
-- `@daily` - Once per day at midnight
-- `@weekly` - Once per week
-- `@monthly` - Once per month
-- Custom cron: `0 2 * * *` (2 AM daily)
+- `0 2 * * *` — every day at 2 AM (default)
+- `0 * * * *` — every hour
+- `0 2 * * 0` — once per week (Sunday at 2 AM)
+- `0 2 1 * *` — once per month (1st of the month at 2 AM)
 
 ### Restore from a PostgreSQL backup
 
