@@ -100,15 +100,26 @@ Date,Amount,Name,Account,Category,Notes
 
 ## Import process
 
+The import wizard shows a step indicator at the top of the page. Step labels display in your configured language (set under **Settings → Preferences → Language**). On mobile, the indicator shows a "Step X of Y" progress count instead.
+
+The steps vary by import type:
+
+| Import type | Steps |
+|---|---|
+| CSV (transactions, trades, accounts, etc.) | Upload → Configure → Clean → Map → Confirm |
+| QIF | Upload → Select → Clean → Map → Confirm |
+| PDF statement | Upload → Configure → Clean → Confirm |
+| Sure export (NDJSON) | Upload → Confirm |
+
+The Map step only appears when your data requires column or account mapping; it is skipped automatically when no mapping is needed.
+
 1. **Navigate to imports**: Go to Settings → Imports or use the import button in the app
-2. **Upload CSV**: Drag and drop your CSV file or click to browse
-3. **Configure settings**:
-   - Select import type (Accounts, Transactions, etc.)
-   - Choose date format
-   - Set number format (decimal separator)
-4. **Map columns**: Match your CSV columns to Sure's fields
-5. **Review**: Check the preview of your data
-6. **Import**: Confirm and import your data
+2. **Upload**: Drag and drop your file or click to browse
+3. **Configure**: Choose the date format, number format, and column assignments
+4. **Select** (QIF only): Review the detected date format and choose which categories and tags from your QIF file to import
+5. **Clean**: Fix any invalid rows flagged in the table
+6. **Map** (when needed): Assign imported accounts, categories, or tags to existing ones in Sure
+7. **Confirm**: Review the import summary and publish
 
 ## Tips for successful imports
 
