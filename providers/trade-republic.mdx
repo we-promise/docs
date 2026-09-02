@@ -1,0 +1,128 @@
+---
+title: Trade Republic
+description: Connect a Trade Republic investment account via secure web login
+---
+
+Trade Republic is a European neo-broker that lets you buy stocks, ETFs, bonds, crypto, and private market assets. Sure connects to Trade Republic directly using its authenticated web API — no third-party aggregator is required.
+
+## How it works
+
+Sure authenticates to Trade Republic using the same web login flow as the Trade Republic web app. After you confirm the login on your phone, Sure stores an encrypted session token and uses it for all future syncs. Your PIN is never stored — it is used only to start a new login session and is discarded immediately after.
+
+Sure discovers two accounts from your Trade Republic connection:
+
+- **Portfolio account** — holds your securities positions (stocks, ETFs, bonds, crypto, private market instruments) and tracks their current value
+- **Cash account** — holds your Trade Republic cash balance and records deposits, withdrawals, card payments, interest, and dividends
+
+## Logging in
+
+Sure supports two login methods:
+
+### Phone number and PIN
+
+1. Enter your Trade Republic phone number and PIN
+2. Sure starts a web login session with Trade Republic
+3. Trade Republic sends a push notification or authenticator code to confirm the login
+4. Confirm the login in the Trade Republic app, then click **Confirm login** in Sure
+
+### QR code
+
+1. Click **QR login** in the Trade Republic panel
+2. Sure fetches a QR code from Trade Republic
+3. Open the Trade Republic mobile app and scan the QR code
+4. Sure detects the approved session automatically
+
+Use the QR login if you prefer not to enter your PIN in Sure, or if you do not have the Trade Republic authenticator set up.
+
+## Setting up Trade Republic
+
+1. In Sure, go to **Settings > Providers**
+2. Find the **Trade Republic** section and click to expand it
+3. Choose your login method (phone and PIN, or QR code) and complete the login
+4. After a successful login, click **Sync** to discover your accounts
+5. Once the sync finishes, click **Set up accounts** to link the discovered portfolio and cash accounts to Sure accounts
+
+If you already have a manual investment account in Sure, you can link the discovered Trade Republic portfolio account to it instead of creating a new one.
+
+## Account types
+
+| Account | Sure account type | What it tracks |
+|---|---|---|
+| Portfolio | Investment | Securities positions and their current value |
+| Cash | Depository | Cash balance, deposits, withdrawals, card payments, interest, dividends |
+
+The portfolio account category follows the assets held. Sure maps Trade Republic's portfolio categories to account subtypes:
+
+| Trade Republic category | Sure account subtype |
+|---|---|
+| Stocks and ETFs | Brokerage |
+| Private markets | Private markets |
+| Interest / bonds | Interest products |
+| Crypto | Crypto wallet |
+
+## What gets imported
+
+### Portfolio account
+
+- Current holdings with quantities and market values
+- Trade history (buys and sells)
+- Savings plan executions
+
+### Cash account
+
+- Cash balance
+- Deposits and withdrawals
+- Card payments and ATM withdrawals
+- Card refunds
+- Interest payouts
+- Dividends
+- Tax refunds
+
+When both accounts are linked, buy and sell trades are recorded on the portfolio account only. Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only.
+
+## Syncing
+
+Sure syncs Trade Republic accounts on the same schedule as other connected providers. You can also trigger a manual sync from the Trade Republic panel in **Settings > Providers**.
+
+Session tokens are refreshed automatically during each sync when Trade Republic returns a renewed token. If the session expires, the status changes to **Re-authentication required** and you will need to log in again.
+
+## Troubleshooting
+
+### Re-authentication required
+
+Your Trade Republic session expired. Go to **Settings > Providers > Trade Republic** and log in again using your phone and PIN or the QR code method.
+
+### Accounts need setup
+
+A sync discovered your Trade Republic accounts, but they have not been linked to Sure accounts yet. Click **Set up accounts** from the Trade Republic panel and complete the account setup.
+
+### No accounts discovered yet
+
+The login succeeded, but no accounts have been found yet. Click **Sync** from the Trade Republic panel and wait for the sync to finish, then try **Set up accounts** again.
+
+### Holdings show the wrong value
+
+If a position shows no price or an incorrect value:
+
+- Run a manual sync to refresh market prices
+- Check the **Data quality** section on the Trade Republic panel for positions flagged as unpriced
+- Prices for some securities (especially private market instruments) may not be available until Trade Republic returns a market price
+
+### Balance does not match the Trade Republic app
+
+Cash balance discrepancies can occur if a sync captured a partial response from Trade Republic. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
+
+### Login confirmation times out
+
+The push notification or authenticator code confirmation window is limited. If it expires before you confirm:
+
+1. Click **Cancel** or wait for the panel to reset
+2. Start a new login from **Settings > Providers > Trade Republic**
+
+## Limitations
+
+- **European accounts only**: Trade Republic operates in Europe. Accounts in unsupported regions cannot be connected.
+- **Single connection per family**: Sure supports one Trade Republic connection per family account.
+- **Session expiry**: Long periods without a sync can cause the session to expire, requiring re-authentication.
+- **Unpriced positions**: Some securities (particularly private market instruments) may not have a current price available from Trade Republic.
+- **No options or derivatives**: Derivative instruments are not imported.
