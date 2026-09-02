@@ -231,6 +231,12 @@ The coalescing logic requires a shared cache store. Sure skips the Plaid refresh
 
 Without a shared cache, manual syncs still work but do not trigger a fresh pull from Plaid before fetching transactions.
 
+## Reconnect status
+
+When Plaid requires you to re-authenticate (for example, after a password change), Sure marks the connection with a "requires update" warning. Clicking the **Update** button in **Settings > Providers** opens the Plaid Link re-authentication flow.
+
+After you complete re-authentication, the warning is not cleared immediately. Sure clears the "requires update" status only after the next full import succeeds. This means the warning may persist briefly after you reconnect — it disappears once the subsequent sync completes without a login error. If the login issue is still present, the status remains until authentication succeeds and a full import runs cleanly.
+
 ## Troubleshooting
 
 If you run into Plaid errors that are not visible in Sure, check the Plaid Dashboard logs under **Developers > Logs**. These logs can show whether the issue is coming from Plaid Link configuration, product approval, institution support, or another Plaid-side validation error.
