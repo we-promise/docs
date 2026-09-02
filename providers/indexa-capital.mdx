@@ -1,0 +1,39 @@
+---
+title: Indexa Capital
+description: Connect Indexa Capital automated investment portfolios to Sure
+---
+
+Indexa Capital is a Spanish robo-advisor that manages automated investment portfolios. Sure connects to Indexa Capital to import your portfolio holdings, balances, and transaction history.
+
+## Setting up Indexa Capital
+
+Sure supports two authentication methods for Indexa Capital: an API token or username and password credentials.
+
+### Option 1: API token (recommended)
+
+1. Log in to your Indexa Capital dashboard.
+2. Navigate to the API or developer settings to generate a read-only API token.
+3. In Sure, go to **Settings → Providers** and find the **Indexa Capital** section.
+4. Paste your API token into the **API Token** field and save.
+
+### Option 2: Username and password
+
+1. In Sure, go to **Settings → Providers** and find the **Indexa Capital** section.
+2. Enter your Indexa Capital **Username** (email), **Document ID**, and **Password**.
+3. Save the configuration.
+
+After saving, Sure begins syncing your Indexa Capital accounts. Go to the **Accounts** tab to set up any newly discovered accounts.
+
+## Setting up accounts
+
+After the first sync, your Indexa Capital accounts appear in the setup queue. Click **Set up accounts** to assign each account an account type and a transaction history start date before it appears in your account list.
+
+## Troubleshooting
+
+### Provider not configured
+
+If you see a "provider not configured" error, check that your credentials are saved in **Settings → Providers → Indexa Capital** and that at least one authentication method is filled in correctly.
+
+### No accounts found after syncing
+
+Run a manual sync from **Settings → Providers** after saving your credentials. If accounts still do not appear, verify your credentials are correct in the Indexa Capital dashboard.

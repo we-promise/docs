@@ -1,0 +1,74 @@
+---
+title: Brex
+description: Connect Brex business cash and card accounts to Sure
+---
+
+Brex is a business financial platform offering corporate cards, cash management accounts, and expense tracking. Sure connects to Brex using a read-only API token you generate from the Brex developer settings.
+
+## How it works
+
+Sure uses the Brex API to pull account balances and transaction history directly into your family's accounts. Each Brex company you want to connect requires its own named connection and API token.
+
+## Setting up Brex
+
+### Step 1: Generate a Brex API token
+
+1. Log in to [brex.com](https://brex.com) with the account you want to connect.
+2. Go to the Brex developer or API token settings for the company.
+3. Create a new API token with the following read-only scopes:
+   - `accounts.cash.readonly`
+   - `accounts.card.readonly`
+   - `transactions.cash.readonly`
+   - `transactions.card.readonly`
+4. Copy the generated token.
+
+### Step 2: Add the connection in Sure
+
+1. Go to **Settings → Providers**.
+2. Find the **Brex** section.
+3. Enter a connection name (for example, "Business checking") and paste the token.
+4. Leave the **Base URL** field blank for production. The field is available for Brex-approved staging environments only and does not accept customer tokens.
+5. Click **Add Brex connection**.
+
+Sure begins syncing your accounts automatically after saving the connection.
+
+### Step 3: Set up accounts
+
+After the first sync, Brex accounts appear in the setup queue. Go to the connection panel and click **Set up accounts** to assign each account an account type (checking, savings, credit card, and so on) and a transaction history start date before they appear in your account list. You can sync up to three years of transaction history.
+
+## Multiple companies
+
+Use a separate named connection for each Brex company or API token you want to sync. Each connection is independent and syncs only the accounts accessible to its token.
+
+## Encryption
+
+Brex API tokens are stored using ActiveRecord Encryption when encryption keys are configured in your deployment. Without encryption keys, tokens are stored in plaintext. Configure `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` before adding tokens in a production environment.
+
+## Account types
+
+Brex exposes two kinds of accounts:
+
+| Kind | Description |
+|------|-------------|
+| Cash | Brex cash management accounts |
+| Card | Brex corporate card accounts |
+
+During account setup you choose the Sure account type (checking, savings, credit card, and so on) that matches each imported account.
+
+## Troubleshooting
+
+### Invalid API token
+
+Check that you copied the full token and that the token has not been revoked. Generate a new token from the Brex developer settings if needed.
+
+### Insufficient permissions
+
+The token must include all four required scopes: `accounts.cash.readonly`, `accounts.card.readonly`, `transactions.cash.readonly`, and `transactions.card.readonly`. Regenerate the token with the correct scopes.
+
+### Expired credentials
+
+Brex tokens can expire or be revoked. Generate a new token and update the connection in **Settings → Providers → Brex**.
+
+### No accounts found after syncing
+
+If the connection syncs successfully but no accounts appear, click **Set up accounts** in the connection panel to review unlinked accounts and assign types.

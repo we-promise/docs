@@ -1,0 +1,67 @@
+---
+title: Mercury
+description: Connect Mercury business bank accounts to Sure
+---
+
+Mercury is a business banking platform for startups and small businesses. Sure connects to Mercury using a read-only API token you generate from your Mercury account settings.
+
+<Note>
+Mercury requires IP whitelisting. Before connecting, add your server's IP address to the allowed list in your Mercury dashboard.
+</Note>
+
+## How it works
+
+Sure uses the Mercury API to pull account balances and transaction history directly into your family's accounts. Each Mercury login or API token you want to sync requires its own named connection.
+
+## Setting up Mercury
+
+### Step 1: Generate a Mercury API token
+
+1. Log in to [mercury.com](https://mercury.com) with the account you want to connect.
+2. Go to **Settings → Developer → API Tokens**.
+3. Create a new API token with **Read Only** access.
+4. Copy the full token, including the `secret-token:` prefix.
+
+### Step 2: Add the connection in Sure
+
+1. Go to **Settings → Providers**.
+2. Find the **Mercury** section.
+3. Enter a connection name and paste the full token (including the `secret-token:` prefix).
+4. Leave the **Base URL** field blank for production. For sandbox testing, enter `https://api-sandbox.mercury.com/api/v1`.
+5. Click **Add Mercury connection**.
+
+Sure begins syncing your accounts automatically after saving the connection.
+
+### Step 3: Set up accounts
+
+After the first sync, Mercury accounts appear in the setup queue. Click **Set up accounts** in the connection panel to assign each account an account type (checking, savings, and so on) and a transaction history start date before they appear in your account list. You can sync up to three years of transaction history.
+
+## Multiple accounts
+
+Use a separate named connection for each Mercury login or API token you want to sync. Each connection is independent and syncs only the accounts accessible to its token.
+
+## Encryption
+
+Mercury API tokens are stored using ActiveRecord Encryption when encryption keys are configured in your deployment. Without encryption keys, tokens are stored in plaintext. Configure `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` before adding tokens in a production environment.
+
+## Troubleshooting
+
+### Invalid API token
+
+Make sure you copied the full token, including the `secret-token:` prefix. Verify that the token has not been revoked in your Mercury account. Generate a new token if needed.
+
+### Insufficient permissions
+
+The token must have **Read Only** access. Tokens created with write access or no access will not work. Generate a new token with the correct permissions.
+
+### Expired credentials
+
+Mercury tokens can be revoked from the developer settings. Generate a new token and update the connection in **Settings → Providers → Mercury**.
+
+### Connection fails with a network error
+
+Mercury requires that your server's IP address is whitelisted in the Mercury dashboard. Add your IP under the API token settings and retry the connection.
+
+### Sandbox testing
+
+For sandbox testing, set the **Base URL** to `https://api-sandbox.mercury.com/api/v1`. Sandbox tokens are separate from production tokens and do not work against the production endpoint.

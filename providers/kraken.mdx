@@ -1,0 +1,57 @@
+---
+title: Kraken
+description: Connect Kraken crypto exchange accounts to Sure
+---
+
+Kraken is a cryptocurrency exchange. Sure connects to Kraken using a read-only API key and imports your combined crypto holdings and spot trade history.
+
+## What is imported
+
+Sure imports one combined Crypto exchange account per Kraken connection, containing:
+
+- Current crypto holdings and balances
+- Spot trade fills (buy/sell history)
+
+## Setting up Kraken
+
+### Step 1: Create a Kraken API key
+
+1. Go to [Kraken API settings](https://pro.kraken.com/app/settings/api).
+2. Create a new API key with the following permissions only:
+   - **Query Funds**
+   - **Query Closed Orders & Trades**
+
+<Warning>
+Do not grant trading, cancellation, withdrawal, export, ledger, Earn, staking, or transfer permissions. Sure only imports balances, holdings, and spot trade fills. Granting write permissions is unnecessary and a security risk.
+</Warning>
+
+3. Copy the **API Key** and **Private Key** shown after creation.
+
+### Step 2: Add the connection in Sure
+
+1. Go to **Settings → Providers**.
+2. Find the **Kraken** section.
+3. Enter a connection name, paste your **API Key** and **Private Key**, and save.
+4. Sure begins syncing your Kraken exchange account automatically.
+
+### Step 3: Import the account
+
+After the first sync, your Kraken exchange account appears in the setup queue. Click **Import Account** in the provider panel to add it to your account list.
+
+## Multiple connections
+
+If you have multiple Kraken accounts, add a separate named connection for each one. Each connection imports one combined crypto account.
+
+## Troubleshooting
+
+### Credentials need updating
+
+If the connection shows a reconnect prompt, your API key may have been revoked or the credentials may have expired. Generate a new API key from Kraken and update the connection in **Settings → Providers → Kraken**.
+
+### No accounts found
+
+After adding a connection, wait for the first sync to complete. If no accounts appear after syncing, verify that your API key has the **Query Funds** permission enabled.
+
+### Balance shown as approximate
+
+When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.

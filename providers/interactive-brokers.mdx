@@ -1,0 +1,98 @@
+---
+title: Interactive Brokers
+description: Connect Interactive Brokers investment accounts to Sure using Flex Web Service reports
+---
+
+Interactive Brokers (IBKR) is a brokerage platform supporting stocks, options, futures, currencies, bonds, and funds. Sure connects to IBKR using its Flex Web Service, which lets you export account data through a configured Flex Query.
+
+## What is imported
+
+Sure imports the following data from an IBKR Flex report:
+
+- Holdings with current prices and quantities
+- Cost basis per position
+- Trades, dividends, commissions, and cash deposits or withdrawals
+
+Historical activity is limited to the date range configured in your Flex Query. Sure imports full current holdings plus up to the last 365 days of activity.
+
+## Setting up Interactive Brokers
+
+### Step 1: Create an Activity Flex Query in IBKR
+
+1. In your IBKR Client Portal, navigate to **Performance & Reports → Flex Queries**.
+2. Click the **+** icon in the **Activity Flex Query** section to create a new query.
+3. Name the query (for example, "Sure Sync").
+4. Enable the following sections and fields:
+
+**Account Information:** Account ID, Currency
+
+**Cash Report:**
+- Options: None
+- Fields: Currency, Ending Cash
+
+**Cash Transactions:**
+- Options: Dividends, Deposits & Withdrawals, Detail
+- Fields: Amount, Conid, Currency, FX Rate To Base, Report Date, Transaction ID, Type
+
+**Change In Position Value Summary:** Currency, End Of Period Value
+
+**Net Asset Value (NAV) in Base:**
+- Options: None
+- Fields: Currency, Report Date, Total
+
+**Open Positions:**
+- Options: Summary
+- Fields: Asset Class, Conid, Cost Basis Price, Currency, FX Rate To Base, Mark Price, Quantity, Report Date, Security ID, Security ID Type, Side, Symbol
+
+**Trades:**
+- Options: Execution
+- Fields: Asset Class, Buy/Sell, Conid, Currency, FX Rate To Base, IB Commission, IB Commission Currency, Quantity, Symbol, Trade Date, Trade ID, TradePrice, Transaction ID
+
+5. Set the following query configuration options:
+
+| Option | Value |
+|--------|-------|
+| Models | Optional |
+| Format | XML |
+| Period | Last 365 Calendar Days |
+| Date Format | yyyy-MM-dd |
+| Time Format | HH:mm:ss |
+| Date/Time Separator | ; (semi-colon) |
+| Profit and Loss | Default |
+| All other options | No |
+
+6. Save the query and note your **Query ID**.
+
+### Step 2: Generate a Flex Web Service token
+
+After saving the query, use the gear icon in the **Flex Web Service Configuration** section of the Flex Queries page to generate an access token. Copy this token.
+
+### Step 3: Add the connection in Sure
+
+1. Go to **Settings → Providers**.
+2. Find the **Interactive Brokers** section.
+3. Paste your **Query ID** and **Token** into the form fields and save.
+4. Sure begins syncing and discovering your IBKR accounts.
+
+### Step 4: Set up accounts
+
+After the first sync, discovered IBKR accounts appear in the setup queue. Click **Set up accounts** in the provider panel to select which brokerage accounts to link and confirm the linkage. You can also link a discovered IBKR account to an existing manual investment account if you already have one in Sure.
+
+## Limitations
+
+- Historical activity is limited to the report window of your Flex Query. Sure imports up to 365 days of activity based on the query's configured period.
+- Only investment (brokerage) accounts are supported. Cash accounts and other account types are not imported from IBKR.
+
+## Troubleshooting
+
+### No accounts discovered after syncing
+
+If Sure reports no accounts discovered, check that your Flex Query includes the **Account Information** section with Account ID and Currency enabled. Run a manual sync from **Settings → Providers** after updating the query.
+
+### Credentials need attention
+
+If the connection shows a "Credentials need attention" status, your Query ID or Token may have expired or been revoked. Generate a new token from the Flex Web Service Configuration section in IBKR and update the connection in Sure.
+
+### Only manual investment accounts can be linked
+
+When linking a discovered IBKR account to an existing account, the existing account must be a manual investment account without an existing provider link. Convert the account to manual first if needed.
