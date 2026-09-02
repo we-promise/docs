@@ -129,6 +129,18 @@ Rules support the following condition types:
 - **Notes** – match on the notes you have added to a transaction
 - **Account** – match on the account the transaction belongs to
 
+Each condition type supports a set of operators based on how the field stores its data:
+
+- **Text fields** (Transaction name, Notes): Contains, Does not contain, Equal to, Not equal to, Is empty, Is not empty
+- **Number fields** (Amount): Greater than, Greater than or equal to, Less than, Less than or equal to, Equal to, Not equal to
+- **Select fields** (Merchant, Category, Tag, Account): Equal to, Not equal to, Is empty, Is not empty
+- **Transaction type**: its own fixed set of type-matching operators
+- **Transaction details**: Contains, Equal to, Is empty (JSONB metadata supports contains and equality semantics only)
+
+The **Not equal to** operator also matches transactions where the field has no value set, so "category not equal to Food" includes uncategorized transactions. **Does not contain** likewise matches transactions where the text field is absent.
+
+The **Is empty** and **Is not empty** operators do not require a value. The condition form hides the value input automatically when you select one of these operators.
+
 The tag condition uses **Equal to** and **Is empty** operators, matching the same pattern as the category and merchant conditions. When you combine multiple tag conditions with AND, each condition is evaluated independently, so a transaction with both tags will match correctly.
 
 ### Rule actions
