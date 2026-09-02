@@ -58,6 +58,12 @@ Yahoo Finance is the default provider and requires no API key. It offers broad g
 - **Coverage**: Global stocks, ETFs, mutual funds, indices, crypto
 - **API key**: Not required
 
+#### Searching for securities with exchange suffixes
+
+Yahoo Finance's search index has gaps for some instruments — notably non-US managed funds such as Australian APIR-coded funds (e.g. `VAN0111AU.AX`). When the search index returns no results for a query that looks like a fully qualified symbol (contains a `.` exchange suffix, such as `.AX` for ASX or `.L` for LSE), Sure retries the query directly against the Yahoo Finance chart endpoint and synthesizes a result from the returned metadata.
+
+This means you can add these instruments by pasting the full symbol exactly as shown on Yahoo Finance's own quote page URL — for example, `VAN0111AU.AX` rather than just `VAN0111AU`. A bare ticker without an exchange suffix does not trigger the fallback, since bare tickers already resolve through Yahoo's normal search index.
+
 <Note>
 If you experience connection issues with Yahoo Finance, some IPv6 networks may have trouble reaching Yahoo's servers. Try setting `YAHOO_FINANCE_IPV6=false` in your environment variables to force IPv4 connections.
 </Note>
