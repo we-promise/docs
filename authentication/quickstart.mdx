@@ -47,10 +47,10 @@ Restart your application.
     2. Navigate to **APIs & Services → Credentials**
     3. Click **Create Credentials → OAuth client ID**
     4. Select **Web application**
-    5. Add redirect URI:
+    5. Add redirect URI. Use the callback URL shown for the provider in Sure; for this example:
 
        ```
-       https://your-domain.com/auth/openid_connect/callback
+       https://your-domain.com/auth/google/callback
        ```
     6. Copy the **Client ID** and **Client Secret**
   </Tab>
@@ -59,10 +59,10 @@ Restart your application.
     2. Go to **Applications → Create App Integration**
     3. Select **OIDC - OpenID Connect**
     4. Choose **Web Application**
-    5. Add redirect URI:
+    5. Add redirect URI. Use the callback URL shown for the provider in Sure; for this example:
 
        ```
-       https://your-domain.com/auth/openid_connect/callback
+       https://your-domain.com/auth/okta/callback
        ```
     6. Copy the **Client ID** and **Client Secret**
   </Tab>
@@ -70,10 +70,10 @@ Restart your application.
     1. Go to [Azure Portal](https://portal.azure.com)
     2. Navigate to **Microsoft Entra ID → App registrations**
     3. Click **New registration**
-    4. Add redirect URI:
+    4. Add redirect URI. Use the callback URL shown for the provider in Sure; for this example:
 
        ```
-       https://your-domain.com/auth/openid_connect/callback
+       https://your-domain.com/auth/azure/callback
        ```
     5. Go to **Certificates & secrets** and create a client secret
     6. Copy the **Application ID** and **Client Secret**
@@ -212,9 +212,16 @@ User.find_by(email: "admin@example.com").update!(role: :super_admin)
 ### Authentication fails
 
 - Verify the redirect URI matches exactly in both systems
+- For database-backed providers, the redirect URI is `https://your-domain.com/auth/<provider-id>/callback`; copy the exact value shown in `/admin/sso_providers`
 - Check that client ID and secret are correct
 - Ensure the issuer URL is accessible from your server
 - Review logs at `/admin/sso_audit_logs`
+
+### Email/password login fails after enabling encryption
+
+- Do not change `SECRET_KEY_BASE` on an existing instance. Self-hosted Sure derives Active Record encryption keys from it by default, and changing it prevents lookup of encrypted fields such as user email addresses.
+- If you added dedicated `ACTIVE_RECORD_ENCRYPTION_*` keys after the instance already had data, run the encryption backfill task once. See [Turning on Active Record encryption after first boot](/self-hosting#turning-on-active-record-encryption-after-first-boot).
+- If the keys were changed accidentally, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values and restart the app.
 
 ### User not created automatically
 

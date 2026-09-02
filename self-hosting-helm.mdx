@@ -169,6 +169,8 @@ kubectl exec -it deploy/sure-web -- env DRY_RUN=false bundle exec rake security:
 
 The task is idempotent, so it is safe to rerun if needed.
 
+Keep the same `SECRET_KEY_BASE` for an existing release unless you are restoring from a backup created with the new value. Sure derives encryption keys from `SECRET_KEY_BASE` when dedicated `ACTIVE_RECORD_ENCRYPTION_*` values are not set, so changing it can prevent lookup of encrypted fields such as user email addresses and make email/password login appear invalid. If that happens after an encryption change, restore the previous secret values first, then run the backfill task if you are intentionally moving to dedicated encryption keys.
+
 ### Deployment profiles
 
 #### Simple single-node
