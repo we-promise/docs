@@ -261,10 +261,15 @@ TWELVE_DATA_API_KEY="your-key-here"
 TIINGO_API_KEY="your-key-here"
 EODHD_API_KEY="your-key-here"
 ALPHA_VANTAGE_API_KEY="your-key-here"
+TINKOFF_INVEST_API_KEY="your-read-only-token-here"
 ```
 
 <Note>
 Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over the UI setting. Leave it unset to manage providers from the UI only.
+</Note>
+
+<Note>
+`TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. The T-Invest settings block in the UI stays visible whenever a token is configured, even if T-Invest is not selected as a price provider.
 </Note>
 
 ### On-chain wallet variables
