@@ -9,8 +9,8 @@ The admin UI provides a comprehensive interface for managing SSO authentication 
 
 ## Prerequisites
 
-- `AUTH_PROVIDERS_SOURCE=database` environment variable configured
-- Admin access to the application
+- `AUTH_PROVIDERS_SOURCE=db` environment variable configured
+- `super_admin` access to the application
 - Identity provider credentials (client ID, client secret, etc.)
 
 ## Accessing the admin UI
@@ -18,7 +18,7 @@ The admin UI provides a comprehensive interface for managing SSO authentication 
 Navigate to the SSO providers management page in your admin dashboard:
 
 ```
-https://your-domain.com/admin/sso-providers
+https://your-domain.com/admin/sso_providers
 ```
 
 ## Managing providers
@@ -38,32 +38,24 @@ https://your-domain.com/admin/sso-providers
   </Step>
   
   <Step title="Configure basic settings">
-    Enter the provider details:
-    - **Provider name**: Display name for the login button
-    - **Provider ID**: Unique identifier (lowercase, no spaces)
-    - **Enabled**: Toggle to enable/disable the provider
+    Under **Basic Information**, enter the provider details:
+    - **Name**: Unique identifier (lowercase, numbers, underscores only)
+    - **Button Label**: Text shown to users on the login button (e.g. "Sign in with Keycloak")
+    - **Icon**: Optional Lucide icon name for the login button
+    - **Enable this provider**: Toggle to allow users to sign in with this provider
   </Step>
   
   <Step title="Enter credentials">
-    Add your identity provider credentials:
-    - Client ID
-    - Client secret (for OIDC/OAuth2)
-    - Certificate (for SAML)
+    Under **OAuth/OIDC Configuration**, add your identity provider credentials:
+    - **Issuer URL** (OIDC): OIDC discovery endpoint
+    - **Client ID** and **Client Secret** (OIDC/OAuth2)
+    - **IdP Metadata URL** or manual certificate (SAML)
   </Step>
   
-  <Step title="Configure endpoints">
-    Specify the authentication endpoints:
-    - Authorization URL
-    - Token URL
-    - User info URL (OIDC/OAuth2)
-    - SSO URL (SAML)
-  </Step>
-  
-  <Step title="Set up role mapping">
-    Configure just-in-time provisioning:
-    - Default roles for new users
-    - Group-to-role mappings
-    - Attribute mappings
+  <Step title="Set up user provisioning">
+    Under **User Provisioning**, configure just-in-time provisioning:
+    - **Default Role for New Users**: role assigned to JIT-provisioned accounts
+    - **Group to Role Mapping**: optional IdP group-to-role mappings
   </Step>
   
   <Step title="Save and test">
@@ -119,11 +111,10 @@ To delete a provider:
 
 | Field | Description | Required |
 |-------|-------------|----------|
-| Provider name | Display name shown on login button | Yes |
-| Provider ID | Unique identifier (alphanumeric, lowercase) | Yes |
-| Enabled | Whether the provider is active | Yes |
-| Icon URL | Custom icon for the login button | No |
-| Button color | Custom color for the login button | No |
+| Name | Unique identifier (lowercase, numbers, underscores only) | Yes |
+| Button Label | Text shown to users on the login button | Yes |
+| Icon | Lucide icon name for the login button | No |
+| Enable this provider | Whether the provider is active | Yes |
 
 ### OIDC-specific fields
 
@@ -149,11 +140,12 @@ To delete a provider:
 
 | Field | Description | Required |
 |-------|-------------|----------|
-| SSO URL | SAML single sign-on endpoint | Yes |
-| Entity ID | SAML entity identifier | Yes |
-| Certificate | X.509 certificate for signature validation | Yes |
-| Sign requests | Whether to sign SAML requests | No |
-| Private key | Private key for signing requests | Conditional |
+| SP Callback URL (ACS URL) | Configure in your IdP as the Assertion Consumer Service URL | Yes |
+| IdP Metadata URL | URL to your IdP's SAML metadata; auto-configures other fields | No |
+| IdP SSO URL | SAML single sign-on endpoint (manual config) | Conditional |
+| IdP SLO URL | SAML single logout endpoint (optional) | No |
+| IdP Certificate | X.509 certificate in PEM format | Conditional |
+| NameID Format | Email address, persistent, transient, or unspecified | No |
 
 ## Testing provider configuration
 
@@ -205,8 +197,8 @@ After configuring a provider, test the integration:
 
 ### Provider not appearing on login page
 
-- Verify the provider is enabled
-- Check that `AUTH_PROVIDERS_SOURCE=database` is set
+- Verify the provider is enabled in `/admin/sso_providers`
+- Check that `AUTH_PROVIDERS_SOURCE=db` is set
 - Restart the application if you recently changed the environment variable
 
 ### Authentication fails

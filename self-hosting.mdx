@@ -684,6 +684,21 @@ You can tune the AI status checks with these environment variables:
 | `AI_HEALTH_PROBE_TIMEOUT` | Per-request timeout in seconds for each live check | `5` |
 | `AI_HEALTH_PROBE_CACHE_TTL` | Seconds to cache probe results. Also deduplicates failure log entries | `60` |
 
+### OpenAI request timeout
+
+The LLM request timeout controls how long each OpenAI-compatible HTTP request is allowed to take before it is cancelled. It applies to auto-categorization, merchant detection, chat completions, PDF processing, and vector-store calls. The default is 60 seconds, which works well for hosted models. Raise it when using slow local models (for example, Ollama on modest hardware).
+
+You can configure the timeout in two ways:
+
+- **Environment variable** — set `OPENAI_REQUEST_TIMEOUT` to a number of seconds. This takes precedence over the UI setting.
+- **Settings UI** — go to **Settings > Self-Hosting** and enter a value in the **Request Timeout in Seconds** field under the OpenAI section.
+
+```txt
+OPENAI_REQUEST_TIMEOUT=120   # raise for slow local models
+```
+
+The minimum accepted value is 1 second. If both the environment variable and the UI setting are present, the environment variable wins.
+
 <Note>
 The Sidekiq health banner, system health page, and AI status tab are only available in self-hosted mode. Managed deployments do not show these features.
 </Note>
