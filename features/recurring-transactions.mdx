@@ -7,6 +7,8 @@ description: Automatically detect and track recurring transactions like subscrip
 
 The recurring transactions feature automatically identifies patterns in your transaction history to detect recurring charges like subscriptions, regular payments, and bills. Once identified, these transactions are displayed in your transaction list with projected upcoming charges.
 
+The Bills surface — which includes the pay-run overview, calendar view, paycheck planner, and AI helpers described below — is a preview feature. Each family member must enable preview features in **Settings → Preferences** before they can access it. The underlying recurring transaction detection and settings pages are available without the preview flag.
+
 ## How it works
 
 ### Automatic pattern detection
@@ -175,7 +177,60 @@ A recurring transaction moves through the following statuses:
 
 The API accepts only `active` and `inactive` on write. The other statuses are owned by the detection pipeline and the UI.
 
-## Technical details
+## Bills
+
+The Bills surface is a pay-run workspace that lets you see, pay, and plan around your recurring obligations. It is available to family members who have enabled preview features.
+
+### Views
+
+The Bills page offers four views, switchable from the view switcher at the top of the page:
+
+- **Overview** — your current month at a glance: overdue bills, what's due this month, what's coming later, and what you've already paid. Bills are grouped by due date and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill.
+- **All** — the complete list of active bill series, filterable by payment state (`overdue`, `due`, `partial`, `paid`) and lifecycle state (`paused`, `ended`).
+- **Calendar** — upcoming bills laid out on a monthly calendar.
+- **Paycheck planner** — upcoming bills apportioned across your next pay periods (see [Paycheck planner](#paycheck-planner) below).
+
+Each bill has a detail drawer showing payment history, price changes, cost analytics, and quick actions to pay, edit, or manage the series.
+
+### Paycheck planner
+
+The paycheck planner slices your upcoming bills across the pay periods defined by your declared income. Only manually declared income series (bill type `income`, set to manual) define pay periods; automatically detected inflows do not.
+
+For each pay period the planner shows:
+
+- The income arriving in that period
+- Bills due inside the period and their share of that paycheck
+- Bills due in a later period that are too large for their own paycheck and have a reserved slice held back from this period
+- Whether the period comes up short and by how much
+
+A leading window covers the time between today and the next payday. It has no income, so shortfalls in that window are measured against your cash on hand (the sum of your visible depository accounts, excluding tax-advantaged accounts). When the balance cannot be determined, the window is shown without a shortfall judgment.
+
+To use the paycheck planner, create at least one recurring transaction with bill type `income` and the manual flag set.
+
+### Calendar feed
+
+You can subscribe to your bills in any calendar app that supports ICS feeds (Google Calendar, Apple Calendar, Outlook, and others).
+
+To get your feed URL, go to **Bills → Settings** (or the bills feed section of your account settings) and copy the calendar link. The feed covers the next 90 days of open, active bill occurrences and updates automatically.
+
+Key properties of the calendar feed:
+
+- **Sessionless and token-authenticated** — the URL can be shared with a calendar app without logging in each time.
+- **Per-member scoping** — the feed reflects only the bills you can see based on your account-sharing permissions.
+- **Revocable** — resetting the feed token invalidates all previously shared URLs immediately. Any calendar app using the old URL will stop receiving updates until it is given the new URL.
+- **Preview-gated** — the feed endpoint returns 404 if preview features are disabled for your account or if recurring transactions are disabled for your family.
+
+### AI helpers
+
+Two in-page AI helpers are available when an LLM provider is configured and you have AI features enabled in your account:
+
+**Smart fill** — when you add a new bill from the Bills page and pick an existing transaction as the starting point, the smart fill button analyzes that transaction's charge history and proposes the bill name, amount, cadence, due day, and autopay status. You review and adjust the proposal before saving.
+
+**Smart configure** — on an existing bill's detail view, the smart configure button reads the bill's own charge history and proposes corrections to any fields that the history contradicts (for example, a different due day or amount). Only fields where the history suggests a change come back with a proposal; everything else is left as is. You review the proposal in a dialog and apply only the changes you accept.
+
+Both helpers require the family's LLM provider to be configured. They are not available on self-hosted installs without a provider set up.
+
+
 
 ### Pattern clustering
 
