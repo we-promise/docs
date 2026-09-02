@@ -1,0 +1,93 @@
+---
+title: Passkeys and security keys
+description: Use passkeys, Touch ID, Windows Hello, or hardware security keys to sign in or verify MFA
+---
+
+Passkeys and security keys let you sign in with your device, password manager, or hardware key. They can also be used as the second factor after signing in with email and password.
+
+When passkey login is enabled, people with a registered passkey can skip email/password and sign in directly with **Sign in with a passkey**. Sure requires user verification for that flow, so the passkey acts as possession plus biometric or device PIN verification.
+
+If passkey login is disabled, registered passkeys still work as an MFA method. In that mode, people sign in with their account credentials first, then use the passkey or security key to complete two-factor verification.
+
+## Before you start
+
+You need:
+
+- Two-factor authentication enabled on your Sure account
+- A browser that supports WebAuthn passkeys or security keys
+- A passkey-capable device, password manager, Touch ID, Windows Hello, or hardware security key
+
+<Note>
+Self-hosted admins should configure the WebAuthn relying party settings before users register passkeys. See [Self-hosting configuration](#self-hosting-configuration).
+</Note>
+
+## Add a passkey or security key
+
+1. Go to **Settings → Security**.
+2. Enable **2FA** if it is not already enabled.
+3. Find **Passkeys and security keys**.
+4. Enter a recognizable key name, such as "MacBook Touch ID" or "YubiKey".
+5. Select **Add passkey or security key**.
+6. Follow your browser, operating system, password manager, or hardware key prompt.
+
+After registration succeeds, the key appears in the **Passkeys and security keys** list with its creation date.
+
+## Sign in with a passkey
+
+If passkey login is enabled:
+
+1. Go to the Sure sign-in page.
+2. Select **Sign in with a passkey**.
+3. Complete the browser prompt with the same passkey, device, or hardware key you registered.
+
+To use a passkey as a second factor:
+
+1. Sign in with your Sure account as usual.
+2. When Sure asks for two-factor verification, select **Use passkey or security key**.
+3. Complete the browser prompt with the same passkey, device, or hardware key you registered.
+
+If you also have authenticator-app 2FA configured, you can still use a one-time code when a passkey is unavailable.
+
+## Remove a passkey
+
+1. Go to **Settings → Security**.
+2. In **Passkeys and security keys**, find the key you no longer want to use.
+3. Select **Remove** and confirm.
+
+Removing a key only removes it from Sure. If the passkey is stored in your browser, operating system, password manager, or hardware key, manage that copy in the tool where it was created.
+
+## Self-hosting configuration
+
+For self-hosted deployments, set stable WebAuthn relying party values before people register passkeys:
+
+```txt
+WEBAUTHN_RP_ID=example.com
+WEBAUTHN_ALLOWED_ORIGINS=https://sure.example.com
+```
+
+`WEBAUTHN_RP_ID` is usually the registrable domain, such as `example.com`, not a full URL and not a hostname with a port.
+
+`WEBAUTHN_ALLOWED_ORIGINS` is a comma-separated list of full origins where people access Sure, including scheme and host:
+
+```txt
+WEBAUTHN_ALLOWED_ORIGINS=https://sure.example.com,https://app.example.com
+```
+
+For local development, use:
+
+```txt
+WEBAUTHN_RP_ID=localhost
+WEBAUTHN_ALLOWED_ORIGINS=http://localhost:3000
+```
+
+<Warning>
+Changing `WEBAUTHN_RP_ID` after people register credentials can make existing passkeys and security keys unavailable. Keep it stable across reverse proxy, domain, and hostname changes.
+</Warning>
+
+Passwordless passkey login is enabled by default:
+
+```txt
+AUTH_PASSKEY_LOGIN_ENABLED=true
+```
+
+Set it to `false` if you only want passkeys and security keys to work as an MFA method after email/password sign-in.
