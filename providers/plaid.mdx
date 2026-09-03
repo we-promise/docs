@@ -213,23 +213,35 @@ Consider these alternatives to Plaid:
 - **Enable Banking**: Free, EU-focused, easier setup
 - **Lunch Flow**: Global coverage, paid service
 
-## Manual sync behavior
+## Transaction refresh behavior
 
-When you trigger a manual sync on a Plaid-connected account, Sure requests a fresh data pull from the institution before reading new transactions. This means manual syncs fetch the latest data directly rather than waiting for a Plaid webhook.
+Sure requests a fresh transaction pull from Plaid before reading new data in several situations, not only during manual syncs. The refresh is asynchronous: Sure sends a refresh request to Plaid, then polls for an updated transaction cursor, then triggers a follow-up sync once the cursor advances.
 
-After sending the refresh request, Sure polls Plaid for the updated transaction cursor and syncs once the new data arrives. If no new transactions appear within the polling window (roughly 3 minutes), Sure falls back to a normal sync with whatever data Plaid currently has.
+### When automatic refreshes run
 
-To prevent duplicate refresh calls, refreshes are coalesced: if you trigger another sync within 5 minutes of an already-in-progress refresh, the second request is dropped and the first finishes normally.
+A transaction refresh is requested automatically in the following cases:
 
-### Cache store requirement for self-hosted instances
+- **Scheduled sync** — the nightly background job that syncs all families
+- **Provider-wide sync** — triggered when you sync all accounts from Settings or the accounts page
+- **Login sync** — when auto-sync on login is enabled and Sure detects a family has not synced today
 
-The coalescing logic requires a shared cache store. Sure skips the Plaid refresh request (and logs a warning) if the cache store is the default file-based or in-memory store. To enable manual refresh on a self-hosted instance, configure one of the following:
+In all three cases, Sure fires the refresh request alongside the normal sync. Because Plaid processes the refresh asynchronously, the baseline sync may run first with existing data. A follow-up sync is queued automatically once Plaid finishes refreshing and the cursor advances, so the latest transactions are imported even if the first sync completes before Plaid is ready.
+
+### Manual sync behavior
+
+Manual syncs also request a transaction refresh before fetching data. After sending the refresh request, Sure polls Plaid for the updated cursor and syncs once new data arrives. If no new transactions appear within the polling window (roughly 3 minutes), Sure falls back to a normal sync with whatever data Plaid currently has.
+
+### Coalescing and the cache store requirement
+
+To prevent duplicate refresh requests, Sure uses a shared cache to coalesce calls: if a refresh has already been requested for a given Plaid item within the last 5 minutes, subsequent requests are dropped and the in-progress refresh continues normally.
+
+The coalescing logic requires a shared cache store. Sure skips the Plaid refresh request (and logs a warning) if the cache store is the default file-based or in-memory store. To enable refresh on a self-hosted instance, configure one of the following:
 
 - **Redis** — set `CACHE_URL` to a Redis connection string
 - **Memcache** — configure `MEMCACHE_SERVERS`
 - **SolidCache** — enabled by default in the Docker Compose setup
 
-Without a shared cache, manual syncs still work but do not trigger a fresh pull from Plaid before fetching transactions.
+Without a shared cache, syncs still work but do not trigger a fresh pull from Plaid before fetching transactions.
 
 ## Reconnect status
 
