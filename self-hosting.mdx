@@ -38,7 +38,7 @@ cd ~/docker-apps/sure
 Download the sample compose file from the Sure repository:
 
 ```bash
-curl -o compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+curl --fail --location --silent --show-error --output compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
 ```
 
 This creates a `compose.yml` file in your current directory with the default configuration.
@@ -790,9 +790,9 @@ Sure ships a separate compose file for AI-related features: `compose.example.ai.
 
 ```bash
 # Download both compose files
-curl -o compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
-curl -o compose.ai.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.ai.yml
-curl -o pipelock.example.yaml https://raw.githubusercontent.com/we-promise/sure/main/pipelock.example.yaml
+curl --fail --location --silent --show-error --output compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+curl --fail --location --silent --show-error --output compose.ai.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.ai.yml
+curl --fail --location --silent --show-error --output pipelock.example.yaml https://raw.githubusercontent.com/we-promise/sure/main/pipelock.example.yaml
 
 # Run with Pipelock (no local LLM)
 docker compose -f compose.ai.yml up -d
@@ -803,7 +803,7 @@ docker compose -f compose.ai.yml --profile local-ai up -d
 
 ### Setting up the external AI assistant
 
-The external assistant delegates chat to a remote AI agent. The agent calls back to Sure's `/mcp` endpoint for financial data.
+The external assistant delegates chat to a remote AI agent instead of calling LLMs directly. The agent calls back to Sure's `/mcp` endpoint for financial data (accounts, transactions, balance sheet).
 
 1. Set the MCP endpoint credentials in your `.env`:
 
@@ -819,13 +819,17 @@ EXTERNAL_ASSISTANT_URL=https://your-agent/v1/chat/completions
 EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
 ```
 
-3. Activate per family in the UI (**Settings > Self-Hosting > AI Assistant**, select "External"), or set `ASSISTANT_TYPE=external` to force it globally.
+3. Choose how to activate:
+   - **Per-family (UI):** Go to **Settings > Self-Hosting > AI Assistant**, select "External"
+   - **Global (env):** Set `ASSISTANT_TYPE=external` to force all families to use external
 
-To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile:
+To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile. This profile starts OpenClaw without the local Ollama or Open WebUI services:
 
 ```bash
 docker compose -f compose.ai.yml --profile external-assistant up -d
 ```
+
+See the `docs/hosting/ai.md` file in the Sure repository for full configuration details including agent ID, session keys, and email allowlisting.
 
 ### Pipelock security proxy
 
