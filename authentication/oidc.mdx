@@ -70,9 +70,9 @@ OIDC works with any compliant identity provider, including:
   </Step>
   
   <Step title="Configure redirect URIs">
-    Add your callback URL:
+    Add your callback URL. Use the callback URL shown for the provider in Sure; for this example:
     ```
-    https://your-domain.com/auth/callback/google
+    https://your-domain.com/auth/google/callback
     ```
   </Step>
   
@@ -103,7 +103,7 @@ OIDC works with any compliant identity provider, including:
   <Step title="Configure redirect URI">
     Add a web redirect URI:
     ```
-    https://your-domain.com/auth/callback/azure
+    https://your-domain.com/auth/azure/callback
     ```
   </Step>
   
@@ -140,7 +140,7 @@ Replace `[tenant-id]` with your Azure AD tenant ID or use `common` for multi-ten
   
   <Step title="Configure application">
     ```
-    Sign-in redirect URIs: https://your-domain.com/auth/callback/okta
+    Sign-in redirect URIs: https://your-domain.com/auth/okta/callback
     Sign-out redirect URIs: https://your-domain.com/logout
     ```
   </Step>
@@ -172,7 +172,7 @@ Replace `[tenant-id]` with your Azure AD tenant ID or use `common` for multi-ten
   <Step title="Configure callbacks">
     In the application settings:
     ```
-    Allowed Callback URLs: https://your-domain.com/auth/callback/auth0
+    Allowed Callback URLs: https://your-domain.com/auth/auth0/callback
     Allowed Logout URLs: https://your-domain.com/logout
     ```
   </Step>
@@ -215,13 +215,13 @@ Replace `[tenant-id]` with your Azure AD tenant ID or use `common` for multi-ten
 The redirect URI (callback URL) follows this pattern:
 
 ```
-https://[your-domain]/auth/callback/[provider-id]
+https://[your-domain]/auth/[provider-id]/callback
 ```
 
 Examples:
-- `https://app.example.com/auth/callback/google`
-- `https://app.example.com/auth/callback/okta`
-- `https://app.example.com/auth/callback/azure`
+- `https://app.example.com/auth/google/callback`
+- `https://app.example.com/auth/okta/callback`
+- `https://app.example.com/auth/authentik/callback`
 
 <Warning>
 The redirect URI must exactly match what you configure in your identity provider. Include the protocol (https://) and ensure there are no trailing slashes.
@@ -292,6 +292,7 @@ The application automatically validates:
 - Verify the redirect URI exactly matches in both systems
 - Check for trailing slashes or protocol mismatches
 - Ensure the provider ID in the URL matches your configuration
+- Copy the callback URL from `/admin/sso_providers` if you are unsure; older examples using `/auth/openid_connect/callback` only apply when the provider ID is `openid_connect`
 
 ### User info not populated
 

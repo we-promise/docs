@@ -82,7 +82,7 @@ If your provider supports OIDC, use the [OIDC configuration](/authentication/oid
   
   <Step title="Configure callback URL">
     ```
-    Authorization callback URL: https://your-domain.com/auth/callback/github
+    Authorization callback URL: https://your-domain.com/auth/github/callback
     ```
   </Step>
   
@@ -128,7 +128,7 @@ GitHub requires the `user:email` scope to access the user's email address. Witho
   
   <Step title="Configure scopes and redirect URI">
     ```
-    Redirect URI: https://your-domain.com/auth/callback/gitlab
+    Redirect URI: https://your-domain.com/auth/gitlab/callback
     Scopes: read_user, email
     ```
   </Step>
@@ -174,7 +174,7 @@ GitHub requires the `user:email` scope to access the user's email address. Witho
     1. Go to "OAuth & Permissions"
     2. Add redirect URL:
     ```
-    https://your-domain.com/auth/callback/slack
+    https://your-domain.com/auth/slack/callback
     ```
   </Step>
   
@@ -227,7 +227,7 @@ GitHub requires the `user:email` scope to access the user's email address. Witho
     1. Go to OAuth2 settings
     2. Add redirect:
     ```
-    https://your-domain.com/auth/callback/discord
+    https://your-domain.com/auth/discord/callback
     ```
   </Step>
   
@@ -317,13 +317,13 @@ Only request the scopes you need. Requesting excessive permissions may cause use
 The redirect URI (callback URL) follows this pattern:
 
 ```
-https://[your-domain]/auth/callback/[provider-id]
+https://[your-domain]/auth/[provider-id]/callback
 ```
 
 Examples:
-- `https://app.example.com/auth/callback/github`
-- `https://app.example.com/auth/callback/gitlab`
-- `https://app.example.com/auth/callback/slack`
+- `https://app.example.com/auth/github/callback`
+- `https://app.example.com/auth/gitlab/callback`
+- `https://app.example.com/auth/slack/callback`
 
 ## Token handling
 

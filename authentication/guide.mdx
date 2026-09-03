@@ -48,9 +48,9 @@ OIDC works with any compliant provider:
 
 <Steps>
   <Step title="Create OAuth client in your IdP">
-    Configure redirect URI:
+    Configure the redirect URI shown for the provider in Sure. For a provider with the ID `authentik`, use:
     ```
-    https://yourdomain.com/auth/openid_connect/callback
+    https://yourdomain.com/auth/authentik/callback
     ```
   </Step>
   
@@ -99,7 +99,7 @@ providers:
     client_secret: <%= ENV["OIDC_AUTHENTIK_CLIENT_SECRET"] %>
 ```
 
-Each provider must have a unique `name` field, which determines the callback URL path.
+Each provider must have a unique `name` field, which determines the callback URL path. For example, a provider named `authentik` uses `https://your-domain.com/auth/authentik/callback`.
 
 ## OAuth2 configuration
 
@@ -529,10 +529,10 @@ Each provider requires exact callback URL match:
 
 **Examples:**
 - Keycloak: `https://yourdomain.com/auth/keycloak/callback`
-- Google: `https://yourdomain.com/auth/google_oauth2/callback`
-- SAML: `https://yourdomain.com/auth/okta-saml/callback`
+- Authentik: `https://yourdomain.com/auth/authentik/callback`
+- Google Workspace: `https://yourdomain.com/auth/google/callback`
 
-The callback URL is shown in admin UI when editing a provider (with copy button).
+The callback URL is shown in admin UI when editing a provider (with copy button). Use that exact value in your identity provider. Older examples that use `/auth/openid_connect/callback` only apply to a legacy provider whose name is literally `openid_connect`.
 
 ### Groups not syncing
 
@@ -547,9 +547,11 @@ The callback URL is shown in admin UI when editing a provider (with copy button)
 ### Encryption
 
 - Client secrets encrypted at rest using Rails 7.2 ActiveRecord Encryption
-- Encryption keys derived from `SECRET_KEY_BASE`
+- In self-hosted mode, encryption keys are derived from `SECRET_KEY_BASE` unless you set dedicated `ACTIVE_RECORD_ENCRYPTION_*` keys
+- Keep the same `SECRET_KEY_BASE` for the lifetime of an existing instance. Changing it changes the derived encryption keys and can make existing encrypted fields, including user email lookups, unreadable.
 - For additional security, set custom encryption keys via `ACTIVE_RECORD_ENCRYPTION_*` variables
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
+- If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
 
 ### Issuer validation
 
