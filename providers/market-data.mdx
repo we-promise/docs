@@ -15,6 +15,8 @@ Sure uses market data providers to fetch security prices, search for securities,
 | **EODHD** | Yes | 20 requests/day | 70+ global exchanges |
 | **Alpha Vantage** | Yes | 25 requests/day | Global stocks, ETFs |
 | **MFAPI** | No | Unlimited | Indian mutual funds |
+| **MOEX** | No | Unlimited | Russian stocks, funds, and bonds (MOEX), including RUB forex |
+| **T-Invest (T-Bank)** | Yes (read-only token) | N/A | Russian stocks, funds, and bonds; brand logos for all securities |
 
 ## Configuring providers
 
@@ -108,6 +110,27 @@ MFAPI is a free, open-source API for Indian mutual fund NAV (Net Asset Value) da
 - **Rate limits**: No strict limits
 - **Coverage**: Indian mutual funds only (BSE-listed schemes)
 - **API key**: Not required
+
+### MOEX
+
+MOEX (Moscow Exchange) is a free provider for Russian-listed securities via the ISS public API. It requires no API key.
+
+- **Rate limits**: No strict limits
+- **Coverage**: Russian stocks, ETFs, BPIFs (mutual funds), and bonds on the Moscow Exchange; also provides RUB exchange rates
+- **API key**: Not required
+
+### T-Invest (T-Bank)
+
+T-Invest is T-Bank's (formerly Tinkoff) invest API. It serves two purposes in Sure:
+
+1. **Securities pricing** — when enabled as a provider, it prices Russian stocks, funds, and bonds listed on MOEX and SPB Exchange.
+2. **Brand logos** — when a read-only token is configured, Sure uses T-Invest's CDN to fetch instrument brand logos for all securities, regardless of which provider handles pricing. This means MOEX-priced holdings still get real logos if a T-Invest token is present.
+
+Because of the brand logo role, the T-Invest settings block in **Settings > Self-Hosting** remains visible whenever a token is already configured, even if T-Invest is not checked as a price provider.
+
+- **Rate limits**: Generous per-minute limits (hundreds of requests per minute)
+- **Coverage**: Russian stocks, funds (incl. БПИФs), and bonds on MOEX and SPB Exchange; brand logos for any security
+- **API key**: Required — create a read-only token in T-Bank investments under Settings > API tokens (requires an open T-Bank brokerage account)
 
 ## Price freshness
 

@@ -232,6 +232,61 @@ Both helpers require the family's LLM provider to be configured. They are not av
 
 
 
+## Assistant and MCP tools for bills
+
+When preview features are enabled and an LLM provider is configured, the assistant and any connected MCP client can interact with your bills using a set of dedicated tools. The tools are absent from the tool list until preview features are turned on.
+
+All bill tools share a consistent error contract: if a call fails, the response includes an `error` message and a `hint` explaining how to recover or retry.
+
+### Read tools
+
+**`get_bills`** — returns your bills, subscriptions, and other recurring obligations, each with its current occurrence's payment state. Accepts optional filters:
+
+| Filter | Description |
+|---|---|
+| `status` | Series lifecycle: `active` (default), `suggested`, `paused`, `ended`, or `all` |
+| `payment_state` | Current occurrence state: `overdue`, `due`, `upcoming`, `partial`, or `paid` |
+| `bill_type` | Kind of obligation (e.g. `bill`, `subscription`, `installment`, `income`) |
+| `search` | Substring match on the bill or merchant name |
+| `due_within_days` | Only bills whose next due date falls within this many days (1–365) |
+
+The response includes per-currency totals (active monthly equivalent spend, overdue count) computed over the full filtered set, not just the page shown. When the result is empty, `get_bills` checks whether bills exist under other statuses and returns a hint pointing there.
+
+**`get_bill_details`** — returns one bill's full story: configuration, every open occurrence, the last 12 settled occurrences with their payments, upcoming due dates for the next 400 days (first 3), price-change history (24-month window), and cost analytics. Analytics are derived from confirmed payments only, never from estimates. Pass the exact `bill_id` returned by `get_bills`.
+
+**`get_bill_audit`** — a deterministic review of your bills that surfaces:
+
+- **Possible duplicates** — series with the same name, amount, and due day
+- **Price changes** — over a configurable lookback window (default 12 months, max 24)
+- **Upcoming trials** — trials converting within 30 days
+- **Upcoming renewals** — renewals due within 30 days
+- **Long overdue** — bills overdue by at least one full billing cycle in the series' own cadence
+- **Dormant** — paused bills still carrying unpaid occurrences
+- **Awaiting confirmation** — detected series not yet confirmed by the user
+- **Undeclared candidates** — recurring outflow patterns not yet declared as bills
+
+Each section reports `items`, `count`, and `truncated` (capped at 20 items). The audit returns facts; the assistant narrates and prioritizes them.
+
+**`get_paycheck_plan`** — slices upcoming bills across pay periods defined by your declared income schedules. Returns up to 6 pay periods (default 3), each showing income, bills due, bills reserved for a later period, and safe-to-spend headroom. When confirmed series are excluded because they are still awaiting confirmation, the response notes how many were left out so the assistant can caveat the headroom figure.
+
+Only manually declared income series (bill type `income`) define pay periods. Automatically detected bank inflows do not.
+
+### Write tools
+
+All write tools confirm their arguments strictly and return a clear error rather than guessing at ambiguous input.
+
+**`create_bill`** — creates a bill, subscription, installment plan, or income schedule. Required fields: `name`, `amount` (always a positive magnitude), and `first_due_on` (seeds the due-day anchor). Optional fields include `frequency`, `is_income`, `bill_type`, `account_name`, `category_name`, `autopay`, `payment_url`, and `notes`. Unrecognized frequency values are rejected with the list of valid cadences rather than silently defaulting to monthly.
+
+**`update_bill`** — updates one bill's configuration. Pass only the fields being changed. Amount changes apply forward only; occurrences already due keep their original figure. Changing the frequency pins the schedule so automatic detection respects it as the user's intent. `status` accepts `active` or `paused`.
+
+**`record_bill_payment`** — records a payment against a bill's open occurrence. Omit `amount` to settle in full; pass `amount` for a partial payment. The tool rejects an amount that exceeds the remaining balance on the occurrence. Linking to a specific bank transaction is not possible here; the app's matching engine owns that flow.
+
+### Prerequisites
+
+- Preview features must be enabled in **Settings → Preferences**
+- An LLM provider must be configured
+- Recurring transactions must not be disabled for the family (Settings → Recurring transactions)
+
 ### Pattern clustering
 
 The pattern detector uses circular distance calculations to handle month-boundary patterns:

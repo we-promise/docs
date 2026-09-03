@@ -93,7 +93,8 @@
               "providers/redbark",
               "providers/up-bank",
               "providers/snaptrade",
-              "providers/sophtron"
+              "providers/sophtron",
+              "providers/trade-republic"
             ]
           },
           {

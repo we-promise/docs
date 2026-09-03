@@ -31,6 +31,25 @@ To connect your bank accounts:
 3. In Sure, add your Lunch Flow API key
 4. Sure will automatically discover and sync your connected accounts
 
+## Account setup
+
+After importing Lunch Flow accounts, Sure asks you to assign a type to each one before it appears in your accounts list.
+
+### Account types
+
+Choose from the following types during setup:
+
+- **Checking or savings account** — checking, savings, HSA, certificate of deposit, money market
+- **Credit card**
+- **Investment account** — brokerage, pension, retirement, 401(k), Roth 401(k), 403(b), TSP, 529 Plan, HSA, mutual fund, traditional IRA, Roth IRA, angel, and registered plans for Canadian and European accounts
+- **Loan or mortgage** — mortgage, student loan, auto loan, home equity, line of credit, business loan, other
+- **Other asset**
+- **Skip** — excludes the account from import
+
+### Historical data range
+
+During setup you can choose how far back Sure should sync transaction history. Up to three years of history is available.
+
 ## Features
 
 ### Account management
@@ -58,6 +77,15 @@ For investment accounts, Lunch Flow provides:
 - Currency-specific valuations
 
 Note: Not all account types support holdings. The API will indicate when holdings are not available for a specific account.
+
+### Sync status
+
+The Lunch Flow connection card shows the current sync state:
+
+- **Synced N accounts** — all linked accounts are active
+- **N synced, M need setup** — some imported accounts haven't been assigned a type yet; go to "Set Up New Accounts" to complete setup
+- **Never synced** — no sync has run yet
+- **Error** — the last sync encountered a problem; the error tooltip shows details
 
 ## API structure
 

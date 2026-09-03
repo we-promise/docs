@@ -38,7 +38,7 @@ cd ~/docker-apps/sure
 Download the sample compose file from the Sure repository:
 
 ```bash
-curl -o compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+curl --fail --location --silent --show-error --output compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
 ```
 
 This creates a `compose.yml` file in your current directory with the default configuration.
@@ -223,7 +223,7 @@ This applies to both the GUI upload and the API upload paths. If you do not set 
 
 ### Encryption keys for bank sync
 
-When you configure a bank sync provider (such as Plaid, SimpleFin, or Brex) on a self-hosted instance that has not set explicit Active Record encryption keys, Sure shows a warning before you save your credentials:
+When you configure a bank sync provider (such as Plaid, SimpleFIN, or Brex) on a self-hosted instance that has not set explicit Active Record encryption keys, Sure shows a warning before you save your credentials:
 
 > **Encryption keys missing** — This self-hosted install has not configured explicit Active Record encryption keys. Configure `primary_key`, `deterministic_key`, and `key_derivation_salt` before saving provider credentials in production.
 
@@ -261,10 +261,15 @@ TWELVE_DATA_API_KEY="your-key-here"
 TIINGO_API_KEY="your-key-here"
 EODHD_API_KEY="your-key-here"
 ALPHA_VANTAGE_API_KEY="your-key-here"
+TINKOFF_INVEST_API_KEY="your-read-only-token-here"
 ```
 
 <Note>
 Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over the UI setting. Leave it unset to manage providers from the UI only.
+</Note>
+
+<Note>
+`TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. The T-Invest settings block in the UI stays visible whenever a token is configured, even if T-Invest is not selected as a price provider.
 </Note>
 
 ### On-chain wallet variables
@@ -390,7 +395,7 @@ docker compose up --no-deps -d web worker
 
 ## Backup service
 
-The Docker Compose configuration includes an optional backup service that automatically backs up your PostgreSQL database.
+The Docker Compose configuration includes an optional backup service that automatically backs up your PostgreSQL database and uploads it to any cloud storage provider supported by [rclone](https://rclone.org/) — including S3, Cloudflare R2, Google Drive, SFTP, and 70+ others.
 
 <Warning>
   The backup service only creates PostgreSQL backups. It does not back up local files stored in Sure's `storage` directory.
@@ -416,42 +421,49 @@ docker compose --profile backup up -d
 
 ### Configure backup settings
 
-The backup service uses the following default settings:
+Add the following variables to your `.env` file to configure the backup destination and schedule. `BACKUP_DESTINATION` is required; all other variables are optional.
 
-- **Schedule**: Daily at midnight
-- **Retention**: 7 daily backups, 4 weekly backups, 6 monthly backups
-- **Location**: `/opt/sure-data/backups` on your host machine
+```txt
+# Required: rclone remote format — remote:bucket/path (e.g. "s3:my-bucket" or "r2:my-bucket/backups")
+BACKUP_DESTINATION="s3:my-bucket"
 
-To customize these settings, edit the `backup` service in your `compose.yml` file:
+# Cron schedule for backups (default: every day at 2 AM)
+BACKUP_SCHEDULE="0 2 * * *"
 
-```yml
-backup:
-  profiles:
-    - backup
-  image: prodrigestivill/postgres-backup-local
-  restart: unless-stopped
-  volumes:
-    - /your/custom/path:/backups  # Change this to your desired location
-  environment:
-    - POSTGRES_HOST=db
-    - POSTGRES_DB=${POSTGRES_DB:-sure_production}
-    - POSTGRES_USER=${POSTGRES_USER:-sure_user}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sure_password}
-    - SCHEDULE=@daily              # Change schedule (e.g., @hourly, @weekly)
-    - BACKUP_KEEP_DAYS=7           # Number of daily backups to keep
-    - BACKUP_KEEP_WEEKS=4          # Number of weekly backups to keep
-    - BACKUP_KEEP_MONTHS=6         # Number of monthly backups to keep
+# true  → always write backup_latest.sql.gz (overwrites previous file)
+# false → write backup_YYYY-MM-DD_HH-MM-SS.sql.gz and keep rolling files (default)
+BACKUP_OVERWRITE="false"
+
+# Number of days to keep timestamped backup files (default: 7, only used when BACKUP_OVERWRITE=false)
+BACKUP_KEEP_DAYS="7"
+
+# Scopes backups under BACKUP_DESTINATION/<INSTANCE_ID> — useful when multiple
+# deployments share the same bucket so retention operations do not overlap (default: "default")
+INSTANCE_ID="default"
 ```
+
+Then configure your rclone storage provider. The example below uses an S3-compatible provider (such as Cloudflare R2):
+
+```txt
+RCLONE_CONFIG_S3_TYPE=s3
+RCLONE_CONFIG_S3_PROVIDER=Cloudflare
+RCLONE_CONFIG_S3_ACCESS_KEY_ID=your-access-key-id
+RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=your-secret-access-key
+RCLONE_CONFIG_S3_ENDPOINT=https://your-account.r2.cloudflarestorage.com
+```
+
+For providers other than S3 (Google Drive, SFTP, Backblaze B2, etc.), replace the `RCLONE_CONFIG_S3_*` variables with the equivalent variables for your provider. See the [rclone documentation](https://rclone.org/docs/) for the full list of supported providers and their configuration variables.
+
+The `compose.yml` maps the S3 variables by default. If you use a different provider, add the corresponding variables to both your `.env` file and the `backup` service's `environment` block in `compose.yml`.
 
 ### Backup schedule options
 
-You can use cron syntax or these shortcuts:
+`BACKUP_SCHEDULE` accepts standard cron syntax. Some examples:
 
-- `@hourly` - Every hour
-- `@daily` - Once per day at midnight
-- `@weekly` - Once per week
-- `@monthly` - Once per month
-- Custom cron: `0 2 * * *` (2 AM daily)
+- `0 2 * * *` — every day at 2 AM (default)
+- `0 * * * *` — every hour
+- `0 2 * * 0` — once per week (Sunday at 2 AM)
+- `0 2 1 * *` — once per month (1st of the month at 2 AM)
 
 ### Restore from a PostgreSQL backup
 
@@ -734,6 +746,8 @@ ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=...
 ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=...
 ```
 
+Keep the same `SECRET_KEY_BASE` for an existing instance unless you are restoring from a backup that was created with the new value. Sure uses it to derive encryption keys when the dedicated `ACTIVE_RECORD_ENCRYPTION_*` variables are not set. If `SECRET_KEY_BASE` changes, deterministic encrypted fields such as user email addresses may no longer be searchable, and email/password login can fail with "invalid username or password" even when the password is correct.
+
 If you add those keys after your instance already has data, the normal app startup path is not enough to rewrite older plaintext values:
 
 - `db:prepare` still runs automatically on startup for schema setup and migrations.
@@ -751,6 +765,8 @@ docker compose exec web env DRY_RUN=false bin/rails security:backfill_encryption
 ```
 
 The task is idempotent, so it is safe to rerun if needed.
+
+If login started failing immediately after changing encryption settings, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first. After the app can read the existing data again, run the backfill task if you are intentionally moving to dedicated keys.
 
 ### Sure NDJSON import file size limit
 
@@ -783,9 +799,9 @@ Sure ships a separate compose file for AI-related features: `compose.example.ai.
 
 ```bash
 # Download both compose files
-curl -o compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
-curl -o compose.ai.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.ai.yml
-curl -o pipelock.example.yaml https://raw.githubusercontent.com/we-promise/sure/main/pipelock.example.yaml
+curl --fail --location --silent --show-error --output compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+curl --fail --location --silent --show-error --output compose.ai.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.ai.yml
+curl --fail --location --silent --show-error --output pipelock.example.yaml https://raw.githubusercontent.com/we-promise/sure/main/pipelock.example.yaml
 
 # Run with Pipelock (no local LLM)
 docker compose -f compose.ai.yml up -d
@@ -796,7 +812,7 @@ docker compose -f compose.ai.yml --profile local-ai up -d
 
 ### Setting up the external AI assistant
 
-The external assistant delegates chat to a remote AI agent. The agent calls back to Sure's `/mcp` endpoint for financial data.
+The external assistant delegates chat to a remote AI agent instead of calling LLMs directly. The agent calls back to Sure's `/mcp` endpoint for financial data (accounts, transactions, balance sheet).
 
 1. Set the MCP endpoint credentials in your `.env`:
 
@@ -812,13 +828,17 @@ EXTERNAL_ASSISTANT_URL=https://your-agent/v1/chat/completions
 EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
 ```
 
-3. Activate per family in the UI (**Settings > Self-Hosting > AI Assistant**, select "External"), or set `ASSISTANT_TYPE=external` to force it globally.
+3. Choose how to activate:
+   - **Per-family (UI):** Go to **Settings > Self-Hosting > AI Assistant**, select "External"
+   - **Global (env):** Set `ASSISTANT_TYPE=external` to force all families to use external
 
-To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile:
+To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile. This profile starts OpenClaw without the local Ollama or Open WebUI services:
 
 ```bash
 docker compose -f compose.ai.yml --profile external-assistant up -d
 ```
+
+See the `docs/hosting/ai.md` file in the Sure repository for full configuration details including agent ID, session keys, and email allowlisting.
 
 ### Pipelock security proxy
 
