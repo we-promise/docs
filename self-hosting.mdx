@@ -683,6 +683,17 @@ The system health page has an **AI** tab at `/admin/system_health?tab=ai`. Openi
 - **Vector store probe** — For OpenAI vector stores, confirms a list request succeeds without creating or modifying a store. For pgvector, checks that the `vector` extension is enabled and the chunks table exists.
 - **Embedding probe** — For pgvector, sends a short test embedding request and verifies the returned vector matches `EMBEDDING_DIMENSIONS`. The test vector is not stored.
 
+When the pgvector setup is failing, the tab shows a specific alert explaining the cause instead of a generic failure message. The possible alerts and what to do for each are:
+
+| Alert | Cause | Fix |
+| --- | --- | --- |
+| The PostgreSQL vector extension is not enabled | `pgvector` is selected but the `vector` extension is not enabled in the database | Use a PostgreSQL image that includes pgvector, then enable the extension as a database owner or superuser and re-run migrations with `VECTOR_STORE_PROVIDER=pgvector` |
+| The vector\_store\_chunks table is missing | The extension is enabled but the chunks table was not found | Check migration status, then re-run the vector-store migration with `VECTOR_STORE_PROVIDER=pgvector` |
+| The pgvector storage check failed | Sure could not query the chunks table | Check PostgreSQL permissions, the `vector` extension, and the `vector_store_chunks` migration |
+| The embedding dimensions do not match | The embedding endpoint returned a vector whose length does not match `EMBEDDING_DIMENSIONS` | Set `EMBEDDING_MODEL` and `EMBEDDING_DIMENSIONS` to the model's documented vector size, restart Sure, then recreate the pgvector table and re-embed documents if existing data used a different size |
+| The embedding live check timed out | The embedding endpoint did not respond before `AI_HEALTH_PROBE_TIMEOUT` | Raise `AI_HEALTH_PROBE_TIMEOUT`, restart Sure, then re-run the checks. If normal chat calls also time out, raise `OPENAI_REQUEST_TIMEOUT` separately |
+| The embedding live check failed | Sure could not create a test embedding through the configured endpoint | Check `EMBEDDING_URI_BASE`, `EMBEDDING_MODEL`, `EMBEDDING_ACCESS_TOKEN`, and the embedding provider logs |
+
 The tab also shows the active provider, model, endpoint (credentials are always redacted), function calling status, LLM request timeout, health-check probe timeout, PDF text extraction and vision processing status, and pgvector extension and table status. The model settings field links super-admins to this tab and notes that the assistant requires a model with function-calling support. The LLM request timeout and health-check probe timeout are displayed as separate rows because they bound different operations: the LLM request timeout covers normal chat and PDF import calls, while the health-check probe timeout covers only the live checks run on this page.
 
 When `OPENAI_URI_BASE` points to a custom endpoint, the page identifies the provider where possible — Ollama, OpenRouter, Together AI, Kilo, Cloudflare Workers AI or AI Gateway — and labels unrecognized services as **Custom endpoint**.
