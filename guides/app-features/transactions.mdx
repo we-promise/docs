@@ -50,6 +50,22 @@ When there are uncategorized transactions, use the categorize flow to work throu
 
 Use subcategories when you want more detail within a broader category. For example, a parent category such as **Food & Dining** can contain subcategories such as **Groceries**, **Restaurants**, and **Coffee**. The category picker groups subcategories under their parent and indents them with a hierarchy indicator, so the full structure is visible in the transaction form, bulk edit, rule builder, search filters, and import mapping. Budgets can use subcategories individually or share the parent budget.
 
+### Category filter sidebar
+
+When you filter transactions by category in the sidebar, parent and subcategory checkboxes are linked:
+
+- Checking a parent category automatically checks all of its subcategories.
+- Unchecking any single subcategory automatically unchecks its parent.
+- If some but not all subcategories are checked, the parent shows an indeterminate (partial) state.
+
+This keeps the filter consistent with what the backend submits: selecting a parent category includes every subcategory with no way to exclude one individually, so the checkboxes always reflect exactly what gets applied to your transaction list.
+
+If you arrive at the transaction list from a link that filters by a parent category, all subcategories are pre-checked to match the active filter.
+
+### Categorize flow
+
+The categorize flow (accessible when uncategorized transactions exist) displays a category picker that groups subcategories under their parent, consistent with the rest of the app. Both the parent label and its subcategories are visible together, making it straightforward to pick the right level of detail without navigating a flat list.
+
 ### Create a category inline
 
 If the category you need does not exist yet, you can create it directly from the transaction form without leaving the transaction. Type a new name in the category selector and choose **Create category** from the dropdown. The new category is saved and immediately assigned to the transaction.
