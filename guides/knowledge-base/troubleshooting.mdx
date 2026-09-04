@@ -367,6 +367,12 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
 
 If you click **Add transaction** on the new transaction form without selecting an account, the button previously appeared to do nothing (the request returned a 404 error). The form now re-renders with a validation error so you can see what is missing and correct it.
 
+## Split transactions not grouped in account activity
+
+When the **Group split transactions** preference was enabled, split child entries were collapsed under their parent on the Transactions page but still appeared as flat, ungrouped rows on the Activity tab of individual account pages.
+
+Split transaction grouping now applies consistently to both the Transactions page and the account activity feed. When the preference is on, split children appear indented under their parent row in both views.
+
 ## Excluded transactions disappear from account activity
 
 Transactions marked as excluded were previously hidden from the account activity feed entirely. This made it impossible to re-include them because there was no row to click. Excluded transactions now appear greyed-out in the account activity list so you can still open them and toggle exclusion off if needed.
