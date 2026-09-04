@@ -124,6 +124,13 @@ Deleting a user is permanent. All of their data is removed and cannot be recover
 3. If they have a local password, you can reset it from the actions popover
 4. Review audit logs for specific error messages
 
+### User is locked out after disconnecting their SSO provider
+
+Sure blocks users from disconnecting their last SSO provider when they have no local password set, and shows a warning on the security settings page. If a user somehow loses access:
+
+1. Set a local password for them from the admin actions popover (see "Setting a password for local users" above)
+2. Once a password is set, they can log in with email and password and reconnect their SSO provider from `/settings/security`
+
 ### User has the wrong role
 
 Open the actions popover for the user and update their role. Note that super admin role changes are logged for auditing.

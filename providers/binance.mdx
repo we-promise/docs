@@ -57,7 +57,7 @@ For security, restrict your API key to read-only access. Sure does not execute t
    - **Name**: A label for this connection (e.g., "My Binance")
    - **API Key**: Your Binance API key
    - **API Secret**: Your Binance API secret
-4. Optionally set a **Sync start date** to limit how far back trade history is fetched
+4. Optionally set a **Sync start date** to limit how far back trade history is fetched. The date must be in the past.
 5. Click **Connect**
 
 ## Account setup
@@ -177,7 +177,7 @@ If trades are missing:
 
 1. Check that your API key has trade history read permissions
 2. Verify the trade exists in your Binance account
-3. Ensure the sync start date is set before the trade date
+3. Ensure the sync start date is set to a past date that falls before the trade date
 
 ### Stale holdings after selling
 

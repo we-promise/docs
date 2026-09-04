@@ -711,6 +711,27 @@ OPENAI_REQUEST_TIMEOUT=120   # raise for slow local models
 
 The minimum accepted value is 1 second. If both the environment variable and the UI setting are present, the environment variable wins.
 
+### Extra HTTP headers for OpenAI-compatible requests
+
+`OPENAI_EXTRA_HEADERS` lets you attach custom HTTP headers to every request Sure sends to the OpenAI-compatible endpoint. This is useful for AI gateways that require routing or authentication headers — for example, sending a session identifier to a proxy that tracks usage per conversation.
+
+Set the variable to a JSON object of header names and values:
+
+```txt
+# Static header — sent on every request
+OPENAI_EXTRA_HEADERS='{"x-my-gateway-key": "abc123"}'
+
+# Session-scoped header — value is replaced with the chat's UUID per request
+OPENAI_EXTRA_HEADERS='{"x-opencode-session": "{session_id}"}'
+```
+
+**How it works:**
+
+- The value must be a valid JSON object. If it is missing, not an object, or not valid JSON, Sure logs an error and falls back to no extra headers. Chat continues normally.
+- String keys and values are used as-is. Blank values are dropped.
+- If a header value contains the literal `{session_id}`, Sure substitutes the current chat's UUID at request time. This identifies requests per conversation rather than per installation. The substitution only happens for chat requests — batch flows such as auto-categorization, merchant detection, and PDF processing never receive session headers.
+- This variable is environment-only. There is no Settings UI equivalent.
+
 <Note>
 The Sidekiq health banner, system health page, and AI status tab are only available in self-hosted mode. Managed deployments do not show these features.
 </Note>
