@@ -121,6 +121,53 @@ The Map step only appears when your data requires column or account mapping; it 
 6. **Map** (when needed): Assign imported accounts, categories, or tags to existing ones in Sure
 7. **Confirm**: Review the import summary and publish
 
+## QIF imports
+
+QIF (Quicken Interchange Format) files are exported from Quicken and similar personal finance apps. Sure parses the QIF format directly — no column mapping is needed.
+
+### Supported QIF account types
+
+| QIF type | Sure account type |
+|---|---|
+| Bank | Depository |
+| Cash | Depository |
+| CCard | Credit Card |
+| Invst | Investment |
+| Oth A | Other Asset |
+| Oth L | Other Liability |
+
+### Split transactions
+
+QIF files can contain split transactions — single entries that are broken into multiple line items with individual categories, amounts, and notes. When your file contains splits, Sure imports each split line as a child entry under the parent transaction, preserving the original breakdown.
+
+Split categories are shown separately on the Select step so you can choose which ones to include. If the split amounts do not sum to the parent total, Sure skips the split lines and imports the transaction as a single entry.
+
+### Multi-account QIF files
+
+A QIF file exported from Quicken can contain multiple accounts in a single file (identified by `!Account` sections). When Sure detects account metadata in the file:
+
+- Each account in the QIF file is matched to an existing Sure account by name, or created automatically if no match is found.
+- Opening balances declared in the file are applied to the corresponding accounts.
+- You do not need to assign a single target account before publishing — Sure routes each transaction to the correct account automatically.
+
+When the QIF file does not contain account metadata, you must select a target account before publishing, as with a standard single-account import.
+
+### Date format detection
+
+Sure automatically detects the date format used in your QIF file by sampling the D-fields and selecting the best match. You can review and change the detected format on the Select step before proceeding. The default fallback is MM/DD/YYYY (US convention).
+
+QIF files support several date styles including:
+- `MM/DD/YYYY` and `MM/DD/YY` (Quicken US)
+- `DD.MM.YYYY` (European dot-separated)
+- `DD-MM-YYYY` (dash-separated)
+- `DD MMM YYYY` (e.g. `26 Jan 2026`, Amex-style)
+
+### Investment transactions
+
+QIF `!Type:Invst` sections are imported as investment activity. Trade actions (Buy, Sell, Cover, ShtSell, ReinvDiv) create Trade records. Non-trade actions (Div, IntInc, CGLong, CGShort, XIn, XOut, MiscInc, MiscExp) create Transaction records with appropriate labels.
+
+Securities are resolved by matching the QIF security name to the ticker defined in the file's `!Type:Security` sections.
+
 ## Tips for successful imports
 
 1. **Use templates**: Download CSV templates from the import screen for the correct format
