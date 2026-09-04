@@ -437,12 +437,13 @@ Access at `/admin/users`:
 
 ### Connected accounts
 
-Users can manage their own connected accounts at `/settings/security`:
+Users can manage their own connected accounts at `/settings/security` under **Connected Accounts**:
 
-- View all connected SSO providers
-- Connect additional providers
-- Disconnect providers (if alternative login exists)
-- See last used timestamp
+- View all connected SSO providers with the last-used timestamp
+- Connect additional providers by signing in with them
+- Disconnect a provider using the **Disconnect** button
+
+**Safety guard for disconnecting:** Sure prevents a user from disconnecting their last SSO provider when they have no local password set. The disconnect button is hidden in that case, and a warning is shown prompting the user to set a password first. If the user has either a second SSO provider connected or a local password, disconnecting proceeds and the event is recorded in the SSO audit log as an `unlink` event.
 
 ### User actions
 
