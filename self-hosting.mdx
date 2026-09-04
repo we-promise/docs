@@ -696,6 +696,19 @@ You can tune the AI status checks with these environment variables:
 | `AI_HEALTH_PROBE_TIMEOUT` | Per-request timeout in seconds for each live check | `5` |
 | `AI_HEALTH_PROBE_CACHE_TTL` | Seconds to cache probe results. Also deduplicates failure log entries | `60` |
 
+### Verifying worker configuration
+
+The checks above all run from the `web` process. Most AI work — assistant responses, PDF processing, embeddings, auto-categorization, and merchant detection — actually executes in a Sidekiq `worker` process, which can differ from `web` in network access, DNS, proxy rules, or the credentials it loaded. This is most common in Kubernetes deployments using workload-specific environment overrides or a Secret updated without a pod restart. A passing web check does not prove a worker can reach the same provider.
+
+Click **Verify worker configuration** on the AI status tab to queue an asynchronous check (`WorkerAiHealthCheckJob`). It runs the same live probes from inside whichever worker process dequeues it, and the tab lists the result: that worker's process identity, when it checked in, whether its effective configuration matches what `web` resolved, and probe outcomes.
+
+A few things this does and does not prove:
+
+- **One check verifies one worker.** Sidekiq does not broadcast a job to every process, so a passing result confirms the named process is healthy, not your whole fleet. With multiple worker replicas, queue the check again to sample another. Only the 5 most recently checked-in distinct processes are kept. A 6th check-in can evict an older entry before its own 15-minute retention window expires. A result older than `WorkerAiHealth::STALE_AFTER` displays as **Stale** rather than pass or fail.
+- **Worker checks never reuse a web-cached result, or vice versa.** The web page's probes are cached briefly so repeat page loads do not re-hit providers. The worker job bypasses that shared cache so its result always reflects a live call from its own network context, and never leaves an entry the web process could read back as its own.
+- **In local development, web and worker results will not show up together.** `bin/dev` runs `web` and `worker` as separate OS processes, and `config/environments/development.rb` uses a process-local cache. A worker check queued locally writes to the worker's own in-memory cache, so the **Verify worker configuration** button can appear to do nothing. This is expected behavior; production's shared Redis store is unaffected.
+- **Which settings need a restart depends on how they are set.** Provider, model, and API-key settings changed in **Settings → Self-Hosting** are stored in the database and take effect automatically on both `web` and `worker` without a restart. Embedding configuration and anything set only through an environment variable is fixed when each container starts. Changing those requires restarting or recreating both `web` and `worker`. The AI status tab labels this distinction next to the worker results.
+
 ### OpenAI request timeout
 
 The LLM request timeout controls how long each OpenAI-compatible HTTP request is allowed to take before it is cancelled. It applies to auto-categorization, merchant detection, chat completions, PDF processing, and vector-store calls. The default is 60 seconds, which works well for hosted models. Raise it when using slow local models (for example, Ollama on modest hardware).

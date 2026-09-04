@@ -396,7 +396,7 @@ Super-admins can open **System health → AI** at `/admin/system_health?tab=ai` 
 - The vector store responds correctly
 - The embedding endpoint returns vectors with the expected dimensions
 
-See [AI status tab](/self-hosting#ai-status-tab) in the self-hosting guide for details on the checks and how to tune probe timeouts.
+These checks run from the `web` process. To verify that worker processes can also reach the configured provider, click **Verify worker configuration** on the same tab. See [AI status tab](/self-hosting#ai-status-tab) and [Verifying worker configuration](/self-hosting#verifying-worker-configuration) in the self-hosting guide for details on the checks, worker-specific caveats, and how to tune probe timeouts.
 
 ## Additional environment variables
 
