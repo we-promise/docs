@@ -57,6 +57,12 @@ Ethereum, and only Ethereum, can be read through Etherscan instead of Blockscout
 
 A key only moves **transfer history** onto Etherscan. Balances and network detection always come from the keyless indexer. Leave the field empty unless you are being rate limited.
 
+### Limiting transfer history by date
+
+Under **Settings → Providers → On-chain wallets → Advanced**, the **Ignore transfers before** field accepts a date. Transfers recorded before that date are skipped during every sync. Leave the field empty to import everything the explorer reports.
+
+This setting is useful when a wallet has a very long history that you do not need, or when you want to start fresh from a known date without deleting existing accounts.
+
 ## Linking a wallet
 
 Go to **Settings → Providers → On-chain wallets → Add wallet**.
