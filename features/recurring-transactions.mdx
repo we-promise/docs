@@ -192,6 +192,21 @@ The Bills page offers four views, switchable from the view switcher at the top o
 
 Each bill has a detail drawer showing payment history, price changes, cost analytics, and quick actions to pay, edit, or manage the series.
 
+### Occurrence drawer
+
+Tapping a bill row in the Overview, Calendar, or Paycheck planner opens the occurrence drawer — the action surface for resolving that specific billing cycle. It is separate from the bill-level detail drawer and focused on what needs to happen right now.
+
+The occurrence drawer shows:
+
+- **Due label** — a context-aware label describing when the payment is due. The label adapts to the occurrence's state: overdue (with the number of days past due), due today, due in N days, snoozed until a date, or the original due date if the cycle is already settled.
+- **Payment progress** — the amount paid so far, the expected amount, and a progress ring. The headline reads the current state: the paid amount if fully paid, "Skipped", "Marked missed", or the remaining balance.
+- **Linked payments** — any transactions already allocated to this occurrence, each with an unlink option.
+- **Candidate matching** — when the occurrence is still open, the drawer surfaces the most likely matching transaction from your accounts as a card with a single "Link payment" action. Other likely matches appear below it. You can also search all transactions by name.
+- **Manual payment** — if no matching transaction exists, a disclosure panel lets you record a payment by amount and date directly without linking a bank transaction.
+- **Quick actions** — mark paid (settles the remainder without recording a transaction), skip, snooze for one week, and reopen (for already-settled or skipped occurrences).
+
+All labels and feedback messages in the occurrence drawer — including the due label states, payment summaries, and action confirmations — are displayed in your configured display language (set under **Settings → Preferences → Language**).
+
 ### Paycheck planner
 
 The paycheck planner slices your upcoming bills across the pay periods defined by your declared income. Only manually declared income series (bill type `income`, set to manual) define pay periods; automatically detected inflows do not.
