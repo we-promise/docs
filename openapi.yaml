@@ -16,6 +16,11 @@ components:
       name: X-Api-Key
       in: header
       description: API key for authentication. Generate one from your account settings.
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth2 Bearer token. Obtain a token from the /api/v1/auth/login or /api/v1/auth/refresh endpoints. The token must have the 'read' or 'read_write' scope.
   schemas:
     Pagination:
       type: object
@@ -3333,6 +3338,7 @@ paths:
       - Accounts
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -3374,6 +3380,7 @@ paths:
       - Accounts
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: include_disabled
         in: query
@@ -3911,6 +3918,7 @@ paths:
       - Auth
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: ai enabled
@@ -3961,6 +3969,7 @@ paths:
         and total liabilities with amounts converted to the family's primary currency.
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: balance sheet returned
@@ -3981,6 +3990,7 @@ paths:
       - Balances
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4061,6 +4071,7 @@ paths:
       - Balances
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: balance retrieved
@@ -4093,6 +4104,7 @@ paths:
       - Budget Categories
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4176,6 +4188,7 @@ paths:
       - Budget Categories
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: budget category retrieved
@@ -4208,6 +4221,7 @@ paths:
       - Budgets
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4275,6 +4289,7 @@ paths:
       - Budgets
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: budget retrieved
@@ -4307,6 +4322,7 @@ paths:
       - Categories
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4346,6 +4362,7 @@ paths:
       - Categories
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -4398,6 +4415,7 @@ paths:
       - Categories
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: subcategory retrieved with parent
@@ -4418,6 +4436,7 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: chats listed
@@ -4437,6 +4456,7 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -4483,6 +4503,7 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: chat retrieved
@@ -4502,6 +4523,7 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -4538,6 +4560,7 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '204':
           description: chat deleted
@@ -4557,6 +4580,7 @@ paths:
       - Chat Messages
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -4604,6 +4628,7 @@ paths:
       - Chat Messages
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '202':
           description: retry started
@@ -4630,6 +4655,7 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4668,6 +4694,7 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '202':
@@ -4715,6 +4742,7 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: family export shown
@@ -4754,6 +4782,7 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '302':
           description: family export download redirected
@@ -4789,6 +4818,7 @@ paths:
       - Family Settings
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: family settings retrieved
@@ -4815,6 +4845,7 @@ paths:
       - Holdings
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4902,6 +4933,7 @@ paths:
       - Holdings
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: holding retrieved
@@ -4930,6 +4962,7 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -5000,6 +5033,7 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: import session retrieved
@@ -5041,6 +5075,7 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -5138,6 +5173,7 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '202':
           description: import session publish queued
@@ -5189,6 +5225,7 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -5249,6 +5286,7 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -5511,6 +5549,7 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: import retrieved
@@ -5540,6 +5579,7 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -5594,6 +5634,7 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -5859,6 +5900,7 @@ paths:
       - Merchants
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: merchants listed
@@ -5874,6 +5916,7 @@ paths:
       - Merchants
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -5921,6 +5964,7 @@ paths:
       - Merchants
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: merchant retrieved
@@ -5944,6 +5988,7 @@ paths:
       - Provider Connections
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: provider connection status summaries listed
@@ -5970,6 +6015,7 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6024,6 +6070,7 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -6137,6 +6184,7 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: recurring transaction retrieved
@@ -6162,6 +6210,7 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -6222,6 +6271,7 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: recurring transaction deleted
@@ -6254,6 +6304,7 @@ paths:
       - Rejected Transfers
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6327,6 +6378,7 @@ paths:
       - Rejected Transfers
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: rejected transfer retrieved
@@ -6360,6 +6412,7 @@ paths:
       - Rule Runs
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6454,6 +6507,7 @@ paths:
       - Rule Runs
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: rule run retrieved
@@ -6486,6 +6540,7 @@ paths:
       - Rules
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6552,6 +6607,7 @@ paths:
       - Rules
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: rule retrieved
@@ -6584,6 +6640,7 @@ paths:
       - Securities
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6664,6 +6721,7 @@ paths:
       - Securities
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: security retrieved
@@ -6696,6 +6754,7 @@ paths:
       - Security Prices
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6783,6 +6842,7 @@ paths:
       - Security Prices
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: security price retrieved
@@ -6808,6 +6868,175 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/sync":
+    post:
+      summary: Trigger a full family sync
+      description: >
+        Enqueues a background job that applies all active rules, syncs all connected
+        accounts, and auto-matches transfers for the authenticated user's family.
+        Returns HTTP 202 Accepted with the queued sync object. Requires write scope.
+      tags:
+      - Sync
+      security:
+      - apiKeyAuth: []
+      - bearerAuth: []
+      responses:
+        '202':
+          description: sync queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - status
+                - message
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    example: pending
+                  syncable_type:
+                    type: string
+                    nullable: true
+                  syncable_id:
+                    type: string
+                    format: uuid
+                    nullable: true
+                  syncing_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  completed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  window_start_date:
+                    type: string
+                    format: date
+                    nullable: true
+                  window_end_date:
+                    type: string
+                    format: date
+                    nullable: true
+                  message:
+                    type: string
+                    example: Sync has been queued and will apply all active rules
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '403':
+          description: insufficient scope
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/usage":
+    get:
+      summary: Retrieve API usage and rate limit info
+      description: >
+        Returns rate limit status and usage information for the current API key.
+        For OAuth authentication, returns a brief message indicating that detailed
+        usage tracking is only available for API key authentication.
+        Requires read scope.
+      tags:
+      - Usage
+      security:
+      - apiKeyAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: usage information returned
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  description: Response when authenticated with an API key
+                  required:
+                  - api_key
+                  - rate_limit
+                  properties:
+                    api_key:
+                      type: object
+                      required:
+                      - name
+                      - scopes
+                      - created_at
+                      properties:
+                        name:
+                          type: string
+                        scopes:
+                          type: array
+                          items:
+                            type: string
+                        last_used_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                    rate_limit:
+                      type: object
+                      required:
+                      - tier
+                      - limit
+                      - current_count
+                      - remaining
+                      - reset_in_seconds
+                      - reset_at
+                      properties:
+                        tier:
+                          type: string
+                          enum:
+                          - standard
+                          - premium
+                          - enterprise
+                        limit:
+                          type: integer
+                          description: Maximum requests allowed per hour
+                        current_count:
+                          type: integer
+                          description: Requests made in the current hour window
+                        remaining:
+                          type: integer
+                          description: Requests remaining in the current window
+                        reset_in_seconds:
+                          type: integer
+                          description: Seconds until the rate limit window resets
+                        reset_at:
+                          type: string
+                          format: date-time
+                          description: Timestamp when the rate limit window resets
+                - type: object
+                  description: Response when authenticated with OAuth
+                  required:
+                  - authentication_method
+                  - message
+                  properties:
+                    authentication_method:
+                      type: string
+                      example: oauth
+                    message:
+                      type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '403':
+          description: insufficient scope
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
   "/api/v1/syncs":
     get:
       summary: Lists sync history
@@ -6817,6 +7046,7 @@ paths:
       - Syncs
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6858,6 +7088,7 @@ paths:
       - Syncs
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: latest sync shown
@@ -6892,6 +7123,7 @@ paths:
       - Syncs
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: sync shown
@@ -6924,6 +7156,7 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: tags listed
@@ -6937,6 +7170,7 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -6986,6 +7220,7 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: tag retrieved
@@ -7005,6 +7240,7 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -7039,6 +7275,7 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '204':
           description: tag deleted
@@ -7051,6 +7288,7 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -7117,6 +7355,7 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -7232,6 +7471,7 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: trade retrieved
@@ -7257,6 +7497,7 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -7331,6 +7572,7 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: trade deleted
@@ -7363,6 +7605,7 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       description: Returns global ledger history for accessible accounts, including
         disabled accounts but excluding accounts pending deletion.
       parameters:
@@ -7482,6 +7725,7 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -7595,6 +7839,7 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: transaction retrieved
@@ -7614,6 +7859,7 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -7679,6 +7925,7 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: transaction deleted
@@ -7699,6 +7946,7 @@ paths:
       - Transfers
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -7781,6 +8029,7 @@ paths:
       - Transfers
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: transfer retrieved
@@ -7817,6 +8066,7 @@ paths:
         only; reset status is family-scoped, not job-scoped. Requires admin role.
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: account reset initiated
@@ -7853,6 +8103,7 @@ paths:
         if new data is created after reset.
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: reset status returned
@@ -7881,6 +8132,7 @@ paths:
         data. This action cannot be undone.
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: account deleted
@@ -7905,6 +8157,7 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -7964,6 +8217,7 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -8046,6 +8300,7 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: valuation retrieved
@@ -8065,6 +8320,7 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -8115,6 +8371,7 @@ paths:
       - Insights
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: insights retrieved
@@ -8138,6 +8395,7 @@ paths:
       - Push Subscriptions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -8195,6 +8453,7 @@ paths:
       - Push Subscriptions
       security:
       - apiKeyAuth: []
+      - bearerAuth: []
       responses:
         '204':
           description: push subscription removed
