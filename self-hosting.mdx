@@ -715,6 +715,44 @@ The minimum accepted value is 1 second. If both the environment variable and the
 The Sidekiq health banner, system health page, and AI status tab are only available in self-hosted mode. Managed deployments do not show these features.
 </Note>
 
+## Running Sure on small (512 MB) hosts
+
+Sure runs comfortably on hosts or containers limited to 512 MB of RAM, which makes it a good fit for the smallest tiers on platforms like Render, Fly.io, or a cheap VPS.
+
+### What fits in 512 MB
+
+Measured on a production deploy of the official image with the tuning below:
+
+- Boot, first-run onboarding, and everyday use (dashboard, transactions, budgets, reports)
+- Small bank syncs and CSV imports
+- Scheduled cron jobs such as exchange-rate refreshes
+
+Steady-state memory sits around 352 MB, leaving comfortable headroom under a 512 MB limit.
+
+### What does not fit in 512 MB
+
+- **The demo-data generator** ("Load sample/demo data"): this is the one operation that deterministically exceeds 512 MB. On a 512 MB container it climbs to the limit and gets OOM-killed mid-generation. Because the generation runs in the worker, the symptom is a sample-data load that never completes, sometimes with all rows silently rolled back.
+- **Very large first-time imports or historical syncs** (tens of thousands of rows) can also exceed the limit. Import your history in smaller batches, or temporarily raise the memory limit for the initial import and lower it afterwards.
+- **AI features**: the assistant needs extra headroom. If you enable AI, run at least 1 GB.
+
+### Tuning already in the image
+
+The official image ships with the memory tuning that makes 512 MB viable, so no extra configuration is needed:
+
+- **jemalloc** preloaded to reduce memory fragmentation
+- **YJIT** (Ruby's JIT) enabled
+- **Puma constrained to 1 worker × 3 threads** (`WEB_CONCURRENCY=1`, `RAILS_MAX_THREADS=3`)
+
+If you run your own process supervisor instead of the official image, set those same values.
+
+### Loading sample data on a small host
+
+If you want to load sample data on a 512 MB host:
+
+1. Raise the **worker's** memory limit. The generator runs in the worker process, not the web process. On Render, bump the worker service's plan; on Docker Compose, raise the worker container's memory limit.
+2. Apply the change with a **fresh deploy or restart of the worker**. On Render, plan changes only take effect on the next deploy and do not apply on a plain restart.
+3. Load the sample data, then optionally lower the worker back to the smaller plan with another fresh deploy.
+
 ## Troubleshooting
 
 ### Database connection errors
