@@ -159,12 +159,13 @@ Gemini provides an OpenAI-compatible endpoint that works with a Gemini API key f
 ```bash
 OPENAI_ACCESS_TOKEN=your-gemini-api-key
 OPENAI_URI_BASE=https://generativelanguage.googleapis.com/v1beta/openai/
-OPENAI_MODEL=gemini-3.6-flash
+OPENAI_MODEL=gemini-2.5-flash
 ```
 
 Recommended models:
 
-- `gemini-3.6-flash` - Fast and capable
+- `gemini-2.5-flash` - Fast and capable
+- `gemini-2.5-pro` - Higher quality, more thorough responses
 
 ### OpenRouter
 
@@ -218,10 +219,6 @@ ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
 | `ANTHROPIC_BASE_URL` | Custom endpoint URL (Bedrock, Vertex, or other proxy). Leave blank for `api.anthropic.com` | — |
 | `ANTHROPIC_REQUEST_TIMEOUT` | HTTP timeout in seconds | `600` |
 | `ANTHROPIC_MAX_TOKENS` | Maximum tokens returned by the model on each chat turn | `4096` |
-
-<Note>
-  This first release of the Anthropic provider supports **chat only** (text, streaming, and tool use). Auto-categorization, merchant detection, PDF processing, and RAG features still require the OpenAI provider — calling them while `LLM_PROVIDER=anthropic` raises a clear "not yet implemented" error. Native Anthropic support for these features is being added in follow-up releases.
-</Note>
 
 ### Batch operations
 
