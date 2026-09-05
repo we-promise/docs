@@ -209,6 +209,26 @@ The occurrence drawer shows:
 
 All labels and feedback messages in the occurrence drawer — including the due label states, payment summaries, and action confirmations — are displayed in your configured display language (set under **Settings → Preferences → Language**).
 
+### Recording payments
+
+From the bill detail drawer you can apply a payment to the current occurrence in several ways:
+
+- **Link a transaction** — select an existing transaction from your accounts to record as the payment. If the transaction is in a different currency, the app converts at the exchange rate for that transaction's date.
+- **Manual payment** — enter an amount and date directly, with no transaction linked.
+- **Partial payment** — enter a custom amount less than the full due amount to record a partial payment. You can add more payments until the occurrence is fully covered.
+
+When the app cannot record a payment it shows an error message. Common reasons:
+
+- **Over-allocation** — the amount you entered would exceed the total of the linked transaction.
+- **Missing exchange rate** — the transaction is in a different currency and no exchange rate is available for that date. Enter the amount explicitly to work around this.
+- **Already applied** — the transaction has already been applied to this bill.
+
+To remove a payment, use the unlink action in the payment history section of the drawer.
+
+**Suggested payments** — the matching engine may automatically suggest a transaction for an open occurrence. You can confirm the suggestion to apply it or dismiss it. Dismissing a suggestion marks that transaction so it will not be suggested for the same bill again.
+
+All payment feedback messages — confirmations and errors — appear in your configured display language.
+
 ### Paycheck planner
 
 The paycheck planner slices your upcoming bills across the pay periods defined by your declared income. Only manually declared income series (bill type `income`, set to manual) define pay periods; automatically detected inflows do not.
