@@ -722,6 +722,23 @@ OPENAI_REQUEST_TIMEOUT=120   # raise for slow local models
 
 The minimum accepted value is 1 second. If both the environment variable and the UI setting are present, the environment variable wins.
 
+### AI response timeout
+
+The response timeout is a whole-turn watchdog for chat. It bounds how long Sure waits for a complete assistant turn — including all tool calls and their results — before giving up. The default is 90 seconds.
+
+Size this as a sum of the per-call request timeout across the maximum number of tool-call iterations, plus tool execution and queue wait time: `(1 + ASSISTANT_MAX_TOOL_CALL_ITERATIONS) × OPENAI_REQUEST_TIMEOUT`. The 90-second default is sized for typical cloud model latency. For local models where each request is slow, either raise this value or lower `ASSISTANT_MAX_TOOL_CALL_ITERATIONS`.
+
+You can configure the timeout in two ways:
+
+- **Environment variable** — set `AI_RESPONSE_TIMEOUT` to a number of seconds. This takes precedence over the UI setting.
+- **Settings UI** — go to **Settings > Self-Hosting** and enter a value in the **Response Timeout in Seconds** field under the OpenAI section.
+
+```txt
+AI_RESPONSE_TIMEOUT=180   # raise for slow local models with multiple tool calls
+```
+
+The minimum accepted value is 30 seconds. If both the environment variable and the UI setting are present, the environment variable wins.
+
 ### Extra HTTP headers for OpenAI-compatible requests
 
 `OPENAI_EXTRA_HEADERS` lets you attach custom HTTP headers to every request Sure sends to the OpenAI-compatible endpoint. This is useful for AI gateways that require routing or authentication headers — for example, sending a session identifier to a proxy that tracks usage per conversation.
