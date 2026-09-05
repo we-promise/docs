@@ -92,6 +92,8 @@ To create a transfer:
 
 Sure automatically creates both the outflow and inflow transactions and links them together.
 
+The From and To selectors only show active accounts. Disabled accounts are not available when creating a transfer.
+
 ## Automatic Transfer Matching
 
 When you sync accounts with a provider (Plaid, SimpleFIN, etc.), Sure attempts to automatically match transfers between accounts.
@@ -221,9 +223,15 @@ If you see both a transfer and separate expense/income transactions:
 - Confirm or reject the transfer suggestion
 - Delete duplicate transactions if needed
 
+### Duplicate transfer from double-submit
+
+If you submit the transfer form twice in quick succession (double-click, browser retry, or two simultaneous requests), Sure creates only one transfer. A per-form idempotency key is generated when the form loads and sent with each submission. The first request to reach the database wins; any subsequent request with the same key returns the already-created transfer instead of inserting a duplicate.
+
+If a transfer is rejected or deleted after creation, the idempotency key is cleared from its entries so a later retry creates a fresh transfer rather than returning an error.
+
 ### Transfer matching stops mid-sync
 
-When two account syncs run at the same time, a race condition could previously cause transfer matching to stop processing remaining candidates after a conflict. This is now resolved — each candidate is matched in its own isolated savepoint, so a conflict on one pair no longer affects the others.
+When two account syncs run at the same time, each transfer candidate is matched in its own isolated savepoint. A conflict on one pair no longer affects the others, so all remaining candidates continue to be processed.
 
 ### Unmatched Transfers
 
@@ -231,10 +239,6 @@ If Sure didn't automatically match a transfer:
 - The amounts may not match exactly (due to fees or timing)
 - The dates may be too far apart
 - You can manually create a transfer to link them
-
-### Concurrent syncs dropping transfer matches
-
-If two account syncs run at the same time for the same family, Sure may occasionally skip a transfer candidate due to a database uniqueness conflict. The skipped candidate is not matched, but the sync continues and matches all remaining candidates. If you notice a transfer that wasn't auto-matched after a sync, confirm it manually from the transaction detail view.
 
 ### Wrong Transfer Type
 
