@@ -22,6 +22,7 @@ Wise integration connects your Wise multi-currency account to Sure using a perso
 4. In Sure, go to **Settings > Providers**, find the **Wise** panel, and paste the token
 5. If the token has access to more than one profile (for example, a personal and a business profile), select which ones to connect — Sure creates a separate connection for each
 6. Open **Set Up Accounts** on the new connection and link each currency balance to a Sure account
+7. To enable full transaction history including incoming payments, complete the [SCA setup](#strong-customer-authentication-sca) below
 
 <Note>
 For testing, Wise provides a sandbox environment at `https://api.wise-sandbox.com` (the V2 sandbox host; the legacy `api.sandbox.transferwise.tech` URL was retired). Set `WISE_BASE_URL` in your Sure environment to point at it instead of the default live API (`https://api.wise.com`).
@@ -37,7 +38,8 @@ For testing, Wise provides a sandbox environment at `https://api.wise-sandbox.co
 
 ### Transaction syncing
 
-- The first sync imports 90 days of transfer history (or history from a sync start date you configure); later syncs use a 7-day lookback from the last successful sync. Statement-based history is only available for Wise accounts registered in a country the Wise API supports for statement retrieval (currently the US, Canada, Australia, New Zealand, Singapore, and Malaysia) — other accounts sync balances and Jar activity but won't get transfer history
+- The first sync imports history from the date you configure (or 365 days by default); later syncs use a 7-day lookback from the last successful sync
+- Transactions are fetched from the Wise balance-statement endpoint, which covers both incoming and outgoing payments. The statement endpoint requires [SCA](#strong-customer-authentication-sca) — without it, Sure falls back to the outgoing-only transfers endpoint, so incoming payments will be missing until SCA is configured
 - Transfers are matched to their linked balance by Wise balance ID, so Jars that share the same currency are still tracked as separate accounts
 - Cross-currency incoming transfers use the amount actually received, not the amount sent
 - When a same-currency transfer includes a fee, the fee is imported as a separate "Wise fee" transaction
@@ -52,11 +54,34 @@ For testing, Wise provides a sandbox environment at `https://api.wise-sandbox.co
 
 If your Wise account has both personal and business profiles, you can connect several profiles from the same token at once. Each profile is a separate connection that can be synced, updated, or disconnected independently.
 
+## Strong Customer Authentication (SCA)
+
+Wise requires Strong Customer Authentication on the balance-statement endpoint. SCA uses an RSA keypair: Sure signs a one-time challenge with the private key, and Wise verifies it against the public key you register in your Wise account. Without SCA, the statement endpoint returns 403 and Sure falls back to the outgoing-only transfers endpoint, so incoming payments will not appear.
+
+### Enabling SCA
+
+1. In Sure, go to **Settings > Providers** and open the Wise panel for the connection
+2. Click **Generate SCA keypair** — Sure creates a 2048-bit RSA keypair and stores the private key encrypted at rest
+3. Copy the public key that appears in the panel
+4. In Wise, go to **Your Account → Connect and manage apps → API tokens → Public keys** and paste the public key
+5. Run a sync — the statement endpoint should now succeed and incoming payments will be imported
+
+<Warning>
+Generating a new keypair does not automatically revoke the previous public key in Wise. If you regenerate the keypair in Sure (for example, after a key rotation), remove the old public key from Wise manually and register the new one.
+</Warning>
+
+### Troubleshooting SCA
+
+**Incoming payments are missing**: SCA is not yet configured or the public key has not been registered with Wise. Follow the steps above.
+
+**Statement fetch fails after configuring SCA**: confirm the public key in Wise matches the one shown in the Sure Wise panel. If the key was regenerated, the old public key must be removed from Wise and the new one registered.
+
 ## Limitations
 
 - Uses a Wise personal API token rather than OAuth; the token carries whatever account access you grant it in Wise
 - Wise Assets (investment) balances are not tracked as accounts — only fees charged against them are imported
 - Each discovered currency balance must be linked to a Sure account manually after the first sync; balances aren't created automatically
+- Incoming payments only sync after [SCA is configured](#strong-customer-authentication-sca)
 
 ## Troubleshooting
 
@@ -65,3 +90,5 @@ If your Wise account has both personal and business profiles, you can connect se
 **No profiles found**: the token doesn't have access to any Wise profile. Check the token's permissions in Wise and try again.
 
 **A currency balance is missing**: run a sync, then check **Set Up Accounts** on the connection — new balances only become Sure accounts once you link them.
+
+**Incoming payments are missing**: the balance-statement endpoint requires SCA. Follow the [SCA setup steps](#strong-customer-authentication-sca) to generate a keypair and register the public key with Wise.
