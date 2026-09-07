@@ -60,6 +60,8 @@ Wise requires Strong Customer Authentication on the balance-statement endpoint. 
 
 ### Enabling SCA
 
+SCA keypair generation requires Active Record encryption to be configured on your Sure instance. On cloud-hosted Sure this is always the case. On a self-hosted instance, make sure `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` are set (or that `SECRET_KEY_BASE` is present, from which Sure derives the encryption keys). Without encryption, the private key cannot be stored and the generate action will fail.
+
 1. In Sure, go to **Settings > Providers** and open the Wise panel for the connection
 2. Click **Generate SCA keypair** — Sure creates a 2048-bit RSA keypair and stores the private key encrypted at rest
 3. Copy the public key that appears in the panel
@@ -75,6 +77,8 @@ Generating a new keypair does not automatically revoke the previous public key i
 **Incoming payments are missing**: SCA is not yet configured or the public key has not been registered with Wise. Follow the steps above.
 
 **Statement fetch fails after configuring SCA**: confirm the public key in Wise matches the one shown in the Sure Wise panel. If the key was regenerated, the old public key must be removed from Wise and the new one registered.
+
+**Keypair generation fails with an encryption error**: Active Record encryption is not configured on your self-hosted instance. Set `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` in your environment (or ensure `SECRET_KEY_BASE` is set), then try again. See the [self-hosting encryption setup](/self-hosting#turning-on-active-record-encryption-after-first-boot) guide for details.
 
 ## Limitations
 
