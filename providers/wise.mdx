@@ -60,6 +60,10 @@ Wise requires Strong Customer Authentication on the balance-statement endpoint. 
 
 ### Enabling SCA
 
+<Warning>
+SCA keypair generation requires Active Record encryption to be configured. On a self-hosted instance that has not set the `ACTIVE_RECORD_ENCRYPTION_*` environment variables or a `SECRET_KEY_BASE`-derived equivalent, the **Generate SCA keypair** button will return a validation error. See [encryption keys for bank sync](/self-hosting#encryption-keys-for-bank-sync) in the self-hosting guide before proceeding.
+</Warning>
+
 1. In Sure, go to **Settings > Providers** and open the Wise panel for the connection
 2. Click **Generate SCA keypair** — Sure creates a 2048-bit RSA keypair and stores the private key encrypted at rest
 3. Copy the public key that appears in the panel
