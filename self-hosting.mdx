@@ -646,7 +646,7 @@ When the Sidekiq worker container isn't running, background jobs silently never 
 
 ### Sidekiq health banner
 
-If Sure detects that Sidekiq is not processing jobs, a warning banner appears at the top of every page for super-admins. The banner indicates that data may be stale and links to the system health page.
+If Sure detects that Sidekiq is not processing jobs, a warning banner appears above the main content area on every page for super-admins. The banner indicates that data may be stale and links to the system health page. It is positioned so it does not overlap the page header or other admin bars that may be visible at the top of the screen.
 
 The check is conservative by design:
 - A worker process is considered stale if its heartbeat is older than 2 minutes, which tolerates brief deploy restarts and Redis blips.
