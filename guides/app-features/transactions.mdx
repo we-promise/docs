@@ -68,6 +68,10 @@ This keeps the filter consistent with what the backend submits: selecting a pare
 
 If you arrive at the transaction list from a link that filters by a parent category, all subcategories are pre-checked to match the active filter.
 
+### What counts as uncategorized
+
+The Uncategorized filter, the uncategorized badge count, and the Quick Categorize wizard all use the same definition: a transaction is uncategorized when it has no category assigned and its kind is not a pure inter-account transfer leg (specifically, `funds_movement` and `cc_payment` are excluded because those legs have nothing to categorize). All other transaction kinds — including `loan_payment`, `investment_contribution`, and `one_time` — appear in the uncategorized list if they have no category. The dashboard's uncategorized aggregate uses the same set, so the count shown on the dashboard always matches what you see in the Transactions list.
+
 ### Categorize flow
 
 The categorize flow (accessible when uncategorized transactions exist) displays a category picker that groups subcategories under their parent, consistent with the rest of the app. Both the parent label and its subcategories are visible together, making it straightforward to pick the right level of detail without navigating a flat list.
