@@ -81,6 +81,18 @@ Sure serves MCP over JSON-RPC 2.0 at the URL displayed in **Settings > MCP Serve
 
 Sure authenticates each MCP request with an active OAuth access token that has the `read_write` scope. The token's resource owner determines the Sure user and family available to the tools. Sure creates a fresh transient session for that user for the request so an existing browser or impersonation session is not reused.
 
+### Dynamic client registration redirect URIs
+
+Sure registers MCP clients dynamically via `POST /register`. The `redirect_uris` field must contain at least one URI that matches one of the following schemes:
+
+- **`https`** — any HTTPS URI with a host (e.g. `https://claude.ai/callback`)
+- **Loopback HTTP** — `http://localhost`, `http://127.0.0.1`, or `http://[::1]` (any port)
+- **Native-app private-use scheme** — custom URI schemes used by desktop and mobile OAuth clients, such as `cursor://anysphere.cursor-mcp/oauth/callback`, `vscode://augment.vscode-augment/auth/mcp`, or reverse-domain schemes like `com.example.app:/oauth2redirect/example-provider`
+
+A registration request may include a mix of the above (for example, Cursor's default payload includes a `cursor://` scheme, a loopback HTTP URI, and an `https` URI in the same list). Sure validates every URI in the list; if any URI fails validation the entire registration is rejected.
+
+The following URI schemes are always rejected: `javascript`, `data`, `file`, `about`, `blob`, `ws`, `wss`, `ftp`, `mailto`, `tel`, `sms`, and `intent`. Plain HTTP to a non-loopback host is also rejected. URIs with a userinfo component or a fragment are rejected regardless of scheme.
+
 ### Protocol version and transport
 
 Sure supports protocol versions `2025-03-26` and `2025-06-18`. The current default is `2025-06-18`, which introduces the Streamable HTTP transport used by clients such as Bifrost v1.6.3 and later.
