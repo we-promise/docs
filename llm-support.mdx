@@ -7,6 +7,34 @@ description: "Configure AI features with local or cloud models"
   LLM usage is optional and must be explicitly configured. You can maintain full control by running local models on your own systems through Ollama, LM Studio, or similar tools. No data is sent to external services unless you configure a cloud provider.
 </Note>
 
+## Architecture: two AI pipelines
+
+Sure has two separate AI systems that operate independently. Understanding this matters because they have different configuration requirements.
+
+**Chat assistant (conversational)** — the interactive chat where users ask questions about their finances. It routes through one of two backends:
+
+- **Builtin** (default): uses the OpenAI-compatible provider configured via `OPENAI_ACCESS_TOKEN` / `OPENAI_URI_BASE` / `OPENAI_MODEL`. Calls Sure's function tools directly.
+- **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
+
+**Auto-categorization and merchant detection (background)** — background jobs that classify transactions and detect merchants. These always use the OpenAI-compatible provider (`OPENAI_ACCESS_TOKEN`), regardless of what the chat assistant uses.
+
+| Setting | Chat assistant | Auto-categorization |
+| --- | --- | --- |
+| `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Uses OpenAI provider |
+| `ASSISTANT_TYPE=external` | Uses external agent | Still uses OpenAI provider |
+
+If you use an external agent for chat, you still need `OPENAI_ACCESS_TOKEN` set for auto-categorization and merchant detection to work.
+
+## Quickstart
+
+The fastest way to enable AI features is to use OpenAI:
+
+1. Get an API key from [OpenAI](https://platform.openai.com/api-keys).
+2. Set the environment variable: `OPENAI_ACCESS_TOKEN=sk-proj-...your-key-here...`
+3. Restart Sure (both `web` and `worker` services). The AI assistant becomes available once you enable it in the UI.
+
+Sure uses `gpt-4.1` as the default model.
+
 ## Supported providers
 
 Sure supports two first-class LLM providers:
@@ -571,3 +599,82 @@ The `local-ai` profile includes:
 - **Ollama** - Local LLM inference
 - **OpenClaw** - Gateway providing enhanced AI capabilities and tool use
 - Automatic routing between Sure and the AI stack
+
+## External AI assistant
+
+Instead of using the built-in LLM, you can delegate chat to an external AI agent. The agent receives the conversation, can call back to Sure's financial data via MCP, and streams a response back.
+
+This is useful when:
+- You have a custom AI agent with domain knowledge, memory, or personality.
+- You want to use a non-OpenAI-compatible model (the agent handles translation).
+- You want to keep LLM credentials and logic entirely outside Sure.
+
+<Note>
+The external assistant handles chat only. Auto-categorization and merchant detection still use the OpenAI-compatible provider (`OPENAI_ACCESS_TOKEN`).
+</Note>
+
+### How it works
+
+1. A user sends a message in the Sure chat UI.
+2. Sure forwards the conversation to your agent's API endpoint (OpenAI chat completions format).
+3. Your agent processes it using whatever LLM, tools, or context it needs.
+4. Your agent can call Sure's `/mcp` endpoint for financial data and actions (accounts, transactions, balance sheet, budgets, file search, statement import, goals).
+5. Your agent streams the response back to Sure via Server-Sent Events (SSE).
+
+The agent's API must be OpenAI chat completions compatible: accept `POST` with a `messages` array and return SSE with `delta.content` chunks.
+
+### Configuration
+
+**Settings UI:**
+
+1. Go to **Settings → Self-Hosting**.
+2. Set **Assistant type** to "External (remote agent)".
+3. Enter the **Endpoint URL** and **API Token** from your agent provider.
+4. Optionally set an **Agent ID** if the provider hosts multiple agents.
+
+**Environment variables:**
+
+```bash
+ASSISTANT_TYPE=external                          # Global override (or set per-family in UI)
+EXTERNAL_ASSISTANT_URL=https://your-agent/v1/chat/completions
+EXTERNAL_ASSISTANT_TOKEN=your-api-token
+EXTERNAL_ASSISTANT_AGENT_ID=main                 # Optional, defaults to "main"
+EXTERNAL_ASSISTANT_SESSION_KEY=agent:main:main   # Optional, for session persistence
+EXTERNAL_ASSISTANT_ALLOWED_EMAILS=user@example.com  # Optional, comma-separated allowlist
+```
+
+When environment variables are set, the corresponding UI fields are disabled and the env values take precedence.
+
+Set `ASSISTANT_TYPE=external` to route all users to the external agent globally. Without it, routing falls back to each family's `assistant_type` setting in the UI (default: `builtin`).
+
+### MCP callback endpoint
+
+Sure exposes a Model Context Protocol (MCP) endpoint at `/mcp` so your external agent can call back and query financial data.
+
+**Authentication:** Bearer token via `Authorization` header. Sure supports both OAuth bearer tokens (via its discovery and registration endpoints) and static bearer tokens configured with `MCP_API_TOKEN` and `MCP_USER_EMAIL`.
+
+**Static-token environment variables:**
+
+```bash
+MCP_API_TOKEN=your-secret-token    # Bearer token the agent sends to authenticate
+MCP_USER_EMAIL=user@example.com    # Email of the Sure user the agent acts as
+```
+
+See [MCP server for external AI assistants](/self-hosting-mcp) for the full list of available tools and protocol details.
+
+### Access control
+
+Use `EXTERNAL_ASSISTANT_ALLOWED_EMAILS` to restrict which users can access the external assistant. When set, only users whose email is in the comma-separated list see the AI chat. When blank, all users have access.
+
+### Docker Compose example
+
+```yaml
+x-rails-env: &rails_env
+  ASSISTANT_TYPE: external
+  EXTERNAL_ASSISTANT_URL: https://your-agent/v1/chat/completions
+  EXTERNAL_ASSISTANT_TOKEN: your-api-token
+  MCP_API_TOKEN: your-mcp-token
+  MCP_USER_EMAIL: user@example.com
+```
+
+You can also configure the assistant via the Settings UI after startup; the MCP environment variables are still required for agent callbacks.
