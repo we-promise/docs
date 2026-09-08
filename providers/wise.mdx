@@ -17,7 +17,7 @@ Wise integration connects your Wise multi-currency account to Sure using a perso
 ## Setting up Wise
 
 1. Sign in to your Wise business account at [wise.com](https://wise.com) (personal API tokens are issued from business account settings, even if you're only connecting a personal profile)
-2. Go to **Your Account → Connect and manage apps → API tokens** (requires two-factor authentication on the account)
+2. Go to **Settings → Connect and manage apps → Developer tools → API tokens** (requires two-factor authentication on the account)
 3. Create a new personal API token and choose an access level: **read only** lets Sure read balances, transfers, and Jar activity; **full** additionally allows the token to authorize recipients and transfers, so prefer read-only unless you need that capability elsewhere
 4. In Sure, go to **Settings > Providers**, find the **Wise** panel, and paste the token
 5. If the token has access to more than one profile (for example, a personal and a business profile), select which ones to connect — Sure creates a separate connection for each
@@ -63,7 +63,7 @@ Wise requires Strong Customer Authentication on the balance-statement endpoint. 
 1. In Sure, go to **Settings > Providers** and open the Wise panel for the connection
 2. Click **Generate SCA keypair** — Sure creates a 2048-bit RSA keypair and stores the private key encrypted at rest
 3. Copy the public key that appears in the panel
-4. In Wise, go to **Your Account → Connect and manage apps → API tokens → Public keys** and paste the public key
+4. In Wise, go to **Settings → Connect and manage apps → Developer tools → Public keys → Add public key** and paste the public key
 5. Run a sync — the statement endpoint should now succeed and incoming payments will be imported
 
 <Warning>
