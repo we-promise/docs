@@ -55,6 +55,15 @@ Brex exposes two kinds of accounts:
 
 During account setup you choose the Sure account type (checking, savings, credit card, and so on) that matches each imported account.
 
+## Transaction classification
+
+Sure automatically classifies certain Brex card transactions when importing:
+
+- **Credit card payments**: A card account transaction with type `COLLECTION` and a negative amount is classified as a credit card payment transfer (`cc_payment`). This covers the payment from your bank to your Brex card.
+- **Refunds and credits**: A `COLLECTION` transaction with a positive amount (money returned to the card) is imported as a regular transaction, not a credit card payment.
+
+This means refunds and statement credits appear in your transaction list rather than being treated as payments, so they show up correctly in budgets and reports.
+
 ## Troubleshooting
 
 ### Invalid API token
