@@ -1,0 +1,65 @@
+---
+title: Akahu
+description: Connect New Zealand bank accounts to Sure via Akahu
+---
+
+Akahu is a New Zealand open banking platform. Sure connects to it using your personal app token and user token, syncing bank and investment account balances and transactions automatically.
+
+<Note>
+  Akahu support is in beta. Functionality is working but may have rough edges. Report issues in the [Discord](https://discord.gg/36ZGBsxYEK).
+</Note>
+
+## How it works
+
+1. Create an Akahu account and register a personal app to get your app token and user token
+2. Paste both tokens into Sure
+3. Sure discovers your Akahu accounts and begins syncing balances and transactions
+4. Choose how each discovered account should appear in Sure (Cash, Credit Card, Investment, or Loan)
+
+## Prerequisites
+
+- An [Akahu](https://akahu.nz/) account connected to your New Zealand bank accounts
+- A personal app token and user token from the Akahu developer portal
+
+## Setting up Akahu
+
+### Get your tokens
+
+1. Sign in to the [Akahu developer portal](https://developers.akahu.nz/)
+2. Create a personal app — give it a name and description
+3. Copy your **app token** (used to identify your application)
+4. Follow the Akahu authorization flow to get your **user token** (grants access to your accounts)
+
+### Connect Akahu in Sure
+
+1. In Sure, go to **Settings > Bank sync**
+2. Find the **Akahu** panel and enter your app token and user token
+3. Click **Save** — Sure initiates a first sync to discover your accounts
+4. Go to the **Accounts** tab and run account setup to choose how each Akahu account should appear
+
+### Link discovered accounts
+
+After the first sync, Sure shows all accounts returned by Akahu but not yet linked. For each one:
+
+1. Choose an account type: **Cash**, **Credit Card**, **Investment**, or **Loan** — or skip accounts you do not want to track
+2. Click **Create accounts** to create the selected accounts and begin syncing them
+
+You can also link a discovered Akahu account to an existing Sure account if you already track that account manually.
+
+## Supported account types
+
+Akahu can return bank accounts, savings accounts, investment accounts, and credit cards. You choose how each one maps to a Sure account type during setup.
+
+## Syncing
+
+Sure syncs Akahu accounts on demand. Trigger a sync from the account card or provider panel at any time. Transactions include date, amount, and description, plus optional reference, particulars, and code fields when your bank provides them.
+
+## Troubleshooting
+
+**Connection shows "requires update"**: Your user token may have expired or been revoked. Re-enter the token in **Settings > Bank sync > Akahu**.
+
+**Accounts not appearing after setup**: Trigger a manual sync from the Akahu provider panel. If accounts still do not appear, confirm your tokens are valid and that the accounts are visible in the Akahu portal.
+
+**Transactions missing**: Akahu transactions are fetched using cursor-based pagination. A first sync retrieves recent history. Older history may not be available depending on your bank's data retention.
+
+For Akahu API documentation, see [developers.akahu.nz](https://developers.akahu.nz/).
