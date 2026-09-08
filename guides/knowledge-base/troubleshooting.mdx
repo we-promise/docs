@@ -393,6 +393,22 @@ Split transaction grouping now applies consistently to both the Transactions pag
 
 Transactions marked as excluded were previously hidden from the account activity feed entirely. This made it impossible to re-include them because there was no row to click. Excluded transactions now appear greyed-out in the account activity list so you can still open them and toggle exclusion off if needed.
 
+## Rule creation from modal fails with "must have at least one action"
+
+When creating a rule from the rule creation modal, saving the form could fail with a validation error saying the rule must have at least one action — even though you had added one. The re-rendered form also lost any dynamically added action or condition rows.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The rule form uses dynamically generated keys to identify newly added action and condition rows before they are persisted. A previous change introduced string keys of the form `new_1`, `new_2` for these rows. Rails strong parameters only treat integer-keyed hashes as nested attributes — it checks that the key matches `/\A-?\d+\z/` — so string keys were silently dropped before the record was saved. The result was a rule with no actions, which failed validation.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The key generator now produces numeric-only keys by combining the current timestamp with a per-session sequence counter (`Date.now() * 1000 + seq`). This avoids collisions with the numeric indexes Rails assigns to already-persisted rows on edit forms, and ensures all dynamically added rows pass Rails' nested-attribute check.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Import fails on rules with no name or deleted rejected transfers
 
 Importing an `all.ndjson` export could fail with two unrelated errors:
