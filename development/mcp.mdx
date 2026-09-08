@@ -72,6 +72,13 @@ These tools appear only when the MCP user has opted into preview features under 
 | `record_valuation` | Record an account's value on a date, with a required source citation |
 | `get_valuations` | List recorded valuations newest first, including the citation stored in each entry's notes; the read pair for `record_valuation` |
 | `get_insights` | Read the proactive insights feed (spending anomalies, cash-flow warnings, subscription audits, and more) without marking anything read |
+| `get_bills` | List bills, subscriptions, and other recurring obligations with each one's current payment state; supports filtering by status, payment state, bill type, due date window, and name search |
+| `get_bill_details` | One bill's full configuration, open occurrences, payment history, price-change history, and cost analytics; pass the exact `bill_id` returned by `get_bills` |
+| `get_paycheck_plan` | Income plan sliced into pay periods: what is due before the next payday, what stays reserved for later bills, and what is safe to spend; requires at least one declared income schedule |
+| `get_bill_audit` | Deterministic review of bills: possible duplicates, price changes, trials about to convert, upcoming renewals, long-overdue bills, dormant bills, and undeclared recurring patterns |
+| `create_bill` | Create a bill, subscription, installment plan, or income schedule; confirm key details with the user before calling |
+| `update_bill` | Update one bill's configuration; amount changes apply from today forward and status accepts `active` or `paused` |
+| `record_bill_payment` | Record a partial or full payment against a bill's open occurrence |
 
 These tools are designed for agents that maintain a document-backed record of a family's wealth over time.
 
