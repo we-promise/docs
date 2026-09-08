@@ -38,7 +38,7 @@ The setup token is a base64-encoded claim URL. When you provide it to Sure:
 
 - **Account listing**: View all connected accounts with current balances
 - **Transaction history**: Import transactions with date range filtering
-- **Pending transactions**: Optional support for pending transactions (varies by institution)
+- **Pending transactions**: Included by default. Not all institutions return pending transactions even when requested — this is a limitation of the institution's data feed.
 - **Multiple accounts**: Connect multiple bank accounts from different institutions
 - **Localized status messages**: Sync status summaries (such as "2 accounts synced" or "1 account needs setup") display in your chosen language
 
@@ -48,9 +48,24 @@ When syncing transactions, you can specify:
 
 - **Start date**: Fetch transactions from this date forward
 - **End date**: Fetch transactions up to this date
-- **Pending flag**: Include or exclude pending transactions
 
 SimpleFIN expects Unix timestamps for date parameters.
+
+### Pending transaction inclusion
+
+Pending transactions are included by default. Sure resolves whether to request them in this order:
+
+1. An explicit argument passed internally by the sync flow
+2. The `SIMPLEFIN_INCLUDE_PENDING` environment variable (`1` = include, `0` = exclude)
+3. The shared **Include pending transactions** setting under **Settings → Self-Hosting**
+
+The setting and the environment variable both default to `1` (on). To disable pending transactions globally, set:
+
+```txt
+SIMPLEFIN_INCLUDE_PENDING=0
+```
+
+Note that sending `pending=0` to the SimpleFIN API is not the same as omitting the parameter. The low-level client only adds `pending=1` when inclusion is enabled and omits the parameter otherwise, because some bridges treat the parameter's presence — regardless of value — as a request to include pending.
 
 ### Reliability features
 
@@ -104,9 +119,9 @@ If a credit card or loan balance looks wrong after syncing:
 
 ### Duplicate accounts with the same name
 
-If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure's sync logic previously could confuse them — the unlinked account would silently steal the linked account's connection, merge in its transactions, and overwrite its balance on every sync.
+If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. Only accounts whose ID is genuinely absent from the upstream response are treated as stale and eligible for re-linking. Ambiguous cases where multiple local accounts share a name are skipped rather than resolved automatically, preventing one account from silently inheriting another's transaction history.
 
-This has been fixed. Sure now tracks each account by its upstream account ID rather than by display name alone. Ambiguous same-name matches are skipped rather than resolved incorrectly. If you were affected, re-syncing after upgrading to the fixed version will restore the correct linkage.
+If you notice an account that appears to have lost its transaction history after a sync, check **Settings → Debug** for any skipped stale-linkage repair entries that may indicate an ambiguous name match.
 
 ### Setup token issues
 
@@ -118,19 +133,11 @@ If you receive a 403 error when claiming a setup token:
 
 Generate a new setup token from your SimpleFIN dashboard.
 
-### Duplicate accounts with the same name
-
-If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. Previously, a stale-linkage repair could incorrectly reassign one account's connection to the other. This is now resolved — each account is matched by its unique upstream ID, not just its name.
-
-If you notice an account that appears to have lost its transaction history after a sync, check **Settings → Debug** for any skipped stale-linkage repair entries that may indicate an ambiguous name match.
-
 ### Missing pending transactions
 
-Some institutions don't return pending transactions even when the `pending=1` parameter is set. This is a limitation of the institution's data feed, not a bug in SimpleFIN or Sure.
+Pending transactions are requested by default. Some institutions don't return them even when `pending=1` is sent. This is a limitation of the institution's data feed, not a bug in SimpleFIN or Sure.
 
-### Duplicate accounts with the same name
-
-If you have two distinct accounts at the same institution that share a display name (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. Only accounts whose ID is genuinely absent from the upstream response are treated as stale and eligible for re-linking. Ambiguous cases where multiple local accounts share a name are skipped rather than resolved automatically, preventing one account from silently inheriting another's transaction history.
+If you want to disable pending transactions entirely, set `SIMPLEFIN_INCLUDE_PENDING=0` in your environment or turn off **Include pending transactions** under **Settings → Self-Hosting**.
 
 ### Network errors
 
