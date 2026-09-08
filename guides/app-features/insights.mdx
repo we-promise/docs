@@ -13,7 +13,7 @@ Insights appear in the dashboard feed.
 
 | Type | What it flags |
 |---|---|
-| `spending_anomaly` | A category's projected month-end spend is 25 %+ above the three-month baseline |
+| `spending_anomaly` | A category's projected month-end spend deviates 25 %+ from the three-month average baseline (above or below). Projection uses the full calendar month length, not just elapsed days, so an on-pace category is never flagged as a shortfall. Only fires after 7 days into the month. |
 | `cash_flow_warning` | Projected cash balance may drop below a safe threshold within the next 30 days |
 | `net_worth_milestone` | Net worth has crossed a round-number milestone within the last 30 days |
 | `subscription_audit` | A recurring transaction has not appeared since its expected due date, by at least one full billing cycle |
