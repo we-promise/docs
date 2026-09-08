@@ -1,0 +1,72 @@
+---
+title: Questrade
+description: Connect your Questrade investment accounts to Sure
+---
+
+Questrade is a Canadian online brokerage. Sure connects to it directly using a personal API refresh token, syncing your investment account balances, holdings, and trading activity.
+
+<Note>
+  Questrade support is in beta. Functionality is working but may have rough edges. Report issues in the [Discord](https://discord.gg/36ZGBsxYEK).
+</Note>
+
+## How it works
+
+1. Generate a personal API refresh token from the Questrade desktop portal
+2. Paste the token into Sure
+3. Sure discovers your Questrade accounts and begins syncing balances, holdings, and activities
+4. Choose how each discovered account should appear in Sure
+
+## Prerequisites
+
+- A [Questrade](https://my.questrade.com) account with IQ API access enabled
+- A personal API refresh token generated from the Questrade portal (desktop only — the mobile app does not have API settings)
+
+## Setting up Questrade
+
+### Get your refresh token
+
+The Questrade IQ API settings are only available on a desktop browser.
+
+1. Sign in to the [Questrade portal](https://my.questrade.com) on a desktop browser
+2. Open **Settings** and find **General settings**, then edit **IQ API settings**
+3. In the API access modal, click **Manage** under **My applications**
+4. Register a personal app with a name and description, then save
+5. Add a new device and generate a token
+6. Copy the generated refresh token
+
+### Connect Questrade in Sure
+
+1. In Sure, go to **Settings > Bank sync**
+2. Find the **Questrade** panel and paste your refresh token
+3. Click **Save** — Sure initiates a first sync to discover your accounts
+4. Go to the **Accounts** tab and run account setup to choose how each Questrade account should appear
+
+### Set up discovered accounts
+
+After the first sync, choose how each Questrade account maps to a Sure account type:
+
+- **Investment** (brokerage, RRSP, TFSA, RESP, and other registered accounts)
+- **Loan** (margin accounts)
+- **Skip** accounts you do not want to track
+
+You can also choose how far back to sync transaction history during initial setup.
+
+## Token refresh
+
+Questrade refresh tokens renew automatically each time your accounts sync. If a connection sits unused for more than 7 days, the token may go stale. Paste a new refresh token into the Questrade panel in **Settings > Bank sync** to reconnect without losing your linked accounts.
+
+## Supported data
+
+- Account balances
+- Holdings (positions and quantities)
+- Trade activities (buys, sells, dividends, and other transactions)
+
+## Troubleshooting
+
+**Connection shows "requires update"**: The refresh token has expired or been revoked. Generate a new token from the Questrade portal and paste it into **Settings > Bank sync > Questrade**.
+
+**Accounts not appearing after setup**: Trigger a manual sync from the Questrade provider panel. If accounts still do not appear, confirm that your token is valid and that the accounts are visible in the Questrade portal.
+
+**Activities missing**: Make sure you selected a sufficient history range during account setup. You can adjust the sync start date per account if needed.
+
+For Questrade API documentation, see the [Questrade IQ Edge API docs](https://www.questrade.com/api/documentation/getting-started).
