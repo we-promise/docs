@@ -68,6 +68,8 @@ This keeps the filter consistent with what the backend submits: selecting a pare
 
 If you arrive at the transaction list from a link that filters by a parent category, all subcategories are pre-checked to match the active filter.
 
+The category filter includes an **Uncategorized** option that matches transactions with no category assigned. The merchant filter includes a **No merchant** option that matches transactions with no merchant assigned. The tag filter includes an **Untagged** option that matches transactions with no tags applied. Each of these options can be combined with real category, merchant, or tag selections in the same filter.
+
 ### Categorize flow
 
 The categorize flow (accessible when uncategorized transactions exist) displays a category picker that groups subcategories under their parent, consistent with the rest of the app. Both the parent label and its subcategories are visible together, making it straightforward to pick the right level of detail without navigating a flat list.
