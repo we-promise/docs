@@ -1,0 +1,76 @@
+---
+title: Trading 212
+description: Connect a Trading 212 investment account via API key
+---
+
+Trading 212 is a European investment platform for stocks, ETFs, and fractional shares. Sure connects to Trading 212 using a read-only API key and imports your portfolio positions, order history, dividends, and cash transactions.
+
+## What gets imported
+
+Sure imports one investment account per Trading 212 connection, containing:
+
+- Current positions with prices and quantities
+- Full order history (buys and sells)
+- Dividends
+- Cash transactions (deposits, withdrawals, interest, fees)
+
+## Setting up Trading 212
+
+### Step 1: Generate a Trading 212 API key
+
+1. Open the Trading 212 web app or mobile app.
+2. Go to **Settings → API**.
+3. Generate a new API key. Trading 212 shows you an **API ID** and a **Secret Key**.
+4. Copy both values — the Secret Key is only shown once.
+
+### Step 2: Add the connection in Sure
+
+1. In Sure, go to **Settings → Providers**.
+2. Find the **Trading 212** section and expand it.
+3. Paste your **API ID** and **Secret Key** into the corresponding fields.
+4. Select your **environment** (Live account or Demo account).
+5. Select your **account currency**.
+6. Click **Save Configuration**.
+
+Sure begins syncing your Trading 212 account automatically after saving.
+
+### Step 3: Set up your account
+
+After the first sync, your Trading 212 account appears in the setup queue. Click **Set up accounts** in the Trading 212 panel to link the discovered account to a Sure account.
+
+If you already have a manual investment account in Sure, you can link the discovered Trading 212 account to it instead of creating a new one.
+
+## Environments
+
+Trading 212 offers two environments:
+
+| Environment | Description |
+|---|---|
+| Live account | Your real Trading 212 investment account |
+| Demo account | The Trading 212 practice account with virtual funds |
+
+Select the environment that matches the API key you generated.
+
+## Syncing
+
+Sure syncs your Trading 212 account on the same schedule as other connected providers. You can also trigger a manual sync by clicking **Sync** in the Trading 212 panel under **Settings → Providers**.
+
+## Troubleshooting
+
+### API key needs attention
+
+Your API key may have been revoked or the credentials may no longer be valid. Generate a new API key from Trading 212 and update the connection in **Settings → Providers → Trading 212**.
+
+### No account discovered yet
+
+After saving your API key, Sure needs to run an initial sync to discover your account. Click **Sync** from the Trading 212 panel and wait for it to complete, then click **Set up accounts**.
+
+### Account needs setup
+
+A sync discovered your Trading 212 account, but it has not been linked to a Sure account yet. Click **Set up accounts** from the Trading 212 panel and complete the account setup.
+
+## Limitations
+
+- **Single connection per family**: Sure supports one Trading 212 connection per family account.
+- **Investment accounts only**: Trading 212 is an investment platform. Sure imports your portfolio and associated cash movements — it is not a general banking connection.
+- **Read-only access**: Sure uses only read permissions. No trades or account changes can be made through Sure.
