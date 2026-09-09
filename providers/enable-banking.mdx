@@ -125,6 +125,8 @@ See [transfers](/guides/key-concepts/transfers) for more details on how transfer
 
 For banks that return remittance information as a multi-line array (common with Austrian and German banks such as BankDirekt/Raiffeisen), Sure automatically selects the most descriptive line as the transaction name. Technical terminal descriptor lines — such as `POS 45,13 AT D6 31.07. 10:27` — are skipped in favour of the actual merchant name.
 
+Sure strips payment wallet prefixes (Apple Pay, Google Pay, Samsung Pay) from remittance lines before reading the payee name. Some banks prepend the wallet used to make a payment — for example, `Apple Pay: Coffee Shop Name` — onto the transaction descriptor. Stripping the wallet prefix ensures the real merchant name is used for matching and display, so a purchase from Apple's own store does not cause all subsequent wallet-paid transactions to be labelled as Apple purchases.
+
 Sure also strips known small-merchant payment-processor prefixes (SumUp, Square, iZettle, PayPal) from the selected line, and matches the transaction against your family's known merchants for a cleaner display name.
 
 ### Duplicate transaction handling
