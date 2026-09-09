@@ -335,7 +335,8 @@ The spending trend chart shows cumulative daily expenses for a selected month pl
 - Use the month picker to review any of the last 12 months.
 - The x-axis always spans the selected month's days. If the previous month was longer, its curve's extra days are folded into the final visible point, so the endpoint matches the full-month total shown in the header.
 - The current month's curve stops at today while the month is in progress.
-- The previous month's legend label shows the actual month name (for example, "August 2026") so it is clear which period you are comparing against.
+- The header totals and the signed delta compare the same number of elapsed days in both months, so the figure is always apples-to-apples. While the selected month is still in progress, the previous-month label names the day range being compared (for example, "Aug 1–8") rather than implying a full month. Once the selected month is complete, both months are compared in full.
+- The previous month's chart curve still draws the full month so you can see the complete reference shape.
 - On mobile, the x-axis shows tick labels for the selected month only and the header shows a compact date range (for example, "Sep 01 - 6, 2026") so the chart stays readable on narrow screens.
 - The chart uses the same transaction scoping as the Reports page: pending transactions, manually excluded transactions, tax-advantaged account activity, and investment portfolio movements (Transfers, Sweeps, Exchanges) are all excluded, so the totals always agree with what you see in Reports.
 

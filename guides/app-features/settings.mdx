@@ -166,7 +166,7 @@ The dashboard includes a **Spending** widget that shows your cumulative daily sp
 The widget displays:
 - Your current month's running total (in green) with a marker at today's date
 - The previous month's spending curve (in gray) labeled with the actual month name (for example, "August 2026"). The x-axis spans the selected month's days; if the previous month was longer, its extra days are folded into the final visible point so the endpoint still equals the full previous-month total
-- The total spent so far this month and the signed delta versus the previous month, kept on one line so it stays readable on narrow screens
+- The total spent so far this month and the signed delta versus the previous month, both calculated over the same number of elapsed days so the comparison is always apples-to-apples. While the selected month is still in progress, the previous-month label names the day range being compared (for example, "Aug 1–8"). Once the selected month is complete, both months are compared in full.
 - Gridlines with compact currency labels and a shared tooltip
 - On narrow viewports, a compact date range (for example, "Sep 01 - 6, 2026") instead of the full date range, and x-axis tick labels for the selected month only so the chart stays uncluttered
 
