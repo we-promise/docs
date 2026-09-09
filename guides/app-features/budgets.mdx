@@ -96,7 +96,8 @@ Only a surplus carries — an overspend never reduces next month's envelope. The
 
 | Field | Effect |
 |---|---|
-| `available_to_spend` | Includes the carried amount |
+| `available_to_spend` | Includes the carried amount. For a parent category, also includes rollover held by ring-fenced subcategories. |
+| `display_rolled_over_amount` | For a parent category, shows the sum of its own rollover plus any rollover held by ring-fenced subcategories, so the displayed budget, rollover, spending, and availability stay consistent. |
 | `percent_of_budget_spent` | Counts the carried amount as part of the envelope |
 | `display_budgeted_spending` | Shows the current month's allocation only, not the carry |
 
@@ -146,8 +147,8 @@ When you set an individual budget for a subcategory, that amount is "ring-fenced
 
 **How it works:**
 - **Restaurants** has \$100 remaining (\$100 budget - \$0 spent)
-- **Groceries** and **Coffee** share \$350 remaining (\$400 shared pool - \$50 spent between them)
-- The parent **Food & Dining** shows the total remaining across all subcategories
+- **Groceries** and **Coffee** share \$350 remaining. The shared pool is the parent's allocation (\$500) minus ring-fenced siblings' allocations (\$100) = \$400, minus shared spending (\$50) = \$350.
+- The parent **Food & Dining** shows the total remaining across all subcategories, including any rollover carried by ring-fenced subcategories
 
 ### Parent auto-aggregation
 
