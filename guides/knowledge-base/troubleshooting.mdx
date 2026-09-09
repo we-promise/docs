@@ -393,6 +393,19 @@ Split transaction grouping now applies consistently to both the Transactions pag
 
 Transactions marked as excluded were previously hidden from the account activity feed entirely. This made it impossible to re-include them because there was no row to click. Excluded transactions now appear greyed-out in the account activity list so you can still open them and toggle exclusion off if needed.
 
+## Rule category, merchant, or tag names missing in exports
+
+When you export your data (via **Settings → Exports**), rule conditions and actions that reference a category, merchant, or tag should appear with the human-readable name rather than the raw UUID. In older versions, two bugs could cause the name to be missing or stale in the exported `rules.csv` and `all.ndjson` files:
+
+- **Uppercase UUID stored in the rule** — Rule operand values are stored as UUIDs. If a UUID was stored in uppercase (for example, after a direct database edit or migration), the export lookup was case-sensitive and would miss the match, leaving the raw UUID in place of the name.
+- **Stale in-memory association** — If a category, merchant, or tag was created or modified during the same request that triggered the export (for example, as part of an import or rule-apply job), the exporter could read a stale in-memory association and produce an outdated name or omit the `value_ref` entirely.
+
+Both bugs are fixed in the current release. UUID lookups are now case-normalized before the cache lookup, and operand records are reloaded from the database at the start of each export rather than using a cached association.
+
+**To resolve:**
+
+Upgrade to the latest release and re-run the export. No data migration or configuration change is required. If you previously imported an export that contained raw UUIDs instead of names in rule operand fields, update those rule conditions and actions manually after upgrading.
+
 ## Rule creation from modal fails with "must have at least one action"
 
 When creating a rule from the rule creation modal, saving the form could fail with a validation error saying the rule must have at least one action — even though you had added one. The re-rendered form also lost any dynamically added action or condition rows.
