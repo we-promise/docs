@@ -154,3 +154,36 @@ Sure tracks your loan balance, which represents the remaining principal. As you 
 
 > [!TIP]
 > To track loan payments accurately, create a [transfer](./transfers.mdx) from your checking account to your loan account. This properly reflects the payment in both accounts.
+
+## Amortization Schedule
+
+For fixed-rate loans, Sure generates a full amortization schedule — a payment-by-payment breakdown of how your loan pays off over its entire term. The schedule uses a constant-payment (French) method: interest is charged on the outstanding principal each month, and the remainder of each payment reduces principal. This matches the table your lender uses.
+
+To view the schedule, open a fixed-rate loan account and select the **Schedule** tab.
+
+The tab shows four summary figures at the top:
+
+| Figure | Description |
+| --- | --- |
+| Monthly payment | The level amount due each period |
+| Total interest | All interest charged over the life of the loan |
+| Total cost | Principal plus total interest |
+| Payoff date | The date of the final scheduled payment |
+
+Below the summary is a full payment table with one row per period:
+
+| Column | Description |
+| --- | --- |
+| # | Payment number |
+| Date | Scheduled payment date |
+| Payment | Total amount due that period |
+| Principal | Portion applied to the outstanding balance |
+| Interest | Portion charged as interest |
+| Remaining balance | Outstanding principal after the payment |
+
+Rows for payments whose scheduled date has already passed are shaded to distinguish elapsed periods from upcoming ones.
+
+> [!NOTE]
+> The Schedule tab is only available for fixed-rate loans. Variable-rate and adjustable-rate loans are excluded because a schedule built off today's rate would not reflect future payment changes.
+
+The monthly payment shown on the loan overview is read directly from the schedule, so it is cent-accurate. For example, a $500,000 mortgage at 3.5% over 360 months shows $2,245.22 rather than a rounded figure.
