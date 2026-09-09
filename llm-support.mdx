@@ -16,14 +16,19 @@ Sure has two separate AI systems that operate independently. Understanding this 
 - **Builtin** (default): uses the OpenAI-compatible provider configured via `OPENAI_ACCESS_TOKEN` / `OPENAI_URI_BASE` / `OPENAI_MODEL`. Calls Sure's function tools directly.
 - **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
 
-**Auto-categorization and merchant detection (background)** — background jobs that classify transactions and detect merchants. These always use the OpenAI-compatible provider (`OPENAI_ACCESS_TOKEN`), regardless of what the chat assistant uses.
+**Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync:
 
-| Setting | Chat assistant | Auto-categorization |
-| --- | --- | --- |
-| `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Uses OpenAI provider |
-| `ASSISTANT_TYPE=external` | Uses external agent | Still uses OpenAI provider |
+1. **Naive Bayes pass** — trains a multinomial Bayes model on the family's existing categorized transactions and classifies new ones locally. No provider or API key is needed. Only transactions that clear a 70% confidence threshold are categorized; the rest fall through to step 2. The Bayes pass requires at least 20 categorized transactions across at least 2 categories before it activates. If Bayes categorizes every transaction in a batch, the LLM step is skipped entirely.
+2. **LLM pass** — sends the remaining uncategorized transactions to the configured LLM provider (`OPENAI_ACCESS_TOKEN`). This step is skipped when Bayes covers the full batch.
 
-If you use an external agent for chat, you still need `OPENAI_ACCESS_TOKEN` set for auto-categorization and merchant detection to work.
+**Merchant detection (background)** — always uses the OpenAI-compatible provider (`OPENAI_ACCESS_TOKEN`).
+
+| Setting | Chat assistant | Auto-categorization | Merchant detection |
+| --- | --- | --- | --- |
+| `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Bayes first, then OpenAI | Uses OpenAI provider |
+| `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then OpenAI | Uses OpenAI provider |
+
+If you use an external agent for chat, you still need `OPENAI_ACCESS_TOKEN` set for the LLM categorization pass and merchant detection to work. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
 
 ## Quickstart
 
