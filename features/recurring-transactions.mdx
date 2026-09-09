@@ -117,6 +117,18 @@ Recurring transactions support a range of cadences beyond monthly:
 
 When a recurring transaction uses an interval-based cadence (biweekly, quarterly, semiannual), an anchor date is required to establish the phase of the schedule.
 
+### Recurrence rule validation
+
+Each cadence has field requirements that are enforced when you save a recurring transaction. Validation errors are returned in your configured display language (set under **Settings → Preferences → Language**).
+
+The rules by frequency:
+
+- **Weekly** — requires a weekday. Day of month and week-of-month ordinal are not allowed.
+- **Monthly** — requires exactly one of: a day of the month (1–31, or -1 for the last day) or a weekday. When a weekday is set, a week-of-month ordinal is also required.
+- **Yearly** — same as monthly, plus a month of year is required.
+
+If you submit a schedule that violates these constraints, the app returns a `validation_failed` error with a localized message describing the specific field and rule that failed.
+
 ### Weekend adjustment
 
 When a bill falls on a weekend you can choose how the due date adjusts:
