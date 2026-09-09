@@ -13,7 +13,7 @@ Open **Transactions** from the main navigation to see recent activity across you
 
 From this screen you can:
 
-- Search and filter by account, date, type, status, amount, category, tag, or merchant
+- Search and filter by account, date, type, status, amount, category, tag, or merchant. The merchant filter includes a **No merchant** option to show only transactions without an assigned merchant; the tag filter includes an **Untagged** option to show only transactions with no tags.
 - View a summary of the count and total amounts for your current filter
 - Click anywhere on a transaction row to open its detail drawer
 - Add a new manual transaction
@@ -39,7 +39,7 @@ Click anywhere on a transaction row to open it and update the fields that affect
 - **Account**: The account the transaction belongs to. When adding a new transaction, the account selector includes a search box so you can find the right account quickly.
 - **Category**: The income or expense category used for budgets and reports. Subcategories appear indented under their parent in every category selector across the app, so the hierarchy is always visible when you assign or change a category.
 - **Merchant**: The merchant or payee associated with the transaction
-- **Tags**: Extra labels for flexible filtering. When you filter by one or more tags, the summary count and totals reflect each matching transaction once, even if it carries multiple matching tags.
+- **Tags**: Extra labels for flexible filtering. When you filter by one or more tags, the summary count and totals reflect each matching transaction once, even if it carries multiple matching tags. You can also filter by **Untagged** to find transactions that have no tags assigned.
 - **Notes**: Private context for the transaction
 
 You can also mark a transaction as excluded. Excluded transactions are removed from budgeting calculations and reports, which is useful for activity you do not want counted in normal spending analysis. Excluded transactions remain visible in the account activity list so you can review or re-include them at any time.
@@ -67,6 +67,10 @@ When you filter transactions by category in the sidebar, parent and subcategory 
 This keeps the filter consistent with what the backend submits: selecting a parent category includes every subcategory with no way to exclude one individually, so the checkboxes always reflect exactly what gets applied to your transaction list.
 
 If you arrive at the transaction list from a link that filters by a parent category, all subcategories are pre-checked to match the active filter.
+
+### What counts as uncategorized
+
+The Uncategorized filter, the uncategorized badge count, and the Quick Categorize wizard all use the same definition: a transaction is uncategorized when it has no category assigned and its kind is not a pure inter-account transfer leg (specifically, `funds_movement` and `cc_payment` are excluded because those legs have nothing to categorize). All other transaction kinds — including `loan_payment`, `investment_contribution`, and `one_time` — appear in the uncategorized list if they have no category. The dashboard's uncategorized aggregate uses the same set, so the count shown on the dashboard always matches what you see in the Transactions list.
 
 ### Categorize flow
 

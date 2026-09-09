@@ -155,14 +155,18 @@ When enabled:
 - Provides a more compact view of your financial overview
 - Automatically adjusts to single column on mobile devices
 
+### Drag to select a date range on charts
+
+You can select a custom date range directly on the net worth chart or on any account's balance chart by clicking and dragging across it. Releasing the mouse navigates the page to that range. The period picker updates to show the selected dates (for example, "Aug 15 – Sep 5") instead of a generic "Custom" label. Choosing a preset from the picker clears the custom range. Drag-select is mouse-only; on touch devices, swiping the chart scrolls normally.
+
 ### Spending widget
 
-The dashboard includes a **Spending** widget that shows your cumulative daily spending for the selected month plotted against the previous month's full curve on a shared day-of-month axis. This lets you see at a glance whether your current month's spending is tracking ahead of or behind last month.
+The dashboard includes a **Spending** widget that shows your cumulative daily spending for the selected month plotted against the previous month's full curve. This lets you see at a glance whether your current month's spending is tracking ahead of or behind last month.
 
 The widget displays:
 - Your current month's running total (in green) with a marker at today's date
-- The previous month's full spending curve (in gray) labeled with the actual month name (for example, "August 2026")
-- The total spent so far this month and the signed delta versus the previous month, kept on one line so it stays readable on narrow screens
+- The previous month's spending curve (in gray) labeled with the actual month name (for example, "August 2026"). The x-axis spans the selected month's days; if the previous month was longer, its extra days are folded into the final visible point so the endpoint still equals the full previous-month total
+- The total spent so far this month and the signed delta versus the previous month, both calculated over the same number of elapsed days so the comparison is always apples-to-apples. While the selected month is still in progress, the previous-month label names the day range being compared (for example, "Aug 1–8"). Once the selected month is complete, both months are compared in full.
 - Gridlines with compact currency labels and a shared tooltip
 - On narrow viewports, a compact date range (for example, "Sep 01 - 6, 2026") instead of the full date range, and x-axis tick labels for the selected month only so the chart stays uncluttered
 

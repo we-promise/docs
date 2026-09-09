@@ -102,6 +102,15 @@ Date,Amount,Name,Account,Category,Notes
 
 The import wizard shows a step indicator at the top of the page. Step labels display in your configured language (set under **Settings → Preferences → Language**). On mobile, the indicator shows a "Step X of Y" progress count instead.
 
+### Template suggestions
+
+When you reach the Configure step after uploading a CSV, Sure checks whether you have a previous completed import of the same type for the same account. If one exists, a prompt appears offering to apply that import's column mapping configuration to the current one. The prompt text, button labels, and sample data caption are displayed in your configured language.
+
+- Select **Apply template** to copy the column assignments, date format, signage convention, and number format from the previous import.
+- Select **Manually configure** to dismiss the suggestion and set up the columns yourself.
+
+If no previous import is found, the Configure step opens directly in manual mode without showing a suggestion.
+
 The steps vary by import type:
 
 | Import type | Steps |
@@ -168,6 +177,59 @@ QIF `!Type:Invst` sections are imported as investment activity. Trade actions (B
 
 Securities are resolved by matching the QIF security name to the ticker defined in the file's `!Type:Security` sections.
 
+## Importing rules
+
+Rule imports let you create or update transaction rules in bulk from a CSV file.
+
+### CSV format
+
+| Column | Required | Description |
+|--------|----------|-------------|
+| name | No | Rule name. If a rule with this name already exists, it is updated in place. Rows without a name always create a new rule. |
+| resource_type* | Yes | Must be `transaction` |
+| active | No | `true` or `false` (defaults to `false`) |
+| effective_date | No | Only apply the rule to transactions on or after this date (YYYY-MM-DD) |
+| conditions* | Yes | JSON array of condition objects |
+| actions* | Yes | JSON array of action objects |
+
+### Condition types
+
+Each entry in the `conditions` array is a JSON object with `condition_type`, `operator`, and `value` fields.
+
+| `condition_type` | Description | Value |
+|---|---|---|
+| `transaction_name` | Matches on the transaction name | Plain text |
+| `transaction_amount` | Matches on the amount | Numeric |
+| `transaction_type` | Matches on transaction type (income, expense, transfer) | Type string |
+| `transaction_merchant` | Matches on merchant | Merchant name — resolved to an ID automatically |
+| `transaction_category` | Matches on category | Category name — resolved to an ID automatically |
+| `transaction_tag` | Matches on tag | Tag name — resolved to an ID automatically |
+| `transaction_details` | Matches on provider metadata fields | Plain text |
+| `notes` | Matches on transaction notes | Plain text |
+| `account` | Matches on the account | Account name |
+
+When a `transaction_category`, `transaction_merchant`, or `transaction_tag` condition references a name that does not exist yet, Sure creates the category, merchant, or tag automatically. The same name used in multiple rows in the same file reuses the record created for the first row.
+
+### Action types
+
+Each entry in the `actions` array is a JSON object with `action_type` and an optional `value` field.
+
+| `action_type` | Description | Value |
+|---|---|---|
+| `set_transaction_category` | Assign a category | Category name — resolved to an ID automatically |
+| `set_transaction_merchant` | Assign a merchant | Merchant name — resolved to an ID automatically |
+| `set_transaction_tags` | Assign one or more tags | Comma-separated tag names — each resolved to an ID automatically |
+| `set_transaction_name` | Set the transaction name | Plain text |
+| `auto_categorize` | Auto-categorize using AI | No value needed |
+
+### Example CSV
+
+```csv
+name,resource_type*,active,effective_date,conditions*,actions*
+Categorize groceries,transaction,true,2024-01-01,"[{""condition_type"":""transaction_name"",""operator"":""like"",""value"":""grocery""}]","[{""action_type"":""set_transaction_category"",""value"":""Groceries""}]"
+Tag coffee runs,transaction,true,,"[{""condition_type"":""transaction_name"",""operator"":""like"",""value"":""coffee""}]","[{""action_type"":""set_transaction_tags"",""value"":""Coffee,Personal""}]"
+```
+
 ## Tips for successful imports
 
 1. **Use templates**: Download CSV templates from the import screen for the correct format
@@ -202,6 +264,10 @@ When importing transactions, ensure the account names in your CSV exactly match 
 ### Duplicate transactions
 
 Sure will import all rows from your CSV. Review your data before importing to avoid duplicates.
+
+### Rule import with tag conditions produces broken rules
+
+If you imported a rules CSV with `transaction_tag` conditions on an older version of Sure (before the fix in [#3419](https://github.com/we-promise/sure/pull/3419)), the tag name was stored as-is instead of being resolved to the tag's ID. Rules with this problem match no transactions for the tag condition. To fix affected rules, delete and re-import them, or edit each rule manually in **Settings → Rules** to remove and re-add the tag condition.
 
 ### Sure NDJSON import fails with a null rule name
 
