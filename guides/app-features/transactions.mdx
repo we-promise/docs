@@ -129,6 +129,8 @@ When you merge categories, Sure asks you to choose:
 - **Target category**: The category to keep
 - **Source categories**: The categories to merge into the target
 
+Both the target dropdown and the source checkbox list use hierarchy-aware ordering: parent categories appear in alphabetical order, and each parent's subcategories appear immediately after it in the same alphabetical order. This keeps related categories grouped together so you can quickly find the right target or source without scanning a flat, alphabetically mixed list.
+
 Sure moves matching transactions from each source category to the target category. It also moves budget lines to the target category. If a budget already has lines for both the source and target categories, Sure combines their budgeted amounts into the target line.
 
 After the move, Sure deletes the source categories.
