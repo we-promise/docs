@@ -25,17 +25,21 @@ title: "FAQ"
 
 <AccordionGroup>
   <Accordion title="Can I have a transfer between accounts with different currencies (exchange rate)?">
-    Yes, you can make transfers between accounts with different currencies. The system automatically applies the appropriate exchange rate for the transfer date:
-    
-    - The outgoing transaction uses the source account's currency and amount
-    - The incoming transaction is converted to the destination account's currency using the latest available rate
-    - If no exchange rate is found, it falls back to a 1:1 rate, which may result in incorrect amounts until rates are synced
-    - Foreign exchange metadata is also recorded for auditing purposes
-    
-    For best results, make sure your exchange rates are up to date to avoid conversion errors.
-    
-    **Sources:**
-    - [Transfer Creator Implementation](https://github.com/we-promise/sure/blob/8e36c8e7368cef008133970404bcaabd6cde3df9/app/models/transfer/creator.rb#L1-L103)
-    - [Issue #124](https://github.com/we-promise/sure/issues/124)
+    Yes, you can make transfers between accounts with different currencies. Sure automatically applies the exchange rate for the transfer date:
+
+    - The outgoing transaction uses the source account's currency and amount.
+    - The incoming transaction is converted to the destination account's currency using the rate for that date.
+    - If no exchange rate is available, the transfer falls back to a 1:1 rate. The amount may be incorrect until rates are synced.
+    - Foreign exchange metadata is recorded for auditing purposes.
+
+    For best results, make sure an exchange rate provider is configured in **Settings → Self-Hosting** and rates are current.
+  </Accordion>
+
+  <Accordion title="What happens when an account has transactions in a currency with no exchange rate?">
+    If an exchange rate is missing for a specific currency pair and date, Sure skips that transaction when calculating balances rather than marking the entire account as errored. The skipped entry is logged in **Settings → Debug** under the `sync` category so you can identify which rate is absent.
+
+    Once rates are available — after configuring or re-enabling an exchange rate provider and triggering a sync — the previously skipped entries are included in the next balance calculation.
+
+    Holdings without a rate are still counted at a 1:1 rate to prevent phantom cash from appearing, and the occurrence is logged alongside the entry warning.
   </Accordion>
 </AccordionGroup>
