@@ -97,7 +97,8 @@
               "providers/up-bank",
               "providers/snaptrade",
               "providers/sophtron",
-              "providers/trade-republic"
+              "providers/trade-republic",
+              "providers/trading212"
             ]
           },
           {
