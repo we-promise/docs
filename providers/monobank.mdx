@@ -78,12 +78,19 @@ The following environment variables are available for self-hosted deployments:
 | `MONOBANK_MIN_REQUEST_INTERVAL` | `60` | Seconds enforced between requests to the same endpoint |
 | `MONOBANK_DEBUG_RAW` | unset | Log raw API payloads. Development only — the dump contains personal data |
 
+## Foreign currency operations
+
+When a transaction is made in a currency other than the account's own currency — for example, paying in EUR from a UAH card — monobank includes the operation currency code (`currencyCode`) and the operation amount (`operationAmount`) alongside the account-currency `amount`. Sure records the account-currency `amount` as the transaction amount and stores the foreign-currency detail as `fx_from` (the operation currency) and `fx_amount` (the operation amount in that currency), following the same convention used by the Up Bank integration.
+
+Both `fx_from` and `fx_amount` are set only when the operation currency is recognized and differs from the account currency. An operation in the account's own currency, or one whose currency code Sure does not recognize, leaves both unset. The raw `operationAmount` is always recorded in `operation_amount` for reference when it differs from `amount`.
+
+If the `operationAmount` cannot be parsed, `fx_amount` is left unset and the incident is captured as a `provider_sync_error` in the debug log (visible at **Settings > Debug**, filtered by the `monobank` provider key).
+
 ## Limitations
 
 - Ukrainian accounts only
 - Personal tokens are scoped to a single monobank account holder
 - Data is read-only; Sure never writes anything back to monobank (the token can also register a statement webhook, but Sure does not use that capability)
-- No foreign exchange metadata: monobank reports the operation amount but not the operation currency, so the raw amount is recorded without FX detail
 
 ## Troubleshooting
 
@@ -93,6 +100,6 @@ The following environment variables are available for self-hosted deployments:
 
 **Older transactions are missing**: History arrives in 31-day steps, one step per sync. Set a start date on the connection to bound how far back it goes, then let it run.
 
-**Sync errors**: Provider sync failures and notes are captured in Sure's debug log. Super admins can find them at **Settings > Debug**, filtered by the `monobank` provider key.
+**Sync errors**: Provider sync failures and notes are captured in Sure's debug log. Super admins can find them at **Settings > Debug**, filtered by the `monobank` provider key. This includes cases where a foreign-currency operation amount could not be parsed — the transaction still imports with the correct account-currency amount, but the FX detail (`fx_from`/`fx_amount`) is omitted.
 
 For more detail, see the [monobank personal API documentation](https://api.monobank.ua/docs/).
