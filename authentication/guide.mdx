@@ -447,24 +447,24 @@ Users can manage their own connected accounts at `/settings/security` under **Co
 
 ### User actions
 
-**Suspend user**: Temporarily disable access
+**Deactivate user**: Immediately cut off all access without removing data. All web sessions are destroyed, all OAuth tokens and API keys are revoked, and every subsequent login attempt is rejected with HTTP 401.
 ```
-User detail page → Suspend User
+/admin/users → Actions popover → Deactivate User
 ```
 
-**Reactivate user**: Restore access
+**Reactivate user**: Restore access. The user must log in again; existing sessions and tokens are not restored.
 ```
-User detail page → Reactivate User
+/admin/users → Actions popover → Reactivate User
 ```
 
 **Delete user**: Permanently remove (cannot be undone)
 ```
-User detail page → Delete User → Type email to confirm
+/admin/users → Actions popover → Delete User → Type email to confirm
 ```
 
 **Sync roles**: Force role synchronization from IdP
 ```
-User detail page → Sync Roles from SSO
+/admin/users → Actions popover → Sync Roles from SSO
 ```
 
 ## Audit logging
