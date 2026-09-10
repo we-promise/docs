@@ -276,6 +276,26 @@ Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over 
 `TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. The T-Invest settings block in the UI stays visible whenever a token is configured, even if T-Invest is not selected as a price provider.
 </Note>
 
+### Property valuation provider variables
+
+Sure supports two automated valuation model (AVM) providers for property accounts: RentCast and Realie. Both are US-only and price property values in USD. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
+
+```txt
+# RentCast — US property valuations (50 requests/month on the free tier)
+RENTCAST_API_KEY="your-rentcast-api-key"
+
+# Realie — US property valuations (25 requests/month on the free tier)
+REALIE_API_KEY="your-realie-api-key"
+
+# Override monthly request caps for paid plans
+RENTCAST_MAX_REQUESTS_PER_MONTH=500
+REALIE_MAX_REQUESTS_PER_MONTH=200
+```
+
+<Note>
+Property valuation providers only support US addresses and always return values in USD. A property account must be denominated in USD for automatic daily refreshes to run.
+</Note>
+
 ### On-chain wallet variables
 
 On-chain wallet tracking uses public block explorers by default. You can override any endpoint with your own instance, and tune history and token limits.

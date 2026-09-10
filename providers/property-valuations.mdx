@@ -1,0 +1,106 @@
+---
+title: Property valuations
+description: Automatically look up and refresh property values using RentCast or Realie
+---
+
+Sure can look up a property's estimated market value when you add a property account and refresh that estimate automatically on a daily schedule. Two providers are supported: **RentCast** and **Realie**. Both are US-only, return values in USD, and operate under a monthly request cap.
+
+<Note>
+Property valuation providers only support properties located in the United States. The add-property flow shows a notice when a non-US address is detected.
+</Note>
+
+## How it works
+
+When you add a new property account using a valuation provider:
+
+1. You enter the property name and address
+2. Sure sends the address to the provider
+3. The provider returns the property record and an estimated value
+4. You review the result before anything is created
+5. Confirming creates the property account with the estimated value as the opening balance
+
+After setup, Sure refreshes the value once per day using the same provider. Properties are processed stalest-first so a tight monthly budget is spent where it matters most. A property is skipped on a given day if it has already been refreshed today or if the provider has exhausted its monthly request budget.
+
+## Enabling a provider
+
+Add the API key for the provider you want to use. You can do this in two ways:
+
+- **Settings UI** — go to **Settings → Self-Hosting** and enter the key in the provider's field
+- **Environment variable** — set `RENTCAST_API_KEY` or `REALIE_API_KEY` in your environment
+
+Once a key is present, the provider appears as an option when you add a new property account.
+
+## Providers
+
+### RentCast
+
+[RentCast](https://rentcast.io) is a US property data API. The free tier allows 50 requests per month.
+
+| Setting | Value |
+|---|---|
+| Free tier cap | 50 requests/month |
+| Coverage | United States |
+| Valuation currency | USD |
+| API key variable | `RENTCAST_API_KEY` |
+| Monthly cap override | `RENTCAST_MAX_REQUESTS_PER_MONTH` |
+
+### Realie
+
+[Realie](https://realie.ai) is a US property data and AVM API. The free tier allows 25 requests per month.
+
+| Setting | Value |
+|---|---|
+| Free tier cap | 25 requests/month |
+| Coverage | United States |
+| Valuation currency | USD |
+| API key variable | `REALIE_API_KEY` |
+| Monthly cap override | `REALIE_MAX_REQUESTS_PER_MONTH` |
+
+## Monthly request budget
+
+Each provider tracks requests in a durable database counter that resets at the start of each calendar month. This counter covers both user-initiated lookups (adding a property) and automatic daily refreshes. The daily refresh job checks the counter before spending a request and stops when the budget is exhausted.
+
+The free tier caps are conservative. If you have a paid plan with a higher limit, set the override variable to match:
+
+```txt
+# Example: raise the RentCast cap to 500 for a paid plan
+RENTCAST_MAX_REQUESTS_PER_MONTH=500
+
+# Example: raise the Realie cap to 200 for a paid plan
+REALIE_MAX_REQUESTS_PER_MONTH=200
+```
+
+## Adding a property using a valuation provider
+
+1. Go to **Accounts → Add Account → Property**
+2. Select **Add via RentCast** or **Add via Realie** (these options appear only when the provider's API key is configured)
+3. Enter the property name and its full US address
+4. Click **Look up property**
+5. Review what the provider found — the property type, estimated value, and other details are shown before anything is saved. If the address matched an area estimate rather than a specific record, a notice says so
+6. Click **Add property** to confirm, or **Back** to correct the address
+
+Nothing is created until you confirm. If the lookup fails (address not found, rate limit reached, provider error), an error message explains the reason.
+
+## Automatic daily refresh
+
+A background job runs once per day and refreshes the valuation for every property that has a provider linked. Properties are processed in order of their last refresh date, oldest first.
+
+A property is skipped if:
+
+- It was already refreshed today
+- Its address is incomplete or not a US address
+- Its currency does not match the provider's valuation currency (USD)
+- The provider's monthly request budget is exhausted
+- The provider's API key has been removed since the property was added
+
+Skipped properties are recorded in **Settings → Debug logs** under the provider key, so you can see why a specific property was not updated.
+
+## Troubleshooting
+
+**The valuation option is not showing when I add a property**: the provider's API key is not configured. Add `RENTCAST_API_KEY` or `REALIE_API_KEY` to your environment, or enter it in **Settings → Self-Hosting**.
+
+**The provider returned an area estimate instead of a property record**: the address was not matched to a specific record. The confirmation screen says so explicitly. Review the address for typos before confirming — if the address is correct but the provider has no record for it, you can still add the property and manage its value manually.
+
+**The value stopped updating**: the provider's monthly budget is likely exhausted. Check **Settings → Debug logs** filtered to the provider key, or check your provider dashboard. The budget resets at the start of the next calendar month, or you can raise the cap with the override variable if you are on a paid plan.
+
+**The property account's currency is not USD**: property valuation providers return values in USD. If your property account was created or later changed to a non-USD currency, the daily refresh job skips it to avoid writing the wrong currency. Change the account currency to USD or manage the value manually.

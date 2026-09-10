@@ -76,6 +76,7 @@
             "pages": [
               "providers/overview",
               "providers/market-data",
+              "providers/property-valuations",
               "providers/onchain-wallets",
               "providers/akahu",
               "providers/binance",
