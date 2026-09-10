@@ -74,6 +74,28 @@ Password changes are silently ignored for SSO-only users — they must authentic
 
 Empty families (no members) can be deleted from the admin user list. Families with active users cannot be deleted.
 
+## Deactivating users
+
+Super admins can deactivate a user to immediately cut off all access without permanently removing the account or its data. Deactivation is reversible.
+
+**What happens when a user is deactivated:**
+
+- All active web sessions are destroyed immediately.
+- All OAuth access tokens and unexchanged authorization grants are revoked immediately. The mobile app stops working on the next request.
+- All active API keys are revoked immediately.
+- Every subsequent login attempt — local password, SSO, MFA completion, mobile REST API, OAuth — is rejected with HTTP 401 and the message "This account has been deactivated. Please contact an administrator."
+- If a super admin is currently impersonating the user, the impersonation session ends automatically on the next request.
+
+The user sees no special deactivation notice. Login attempts return the same 401 response they would see for invalid credentials, directing them to contact an administrator.
+
+To deactivate a user, open the actions popover next to their row in `/admin/users` and select **Deactivate User**.
+
+To restore access, open the popover and select **Reactivate User**. Existing sessions and tokens are not restored — the user must log in again to get new credentials.
+
+<Note>
+You cannot deactivate a user who is the last active super admin, or who is the last admin in a family that has other members. Promote another user first.
+</Note>
+
 ## Deleting users
 
 Super admins can permanently delete a user from the instance.
@@ -119,10 +141,11 @@ Deleting a user is permanent. All of their data is removed and cannot be recover
 
 ### User can't log in
 
-1. Check the user's auth type pill — if it shows only SSO and their provider is misconfigured, they won't be able to log in
-2. Verify the SSO provider is enabled and configured correctly under `/admin/sso_providers`
-3. If they have a local password, you can reset it from the actions popover
-4. Review audit logs for specific error messages
+1. Check whether the user is deactivated — a deactivated user gets a 401 on every login path. Reactivate them from the actions popover if the deactivation was unintended.
+2. Check the user's auth type pill — if it shows only SSO and their provider is misconfigured, they won't be able to log in.
+3. Verify the SSO provider is enabled and configured correctly under `/admin/sso_providers`.
+4. If they have a local password, you can reset it from the actions popover.
+5. Review audit logs for specific error messages.
 
 ### User is locked out after disconnecting their SSO provider
 
