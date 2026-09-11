@@ -21,6 +21,14 @@ Each holding tracks:
 
 The holdings list shows a rounded share count for readability. When you open the detail drawer for a holding, the **Shares** field displays the exact quantity with up to 8 decimal places, so you can see the precise position size for fractional shares or crypto holdings.
 
+### Provider-synced holdings
+
+When a provider (such as SimpleFIN, SnapTrade, or CoinStats) imports your holdings, it delivers a snapshot of your positions on a specific day. Sure tracks which day each snapshot came from and only shows holdings from the **most recent provider import day** in investment views. Holdings from earlier snapshots are excluded so that stale positions do not appear alongside your current portfolio.
+
+If a provider reports prices for individual securities on different dates within the same import batch, Sure preserves those per-security price dates while still treating the entire batch as a single import day. This means your portfolio view reflects the most up-to-date information from each sync, without mixing in older snapshots.
+
+For accounts that have no provider connection, Sure shows the most recent holding per security from your manually entered or calculated data.
+
 ## Recording Trades
 
 Investment accounts support manual trade entry to track your buy and sell activity.
