@@ -85,6 +85,7 @@ Super admins can deactivate a user to immediately cut off all access without per
 - All active API keys are revoked immediately.
 - Every subsequent login attempt — local password, SSO, MFA completion, mobile REST API, OAuth — is rejected with HTTP 401 and the message "This account has been deactivated. Please contact an administrator."
 - If a super admin is currently impersonating the user, the impersonation session ends automatically on the next request.
+- A deactivation that races with an in-progress SSO account-linking flow is handled atomically: the link and any associated audit record are rolled back together, and the one-time linking code is restored so the user can retry from their identity provider once reactivated.
 
 The user sees no special deactivation notice. Login attempts return the same 401 response they would see for invalid credentials, directing them to contact an administrator.
 

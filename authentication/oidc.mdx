@@ -313,6 +313,14 @@ The application automatically validates:
 - Check your group-to-role mapping configuration
 - Some providers require additional configuration to release the `groups` claim, even when it is requested as essential
 
+### Account deactivated during SSO linking
+
+**Problem**: A user's account is deactivated at the same moment they are completing an SSO account-link flow. The link is rejected, but the user wants to retry once reactivated.
+
+**Solution**:
+- The linking flow rolls back atomically: no identity record or audit entry is created for the rejected request, and the one-time linking code is restored.
+- Once a super admin reactivates the user from `/admin/users`, the user can restart the link from their identity provider without any manual cleanup.
+
 ### Token expired errors
 
 **Problem**: Users are logged out frequently
