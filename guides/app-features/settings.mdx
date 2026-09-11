@@ -237,6 +237,14 @@ Navigation labels update to match your selected language. For example, the Syste
 
 The **Settings → Background Jobs** console is fully localized in German. This includes the worker status stats panel (Workers, Busy, Enqueued, Retries, Scheduled, Dead), the in-flight operations table columns, per-operation status labels (Running, Queued, Recent, Stuck), action buttons, and all confirmation and error messages. The page title appears as **Hintergrundjobs** and the worker status section heading as **Worker-Status**.
 
+## Release highlights
+
+When a new version of Sure is deployed, a "What's new" popover appears the first time you interact with the app after the update. It shows the release notes for the deployed version so you can see what changed without leaving the app.
+
+The popover appears once per release, per account. Dismissing it (by clicking **Done**, the close icon, the overlay, or pressing Escape) marks that release as seen and it will not reappear. Navigating away without dismissing does not mark it seen — the next page will offer it again.
+
+The popover is fetched lazily on your first click or keypress after the page loads, so it never interrupts the initial render.
+
 ## Account preferences
 
 Manage your personal account settings, including:
