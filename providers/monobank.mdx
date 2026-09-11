@@ -54,6 +54,8 @@ monobank does not categorise transactions directly; it reports the merchant's MC
 
 Category mapping only applies to your existing Sure categories. If you have already set or locked a category on a transaction in Sure, a re-sync will not overwrite it.
 
+To turn off automatic category mapping, open the account in Sure, go to its settings, and disable the **Automatic category mapping** toggle. When disabled, imported transactions carry no auto-assigned category and are left for your rules or the AI categorizer to handle. The raw transaction data and MCC code are still imported; only the auto-category assignment is skipped.
+
 ### Syncing cadence
 
 monobank's rate limit shapes how syncing works. Each personal endpoint accepts one request per minute, and a single statement request may cover at most 31 days. So:
