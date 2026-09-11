@@ -12,7 +12,7 @@ Sure imports one investment account per Trading 212 connection, containing:
 - Current positions with prices and quantities
 - Full order history (buys and sells)
 - Dividends
-- Cash transactions (deposits, withdrawals, interest, fees)
+- Cash transactions (deposits, withdrawals, interest, interest on free cash, fees)
 
 ## Setting up Trading 212
 
@@ -68,6 +68,18 @@ After saving your API key, Sure needs to run an initial sync to discover your ac
 ### Account needs setup
 
 A sync discovered your Trading 212 account, but it has not been linked to a Sure account yet. Click **Set up accounts** from the Trading 212 panel and complete the account setup.
+
+## Cash transaction types
+
+Sure maps Trading 212 cash transaction types to the following labels:
+
+| Trading 212 type | Sure label |
+|---|---|
+| Deposit | Contribution |
+| Withdrawal | Withdrawal |
+| Interest | Interest |
+| Interest on free cash | Interest |
+| Fee | Fee |
 
 ## Limitations
 
