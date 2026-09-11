@@ -273,7 +273,7 @@ Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over 
 </Note>
 
 <Note>
-`TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. The T-Invest settings block in the UI stays visible whenever a token is configured, even if T-Invest is not selected as a price provider.
+`TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. When a token is configured but T-Invest is not enabled for prices, the T-Invest settings block shows a notice: "Not enabled for prices above — T-Invest is used to fetch brand logos for all your securities whenever a token is configured, independent of the checkbox above." Logo fetching happens regardless of whether T-Invest is selected as a price provider.
 </Note>
 
 ### Property valuation provider variables
