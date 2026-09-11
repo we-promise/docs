@@ -605,6 +605,38 @@ The `local-ai` profile includes:
 - **OpenClaw** - Gateway providing enhanced AI capabilities and tool use
 - Automatic routing between Sure and the AI stack
 
+## Custom AI prompts
+
+Family admins can override the built-in prompts from **Settings → AI Prompts** — no fork or redeploy required. Overrides are stored per family, so one family's edits never affect another on the same deployment.
+
+Five prompts are editable:
+
+| Prompt | What it controls |
+| --- | --- |
+| Chat system prompt | The static instructions the assistant follows in every conversation |
+| Categorizer (OpenAI) | Instructions for the background transaction categorization job |
+| Categorizer (Anthropic) | Same, when using an Anthropic provider |
+| Merchant detector (OpenAI) | Instructions for the background merchant detection job |
+| Merchant detector (Anthropic) | Same, when using an Anthropic provider |
+
+Each field opens with the current default text for your deployment, or the saved override if one exists. Clearing a field resets it to the default. The **Reset to default** button asks for confirmation before restoring the original text. A live character counter and status label sit below each field. The limit is 20,000 characters per prompt.
+
+**When using a custom OpenAI-compatible endpoint** (`OPENAI_URI_BASE` set), the categorizer and merchant detector fields show the terse variant those models receive. A single override replaces both the terse and detailed variants, so editing the field on a custom endpoint affects local models only.
+
+### How the chat prompt works
+
+The builtin assistant's system prompt has two parts: a static half (`STATIC_INSTRUCTIONS`) that is byte-identical on every request so providers can cache it, and a volatile `## Session context` block that holds the current date, currency, account roster, and categories. Only the static half is editable here.
+
+What you can adjust: tone and personality, response format, domain-specific rules and constraints.
+
+Overriding the chat prompt gives up prefix caching for that family. The static half is normally byte-stable across all families sharing an API key; a family that overrides it gets its own prefix, which is not shared with others. The first request after each save also pays the full uncached price.
+
+### Output format warnings for categorizer and merchant prompts
+
+The categorizer and merchant parsers expect a specific JSON structure (`{"categorizations": [...]}` or `{"merchants": [...]}`). Sure also asks for those keys in a per-request message that your override cannot replace, so rewording the example is generally safe. Parsing breaks when an override contradicts the output format — for example, asking for reasoning before the answer, using a different wrapper key, or requesting YAML instead of JSON.
+
+Smaller local models tend to follow the system prompt over the per-request instruction. For that reason, the editor warns when a custom OpenAI override removes the example JSON block, even though the request-level fallback usually covers it.
+
 ## External AI assistant
 
 Instead of using the built-in LLM, you can delegate chat to an external AI agent. The agent receives the conversation, can call back to Sure's financial data via MCP, and streams a response back.
