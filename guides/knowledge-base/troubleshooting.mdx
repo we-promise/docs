@@ -3,6 +3,30 @@ title: "Troubleshooting"
 ---
 
 
+## Account shows an error when a foreign-currency transaction has no exchange rate
+
+If an account holds transactions in a currency that has no exchange rate available for a given date, earlier versions would abort the entire balance calculation for that account, marking it as errored even though all transactions had imported correctly.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Balance calculation converts each entry into the account's base currency. When no exchange rate exists for the currency pair on a specific date, Sure previously raised an error that escaped the calculation loop. A single unconvertible entry was enough to produce no balances at all and leave the account in an error state.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now skips the unconvertible entry rather than aborting. The entry is excluded from the balance total, the missing rate pair is written to **Settings → Debug** under the `sync` category, and the rest of the account's transactions are still used to calculate balances normally.
+
+    Holdings with a missing rate are handled differently: they are still counted toward the total at a 1:1 rate (to avoid phantom cash appearing in the cash balance), and the occurrence is also logged.
+
+    To see which rate was absent, go to **Settings → Debug** and filter by the `sync` category. Look for entries from `Balance::SyncCache` with level `warn`.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="How do I resolve the missing exchange rate?">
+    Go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured. Twelve Data is the default. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once rates are fetched, the previously skipped entries will be included in the next balance calculation.
+  </Accordion>
+</AccordionGroup>
+
 ## Every click on the reports page navigates to a transaction drill-down in Safari
 
 In Safari, clicking anywhere on the reports page — including the period picker or other controls — could unexpectedly navigate to a category's transactions drill-down instead of performing the intended action.
