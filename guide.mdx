@@ -11,7 +11,7 @@ Sure is evolving quickly. If you find something inaccurate, please ask in the [D
 
 ## Creating your account
 
-Once Sure is installed, navigate to [localhost:3000](http://localhost:3000). You'll see the login page. Click **Sign Up** to begin.
+Once Sure is installed, navigate to [localhost:3000](http://localhost:3000). On a fresh install you land directly on the **Create account** page — there is no separate sign-up step.
 
 <img width="2508" height="1314" alt="Landing page on a fresh install" src="https://github.com/user-attachments/assets/2319dc87-5615-4473-bebc-8360dd983367" />
 
@@ -30,10 +30,15 @@ The next sections cover how to manually add accounts and transactions. If you'd 
 - [CoinStats](/providers/coinstats) (beta)
 - [Enable Banking](/providers/enable-banking) (beta) for European banks
 - [Lunch Flow](/providers/lunchflow)
-- [Plaid](/providers/plaid)
+- [monobank](/providers/monobank) for Ukrainian cards and jars
+- [Plaid](/providers/plaid) (US and EU)
 - [Questrade](/providers/questrade) (beta) for Canadian investment accounts
+- [Redbark](/providers/redbark) for Australian banks
 - [SimpleFIN](/providers/simplefin)
 - [SnapTrade](/providers/snaptrade) (beta) for brokerage and investment accounts
+- [Up](/providers/up-bank) (Australian bank)
+
+See **Settings > Bank sync** for the full list of supported providers and their setup options. Only admin users can connect a provider.
 
 Even if you use an integration, we recommend reading this guide to understand account types and how they work in Sure.
 
@@ -102,12 +107,14 @@ If you're adding a credit card, loan, or any other debt, select a **Credit Card*
 
 Most bank accounts (checking, savings, money market) are cash accounts:
 
-1. Click **+ Add Account** → **Cash** → **Enter Account Balance**
-2. Fill in details:
-   - Account name
-   - Current balance
-   - Account subtype (checking, savings, or other)
-3. Click **Create Account**
+1. Click **Add account** (on the dashboard) or **New account** (on the Accounts page), then choose **Cash**
+2. Choose **Enter account balance** to add the account manually. (If bank sync is configured, admins also see **Link with ...** provider options here.)
+3. Fill in the details:
+   - **Account name**
+   - **Balance on date** (the balance as of the opening balance date below — that date defaults to two years ago, so set it to today if you're entering your current balance)
+   - **Opening balance date**
+   - **Subtype** (specify checking, savings, or another type)
+4. Click **Create Account**
 
 The account selection dialog supports keyboard navigation. Use **J** / **K** or the arrow keys to move between options, **Enter** to select, and **Esc** to close. These labels display in your configured interface language.
 
@@ -128,7 +135,7 @@ The sparkline and trend percentage only appear once there is enough balance hist
 To add a transaction:
 
 1. Go to the **Transactions** page (left sidebar)
-2. Click **+ New Transaction** (top right)
+2. Click **New transaction** (top right; a round **+** button on mobile)
 3. Choose the transaction type:
    - **Expense** → Spending money
    - **Income** → Receiving money
@@ -180,7 +187,7 @@ You can set cost basis in two ways:
 
 1. Navigate to your investment account
 2. Find the holding in your portfolio
-3. Click the pencil icon next to the average cost
+3. Click the average cost value (a pencil icon appears on hover)
 4. Enter either:
    - **Total cost basis**: The total amount you paid for all shares
    - **Per-share cost**: The average price per share
@@ -356,4 +363,4 @@ Now that you have your account set up:
 - Explore other account types that Sure offers
 - **Categorize** and **tag** transactions for better searching and reporting
 - Experiment with **budgets** to track your spending habits
-- Use **bulk import** to load historical transactions
+- Use **Import** (the Import button on the Transactions page, or **Settings > Imports**) to load historical transactions
