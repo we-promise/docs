@@ -249,6 +249,20 @@ Encryption is also required to generate a Wise SCA keypair. Without it, the **Ge
 Sure can derive these values from `SECRET_KEY_BASE` automatically, so the warning only appears when none of the three environment variables are explicitly set. If you already set `SECRET_KEY_BASE`, encryption is still active — you will only see the warning if you want to use dedicated keys instead. See [Turning on Active Record encryption after first boot](#turning-on-active-record-encryption-after-first-boot) if you need to backfill existing data.
 </Note>
 
+### Brand logo variables
+
+Sure uses [Brandfetch](https://brandfetch.com/) to show each provider's own icon on Bank Sync cards, drawers, and Accounts connection cards, as well as merchant and institution logos throughout the app. Set your Brandfetch client ID to enable these logos:
+
+```txt
+# Required to show provider, merchant, and institution logos from Brandfetch
+BRAND_FETCH_CLIENT_ID=your-brandfetch-client-id
+
+# Optional: fetch larger (120 px) icons instead of the default 40 px
+BRAND_FETCH_HIGH_RES_LOGOS=false
+```
+
+When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
