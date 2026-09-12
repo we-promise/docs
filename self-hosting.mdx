@@ -735,7 +735,7 @@ You can tune the AI status checks with these environment variables:
 
 The checks above all run from the `web` process. Most AI work — assistant responses, PDF processing, embeddings, auto-categorization, and merchant detection — actually executes in a Sidekiq `worker` process, which can differ from `web` in network access, DNS, proxy rules, or the credentials it loaded. This is most common in Kubernetes deployments using workload-specific environment overrides or a Secret updated without a pod restart. A passing web check does not prove a worker can reach the same provider.
 
-Click **Verify worker configuration** on the AI status tab to queue an asynchronous check (`WorkerAiHealthCheckJob`). It runs the same live probes from inside whichever worker process dequeues it, and the tab lists the result: that worker's process identity, when it checked in, whether its effective configuration matches what `web` resolved, and probe outcomes.
+Click **Verify worker configuration** on the AI status tab to queue an asynchronous check (`WorkerAiHealthCheckJob`). It runs the same live probes from inside whichever worker process dequeues it, and the tab lists the result: that worker's process identity, when it checked in, whether its effective configuration matches what `web` resolved, and probe outcomes. All labels and status messages in the worker verification section are displayed in the super-admin's configured interface language.
 
 A few things this does and does not prove:
 
