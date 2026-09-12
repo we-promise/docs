@@ -21,6 +21,7 @@ Sure can fetch high-resolution logos for merchants, financial institutions, and 
 4. The setting saves automatically
 
 When enabled, Sure will:
+- Show each bank sync provider's own brand icon on Bank Sync cards, drawers, and Accounts connection cards
 - Fetch higher quality logos for merchants and institutions
 - Display dedicated logos for cryptocurrency assets (e.g., BTC, ETH) via Brandfetch's crypto logo service
 - Use Brandfetch as a fallback for stock tickers when logos aren't available
@@ -33,12 +34,13 @@ High-resolution logos may increase data usage slightly as larger image files are
 ### Brandfetch integration
 
 The Brandfetch integration provides:
+- **Provider logos**: Each bank sync provider's own icon on Bank Sync cards and Accounts connection cards, falling back to a generic icon or initials when unavailable
 - **High-quality logos**: Professional brand assets for better visual recognition
 - **Cryptocurrency logos**: Dedicated logo resolution for crypto assets using per-coin identifiers
 - **Fallback support**: Automatic logo lookup for stock tickers and merchants
 - **Consistent branding**: Standardized logo appearance across all transactions and holdings
 
-This feature works automatically once enabled, no additional configuration required.
+This feature works automatically once enabled. Self-hosted users must also set the `BRAND_FETCH_CLIENT_ID` environment variable. See [self-hosting configuration](/self-hosting#brand-logo-variables) for details.
 
 ## API keys
 
