@@ -1,0 +1,70 @@
+---
+title: CoinSpot
+description: Connect your CoinSpot exchange account to Sure
+---
+
+CoinSpot is an Australian cryptocurrency exchange. Sure connects to CoinSpot using a read-only API key and imports your combined crypto holdings, balances, and transaction history.
+
+## What is imported
+
+Sure imports one combined Crypto exchange account per CoinSpot connection, containing:
+
+- Current crypto holdings and AUD balances
+- Buy and sell order history
+- On-chain send and receive transactions
+- AUD deposits and withdrawals
+
+## Setting up CoinSpot
+
+### Step 1: Create a CoinSpot read-only API key
+
+1. Log in to your [CoinSpot](https://www.coinspot.com.au) account.
+2. Go to **Account → API**.
+3. Create a new **Read Only** API key.
+4. Copy the **API Key** and **API Secret** shown after creation.
+
+<Warning>
+Use a read-only API key. Sure only reads your balances and history — granting trade or withdrawal permissions is unnecessary and a security risk.
+</Warning>
+
+### Step 2: Add the connection in Sure
+
+1. Go to **Settings → Providers**.
+2. Find the **CoinSpot** section and click **Connect**.
+3. Enter a connection name, paste your **API Key** and **API Secret**, and save.
+4. Sure begins syncing your CoinSpot exchange account automatically.
+
+### Step 3: Import the account
+
+After the first sync, your CoinSpot exchange account appears in the setup queue. Click **Import Account** in the provider panel to add it to your account list.
+
+## Multiple connections
+
+If you have multiple CoinSpot accounts, add a separate named connection for each one. Each connection imports one combined crypto account.
+
+## Supported transaction types
+
+Sure imports the following transaction types from CoinSpot:
+
+- **Buy and sell orders** — spot order history, including market orders
+- **Send and receive** — on-chain transfers to and from your CoinSpot wallets
+- **Deposits** — AUD deposits to your CoinSpot account
+- **Withdrawals** — AUD withdrawals from your CoinSpot account
+
+## Troubleshooting
+
+### Credentials need updating
+
+If the connection shows a reconnect prompt, your API key may have been revoked or the credentials entered are incorrect. Generate a new read-only API key from CoinSpot and update the connection in **Settings → Providers → CoinSpot**.
+
+### No accounts found
+
+After adding a connection, wait for the first sync to complete. If no accounts appear after syncing, verify that your API key is a **Read Only** key and that it has not been disabled in your CoinSpot account.
+
+### Missing order history
+
+CoinSpot defaults to returning the last 24 hours of history when no date range is specified. Sure requests up to 365 days of history on the initial sync, or from the sync start date you configured. If older orders are missing, check your configured sync start date in **Settings → Providers → CoinSpot**.
+
+### Balance shown as approximate
+
+When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.
