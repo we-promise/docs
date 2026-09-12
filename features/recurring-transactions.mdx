@@ -379,6 +379,34 @@ Each recurring transaction record stores:
 - End condition (never, on date, or after count)
 - Weekend adjustment rule
 
+## Self-hosting maintenance
+
+### When detection runs
+
+The full pipeline (detect patterns, materialize upcoming occurrences, repair provider-replaced entries, match payments, detect price changes) runs automatically:
+
+- After every completed bank sync or import (debounced by 30 seconds)
+- Nightly at 05:30 UTC for families that never sync
+
+You can also trigger it on demand using the **Find recurring transactions** button on an empty Bills page, or **Identify Patterns** under **Settings → Recurring transactions**.
+
+### First run on existing data
+
+The user-triggered detection actions backfill the last six months of history: past occurrences are generated and closed as paid where a real transaction anchors them. Past occurrences with no matching transaction are deleted rather than shown as missed, so the backfill reconstructs history without fabricating debt. The backfill is idempotent, so re-running detection never duplicates history. Background syncs never backfill. On an instance upgraded from a build without the Bills subsystem, run either detection action once to reconstruct history.
+
+### Maintenance tasks
+
+These tasks are safe to re-run. They only close history a real entry anchors and never touch existing payment records.
+
+```bash
+# Rebuild N months of occurrence history for every family (default 6)
+bin/rails "recurring:backfill_history[12]"
+
+# One-shot classification of auto-detected series still on defaults
+# (assigns bill/subscription/installment kind and a category)
+bin/rails recurring:classify_existing
+```
+
 ## Use cases
 
 ### Subscription tracking

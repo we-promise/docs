@@ -287,7 +287,7 @@ Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over 
 </Note>
 
 <Note>
-`TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. The T-Invest settings block in the UI stays visible whenever a token is configured, even if T-Invest is not selected as a price provider.
+`TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. When a token is configured but T-Invest is not enabled for prices, the T-Invest settings block shows a notice: "Not enabled for prices above — T-Invest is used to fetch brand logos for all your securities whenever a token is configured, independent of the checkbox above." Logo fetching happens regardless of whether T-Invest is selected as a price provider.
 </Note>
 
 ### Property valuation provider variables
@@ -749,7 +749,7 @@ You can tune the AI status checks with these environment variables:
 
 The checks above all run from the `web` process. Most AI work — assistant responses, PDF processing, embeddings, auto-categorization, and merchant detection — actually executes in a Sidekiq `worker` process, which can differ from `web` in network access, DNS, proxy rules, or the credentials it loaded. This is most common in Kubernetes deployments using workload-specific environment overrides or a Secret updated without a pod restart. A passing web check does not prove a worker can reach the same provider.
 
-Click **Verify worker configuration** on the AI status tab to queue an asynchronous check (`WorkerAiHealthCheckJob`). It runs the same live probes from inside whichever worker process dequeues it, and the tab lists the result: that worker's process identity, when it checked in, whether its effective configuration matches what `web` resolved, and probe outcomes.
+Click **Verify worker configuration** on the AI status tab to queue an asynchronous check (`WorkerAiHealthCheckJob`). It runs the same live probes from inside whichever worker process dequeues it, and the tab lists the result: that worker's process identity, when it checked in, whether its effective configuration matches what `web` resolved, and probe outcomes. All labels and status messages in the worker verification section are displayed in the super-admin's configured interface language.
 
 A few things this does and does not prove:
 
