@@ -112,10 +112,19 @@ For **loans**, Sure trusts the bank's sign directly and stores the absolute valu
 
 For **credit cards**, Sure uses recent transaction history to determine whether a positive balance represents debt (normal) or an overpayment credit (unusual). When there is not enough transaction history to decide, Sure falls back to sign-based normalization using both the posted and available balances reported by the institution.
 
+If a credit card balance still looks wrong after syncing, you can override the automatic sign detection. Open the account's edit form (from **Settings → Providers → SimpleFIN** or the account detail page) and find the **SimpleFIN balance meaning** dropdown:
+
+- **Automatic** (default): Sure uses transaction history and provider balance to determine the correct sign.
+- **Debt (you owe the bank)**: Forces the balance to be treated as a positive debt amount.
+- **Credit (bank owes you)**: Forces the balance to be treated as a credit in your favor (for example, an overpayment).
+
+Use an override only when SimpleFIN consistently reports an ambiguous sign for a specific card. The automatic setting is correct for most accounts.
+
 If a credit card or loan balance looks wrong after syncing:
 
 1. Re-sync the account from **Settings → Providers → SimpleFIN**.
 2. If the balance is still incorrect, check whether the account type is set to **Credit Card** or **Loan** in your account settings. An incorrect account type can cause the wrong normalization to be applied.
+3. For credit cards connected through SimpleFIN, set **SimpleFIN balance meaning** to **Debt** or **Credit** in the account's edit form if the automatic detection is wrong for your institution.
 
 ### Duplicate accounts with the same name
 
