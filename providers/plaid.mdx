@@ -184,6 +184,8 @@ When you initiate a Plaid Link flow, Sure requests a specific set of Plaid produ
 
 Because `liabilities` is only requested when linking a liability account (credit card or loan), investment-only institutions such as E*TRADE that do not offer Plaid's liabilities product are now visible when you link an investment account. Previously, requesting `liabilities` for every account type caused those institutions to be silently hidden in the Link flow.
 
+Sure fetches liability details (minimum payment, next payment due date, APR) for all Plaid accounts with type `credit`, regardless of subtype. This covers both standard credit cards (`credit/credit card`) and PayPal Credit accounts (`credit/paypal`). For loan accounts, liabilities are fetched only for `mortgage` and `student` subtypes.
+
 ## Features
 
 - **US bank coverage**: Comprehensive support for US financial institutions
@@ -191,6 +193,7 @@ Because `liabilities` is only requested when linking a liability account (credit
 - **OAuth support**: Secure authentication for supported banks
 - **Multiple accounts**: Connect accounts from different institutions
 - **Investment-only institutions**: Brokerages that do not offer liabilities (such as E*TRADE) can be linked as investment accounts
+- **Full credit liability support**: Liability data (minimum payment, due date, APR) is fetched for all Plaid `credit` account types, including PayPal Credit (`credit/paypal`) in addition to standard credit cards (`credit/credit card`)
 
 ## Pricing
 
