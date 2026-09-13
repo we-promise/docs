@@ -94,6 +94,14 @@ For detailed protocol documentation, see the [SimpleFIN Protocol](https://www.si
 
 SimpleFIN is a paid service, but typically more affordable than alternatives like Plaid. Check [simplefin.org](https://www.simplefin.org/) for current pricing.
 
+### Investment holdings and lot aggregation
+
+SimpleFIN reports one record per lot, so a single position can arrive as several records sharing the same security. A 401k that splits employee deferral from employer match is a common example.
+
+Sure combines these lots into a single position per security before storing the holding. Quantity and market value are summed across all lots. Cost basis is stored per share, so lots are combined into a share-weighted average — but only when every lot reported a basis. If any lot omits its cost basis, the entire position's cost basis is left unknown rather than averaging over partial data, which would invent cost and produce incorrect gain/loss figures.
+
+If your investment account shows a total value that matches your institution's balance but individual holdings appear at less than their full value, a manual sync from **Settings → Providers → SimpleFIN** will re-import the combined positions correctly.
+
 ## Limitations
 
 - **US-focused**: Primarily supports US financial institutions

@@ -184,6 +184,10 @@ When you initiate a Plaid Link flow, Sure requests a specific set of Plaid produ
 
 Because `liabilities` is only requested when linking a liability account (credit card or loan), investment-only institutions such as E*TRADE that do not offer Plaid's liabilities product are now visible when you link an investment account. Previously, requesting `liabilities` for every account type caused those institutions to be silently hidden in the Link flow.
 
+Sure fetches liability details (minimum payment, next payment due date, APR) for all Plaid accounts with type `credit`, regardless of subtype. This covers both standard credit cards (`credit/credit card`) and PayPal Credit accounts (`credit/paypal`). For loan accounts, liabilities are fetched only for `mortgage` and `student` subtypes.
+
+Plaid reports an item's products across three lists: `available_products`, `billed_products`, and `consented_products`. Sure treats all three as supported. Products granted through `additional_consented_products` during the Link flow appear in `consented_products` until they are first billed — if Sure only checked the first two lists, those products would appear unsupported and their data would not be fetched.
+
 ## Features
 
 - **US bank coverage**: Comprehensive support for US financial institutions
@@ -191,6 +195,7 @@ Because `liabilities` is only requested when linking a liability account (credit
 - **OAuth support**: Secure authentication for supported banks
 - **Multiple accounts**: Connect accounts from different institutions
 - **Investment-only institutions**: Brokerages that do not offer liabilities (such as E*TRADE) can be linked as investment accounts
+- **Full credit liability support**: Liability data (minimum payment, due date, APR) is fetched for all Plaid `credit` account types, including PayPal Credit (`credit/paypal`) in addition to standard credit cards (`credit/credit card`)
 
 ## Pricing
 
@@ -252,6 +257,12 @@ After you complete re-authentication, the warning is not cleared immediately. Su
 ## Troubleshooting
 
 If you run into Plaid errors that are not visible in Sure, check the Plaid Dashboard logs under **Developers > Logs**. These logs can show whether the issue is coming from Plaid Link configuration, product approval, institution support, or another Plaid-side validation error.
+
+### Credit card or loan shows no transactions after linking
+
+If you linked a credit card or loan account through Plaid and Sure imported balances and liabilities but no transactions, the connection was affected by a bug that is now fixed. Plaid places the `transactions` product in `consented_products` for liability accounts until the first billing call — Sure previously only checked `available_products` and `billed_products`, so `transactions` appeared unsupported and the fetch was skipped.
+
+To resolve this, trigger a manual sync from the account page. Sure will now recognize `transactions` as a supported product and import your transaction history.
 
 ### Link popup closes after selecting a bank
 
