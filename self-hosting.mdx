@@ -736,7 +736,7 @@ The tab also shows the active provider, model, endpoint (credentials are always 
 
 When `OPENAI_URI_BASE` points to a custom endpoint, the page identifies the provider where possible — Ollama, OpenRouter, Together AI, Kilo, Cloudflare Workers AI or AI Gateway — and labels unrecognized services as **Custom endpoint**.
 
-Results are cached for 60 seconds by default. Click **Run checks again** to bypass the cache and get fresh results. Failures are written to the system debug log and to `Rails.logger`; credentials are never included.
+Results are cached for 60 seconds by default. Click **Run checks again** to bypass the cache and get fresh results. Failures are written to the system debug log and to `Rails.logger`; credentials are never included. Failure reason labels and failure code messages are displayed in the super-admin's configured interface language.
 
 You can tune the AI status checks with these environment variables:
 
