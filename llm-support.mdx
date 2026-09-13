@@ -355,6 +355,39 @@ The AI cache is automatically cleared for all users when the OpenAI model settin
 - **AI enrichment records are deleted** - The history of AI changes is cleared
 - **User edits are preserved** - If you manually changed a category after AI set it, your change is kept
 
+## Observability with Langfuse
+
+Sure can send traces of every LLM interaction to [Langfuse](https://langfuse.com) for debugging and usage analytics. Langfuse is open-source and can be self-hosted or used as a cloud service.
+
+### Setup
+
+1. Create a Langfuse project (cloud or self-hosted).
+2. Copy the public key and secret key from the project's settings.
+3. Set the environment variables:
+
+```bash
+LANGFUSE_PUBLIC_KEY=your_public_key
+LANGFUSE_SECRET_KEY=your_secret_key
+# Optional: only needed when self-hosting Langfuse or using a non-default domain
+LANGFUSE_HOST=https://your-langfuse-domain.com
+```
+
+In Docker deployments, add these variables to `compose.yml` and the `.env` file. Sure reads them on boot and enables tracing automatically. When the keys are absent, Sure runs normally without Langfuse.
+
+### What gets traced
+
+| Trace | Description |
+| --- | --- |
+| `chat_response` | Conversational AI assistant turns |
+| `auto_categorize` | Background transaction categorization |
+| `auto_detect_merchants` | Background merchant detection |
+
+Each trace records the prompt, model, response, and token usage when available.
+
+### Viewing traces
+
+After starting Sure with the variables set, open your Langfuse dashboard to see traces and generations grouped under `openai.*` traces.
+
 ## Evaluation system
 
 Test and compare different LLMs for your specific use case. The eval system helps you benchmark models for transaction categorization, merchant detection, and chat assistant functionality.
