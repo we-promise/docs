@@ -29,6 +29,14 @@ If a provider reports prices for individual securities on different dates within
 
 For accounts that have no provider connection, Sure shows the most recent holding per security from your manually entered or calculated data.
 
+### Chart history and inception dates
+
+For linked investment and crypto accounts, the balance chart only displays data from the point where Sure has reliable provider history. The chart start date is determined by the earliest date your provider supplied activity or holdings data — data from before that point is excluded so the chart never shows misleading zero or estimated values.
+
+When the chart period begins exactly at the inception date (the first supported history date), Sure inserts an anchor point on that date with the correct opening balance. For balance and cash views this is the account's recorded opening balance; for gains and holdings views the anchor starts at zero. This anchor ensures the chart line begins at the right value rather than appearing to jump up from nothing on the first real data point.
+
+The same scoping applies to the 30-day sparkline shown in the sidebar for investment and crypto account groups.
+
 ## Recording Trades
 
 Investment accounts support manual trade entry to track your buy and sell activity.
