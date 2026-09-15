@@ -1,0 +1,109 @@
+---
+title: Fio banka
+description: Connect your Fio banka (Czech Republic) account to Sure
+---
+
+Fio banka is a Czech bank. Sure connects to it directly using Fio's "API Bankovnictví", syncing your balance and transactions automatically. You bring your own token — no third-party aggregator sits in between.
+
+<Note>
+Fio issues one API token per account with no way to list accounts from a single token. To track multiple Fio accounts, add one connection per account in **Settings > Providers**.
+</Note>
+
+## How it works
+
+1. Log in to Fio internet banking at [ib.fio.cz](https://ib.fio.cz)
+2. Navigate to **Settings > API token** and generate a token for the account you want to sync
+3. Paste the token into Sure
+4. Sure fetches a statement from Fio on the first sync, discovers the account, and begins syncing balances and transactions
+5. Link the discovered account to an existing Sure account or create a new one
+
+## Setting up Fio banka
+
+1. Log in to [ib.fio.cz](https://ib.fio.cz) and go to **Settings > API token**
+2. Generate a new token for the account and copy it. Store it somewhere safe — it is shown only during setup
+3. In Sure, go to **Settings > Providers**, find the **Fio banka** panel, and fill in a connection name and the token
+4. Optionally set a **Sync start date** to limit how far back Sure reaches for history
+5. Save the connection. Sure kicks off a first sync immediately
+6. After the sync completes, click **Set up accounts** on the connection to link the discovered account to a Sure account or create a new one
+
+## Features
+
+### Account syncing
+
+- **Balance**: The closing balance from each statement is synced to the linked account
+- **Transaction history**: Transactions are imported with date, amount, currency, description, counterparty details, and payment symbols
+- **Deduplication**: Each movement carries a stable ID from Fio that Sure uses as the external ID. Re-syncing never creates duplicates
+- **Loan and mortgage accounts**: Fio reports drawn loan balances as negative figures. Sure stores them positively, consistent with how liabilities are tracked elsewhere
+
+### Transaction fields
+
+Each Fio movement maps onto a Sure transaction as follows:
+
+| Fio field | Sure field |
+| --- | --- |
+| `column22` — ID pohybu | External ID (`fio_<id>`) |
+| `column0` — Datum | Date (parsed in the Europe/Prague timezone) |
+| `column1` — Objem | Amount (sign inverted: Fio outflows are negative, Sure expenses are positive) |
+| `column14` — Měna | Currency |
+| `column10` — Název protiúčtu | Transaction name (primary source) |
+| `column7` — Uživatelská identifikace | Card acceptor name for card payments; notes otherwise |
+| `column16` — Zpráva pro příjemce | Notes |
+| `column8` — Typ | Transaction name fallback |
+
+Additional Fio fields — variable symbol, constant symbol, specific symbol, counterparty account number, BIC, instruction ID, payer reference, and executor — are stored in the transaction's metadata under the `fio` key and are visible in the transaction details panel.
+
+### Card payments and merchant detection
+
+For card payments (operation types containing "kart"), Sure strips the terminal receipt line from the "Uživatelská identifikace" field and extracts only the acceptor name (the first comma-separated segment before the address and amount). This gives the merchant a consistent name across branches rather than tying it to a specific terminal location.
+
+### Foreign currency transactions
+
+When a payment is made in a currency other than the account's own currency, Fio records the converted amount in the "Upřesnění" (`column18`) field. Sure parses this field and stores the foreign currency code as `fx_from` and the foreign amount as `fx_amount`, following the same convention used by other providers.
+
+### Syncing cadence
+
+Fio's API enforces a minimum of 30 seconds between uses of the same token. Sure is designed around this constraint:
+
+- Each sync spends exactly one statement request per connection
+- The statement window ends today and starts from whichever is later: the configured start date or a few days before the last covered day (the lookback overlap)
+- On the first sync of a new connection the window reaches back `FIO_INITIAL_HISTORY_DAYS` (default 90 days)
+- Subsequent syncs re-read the last `FIO_SYNC_LOOKBACK_DAYS` (default 7 days) to catch movements whose booking date lags behind their appearance
+
+A manual sync started right after a scheduled one may be throttled by Fio with HTTP 409. Sure treats this as a deferred sync — the connection stays healthy and the next sync picks up where this one left off.
+
+### Full history unlock
+
+Fio serves 90 days of history without any extra steps. Movements older than 90 days require the account's full history to be unlocked temporarily in internet banking. When a sync requests a range that Fio refuses for this reason:
+
+1. Sure records that a history unlock is needed
+2. Subsequent syncs clamp the window to the last 89 days until you unlock and sync manually
+3. To backfill older history: unlock the full history in [ib.fio.cz](https://ib.fio.cz) (valid for 10 minutes), then click **Sync** on the connection in Sure. Sure drops the clamp and reaches for the full range in that sync
+
+## Configuration
+
+The following environment variables are available for self-hosted deployments:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `FIO_INITIAL_HISTORY_DAYS` | `90` | How far back a brand-new connection reaches on its first sync |
+| `FIO_SYNC_LOOKBACK_DAYS` | `7` | Days before the last covered day that each subsequent sync re-reads |
+| `FIO_DEBUG_RAW` | unset | Log the raw statement from Fio. Development only — the dump contains personal data (counterparty names, account numbers, payment messages) |
+
+## Limitations
+
+- Czech and Slovak accounts only (Fio banka operates in CZ and SK)
+- One token reaches exactly one account; multiple accounts need multiple connections
+- Data is read-only; Sure never writes anything back to Fio
+- Fio's API allows one request per 30 seconds per token. A sync that collides with another is deferred to the next run rather than retried immediately
+
+## Troubleshooting
+
+**Connection requires update**: The token was revoked or is invalid. Generate a new one in [ib.fio.cz](https://ib.fio.cz) and update it in the provider panel. Saving a new token triggers a sync automatically.
+
+**Account not discovered yet**: The first sync has not completed, or it completed but the window was empty (no movements in the requested range). Wait for the next scheduled sync, or click **Sync** on the connection to run one immediately.
+
+**History does not go back far enough**: Transactions older than 90 days require the full-history unlock in internet banking. Unlock it, then click **Sync** in Sure within the 10-minute window. You can also set an earlier **Sync start date** on the connection to tell Sure which date to aim for.
+
+**Sync errors**: Provider sync failures are captured in Sure's debug log. Super admins can find them at **Settings > Debug**, filtered by the `fio` provider key.
+
+For more detail, see the [Fio banka API documentation](https://www.fio.cz/docs/cz/API_Bankovnictvi.pdf).
