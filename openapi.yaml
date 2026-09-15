@@ -3330,6 +3330,261 @@ components:
           type: string
           format: date-time
           description: When the device last registered this token.
+    SankeyNode:
+      type: object
+      required:
+      - id
+      - name
+      - kind
+      - value
+      - percentage
+      properties:
+        id:
+          type: string
+          description: Stable string identifier for this node (e.g. `income_uuid`, `expense_sub_uuid`, `cash_flow_node`, `surplus_node`).
+        name:
+          type: string
+          description: Display name (category name, "Cash Flow", "Surplus", or "Deficit").
+        kind:
+          type: string
+          description: >
+            Node role. `income` and `expense` are category-level flow nodes; `cash_flow`
+            is the central node; `surplus` and `deficit` are net outcome nodes.
+          enum:
+          - income
+          - expense
+          - cash_flow
+          - surplus
+          - deficit
+        value:
+          type: string
+          description: Absolute monetary amount as a decimal string in the family's primary currency.
+        percentage:
+          type: string
+          description: >
+            Share of the larger side (income or spending) as a decimal string (0–100).
+            Used to size the node in the chart.
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: UUID of the associated category, or null for structural nodes.
+        filter_value:
+          type: string
+          nullable: true
+          description: Category filter value for drill-down navigation, or null when not applicable.
+        color:
+          type: string
+          nullable: true
+          description: CSS hex color associated with the category, or null for structural nodes.
+    SankeyLink:
+      type: object
+      required:
+      - source
+      - target
+      - value
+      - percentage
+      properties:
+        source:
+          type: integer
+          description: Zero-based index into the `nodes` array for the link's source node.
+        target:
+          type: integer
+          description: Zero-based index into the `nodes` array for the link's target node.
+        value:
+          type: string
+          description: Monetary flow amount as a decimal string.
+        percentage:
+          type: string
+          description: Flow as a percentage of the relevant side total (income or spending).
+    SankeyGraph:
+      type: object
+      required:
+      - basis
+      - income
+      - spending
+      - net_savings
+      - nodes
+      - links
+      properties:
+        basis:
+          type: string
+          enum:
+          - net_by_category
+          description: >
+            Calculation basis. `net_by_category` means refunds are netted within each
+            category before flows are partitioned into income and expense sides.
+        income:
+          type: string
+          description: Total income for the period as a decimal string.
+        spending:
+          type: string
+          description: Total spending for the period as a decimal string.
+        net_savings:
+          type: string
+          description: >
+            income minus spending as a decimal string (negative when spending exceeds income).
+        nodes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/SankeyNode"
+        links:
+          type: array
+          items:
+            "$ref": "#/components/schemas/SankeyLink"
+    SpendingComparisonDay:
+      type: object
+      required:
+      - date
+      - amount
+      properties:
+        date:
+          type: string
+          format: date
+        amount:
+          type: string
+          description: Cumulative spending through this date as a decimal string.
+    SpendingComparison:
+      type: object
+      required:
+      - previous_period
+      - current_total
+      - comparison_total
+      - comparison_end_date
+      - delta
+      - current
+      - previous
+      properties:
+        previous_period:
+          type: object
+          required:
+          - start_date
+          - end_date
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+        current_total:
+          type: string
+          description: Cumulative spending for the current period as a decimal string.
+        comparison_total:
+          type: string
+          description: >
+            Cumulative spending for the previous period up to the equivalent comparison
+            day as a decimal string.
+        comparison_end_date:
+          type: string
+          format: date
+          description: Last date included in comparison_total.
+        delta:
+          type: string
+          description: current_total minus comparison_total as a decimal string.
+        current:
+          type: array
+          description: Day-by-day cumulative spending series for the current period.
+          items:
+            "$ref": "#/components/schemas/SpendingComparisonDay"
+        previous:
+          type: array
+          description: Day-by-day cumulative spending series for the previous month.
+          items:
+            "$ref": "#/components/schemas/SpendingComparisonDay"
+    CashFlow:
+      type: object
+      required:
+      - month
+      - as_of
+      - time_zone
+      - currency
+      - period
+      - income
+      - spending
+      - net_savings
+      - spending_comparison
+      properties:
+        month:
+          type: string
+          format: date
+          description: First day of the requested month (ISO 8601).
+        as_of:
+          type: string
+          format: date
+          description: Date the response was calculated.
+        time_zone:
+          type: string
+          description: IANA time zone identifier for the authenticated user.
+        currency:
+          type: string
+          description: Family primary currency code.
+        period:
+          type: object
+          required:
+          - start_date
+          - end_date
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+        income:
+          type: string
+          description: Total income for the period as a decimal string.
+        spending:
+          type: string
+          description: Total spending for the period as a decimal string.
+        net_savings:
+          type: string
+          description: "`income - spending` as a decimal string."
+        savings_rate:
+          type: string
+          nullable: true
+          description: >
+            Savings rate as a percentage decimal string (0–100), or null when income is zero.
+        spending_comparison:
+          "$ref": "#/components/schemas/SpendingComparison"
+        sankey:
+          "$ref": "#/components/schemas/SankeyGraph"
+          nullable: true
+          description: >
+            Sankey graph data. Present only when `include=sankey` is passed.
+    CashFlowGraph:
+      type: object
+      required:
+      - as_of
+      - time_zone
+      - currency
+      - period
+      - sankey
+      properties:
+        as_of:
+          type: string
+          format: date
+          description: Date the response was calculated.
+        time_zone:
+          type: string
+          description: IANA time zone identifier for the authenticated user.
+        currency:
+          type: string
+          description: Family primary currency code.
+        period:
+          type: object
+          required:
+          - start_date
+          - end_date
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+        sankey:
+          "$ref": "#/components/schemas/SankeyGraph"
 paths:
   "/api/v1/accounts":
     get:
@@ -3983,6 +4238,117 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/cash_flow":
+    get:
+      summary: Show cash flow
+      tags:
+      - Cash Flow
+      description: >
+        Returns income, spending, net savings, and a day-by-day comparison against
+        the previous month for a given calendar month, or a Sankey graph for an
+        arbitrary date range.
+
+
+        **Query modes**
+
+
+        | Parameters | Response shape |
+        |---|---|
+        | `month` (or none) | `CashFlow` — monthly summary with spending comparison series |
+        | `month` + `include=sankey` | `CashFlow` with an additional `sankey` field |
+        | `view=sankey` + `start_date` + `end_date` | `CashFlowGraph` — Sankey-only response for any date range |
+
+
+        `include` and `view` cannot be combined. Both parameters currently support
+        only the value `sankey`. `view=sankey` requires `start_date` and `end_date`
+        and must not include `month`.
+      security:
+      - apiKeyAuth: []
+      - bearerAuth: []
+      parameters:
+      - name: month
+        in: query
+        required: false
+        description: >
+          First day of the calendar month to summarize (ISO 8601, e.g. `2025-01-01`).
+          Defaults to the current month. Must not be in the future. Cannot be combined
+          with `view=sankey`.
+        schema:
+          type: string
+          format: date
+      - name: include
+        in: query
+        required: false
+        description: >
+          Pass `sankey` to append a Sankey graph to the standard monthly `CashFlow`
+          response. Cannot be combined with `view`.
+        schema:
+          type: string
+          enum:
+          - sankey
+      - name: view
+        in: query
+        required: false
+        description: >
+          Pass `sankey` to retrieve a Sankey-only `CashFlowGraph` response for an
+          arbitrary date range. Requires `start_date` and `end_date`. Cannot be
+          combined with `include` or `month`.
+        schema:
+          type: string
+          enum:
+          - sankey
+      - name: start_date
+        in: query
+        required: false
+        description: >
+          Start of the custom date range (ISO 8601). Required when `view=sankey`.
+        schema:
+          type: string
+          format: date
+      - name: end_date
+        in: query
+        required: false
+        description: >
+          End of the custom date range (ISO 8601). Required when `view=sankey`.
+          Must be on or after `start_date`.
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: cash flow returned
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - "$ref": "#/components/schemas/CashFlow"
+                - "$ref": "#/components/schemas/CashFlowGraph"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: invalid query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                - message
+                properties:
+                  error:
+                    type: string
+                    enum:
+                    - invalid_view
+                    - invalid_period
+                    - invalid_month
+                    description: Machine-readable error code.
+                  message:
+                    type: string
+                    description: Human-readable explanation of the validation failure.
   "/api/v1/balances":
     get:
       summary: List balance history records
