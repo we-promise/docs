@@ -62,3 +62,16 @@ Push notification device tokens are managed separately:
 
 - `POST /api/v1/push_subscriptions` — register a device token
 - `DELETE /api/v1/push_subscriptions/{id}` — unregister a device token
+
+#### Push subscription registration
+
+`POST /api/v1/push_subscriptions` accepts the following parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `token` | string | Yes | The APNs device token (hex-encoded, lowercase) |
+| `environment` | string | Yes | `sandbox` or `production` |
+| `platform` | string | Yes | Device platform — currently `ios` |
+| `device_key` | string | No | 32 securely random bytes encoded as 64 lowercase hex characters. Generate independently per device and store only in secure device storage. Preserve it across user logout. |
+
+**About `device_key`:** The server stores only the SHA-256 digest of the key, never the key itself. When the same APNs token is already registered to a different user — for example after a device hand-off — providing the matching `device_key` allows atomic replacement of the existing registration with a new subscription ID. Old queued deliveries and deletes against the previous ID become harmless. A missing or incorrect key returns `422`. An existing registration that has no stored digest must be enrolled or removed by its original owner before the token can be re-registered — knowing the APNs token alone is not enough to authorize a transfer.
