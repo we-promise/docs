@@ -257,6 +257,33 @@ When you delete an account, Sure removes all transfers linked to its transaction
   </Accordion>
 </AccordionGroup>
 
+## Provider connection stuck on "Deletion in progress"
+
+If a provider connection shows "Deletion in progress" indefinitely and never disappears, the background deletion job may not have been queued successfully.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    When you delete a provider connection, Sure marks it as scheduled for deletion and enqueues a background job to remove it. If the job queue (Redis) was unreachable at that moment — or if an enqueue callback rejected the job — the flag stayed set with no job queued. The connection dropped out of the active list and could never be synced again, but it was never actually deleted.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now restores the deletion flag when the enqueue fails, so the connection returns to its normal state rather than staying stuck. If the job queue is temporarily unavailable, you can retry the deletion once the queue is healthy again.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if a connection is already stuck?">
+    If a connection is already stuck on an older version, triggering a fresh deletion from **Settings → Providers** will re-enqueue the job once the queue is reachable. If the connection does not respond to deletion, verify that your worker container and Redis are healthy:
+
+    ```bash
+    docker compose ps worker
+    docker compose logs worker --tail 50
+    ```
+
+    Once the worker is running and Redis is reachable, attempt the deletion again.
+  </Accordion>
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
