@@ -90,6 +90,7 @@
               "providers/kraken",
               "providers/lunchflow",
               "providers/mercury",
+              "providers/fio-banka",
               "providers/monobank",
               "providers/questrade",
               "providers/wise",
