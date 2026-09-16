@@ -8426,6 +8426,14 @@ paths:
                   enum:
                   - ios
                   description: The platform of the device. Currently only `ios` is supported.
+                device_key:
+                  type: string
+                  description: >
+                    Optional 64-character lowercase hex string that identifies a specific
+                    app installation. When a token is re-registered for a different user,
+                    Sure checks this value against the stored digest before transferring
+                    the subscription. Omit when the device has never previously registered
+                    under a different user.
       responses:
         '201':
           description: push subscription registered or updated
@@ -8433,6 +8441,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/PushSubscription"
+        '403':
+          description: push notifications not available in self-hosted mode
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
         '422':
           description: validation error
           content:
