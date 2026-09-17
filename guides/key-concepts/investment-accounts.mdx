@@ -135,6 +135,8 @@ When securities are transferred **into** an account, Sure cannot determine what 
 
 When securities are transferred **out** of an account, Sure does not touch the cost basis of the shares that remain. Those remaining shares came from real purchases this account recorded, and their cost basis is correct. You can set it manually if you need to record it explicitly.
 
+Once you sell all of the transferred shares and the position reaches zero, Sure releases the unknown mark. Any shares you buy after that point are treated as a fresh purchase with a known cost basis, so gains and losses calculate correctly from that repurchase forward.
+
 > [!NOTE]
 > Only a calculated cost basis is cleared on an inbound transfer. If you have set a manual cost basis, or your institution provided one, Sure keeps that value — it represents an explicit assertion about what the position cost, which the app respects.
 
