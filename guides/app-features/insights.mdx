@@ -62,3 +62,17 @@ Push notification device tokens are managed separately:
 
 - `POST /api/v1/push_subscriptions` — register a device token
 - `DELETE /api/v1/push_subscriptions/{id}` — unregister a device token
+
+### Push subscription registration
+
+The registration endpoint accepts an optional `device_key` — a 64-character lowercase hex string that identifies a specific app installation. Include it when your app generates a stable per-install identifier (for example, a UUID stored in the keychain, hex-encoded).
+
+When a token arrives with a `device_key`, Sure compares a SHA-256 digest of that key against the value stored for the existing subscription. If the digests match, the subscription transfers to the new user. If they do not match, registration is rejected with a `validation_error` to prevent one user from claiming another user's device.
+
+Call `DELETE /api/v1/push_subscriptions/{id}` before the user signs out so the old subscription is cleaned up before a new one is created.
+
+### Delivery behavior
+
+Push notifications for high-priority insights are delivered only on the hosted version of Sure. The server retries on transient APNs errors (HTTP 429 and 5xx responses) with exponential back-off up to five attempts. A 410 response from APNs means the token is permanently unregistered; Sure removes the subscription only if the token has not been re-registered since the APNs invalidation timestamp, so a prompt re-registration from the device is never incorrectly removed.
+
+Subscriptions inactive for more than 90 days are excluded from all deliveries.

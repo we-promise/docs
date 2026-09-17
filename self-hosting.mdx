@@ -336,6 +336,26 @@ ONCHAIN_MAX_TOKENS_PER_ADDRESS="200"
 
 To enable crypto pricing for on-chain wallets, include `binance_public` in `SECURITIES_PROVIDERS`. If your family currency is not USD, also set `EXCHANGE_RATE_PROVIDER` to a provider that needs no API key (e.g. `frankfurter`). See [on-chain wallets](/providers/onchain-wallets) for details.
 
+### Redis Sentinel (high availability)
+
+By default Sure connects to Redis using `REDIS_URL`. For high-availability deployments that use Redis Sentinel, set `REDIS_SENTINEL_HOSTS` instead. When that variable is present it takes precedence over `REDIS_URL`.
+
+```txt
+# Comma-separated list of Sentinel nodes (host:port)
+REDIS_SENTINEL_HOSTS=sentinel1:26379,sentinel2:26379,sentinel3:26379
+
+# Name of the monitored master (default: mymaster)
+REDIS_SENTINEL_MASTER=mymaster
+
+# Sentinel authentication username (default: default)
+REDIS_SENTINEL_USERNAME=default
+
+# Password for both the Redis master and the Sentinel nodes
+REDIS_PASSWORD=your-redis-password
+```
+
+If `REDIS_SENTINEL_HOSTS` is set but no valid hosts can be parsed from it, Sure falls back to `REDIS_URL` and logs a warning.
+
 ## Running the application
 
 ### Start the application
@@ -578,6 +598,8 @@ Add these variables to your `.env` file:
 ```txt
 SSL_CA_FILE=/path/to/ca-bundle.pem
 SSL_VERIFY=true
+# Optional: enable verbose SSL logging for debugging
+SSL_DEBUG=false
 ```
 
 **SSL_CA_FILE**: Path to a custom CA certificate bundle (PEM format). Use this when:
@@ -588,6 +610,8 @@ SSL_VERIFY=true
 **SSL_VERIFY**: Controls SSL certificate verification (default: `true`)
 - Set to `false` to disable SSL verification (not recommended for production)
 - Only disable verification in development or testing environments
+
+**SSL_DEBUG**: Set to `true` to enable verbose SSL logging at startup. Sure logs the active CA file, verification status, and the path of the combined CA bundle it writes to `tmp/ssl_ca_bundle.pem`. Use this to diagnose certificate trust issues in development or staging environments.
 
 If you're using a custom CA bundle, mount it into your containers in `compose.yml`:
 
@@ -677,6 +701,17 @@ For production deployments:
 ## Monitoring system health
 
 When the Sidekiq worker container isn't running, background jobs silently never execute. Balance calculations, net-worth updates, and account syncs stall, and the UI may show zeros or "No balance data available" without explaining why.
+
+### Sidekiq queue dashboard credentials
+
+The Sidekiq queue dashboard is available at `/sidekiq` for signed-in super admins only. You can add a second HTTP basic-auth layer on top of that by setting both of these variables:
+
+```txt
+SIDEKIQ_WEB_USERNAME=your-username
+SIDEKIQ_WEB_PASSWORD=your-password
+```
+
+Both variables must be set for basic auth to activate. When only one is present, the extra layer is skipped and the dashboard remains accessible to signed-in super admins as normal.
 
 ### Sidekiq health banner
 
