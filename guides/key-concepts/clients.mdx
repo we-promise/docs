@@ -37,6 +37,12 @@ Use it when someone wants a desktop app experience without a separate desktop da
 
 The app supports servers hosted under a sub-path. If your self-hosted instance is mounted behind a reverse proxy at a path prefix — for example `https://home.example.com/sure` — enter that full URL when adding the server. The app probes the health endpoint starting at the address you entered and walks up to the origin to find the actual mount point. You can also paste a deep link (such as a session URL copied from your browser) and the app will resolve the correct base automatically.
 
+**CSV exports.** When you click an export link in the desktop app, the file is saved to your Downloads folder using a native download. A macOS notification appears when the download finishes or if it fails.
+
+**Printable reports.** Report pages (URLs ending in `/reports/print`) open in a separate Sure window that carries your session over. Once the page has loaded, the app opens the native macOS print dialog automatically. The print dialog appears once per report window.
+
+**External links.** Links that target a new window follow the same rules as the web app. Pages hosted on a saved server open in a new Sure window. Other `http` and `https` links open in your default browser. Links with non-web schemes or embedded credentials are ignored.
+
 ## Mobile app
 
 The mobile app is a Flutter companion app for iOS and Android. It connects to a Sure server through the API and currently focuses on core mobile flows such as authentication and viewing account balances.

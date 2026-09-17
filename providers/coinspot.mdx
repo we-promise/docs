@@ -1,0 +1,70 @@
+---
+title: CoinSpot
+description: Connect your CoinSpot account to track cryptocurrency holdings, balances, and trades
+---
+
+CoinSpot is an Australian cryptocurrency exchange. Sure connects to CoinSpot using a read-only API key and imports your combined crypto holdings, order history, on-chain transfers, and AUD deposits and withdrawals.
+
+## What is imported
+
+Sure imports one combined Crypto exchange account per CoinSpot connection, containing:
+
+- Current crypto holdings and balances (all assets)
+- AUD total balance
+- Completed buy and sell order history
+- On-chain send and receive transactions
+- AUD deposits and withdrawals
+
+## Setting up CoinSpot
+
+### Step 1: Create a CoinSpot API key
+
+1. Log in to [CoinSpot](https://www.coinspot.com.au) and go to [API settings](https://www.coinspot.com.au/my/api).
+2. Create a new read-only API key with access to balances and order history.
+
+<Warning>
+Do not grant send, withdrawal, trading, or transfer permissions. Sure only imports balances, AUD values, transfers, deposits, withdrawals, and completed order history. Granting write permissions is unnecessary and a security risk.
+</Warning>
+
+3. Copy the **API Key** and **API Secret** shown after creation.
+
+### Step 2: Add the connection in Sure
+
+1. Go to **Settings → Providers**.
+2. Find the **CoinSpot** section.
+3. Enter a connection name, paste your **API Key** and **API Secret**, and click **Add CoinSpot connection**.
+4. Sure begins syncing your CoinSpot exchange account automatically.
+
+### Step 3: Import the account
+
+After the first sync, your CoinSpot exchange account appears in the setup queue. Click **Import Account** in the provider panel to add it to your account list.
+
+## Multiple connections
+
+If you have multiple CoinSpot accounts, add a separate named connection for each one. Each connection imports one combined Crypto exchange account.
+
+## Sync history
+
+If no sync start date is set, Sure imports up to 365 days of order, transfer, deposit, and withdrawal history on the first sync. Order history is fetched in 30-day windows to work within CoinSpot's API limits. To import a different range, set a sync start date before adding the connection.
+
+## Security
+
+Your CoinSpot API credentials are encrypted at rest using ActiveRecord Encryption when encryption keys are configured in your deployment. Configure `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` before adding credentials in a production environment. Without those keys, credentials are stored in plaintext.
+
+## Troubleshooting
+
+### Credentials need updating
+
+If the connection shows a reconnect prompt, your API key may have been revoked or the credentials may have changed. Generate a new read-only API key from CoinSpot and update the connection in **Settings → Providers → CoinSpot**.
+
+### No accounts found
+
+After adding a connection, wait for the first sync to complete. If no accounts appear, verify that your API key has read access to balances and order history.
+
+### Balance shown as approximate
+
+When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.
+
+### Missing order history
+
+If older orders are missing, check that your sync start date is set to a date that covers the period you want. CoinSpot's order history is fetched starting from that date.

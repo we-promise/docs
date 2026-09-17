@@ -74,7 +74,7 @@ Sure currently uses SnapTrade for:
 - **Investment** accounts
 - **Crypto** accounts
 
-Brokerage-specific account subtypes such as IRA, Roth IRA, 401(k), TFSA, RRSP, margin, cash, and joint accounts are mapped into Sure's investment account model automatically.
+Brokerage-specific account subtypes such as IRA, Roth IRA, 401(k), TFSA, RRSP, margin, cash, joint, and Cash Management Account (CMA) are mapped into Sure's investment account model automatically.
 
 ## Features
 
@@ -94,6 +94,16 @@ After authorization, Sure separates discovered SnapTrade accounts into:
 - **Unlinked accounts**: Ready to be linked or created in Sure
 
 This makes it easier to avoid duplicates when you reconnect a brokerage or add another account later.
+
+### Trade amount and fee accuracy
+
+Sure uses SnapTrade's reported trade amount directly rather than computing it as quantity × price. Brokerage-reported prices are often rounded or estimated, so the computed value can drift by a few cents from the cash that actually moved — most visibly for reinvestments that should match their dividend exactly.
+
+When SnapTrade reports a fee for the trade, Sure stores it on the trade record. If a resync omits the fee (SnapTrade only reports it "if provided by the brokerage"), the previously stored value is preserved rather than overwritten.
+
+If SnapTrade reports an amount but no price, Sure derives the price from the reported amount, fee, and quantity so the trade can still be imported. These derived-price trades are recorded in the debug log at **Settings > Debug** so you can inspect them.
+
+When a trade cannot be imported — for example because SnapTrade omitted both quantity and amount — it is also recorded in the debug log with the reason, so support can identify the gap without requiring a full sync replay.
 
 ### Background activity import
 
