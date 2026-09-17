@@ -1,0 +1,70 @@
+---
+title: Fio banka
+description: Connect your Fio banka (Czechia) account to Sure
+---
+
+[Fio banka](https://www.fio.cz/) is a Czech bank. Sure connects to it directly using your own API token, syncing balances and transaction history. No third-party aggregator sits in between, and no consent expires every 90 days.
+
+<Note>
+One token grants access to one account. If you track three Fio accounts in Sure, generate three tokens and add three connections.
+</Note>
+
+## Setting up Fio banka
+
+### Step 1: Get your token
+
+1. Sign in to [Fio internet banking](https://ib.fio.cz).
+2. Open **Nastavení** (top right), then the **API** tab.
+3. Create a token with the **Sledování účtu** (account monitoring) permission. This is read-only — Sure never initiates payments, and a token without payment rights cannot be used to move money.
+4. Authorize the request with SMS or push confirmation. Jointly held accounts require all signatories to sign.
+5. Wait five minutes before using the token. Fio rejects a brand-new token until then.
+
+Every token must have an expiry, up to 180 days. Choose automatic renewal if you don't want to repeat this process twice a year: Fio extends the token by 180 days on each internet or smart banking login.
+
+### Step 2: Add Fio to Sure
+
+1. In Sure, go to **Settings > Providers** and find the **Fio banka** panel.
+2. Enter a connection name, paste your token, and save.
+3. Sure runs the first sync to discover the account. After it completes, link the account to an existing Sure account or create a new one.
+
+Fio reports no account type, so the account is offered as a checking account. Choose a loan account instead if the token belongs to a mortgage, loan, or overdraft — Fio reports those balances as negative, and Sure stores a liability as a positive balance.
+
+## Syncing
+
+One property of the Fio API shapes everything: a token may be used once per 30 seconds. Every sync therefore makes exactly one request.
+
+- Each sync fetches movements booked between the day the last sync covered and today.
+- The window starts a week before that day rather than right after it. Fio books a movement under its banking date, which can trail the day it becomes visible.
+- Re-reading is safe: every movement has a permanent ID, so a movement already imported updates its entry rather than creating a duplicate. A reversal gets its own ID and arrives as its own entry.
+
+If you trigger a manual sync within 30 seconds of a scheduled one, Fio refuses the request. Nothing is fetched, the connection stays healthy, and the next sync continues from where the last one stopped.
+
+Fio has no concept of a pending or held transaction, so no transactions are marked pending and nothing needs to be reconciled later.
+
+## Transaction history older than 90 days
+
+Fio serves 90 days of history by default. To import older movements, unlock the full account history in internet banking under **Nastavení > API**: click the padlock on the token and authorize. This opens a 10-minute window.
+
+Set the connection's sync start date to how far back you want to go before unlocking. If the start date reaches past 90 days and history is still locked, Fio refuses the request — the connection reports this and all future syncs stay within the 90 days Fio does serve, so recent movements keep arriving.
+
+To collect the rest: unlock the history in internet banking, then press **Sync** on the connection. This tells Sure the unlock happened, and the next sync reaches for the full range again.
+
+## Configuration
+
+The following environment variables are available for self-hosted deployments:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `FIO_INITIAL_HISTORY_DAYS` | `90` | History a new connection reaches for when no start date is set. Values above 90 require an unlock |
+| `FIO_SYNC_LOOKBACK_DAYS` | `7` | Days before the last covered day that every sync re-reads |
+| `FIO_DEBUG_RAW` | unset | Log raw API payloads. Development only — the dump contains counterparty names and payment messages |
+
+## Troubleshooting
+
+**Connection requires a new token**: Fio returns an error for unknown, expired, or deactivated tokens. Check the token's validity under **Nastavení > API** and paste a new one into the provider panel.
+
+**The statement is too large**: Fio caps one request at 50,000 movements. Set a later sync start date on the connection.
+
+**Older transactions are missing**: Either the account history was never unlocked (see above), or the connection's sync start date bounds how far back it goes.
+
+**Sync errors**: Provider sync failures are captured in Sure's debug log. Super admins can view them at **Settings > Debug**, filtered by the `fio` provider key. The token is never logged.

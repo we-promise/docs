@@ -23,6 +23,14 @@ Pattern detection analyzes your transaction history to identify recurring patter
 
 The pattern detection uses circular distance calculations to handle month-boundary cases (e.g., transactions on days 28, 29, 30, 31, 1, 2 are recognized as a single recurring pattern).
 
+### Investment and crypto account exclusion
+
+Transactions in Investment and Crypto accounts are never considered as bill or income candidates, even when a provider reports them as plain transactions rather than trades. Brokerage and retirement feeds often deliver dividends, reinvestments, and 401k contributions as regular transaction rows on a fixed monthly cadence and in tightly clustered amounts — the exact shape the detector looks for. Without this exclusion, a monthly 401k contribution would be detected as recurring income (because it is an inflow to that account), which inflates cash-flow projections.
+
+The Trade entryable type is also excluded separately, so investment activity is filtered regardless of how a provider reports it.
+
+Any previously detected series that originated from an Investment or Crypto account are automatically retired (`ended`) on upgrade. Their paid, skipped, and missed occurrences are preserved as historical records, but future occurrences are removed and the detector will not recreate the series.
+
 ### When patterns are identified
 
 Pattern identification runs automatically after:
@@ -437,6 +445,7 @@ Identify recurring income like:
 
 - Requires at least 3 occurrences in the last 3 months for automatic detection
 - Last occurrence must be within 45 days for automatic detection
+- Transactions in Investment and Crypto accounts are excluded from bill and income detection
 - Amount variance for manual recurring entries is bounded to 2× the anchor amount; charges outside that range are treated as separate recurring entries
 - Projected transactions are hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time

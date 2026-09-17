@@ -29,6 +29,14 @@ If a provider reports prices for individual securities on different dates within
 
 For accounts that have no provider connection, Sure shows the most recent holding per security from your manually entered or calculated data.
 
+### Chart history and inception dates
+
+For linked investment and crypto accounts, the balance chart only displays data from the point where Sure has reliable provider history. The chart start date is determined by the earliest date your provider supplied activity or holdings data — data from before that point is excluded so the chart never shows misleading zero or estimated values.
+
+When the chart period begins exactly at the inception date (the first supported history date), Sure inserts an anchor point on that date with the correct opening balance. For balance and cash views this is the account's recorded opening balance; for gains and holdings views the anchor starts at zero. This anchor ensures the chart line begins at the right value rather than appearing to jump up from nothing on the first real data point.
+
+The same scoping applies to the 30-day sparkline shown in the sidebar for investment and crypto account groups.
+
 ## Recording Trades
 
 Investment accounts support manual trade entry to track your buy and sell activity.
@@ -105,10 +113,21 @@ Sure tracks cost basis from three sources, in order of priority:
 | Priority | Source | Description |
 | --- | --- | --- |
 | 1 (Highest) | **Manual** | Values you enter directly |
-| 2 | **Calculated** | Computed from your buy trades |
+| 2 | **Calculated** | Computed from your trade history using weighted-average cost |
 | 3 (Lowest) | **Provider** | Imported from your financial institution |
 
 This hierarchy ensures your manual entries always take precedence, calculated values override provider data, and provider data is used when nothing else is available.
+
+### How calculated cost basis works
+
+Sure uses the **weighted-average cost** method to compute your cost basis from trades:
+
+- **Buys** raise the running average: the new share cost is folded into the existing position at the average weighted by quantity.
+- **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain.
+- **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
+- **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
+
+This means `avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects only the cost of the shares you currently hold, not an average across every purchase the account ever made for that security.
 
 ### Transfers and cost basis
 
@@ -324,7 +343,7 @@ Investment accounts have different tax implications based on their type:
 
 | Category | Description | Examples |
 | --- | --- | --- |
-| **Taxable** | Gains taxed when realized | Brokerage, UGMA/UTMA |
+| **Taxable** | Gains taxed when realized | Brokerage, Cash Management Account (CMA), UGMA/UTMA |
 | **Tax-Deferred** | Taxes deferred until withdrawal | 401(k), Traditional IRA, 403(b) |
 | **Tax-Exempt** | Qualified gains are tax-free | Roth IRA, Roth 401(k), ISA |
 | **Tax-Advantaged** | Special tax benefits with conditions | 529 Plan, HSA |
