@@ -85,6 +85,7 @@
               "providers/coinspot",
               "providers/coinstats",
               "providers/enable-banking",
+              "providers/fio",
               "providers/indexa-capital",
               "providers/interactive-brokers",
               "providers/kraken",
