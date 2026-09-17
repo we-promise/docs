@@ -113,10 +113,21 @@ Sure tracks cost basis from three sources, in order of priority:
 | Priority | Source | Description |
 | --- | --- | --- |
 | 1 (Highest) | **Manual** | Values you enter directly |
-| 2 | **Calculated** | Computed from your buy trades |
+| 2 | **Calculated** | Computed from your trade history using weighted-average cost |
 | 3 (Lowest) | **Provider** | Imported from your financial institution |
 
 This hierarchy ensures your manual entries always take precedence, calculated values override provider data, and provider data is used when nothing else is available.
+
+### How calculated cost basis works
+
+Sure uses the **weighted-average cost** method to compute your cost basis from trades:
+
+- **Buys** raise the running average: the new share cost is folded into the existing position at the average weighted by quantity.
+- **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain.
+- **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
+- **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
+
+This means `avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects only the cost of the shares you currently hold, not an average across every purchase the account ever made for that security.
 
 ### Transfers and cost basis
 
