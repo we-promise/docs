@@ -3,6 +3,22 @@ title: "Troubleshooting"
 ---
 
 
+## Category avatar preview does not update when picking a color
+
+When editing or creating a category, changing the color using the color picker previously did not update the avatar preview — the icon and background appeared to stay at the original color until the form was saved.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The category avatar uses a `--avatar-color` CSS variable to compute both the background (a light tint) and the icon color (the full color). Earlier versions of the color picker updated the avatar's inline `style.color` and `style.backgroundColor` directly instead of setting the variable. Overriding the resolved values bypassed the theme-aware `color-mix` logic, so the preview stayed stuck at the last saved color.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The color picker now updates the `--avatar-color` CSS variable on the avatar element when you select a new color. The avatar's CSS reads from the variable, so both the background tint and the icon color update immediately as you pick.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Account shows an error when a foreign-currency transaction has no exchange rate
 
 If an account holds transactions in a currency that has no exchange rate available for a given date, earlier versions would abort the entire balance calculation for that account, marking it as errored even though all transactions had imported correctly.
