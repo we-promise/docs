@@ -145,6 +145,13 @@
             ]
           },
           {
+            "group": "Cash Flow",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/cash_flow"
+            ]
+          },
+          {
             "group": "Balances",
             "openapi": "/openapi.yaml",
             "pages": [
