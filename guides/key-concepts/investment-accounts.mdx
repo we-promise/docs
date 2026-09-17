@@ -21,6 +21,12 @@ Each holding tracks:
 
 The holdings list shows a rounded share count for readability. When you open the detail drawer for a holding, the **Shares** field displays the exact quantity with up to 8 decimal places, so you can see the precise position size for fractional shares or crypto holdings.
 
+### Cross-account holdings roll-up
+
+The Investments panel on the dashboard and in reports aggregates your holdings by security across all investment accounts. If you hold the same security in multiple accounts — for example, Apple shares split between a brokerage and an IRA — Sure sums those positions into a single row rather than listing each account separately.
+
+Portfolio weight shown in the top holdings table and in the allocation view is calculated as a percentage of your total portfolio value (including cash). Both views share the same denominator, so the same security always shows the same weight in both places.
+
 ### Provider-synced holdings
 
 When a provider (such as SimpleFIN, SnapTrade, or CoinStats) imports your holdings, it delivers a snapshot of your positions on a specific day. Sure tracks which day each snapshot came from and only shows holdings from the **most recent provider import day** in investment views. Holdings from earlier snapshots are excluded so that stale positions do not appear alongside your current portfolio.
