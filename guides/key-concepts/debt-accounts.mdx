@@ -86,12 +86,13 @@ Loan accounts support additional fields:
 | Field | Description |
 | --- | --- |
 | Interest Rate | Annual interest rate |
-| Rate Type | Fixed or variable rate |
+| Rate Type | Fixed, variable, or adjustable |
 | Term | Loan duration (months) |
-| Monthly Payment | Calculated based on loan details |
+| Start date | Date the loan was drawn down (optional — defaults to the account's opening balance date) |
+| Monthly Payment | Calculated from loan details (fixed-rate only) |
 
 > [!NOTE]
-> For fixed-rate loans, Sure can calculate your monthly payment automatically based on the original balance, interest rate, and term.
+> Sure calculates a monthly payment automatically for fixed-rate loans. For variable-rate and adjustable-rate loans, use the Schedule tab to see the current payment amount.
 
 ### Other Liability
 
@@ -155,20 +156,22 @@ Sure tracks your loan balance, which represents the remaining principal. As you 
 > [!TIP]
 > To track loan payments accurately, create a [transfer](./transfers.mdx) from your checking account to your loan account. This properly reflects the payment in both accounts.
 
-## Amortization Schedule
+## Amortization schedule
 
-For fixed-rate loans, Sure generates a full amortization schedule — a payment-by-payment breakdown of how your loan pays off over its entire term. The schedule uses a constant-payment (French) method: interest is charged on the outstanding principal each month, and the remainder of each payment reduces principal. This matches the table your lender uses.
+Sure generates a full amortization schedule for any loan that has an interest rate, a term, and an original balance — including variable-rate and adjustable-rate loans. The schedule uses a constant-payment (French) method: interest is charged on the outstanding principal each month, and the remainder of each payment reduces principal. This matches the table your lender uses.
 
-To view the schedule, open a fixed-rate loan account and select the **Schedule** tab.
+To view the schedule, open a loan account and select the **Schedule** tab.
 
-The tab shows four summary figures at the top:
+The tab shows summary figures at the top:
 
 | Figure | Description |
 | --- | --- |
-| Monthly payment | The level amount due each period |
+| Opening payment | The level amount at the start of the loan |
 | Total interest | All interest charged over the life of the loan |
 | Total cost | Principal plus total interest |
 | Payoff date | The date of the final scheduled payment |
+
+For fixed-rate loans, the opening payment is also the contracted monthly payment for the life of the loan. For variable-rate and adjustable-rate loans, Sure re-amortises the schedule at each recorded rate change, so the payment amount can change after a rate change takes effect. The summary labels this as the opening payment rather than "the" monthly payment when the schedule re-amortises.
 
 Below the summary is a full payment table with one row per period:
 
@@ -183,7 +186,15 @@ Below the summary is a full payment table with one row per period:
 
 Rows for payments whose scheduled date has already passed are shaded to distinguish elapsed periods from upcoming ones.
 
-> [!NOTE]
-> The Schedule tab is only available for fixed-rate loans. Variable-rate and adjustable-rate loans are excluded because a schedule built off today's rate would not reflect future payment changes.
-
 The monthly payment shown on the loan overview is read directly from the schedule, so it is cent-accurate. For example, a $500,000 mortgage at 3.5% over 360 months shows $2,245.22 rather than a rounded figure.
+
+### Variable-rate loans
+
+For variable-rate and adjustable-rate loans, you can record rate changes directly on the loan. Each change requires an effective date and the new annual rate. Sure re-amortises the schedule from the point of each change: the payment for periods after the effective date is resized to pay off the remaining balance over the remaining term at the new rate.
+
+The interest charged in a period always uses the rate that was in force when the period opened, so a change effective on a payment date takes effect from that payment forward — it does not retroactively change the interest already accrued in the current month.
+
+A variable-rate loan with no recorded rate changes runs at its base rate, just as a fixed-rate loan does.
+
+> [!NOTE]
+> The monthly payment field on the loan overview is only shown for fixed-rate loans. For variable-rate loans, use the Schedule tab to see the current payment in force.
