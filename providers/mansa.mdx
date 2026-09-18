@@ -1,0 +1,83 @@
+---
+title: Mansa API
+description: Connect NGX (Nigerian Exchange) securities with the Mansa API provider
+---
+
+Mansa API is a market data provider for African stock exchanges. Sure's integration covers the Nigerian Exchange (NGX), which is not available through Sure's other securities providers.
+
+## Overview
+
+- **Coverage**: NGX (Nigerian Exchange) securities
+- **Free tier**: 100 requests per day, no credit card required
+- **API key**: Required — get one at [mansaapi.com](https://mansaapi.com)
+- **Historical data**: Current quote only (free tier). Historical OHLCV requires a paid Mansa Pro plan.
+
+## Setting up Mansa API
+
+1. Register at [mansaapi.com](https://mansaapi.com) and obtain an API key.
+2. In Sure, go to **Settings > Self-Hosting** and enable **Mansa API** under securities providers.
+3. Enter your API key in the settings form.
+
+### Environment variable
+
+You can also set the API key as an environment variable:
+
+```bash
+MANSA_API_KEY=your-key-here
+```
+
+When `MANSA_API_KEY` is set in the environment, the key field in the UI is disabled. The environment variable takes precedence.
+
+## How it works
+
+### Searching for securities
+
+When you add an NGX-listed stock to a trade or holding, Sure queries the Mansa API search endpoint scoped to the Nigerian Exchange. Results that cannot be mapped to a verified ISO MIC code are dropped rather than stored with a non-standard exchange code.
+
+Sure's trade form does not pass an exchange filter when you search — the integration defaults to NGX. If a specific exchange is passed and it is not NGX (MIC: `XNSA`), the search returns no results rather than silently fetching from an unverified exchange.
+
+### Prices
+
+The free tier exposes the current quote only. Sure uses this in two ways:
+
+- **Today's price**: Fetched directly from the live quote endpoint.
+- **Date range including today**: Sure returns today's quote as a single data point. This is enough for a current holding valuation sync.
+
+A date range entirely in the past cannot be fulfilled on the free tier. Sure reports a clear error in that case rather than returning nothing silently.
+
+### Rate limits
+
+The free tier allows 100 requests per day. Sure tracks usage in its cache and blocks requests once the daily limit is reached to avoid API errors mid-sync.
+
+You can override the default limit with an environment variable if your plan allows more requests:
+
+```bash
+MANSA_MAX_REQUESTS_PER_DAY=500
+```
+
+## Limitations
+
+- **NGX only**: Only the Nigerian Exchange is verified and supported. Other African exchanges covered by Mansa's API are not enabled.
+- **No historical prices**: The free tier has no historical OHLCV endpoint. Holdings sync with today's price only.
+- **100 requests/day**: A large portfolio with many NGX securities may approach the free-tier limit during a full sync.
+
+## Troubleshooting
+
+### Security not found
+
+If a search returns no results for a ticker you expect to find:
+
+- Confirm the ticker is listed on the NGX. Mansa does not return results for other exchanges.
+- Check whether your daily request limit has been reached under **Settings > Self-Hosting > Mansa API**.
+
+### Historical price errors
+
+If you see an error about historical prices not being available, your portfolio sync is requesting prices for past dates. The free tier only supports the current quote. To resolve this, either upgrade to a Mansa Pro plan or accept that NGX holdings will only show today's value rather than full price history.
+
+### Rate limit reached
+
+If syncs fail with a rate limit error, you have exhausted the 100 requests/day free tier. Options:
+
+- Wait until the daily limit resets (midnight UTC).
+- Upgrade your Mansa plan and set `MANSA_MAX_REQUESTS_PER_DAY` to match your new limit.
+- Reduce the number of NGX securities in your portfolio to stay within the free tier.
