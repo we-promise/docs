@@ -56,6 +56,15 @@ Once a key is present, the provider appears as an option when you add a new prop
 | API key variable | `REALIE_API_KEY` |
 | Monthly cap override | `REALIE_MAX_REQUESTS_PER_MONTH` |
 
+#### Realie API versions (v2 and v3)
+
+Realie introduced a v3 response shape on 2026-08-19. The response shape is an account-level setting that all API keys on the account inherit:
+
+- **v2 flat record** — the original shape, still active for accounts created before the v3 release unless you opt in.
+- **v3 nested parcel record** — the default for accounts created after 2026-08-19. Older accounts can switch to v3 from the Realie dashboard. The switch is one-way.
+
+Sure handles both shapes automatically. No configuration change is needed when your Realie account is on v3 or when you opt in later.
+
 ## Monthly request budget
 
 Each provider tracks requests in a durable database counter that resets at the start of each calendar month. This counter covers both user-initiated lookups (adding a property) and automatic daily refreshes. The daily refresh job checks the counter before spending a request and stops when the budget is exhausted.
