@@ -147,6 +147,32 @@ PLAID_ENV=production  # Use 'production' for Full/Limited Production Access, or 
 
 After updating your configuration, restart your Sure instance. You should now see the **Link account** option in the Sure UI.
 
+## Member-owned connections
+
+By default, only family admins can connect and manage provider integrations. Plaid is an exception: because a Plaid Link session authenticates only the person completing the flow, a family member can safely connect their own bank without exposing any other member's credentials.
+
+### Who can connect Plaid
+
+| Role | Can connect Plaid | Can manage their own connection | Can manage all connections |
+|---|---|---|---|
+| Admin | Yes | Yes | Yes |
+| Member | Yes | Yes (connections they created) | No |
+| Guest | No | No | No |
+
+A member who connects a bank can re-authenticate it, sync it, and delete it. They cannot edit or delete connections created by other members or by an admin.
+
+An admin always has full visibility and management over every Plaid connection in the family, regardless of who created it.
+
+### What members see on a shared connection
+
+When a member owns a Plaid connection, the connection card shows only the accounts they have access to. Accounts that were shared and later had sharing revoked are no longer shown on that member's card, even if they remain on the underlying connection. Admins see all accounts on every connection.
+
+### Moving between families
+
+When a member accepts an invitation to join a different family, their Plaid connections move with them if all of the accounts on that connection belong to the member. Connections that include accounts belonging to other family members stay behind, with ownership released and the connection reverting to admin-managed.
+
+If a member is demoted to guest, they lose the ability to manage their Plaid connections. The connections are not deleted, but only an admin can manage them until the member's role is restored.
+
 ## Managing accounts
 
 ### Adding accounts to an existing connection
