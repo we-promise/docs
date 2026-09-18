@@ -356,6 +356,36 @@ REDIS_PASSWORD=your-redis-password
 
 If `REDIS_SENTINEL_HOSTS` is set but no valid hosts can be parsed from it, Sure falls back to `REDIS_URL` and logs a warning.
 
+### Analytics (PostHog)
+
+Sure can send product analytics events to a PostHog instance. This is off by default and only activates when `POSTHOG_KEY` is set.
+
+```txt
+# Required to enable analytics
+POSTHOG_KEY=your-posthog-project-api-key
+POSTHOG_HOST=https://us.i.posthog.com
+```
+
+`POSTHOG_HOST` defaults to `https://us.i.posthog.com` when not set. Point it at your own PostHog instance if you self-host PostHog.
+
+When analytics are enabled, Sure registers a `sure_version` property on every browser event. The value comes from the `.sure-version` file bundled in the Docker image and matches the release tag (for example, `0.7.5-alpha.10`). This lets you filter PostHog events by the exact Sure version that produced them.
+
+Sure also enables PostHog's person profiles for all events, which allows PostHog to enrich events with GeoIP data based on the client IP address.
+
+Two optional variables give you finer control over analytics behavior:
+
+```txt
+# Emit analytics events in development (default: false)
+POSTHOG_DEVELOPMENT_ENABLED=false
+
+# Enable the in-app feedback widget (default: true)
+POSTHOG_FEEDBACK_ENABLED=true
+```
+
+`POSTHOG_DEVELOPMENT_ENABLED` is only read in the `development` environment. Set it to `true` if you want analytics events to fire during local development. In production the key presence alone controls whether events are sent.
+
+`POSTHOG_FEEDBACK_ENABLED` controls whether the in-app feedback widget appears. Set it to `false` to hide the widget on your instance.
+
 ## Running the application
 
 ### Start the application
