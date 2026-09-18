@@ -48,9 +48,9 @@ The dashboard feed and API response order insights by priority first, then by re
 
 The dashboard shows the three highest-priority, unacknowledged insights. Clicking an insight marks it `read`. Dismissing it marks it `acknowledged`.
 
-## Requirements
+## Language
 
-Insights are a preview feature. You must have preview features enabled in your account settings for insights to appear in the API or in the native app.
+Insight bodies are written in your family's locale. When an LLM provider is configured and a family member has AI enabled, Sure passes the family's BCP 47 locale code to the model so both the LLM-generated body and the template fallback speak the same language. If no locale is set, Sure defaults to English.
 
 ## API access
 
