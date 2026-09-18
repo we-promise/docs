@@ -102,6 +102,14 @@ Sure combines these lots into a single position per security before storing the 
 
 If your investment account shows a total value that matches your institution's balance but individual holdings appear at less than their full value, a manual sync from **Settings → Providers → SimpleFIN** will re-import the combined positions correctly.
 
+### Institution-specific cost basis corrections
+
+The SimpleFIN specification says the `cost_basis` field is a per-share value, but some brokerages populate it with the total position cost instead. Sure detects these cases by institution name or domain and divides by quantity automatically, so the stored per-share figure stays correct.
+
+Institutions where Sure applies this correction: Vanguard, Fidelity, Schwab, and E\*Trade.
+
+If your institution sends a total cost in `cost_basis` but is not in this list, the holding will show an inflated per-share basis. In that case, you can correct the value by setting a manual cost basis on the holding.
+
 ## Limitations
 
 - **US-focused**: Primarily supports US financial institutions

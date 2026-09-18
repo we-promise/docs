@@ -380,6 +380,14 @@ Trades labeled **Transfer**, **Sweep In**, or **Sweep Out** are not counted as s
 
 Trades labeled **Exchange** are included in the report. For cash this label means a currency exchange, which is internal. For a security it covers a security-for-security exchange, which can dispose of an appreciated asset. Because the two cases are not distinguishable by label alone, and because a missing realized gain is harder to spot than an extra line, exchange trades on securities remain visible so you can review them.
 
+### Multi-currency realized gains
+
+When a security is priced in a different currency from the one your account uses, Sure converts the sale proceeds into the basis currency before calculating the gain or loss. The conversion uses the exchange rate recorded for the disposal date and the direction the data holds (from the security's currency into the account's currency). There is no fallback to a nearby date and no default rate of 1.0 — if the rate for that day is missing, Sure shows no figure rather than an incorrect one.
+
+The same applies to exchange rates that are zero or negative. Sure treats those as absent, so a bad rate in the database does not silently produce a wrong gain or loss.
+
+If a realized gain figure is absent for a foreign-currency disposal, check that an exchange rate exists for the security's currency against your account's currency on the disposal date. You can add missing rates at **Settings → Exchange rates**.
+
 ## Crypto-Specific Features
 
 Crypto accounts work similarly to investment accounts but have unique characteristics:
