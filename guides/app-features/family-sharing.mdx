@@ -90,10 +90,16 @@ The account will immediately disappear from that family member's view.
 Family admins have additional privileges:
 - Manage family members
 - Configure family-wide settings
-- Manage third-party provider connections
+- Manage all third-party provider connections
 - Access all family accounts (if shared)
 
-Only admins can manage provider integrations to ensure security and consistency across the family.
+### Member Role
+
+Members can connect and manage their own Plaid bank connections. This is the only provider integration a non-admin can manage — all other providers require admin access. A member can re-authenticate, sync, and delete the Plaid connections they created, but cannot modify connections created by other members or by an admin. If a member is demoted to guest, an admin must manage their connections.
+
+### Guest Role
+
+Guests have read-only access. They cannot create or manage any provider connections.
 
 ## Use Cases
 
@@ -131,6 +137,6 @@ Share investment accounts with a financial advisor or trusted family member for 
 ## Limitations
 
 - Sharing is limited to members within the same family
-- Provider credentials are managed at the family level by admins
+- Most provider credentials are managed at the family level by admins. Plaid connections can also be created and managed by members for their own bank accounts.
 - Some account types may have restrictions on sharing
 - Recurring transactions are scoped to the family, not individual users
