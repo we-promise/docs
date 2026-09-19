@@ -356,6 +356,43 @@ Investment accounts have different tax implications based on their type:
 
 Sure automatically assigns tax treatment based on account subtype, but you can adjust it manually if needed.
 
+## Portfolio returns: time-weighted vs. money-weighted
+
+Sure tracks two different return figures for your investments, because no single number answers every question about performance.
+
+**Time-weighted return (TWR)** measures what the investments themselves did. It strips out the effect of your cash flow timing — when you added money or withdrew it — so you can compare your portfolio against a benchmark on equal terms.
+
+**Money-weighted return (MWR)** measures what you, the investor, got. It is the internal rate of return (IRR) of your actual cash flows: money you put in is negative, money you took out or the terminal value of the portfolio is positive. Two investors holding the same fund over the same year, one of whom bought most of their position the week before a large fall, did not have the same year — MWR captures that difference.
+
+### How Sure calculates the money-weighted return
+
+Sure solves for the rate that makes the present value of your cash flows equal to zero. The solver uses Newton-Raphson with a bisection fallback:
+
+- Newton converges in a handful of iterations for most portfolios.
+- Every loss and other ill-conditioned series is handed off to bisection, which is slower but cannot diverge.
+- The result is expressed as an annualised rate unless the period is short enough that annualising would produce an unreliable extrapolation, in which case the period rate is used instead.
+
+The returned rate is a `BigDecimal` rounded to the same precision Sure uses for all monetary figures.
+
+### When a money-weighted return is not available
+
+Three situations produce no rate rather than an approximate one:
+
+| Situation | Reason |
+| --- | --- |
+| All cash flows go the same direction | No rate exists — money only went in, or only went out |
+| All flows fall on the same date | No time passes, so no annual rate can be defined |
+| The solver does not converge | The series has no rate the algorithm can reach within its tolerance |
+
+In each case Sure shows nothing rather than a fallback guess.
+
+### Series with more than one valid rate
+
+A cash flow series that changes sign more than once can have two rates that both satisfy the equation — for example, a portfolio with a withdrawal between two deposits. Sure returns the rate the solver reaches from its starting point (10%), which matches the behaviour of Excel's XIRR function. The `ambiguous?` flag on the calculation is a conservative signal: `false` guarantees the figure is the only rate that fits; `true` means it may be one of several. Over-hedging a unique figure is a smaller error than presenting one of several as definitive.
+
+> [!NOTE]
+> The money-weighted return display in the UI is coming in a follow-up release. The calculation engine described here is already in place.
+
 ## Understanding Gains and Losses
 
 Sure helps you track two types of gains:
