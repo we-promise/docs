@@ -280,6 +280,16 @@ TIINGO_API_KEY="your-key-here"
 EODHD_API_KEY="your-key-here"
 ALPHA_VANTAGE_API_KEY="your-key-here"
 TINKOFF_INVEST_API_KEY="your-read-only-token-here"
+
+# Cross-currency transfer auto-match tolerance (default: 0.1, i.e. 10%)
+# Sure uses this band when automatically linking cross-currency transfer pairs
+# during a sync. The value is a decimal fraction: 0.03 = 3%, 0.1 = 10%.
+# Values above 0.5 are capped at 0.5. At 1.0 the lower bound reaches zero,
+# meaning any two cross-currency amounts within the date window would match.
+# Tighten this if you see unrelated transactions being auto-linked as transfers.
+# The manual "match as transfer" dialog always uses max(10%, this value) so
+# real candidates remain visible even when the automatic tolerance is narrowed.
+TRANSFER_MATCH_EXCHANGE_RATE_TOLERANCE=0.1
 ```
 
 <Note>
