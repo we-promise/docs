@@ -141,6 +141,14 @@ Example: Transferring from a USD checking account to a EUR savings account:
 
 The transfer is valid because one amount is negative and one is positive, even though the numbers differ due to the exchange rate.
 
+### Automatic matching and manual accounts
+
+During a sync, Sure uses a tolerance band around the exchange rate to find cross-currency transfer pairs automatically. This automatic path only considers accounts that have a live provider connection (Plaid, SimpleFIN, or another connected provider). Manual accounts — those with no institution behind them — are excluded from automatic cross-currency matching because a coincidental pair of round-number transactions in different currencies could fall inside the tolerance band and be silently linked as a transfer.
+
+Manual accounts still participate in same-currency matching, where amounts must be exactly equal and no FX approximation is involved.
+
+If you have a real cross-currency transfer that involves a manual account, you can still confirm it yourself. Open either transaction, choose **Match as transfer**, and select the counterpart from the dialog. The manual match dialog uses a wider tolerance (up to 10%) and shows manual account candidates so you can find and confirm the match by hand.
+
 ## Transfer Summary Totals
 
 When viewing your transaction list filtered by transfers, Sure displays **Inflow** and **Outflow** totals instead of the standard Income and Expenses labels.
