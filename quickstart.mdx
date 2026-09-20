@@ -51,6 +51,18 @@ After running `bin/setup`, you can optionally load demo data with:
 rake demo_data:default
 ```
 
+By default this appends a new demo family without touching existing data (`SKIP_CLEAR=1`). To wipe all existing data first and start fresh, set `SKIP_CLEAR=0`:
+
+```bash
+SKIP_CLEAR=0 rake demo_data:default
+```
+
+You can also pin the random seed to reproduce the same dataset across runs:
+
+```bash
+SEED=12345 rake demo_data:default
+```
+
 <Note>
 Demo data is only available when running Sure in development mode, not in production or self-hosted deployments.
 </Note>
