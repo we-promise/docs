@@ -7,7 +7,7 @@ Trade Republic is a European neo-broker that lets you buy stocks, ETFs, bonds, c
 
 ## How it works
 
-Sure authenticates to Trade Republic using the same web login flow as the Trade Republic web app. After you confirm the login on your phone, Sure stores an encrypted session token and uses it for all future syncs. Your PIN is never stored — it is used only to start a new login session and is discarded immediately after.
+Sure authenticates to Trade Republic using the same web login flow as the Trade Republic web app. After you confirm the login on your phone, Sure stores an encrypted session token and uses it for all future syncs. Your PIN is never stored. It is used only to start a new login session and is discarded immediately after. The PIN is also filtered from request logs so it never appears in server-side log output.
 
 Sure discovers two accounts from your Trade Republic connection:
 
