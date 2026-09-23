@@ -1,0 +1,112 @@
+---
+title: FinanceKit
+description: Sync Apple Wallet data directly from iOS devices
+---
+
+FinanceKit is an Apple framework that lets users share their Apple Wallet accounts — bank accounts, credit cards, and transaction history — directly with Sure from their iPhone. The iOS app reads Wallet data on-device with the user's consent and uploads it to Sure over HTTPS. No Apple credentials, private keys, or FinanceKit framework components are required on the server.
+
+FinanceKit support is currently in alpha and is off by default.
+
+## How it works
+
+The iOS client uses Apple's FinanceKit framework to read Wallet data. It enrolls a publisher connection with Sure, maps each selected source account to a Sure account, and uploads ordered batches of events. Sure's server-side worker applies each batch and updates your ledger.
+
+Both foreground "Sync now" (triggered manually from the app) and optional background delivery use the same enrollment, upload, receipt, and conflict-resolution protocol.
+
+## Requirements
+
+FinanceKit ingestion requires:
+
+- `FINANCEKIT_ENABLED=true`
+- `FINANCEKIT_FAMILY_IDS` — a comma-separated list of family UUIDs to allow
+- An active enrolling family administrator with preview features enabled
+- The `FinancekitInboxJob` scheduled sweep running alongside the per-batch worker jobs
+
+## Enabling FinanceKit
+
+1. Set `FINANCEKIT_ENABLED=true` and populate `FINANCEKIT_FAMILY_IDS` with the family UUIDs you want to allow.
+2. Deploy the migration, application, worker, and scheduler with the feature flag disabled, then enable it after confirming the high-priority queue and scheduler are healthy.
+3. Enroll a test publisher, upload a synthetic sequence, and verify the receipt is stable before enabling for production families.
+
+## Protocol overview
+
+### Enrollment and activation
+
+The iOS client enrolls a publisher connection by calling `POST /api/v1/financekit/connections` with a consent record and a client-generated enrollment ID. Sure returns a `FinancekitPublisherConfiguration` that includes the upload URL, protocol version, account limits, and a publisher credential.
+
+Before uploads begin, the client maps each selected source account to a Sure account using `PUT /api/v1/financekit/connections/{connection_id}/account_mappings/{source_id}`, then activates the connection with `POST /api/v1/financekit/connections/{connection_id}/activate`.
+
+### Uploading batches
+
+The client uploads ordered batches to `POST /api/v1/financekit/publishers/{publisher_id}/batches`. Each batch is an immutable, sequenced payload of up to 500 events authenticated with the publisher credential (a bearer token separate from the user's API key).
+
+Each batch carries:
+
+- A `sequence` number starting at 1
+- A `predecessor_digest` (SHA-256 of the previous batch payload) for all sequences after the first
+- A `capture_id` and `chunk_index` / `chunk_count` to support multi-chunk captures
+- `capture_mode` (`snapshot` or `delta`) and a `snapshot_complete` flag
+- Up to 500 events: account upserts, balance upserts, transaction upserts, transaction tombstones, or account unavailability notices
+
+Sure acknowledges each batch immediately with a `FinancekitBatchReceipt`. The client can retrieve a receipt at any time using `GET /api/v1/financekit/publishers/{publisher_id}/batches/{batch_id}` to recover from response loss.
+
+### Capacity limits
+
+Protocol 2 enforces per-publisher limits:
+
+- 20 selected accounts per publisher
+- 500 events per batch
+- 1 MiB of JSON per batch payload
+- 100 accepted or processing batches in the inbox at one time
+- 100 chunks per capture (allowing large histories across consecutive captures)
+
+### Batch receipt status
+
+| Status | Meaning |
+|--------|---------|
+| `accepted` | Durably stored, awaiting processing |
+| `processing` | Worker has started applying the batch |
+| `applied` | Ledger updated successfully |
+| `failed` | Permanent processing failure; see `error_code` |
+| `revoked` | Batch invalidated by a credential rotation or repair |
+
+### Credential rotation and repair
+
+A publisher credential can be rotated with `POST /api/v1/financekit/connections/{connection_id}/credential`. After rotation, the previous credential can no longer upload batches or call the batch receipt endpoint.
+
+If a connection enters `repair_required` — for example, due to an unresolvable conflict or a predecessor digest mismatch — the client must call `POST /api/v1/financekit/connections/{connection_id}/repair` to open a new generation and stream before uploads resume.
+
+## Conflicts
+
+A conflict arises when Sure cannot automatically reconcile a publisher event with existing ledger data. Open conflicts are listed on `GET /api/v1/financekit/connections/{connection_id}/conflicts` and resolved with `PATCH /api/v1/financekit/connections/{connection_id}/conflicts/{id}`.
+
+Two resolutions are available:
+
+- `keep_sure` — closes the conflict without modifying the publisher stream. The conflicting source identity is settled permanently so the same record does not re-enter the conflict branch on future captures.
+- `retry_after_repair` — closes the conflict, moves the connection to `repair_required`, revokes queued work and credentials, and requires a repair call before uploads resume.
+
+## Data retention
+
+Exact payload bytes are retained for seven days after a batch is applied, permanently failed, or revoked. This supports response-loss recovery and operational investigation. Canonical financial data follows Sure's normal family retention behavior. A family financial-data reset removes all FinanceKit connections, lineages, observations, identities, conflicts, and batch receipts for that family.
+
+## Rollback
+
+Disable `FINANCEKIT_ENABLED` first. Existing Sure data remains readable and workers stop applying batches. Do not drop the FinanceKit tables during an application rollback — keep receipts and lineage data until all deployed versions no longer reference them.
+
+## API reference
+
+The FinanceKit endpoints are documented in the [API reference](/api-reference).
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/financekit/capabilities` | Discover supported protocol versions and limits |
+| `POST /api/v1/financekit/connections` | Enroll a new publisher |
+| `GET /api/v1/financekit/connections/{id}` | Read connection status and paginated account mappings |
+| `PUT /api/v1/financekit/connections/{connection_id}/account_mappings/{source_id}` | Map a source account |
+| `POST /api/v1/financekit/connections/{connection_id}/activate` | Activate the publisher |
+| `POST /api/v1/financekit/connections/{connection_id}/credential` | Rotate the publisher credential |
+| `POST /api/v1/financekit/connections/{connection_id}/repair` | Open a new generation after repair_required |
+| `POST /api/v1/financekit/publishers/{publisher_id}/batches` | Upload a batch |
+| `GET /api/v1/financekit/publishers/{publisher_id}/batches/{batch_id}` | Read a batch receipt |
+| `GET /api/v1/financekit/connections/{connection_id}/conflicts` | List open conflicts |
+| `PATCH /api/v1/financekit/connections/{connection_id}/conflicts/{id}` | Resolve a conflict |
