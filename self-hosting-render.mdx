@@ -1,0 +1,43 @@
+---
+title: Self-hosting with Render
+description: Deploy Sure on Render using one-click deploy templates
+keywords: ['render', 'self-hosting', 'one-click deploy', 'deployment']
+---
+
+[Render](https://render.com) is a cloud hosting platform that can run Sure with managed PostgreSQL, managed Redis (Key Value), and automatic HTTPS. The Render templates provision the web server and Sidekiq worker for you.
+
+## One-click deploy options
+
+Three templates are available depending on how you want to use AI features. Each is available in a `latest` (alpha) and `stable` channel.
+
+| Option | What it deploys | `latest` | `stable` |
+| --- | --- | --- | --- |
+| **Sure - No AI** | Web server, Sidekiq worker, Render Postgres, and Render Key Value. AI tokens are intentionally blank. | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-no-ai-latest) | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-no-ai) |
+| **Sure - Simple AI** | Sure with OpenAI-backed AI, pgvector-ready Postgres, Sidekiq, and Render Key Value. Render prompts for your OpenAI token during setup. | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-simple-ai-latest) | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-simple-ai) |
+| **Sure - External AI** | Sure with external assistant settings plus AlphaClaw, which manages the OpenClaw gateway on Render. | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-external-ai-latest) | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-external-ai) |
+
+<Note>
+Use `latest` for the most recent alpha release and `stable` for the latest stable release. If you are new to Sure, start with `stable`.
+</Note>
+
+## How it works
+
+Each template uses a `render.yaml` Blueprint file from the [sure-render-templates](https://github.com/we-promise/sure-render-templates) repository. Render reads this file to create all the services, databases, and environment variables your deployment needs.
+
+Render expects the Blueprint file at the repository root of the target branch. The template branches in `sure-render-templates` are maintained separately from the main Sure codebase so that Render can read them directly.
+
+## Choosing a template
+
+- **No AI** — suitable for users who want core budgeting and account tracking without LLM features. No API key is required.
+- **Simple AI** — adds the assistant, auto-categorization, and merchant detection backed by OpenAI. Render prompts for your `OPENAI_API_KEY` during setup. The Postgres database includes the `pgvector` extension for embeddings.
+- **External AI** — routes AI calls through an external agent (OpenClaw via AlphaClaw) instead of calling OpenAI directly. Choose this if you want to use an external AI provider or self-manage the gateway.
+
+## After deploying
+
+Once Render finishes provisioning:
+
+1. Open the generated `.onrender.com` URL.
+2. Create your first account. The first user to register is automatically assigned the `super_admin` role.
+3. To restrict future signups, go to **Settings > Self-Hosting > Onboarding** and set the mode to **Invite-only** or **Closed**.
+
+For environment variable configuration, updates, backup setup, and troubleshooting, refer to the [Docker self-hosting guide](/self-hosting) — the same environment variables apply.
