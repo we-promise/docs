@@ -1085,6 +1085,46 @@ When developing inside a GitHub Codespace, the app accepts login requests from t
 
 If you cannot log in through a Codespaces preview URL, confirm that the three environment variables above are present in your Codespace environment and that the app is running with `CODESPACES=true`.
 
+## iOS push notifications
+
+Push notifications are available in hosted mode only. When `SELF_HOSTED=true` or `SELF_HOSTING_ENABLED=true` is set, push registration and delivery are disabled.
+
+### Environment variables
+
+Set the following variables for both the `web` and `worker` services:
+
+| Variable | Description |
+| --- | --- |
+| `APNS_KEY_ID` | Apple APNs signing key ID |
+| `APNS_TEAM_ID` | Apple Developer team ID |
+| `APNS_BUNDLE_ID` | iOS app bundle ID (`am.sure.insights`) |
+| `APNS_PRIVATE_KEY_BASE64` | Base64-encoded APNs `.p8` private key |
+| `APNS_ENABLED` | Set to `false` to pause delivery without removing credentials. Defaults to enabled when the other variables are present |
+
+`APNS_PRIVATE_KEY_BASE64` is a server-side secret. Do not embed it in the iOS app, logs, or version control.
+
+Both `web` and `worker` must share the same `REDIS_URL` (or `REDIS_SENTINEL_HOSTS` for high-availability setups). A process-local memory cache cannot coordinate the push diagnostics between processes.
+
+### Sending a test notification
+
+1. Sign in to the Sure iOS app with the same account as the super-admin signed in to the web app, and enable push notifications in the app.
+2. Open **System Health → Background jobs → Push notifications** in the web app.
+3. Click **Send test push notification**. The test is sent only to the current account's recently registered iOS devices.
+4. Click **Refresh results** to see each device's outcome. Results remain for 24 hours. **Accepted by APNs** confirms Apple's acceptance; verify presentation on a real device to confirm delivery.
+
+The button is disabled when there is no current registration, APNs is unconfigured, delivery is disabled (`APNS_ENABLED=false`), or another test was requested in the last 30 seconds.
+
+### Troubleshooting
+
+| Outcome | What to check |
+| --- | --- |
+| **Queued / retrying** | Worker availability and the `scheduled` Sidekiq queue |
+| **Skipped** | Eligibility, ownership, role, mode, configuration, or freshness changed after the test was requested |
+| **Rejected by APNs** | Check the `push_notifications` category in Debug logs. Verify bundle ID, key/team, and device environment. `BadDeviceToken` may indicate an environment mismatch |
+| **Device registration no longer valid** | Worker received APNs `410`; the registration was conditionally removed |
+| **Could not enqueue** | Check Sidekiq and Redis availability, then retry after the 30-second cooldown |
+| **Expired without final result** | The request outlived the send window; check worker connectivity and request a fresh test |
+
 ## Getting help
 
 If you find bugs or have feature requests:
