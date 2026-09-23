@@ -1,0 +1,122 @@
+---
+title: Jev (TypeSafe)
+description: Use Jev for transaction categorization with calibrated confidence scores
+---
+
+Jev is a classification provider made by [TypeSafe](https://typesafe.ai/). It answers typed questions about a transaction and returns a calibrated probability for each answer, rather than generating free text. This makes it well-suited to transaction categorization, where you want a specific category name and a measure of how certain the model is.
+
+Because Jev only classifies, it cannot handle chat, PDF processing, or merchant detection. It is configured independently of `LLM_PROVIDER` and never replaces your LLM for those features.
+
+## How it differs from the LLM path
+
+| | LLM provider | Jev |
+| --- | --- | --- |
+| Categorizes transactions | Yes | Yes |
+| Chat and AI assistant | Yes | No |
+| PDF import | Yes | No |
+| Merchant detection | Yes | No |
+| Returns confidence score | No | Yes |
+| Confidence threshold gating | No | Yes |
+| Pricing model | Per token | Per transaction state |
+
+The LLM path sends a batch of transactions in one request. Jev sends one request per transaction, run concurrently. At roughly 400–550 ms per transaction, throughput depends on concurrency rather than batch size.
+
+## Prerequisites
+
+- A TypeSafe account with a Jev API key
+- Preview features enabled for the families that will use Jev (the provider selector is hidden until preview is on)
+
+## Setup
+
+### 1. Get a Jev API key
+
+Sign in at [typesafe.ai](https://typesafe.ai/) and create an API key. Jev requires an explicit key — it does not fall back to any other key you have configured (for example, an OpenRouter key).
+
+### 2. Configure the environment variables
+
+Add these to your `.env` file:
+
+```txt
+JEV_API_KEY=your-jev-api-key
+```
+
+That is the minimum required. The endpoint and model default to TypeSafe's production API:
+
+```txt
+JEV_ENDPOINT=https://api.typesafe.ai/v1/systemone   # default
+JEV_MODEL=jev-latest                                 # default
+```
+
+### 3. Select Jev as the categorization provider
+
+Each family chooses their own provider. Once `JEV_API_KEY` is set and preview features are enabled:
+
+1. Go to **Settings > Self-Hosting > Categorization provider**.
+2. Select **Jev (TypeSafe)**.
+3. Save.
+
+To switch every family on the instance at once, set the environment variable override:
+
+```txt
+CATEGORIZATION_PROVIDER=jev
+```
+
+This takes precedence over each family's individual choice.
+
+## Confidence threshold
+
+Jev returns a confidence score between 0 and 1 for each answer. Sure uses this to decide whether to apply the category or leave the transaction uncategorized for a later retry.
+
+The default threshold is **0.7**. Measured against a 200-sample golden set, this threshold:
+- Categorizes 91.5% of transactions
+- Reduces the error rate on applied answers from 4.5% to 1.6%
+
+Answers below the threshold are not applied and not locked, so a later run retries them. Raising the threshold withholds more answers without meaningfully reducing errors.
+
+You can adjust the threshold per family in **Settings > Self-Hosting** or set an instance-wide override:
+
+```txt
+CATEGORIZATION_CONFIDENCE_THRESHOLD=0.7   # range: 0.0–1.0
+```
+
+The LLM path does not report confidence scores and is never gated by this threshold.
+
+## Shadow mode
+
+Shadow mode runs the unselected provider alongside the active one. It applies only the selected provider's answers but records where the two providers disagreed. This lets you compare providers on real traffic without switching over.
+
+Shadow mode is off by default because it doubles categorization spend. Turn it on by setting a sampling rate:
+
+```txt
+CATEGORIZATION_SHADOW_RATE=0.1   # 10% of runs also query the other provider
+```
+
+The rate is sampled per categorization run, not per transaction (because LLM providers categorize a whole batch in one request). A value of `1.0` shadows every run. Results appear in **Settings > Self-Hosting** under the categorization panel.
+
+## Using a gateway
+
+Jev's API is compatible with OpenRouter's Decisions API. To route through OpenRouter, set both variables:
+
+```txt
+JEV_ENDPOINT=https://openrouter.ai/api/alpha/decisions
+JEV_MODEL=~typesafe/jev-latest
+```
+
+Routing through a gateway means your families' transaction descriptions transit that gateway as well as TypeSafe. The data-sharing disclosure in **Settings > Self-Hosting** names the host your current configuration actually sends to, and notes when a gateway is involved.
+
+<Warning>
+`JEV_ENDPOINT` must use HTTPS. HTTP endpoints (other than loopback addresses like `localhost` or `127.0.0.1`) are rejected to prevent the API key and transaction descriptions being transmitted in cleartext. If the endpoint is rejected, Sure falls back to the LLM provider and writes a diagnostic entry to the debug log rather than stopping categorization entirely.
+</Warning>
+
+## Environment variable reference
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `JEV_API_KEY` | — | Required. TypeSafe API key. No fallback to other keys. |
+| `JEV_ENDPOINT` | `https://api.typesafe.ai/v1/systemone` | Jev API endpoint. Must use HTTPS (loopback exempt). |
+| `JEV_MODEL` | `jev-latest` | Model name passed to the endpoint. |
+| `CATEGORIZATION_PROVIDER` | — | `llm` or `jev`. Overrides every family's choice when set. |
+| `CATEGORIZATION_CONFIDENCE_THRESHOLD` | `0.7` | Minimum confidence to apply an answer. Clamped to 0.0–1.0. |
+| `CATEGORIZATION_SHADOW_RATE` | `0.0` | Fraction of runs that also query the other provider. Clamped to 0.0–1.0. |
+
+All variables except `JEV_API_KEY` can also be set per-family through **Settings > Self-Hosting** when preview features are on. An environment variable always takes precedence over the UI setting.

@@ -102,7 +102,8 @@
               "providers/snaptrade",
               "providers/sophtron",
               "providers/trade-republic",
-              "providers/trading212"
+              "providers/trading212",
+              "providers/jev"
             ]
           },
           {
