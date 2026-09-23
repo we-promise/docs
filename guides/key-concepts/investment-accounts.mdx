@@ -92,7 +92,7 @@ To add a fee to a trade:
 
 Fees are automatically factored into your cost basis calculations and realized gains/losses.
 
-## Securities Types
+## Securities types
 
 Sure supports various security types:
 
@@ -103,6 +103,40 @@ Sure supports various security types:
 | Mutual Funds | Pooled investment funds |
 | Crypto | Bitcoin, Ethereum, other cryptocurrencies |
 | Bonds | Fixed-income securities |
+
+### Asset classification
+
+Each security can be classified by asset class, sub-class, sector, industry, and region. This classification data will power allocation breakdowns — letting you see how your portfolio is distributed across equities, fixed income, real estate, and other categories.
+
+**Asset classes**
+
+| Value | Description |
+| --- | --- |
+| `equity` | Stocks and equity-like instruments |
+| `fixed_income` | Bonds and other debt instruments |
+| `real_estate` | Real estate investment trusts and direct property |
+| `commodity` | Physical goods such as gold, oil, or agricultural products |
+| `alternative_investment` | Hedge funds, private equity, and other alternatives |
+| `liquidity` | Cash, money-market funds, and near-cash holdings |
+
+**Asset sub-classes**
+
+`bond`, `cash`, `collectible`, `commodity`, `cryptocurrency`, `etf`, `loan`, `mutual_fund`, `precious_metal`, `private_equity`, `real_estate`, `stock`
+
+**Sector and industry** hold the vocabulary your data provider supplies. Because different providers use different taxonomies, these fields accept any string rather than a fixed list.
+
+**Region** is derived from the security's country code against a list Sure owns, so it uses a closed vocabulary. No provider writes this field directly.
+
+**Classification source** records who set the classification:
+
+| Value | Meaning |
+| --- | --- |
+| `provider` | Set by a connected data provider |
+| `manual` | Set by you |
+| `ai` | Set by Sure's AI enrichment |
+| `default` | Applied as a fallback |
+
+**Classification locked** is a boolean flag. When `true`, no automated source — provider, AI, or default — can overwrite the classification. Sure sets this automatically when you change a security's classification manually.
 
 ## Cost Basis Tracking
 
