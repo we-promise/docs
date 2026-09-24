@@ -73,9 +73,13 @@ Example: you can keep one Enable Banking provider config in Sure, then add one c
 
 Enable Banking uses sessions to maintain access to your accounts:
 
-- Session validity depends on your bank's maximum consent period, up to 90 days
+- Session validity depends on your bank's maximum consent period, up to 180 days
 - You can revoke access at any time by deleting the session
 - Sessions automatically refresh to keep data current
+
+Sure requests the longest consent window your bank advertises (capped at 180 days by default), so reauthorization happens as infrequently as possible. If your bank rejects the requested duration, Sure automatically retries with progressively shorter windows (90, 45, and 30 days) until the bank accepts one.
+
+Set the `ENABLE_BANKING_CONSENT_DAYS` environment variable to a whole number of days to override the 180-day ceiling. Only integer values are accepted; non-integer strings are ignored and the default is used.
 
 ### Transaction period retries
 
@@ -166,7 +170,7 @@ N26 (and some other ASPSPs via Enable Banking) rejects out-of-range transaction 
 
 - Only supports banks in EU/EEA countries
 - Requires PSD2-compliant banks
-- Session validity depends on your bank's consent limits (up to 90 days)
+- Session validity depends on your bank's consent limits (up to 180 days)
 - Banks that use decoupled authentication (separate device approval) are not supported
 - Subject to Enable Banking API rate limits
 - Some banks may have additional authentication requirements

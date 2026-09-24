@@ -95,6 +95,20 @@ After authorization, Sure separates discovered SnapTrade accounts into:
 
 This makes it easier to avoid duplicates when you reconnect a brokerage or add another account later.
 
+### Activity type coverage
+
+Sure maps the full range of SnapTrade activity types to trades or cash entries:
+
+**Trade activities** (always imported as investment trades): BUY, SELL, REI, REINVEST, OPTION_BUY, OPTION_SELL, OPTIONASSIGNMENT, ASSIGNED, OPTIONEXERCISE, EXERCISED, OPTIONEXPIRATION, EXPIRED, STOCK_DIVIDEND, SPLIT, REVERSE_SPLIT, SPINOFF, and asset transfer variants (EXTERNAL_ASSET_TRANSFER_IN/OUT, INTERNAL_ASSET_TRANSFER_IN/OUT).
+
+**Unit-dependent activities** (ADJUSTMENT, STOCK_MERGER, MERGER, CORP_ACTION): imported as trades when SnapTrade reports a non-zero share quantity, and as cash entries when the quantity is absent or zero. This lets zero-cash corporate actions (splits, mergers with no cash consideration) record correctly as unit-only trades while still capturing any cash component when it is present.
+
+**Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.
+
+### Resync reclassification
+
+If a later sync determines an activity should be classified differently (for example, a CORP_ACTION that previously had units is re-fetched without units), Sure reclassifies the entry automatically. Entries that have been manually edited or locked by an import are protected and will not be reclassified; these cases are recorded in the debug log at **Settings > Debug**.
+
 ### Trade amount and fee accuracy
 
 Sure uses SnapTrade's reported trade amount directly rather than computing it as quantity × price. Brokerage-reported prices are often rounded or estimated, so the computed value can drift by a few cents from the cash that actually moved — most visibly for reinvestments that should match their dividend exactly.
