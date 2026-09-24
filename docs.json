@@ -20,6 +20,7 @@
               "quickstart",
               "guide",
               "self-hosting",
+              "self-hosting-render",
               "self-hosting-hostim",
               "self-hosting-helm",
               "roadmap"
@@ -78,7 +79,8 @@
               "providers/market-data",
               "providers/mansa",
               "providers/property-valuations",
-              "providers/onchain-wallets",
+              "providers/apple-wallet",
+    "providers/onchain-wallets",
               "providers/akahu",
               "providers/binance",
               "providers/brex",
@@ -103,6 +105,7 @@
               "providers/sophtron",
               "providers/trade-republic",
               "providers/trading212",
+              "providers/financekit",
               "providers/jev"
             ]
           },
@@ -316,19 +319,12 @@
             "group": "Sync",
             "openapi": "/openapi.yaml",
             "pages": [
-              "POST /api/v1/sync",
               "GET /api/v1/syncs",
               "GET /api/v1/syncs/latest",
               "GET /api/v1/syncs/{id}"
             ]
           },
-          {
-            "group": "Usage",
-            "openapi": "/openapi.yaml",
-            "pages": [
-              "GET /api/v1/usage"
-            ]
-          },
+
           {
             "group": "Tags",
             "openapi": "/openapi.yaml",
@@ -402,6 +398,23 @@
               "DELETE /api/v1/users/reset",
               "GET /api/v1/users/reset/status",
               "DELETE /api/v1/users/me"
+            ]
+          },
+          {
+            "group": "FinanceKit",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/financekit/capabilities",
+              "POST /api/v1/financekit/connections",
+              "GET /api/v1/financekit/connections/{id}",
+              "PUT /api/v1/financekit/connections/{connection_id}/account_mappings/{source_id}",
+              "POST /api/v1/financekit/connections/{connection_id}/activate",
+              "POST /api/v1/financekit/connections/{connection_id}/credential",
+              "POST /api/v1/financekit/connections/{connection_id}/repair",
+              "POST /api/v1/financekit/publishers/{publisher_id}/batches",
+              "GET /api/v1/financekit/publishers/{publisher_id}/batches/{batch_id}",
+              "GET /api/v1/financekit/connections/{connection_id}/conflicts",
+              "PATCH /api/v1/financekit/connections/{connection_id}/conflicts/{id}"
             ]
           }
         ]
