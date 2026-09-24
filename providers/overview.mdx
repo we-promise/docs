@@ -120,6 +120,16 @@ Available providers include Yahoo Finance, Twelve Data, Tiingo, EODHD, Alpha Van
 
 **Up** bank accounts can be connected through Lunch Flow. Sure automatically maps Up's category slugs to your existing Sure categories on import, so transactions arrive pre-categorised based on the tags you've already set in the Up app. Categories you've manually set or locked in Sure are always preserved during re-syncs. Up-specific categories with no clear Sure equivalent (such as Booze, Pets, or Life Admin) are left uncategorised so you can apply your own rules or AI categorisation.
 
+## Categorization providers
+
+Sure categorizes transactions using your configured LLM provider by default. Self-hosted instances with preview features enabled can optionally switch to Jev.
+
+**Jev (TypeSafe)** is a classification provider that answers typed questions about a transaction with calibrated confidence scores rather than generating text. It is a good fit when you want fine-grained control over how certain a model must be before a category is applied.
+
+- **Best for**: Self-hosted instances that want a dedicated classification model with confidence-based gating
+- **Pricing**: Per-transaction (TypeSafe billing)
+- **Documentation**: [Jev (TypeSafe)](/providers/jev)
+
 ## Cryptocurrency providers
 
 ### On-chain wallets (self-custody)
