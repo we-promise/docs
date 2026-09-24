@@ -1086,13 +1086,23 @@ EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
    - **Per-family (UI):** Go to **Settings > Self-Hosting > AI Assistant**, select "External"
    - **Global (env):** Set `ASSISTANT_TYPE=external` to force all families to use external
 
+4. Select an agent. After you save a valid URL and token, Sure calls `/v1/models` on the endpoint and populates an agent dropdown in the UI. Select the agent you want to use and save. The external service manages the model behind each agent; Sure only handles routing.
+
+   To skip the UI and pin an agent via environment variable, set:
+
+   ```txt
+   EXTERNAL_ASSISTANT_MODEL=openclaw/my-agent
+   ```
+
+   When `EXTERNAL_ASSISTANT_MODEL` is set, the dropdown in the UI is disabled and the environment value is always used.
+
 To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile. This profile starts OpenClaw without the local Ollama or Open WebUI services:
 
 ```bash
 docker compose -f compose.ai.yml --profile external-assistant up -d
 ```
 
-See the `docs/hosting/ai.md` file in the Sure repository for full configuration details including agent ID, session keys, and email allowlisting.
+See the `docs/hosting/ai.md` file in the Sure repository for full configuration details including agent model selection, session keys, and email allowlisting.
 
 ### Pipelock security proxy
 
