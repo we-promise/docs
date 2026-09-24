@@ -1,0 +1,115 @@
+---
+title: Apple Wallet
+description: Connect Apple Card and Apple Cash accounts via FinanceKit on iOS
+---
+
+Apple Wallet integration uses Apple's FinanceKit framework to import Apple Card, Apple Cash, and family Apple Cash accounts directly from your iPhone. No Apple credentials reach the Sure server: the iOS app obtains authorization from Apple and uploads only the accounts you selected.
+
+## Requirements
+
+Apple Wallet sync is a server-side opt-in. Before any family can enroll, a self-hosted admin must enable the feature:
+
+```txt
+FINANCEKIT_ENABLED=true
+FINANCEKIT_FAMILY_IDS=<comma-separated family UUIDs>
+```
+
+The enrolling user must also be a family administrator with preview features enabled. No Apple entitlement, private key, or FinanceKit framework is needed on the server.
+
+## How it works
+
+1. The iOS app prompts the user to authorize access to Wallet accounts via FinanceKit.
+2. The app creates a publisher enrollment and maps the selected Apple accounts to Sure accounts.
+3. The app uploads encrypted batches of transactions and balances to Sure's server.
+4. Sure's background worker applies each batch in sequence, creating or updating accounts and transactions.
+
+Sure records the following for each Apple Wallet connection:
+
+- **Apple Card** — credit card account with purchases, payments, and pending activity.
+- **Apple Cash** — depository (cash) account with top-ups and purchases.
+- **Family member Apple Cash** (e.g. Nancy's Apple Cash) — a separate depository account per family member.
+
+## Viewing your connection
+
+Once connected, Apple Wallet appears under **Settings → Bank Sync** alongside other providers. The card shows sync status, the last time the device contacted the server, the last accepted upload, and the last import timestamp.
+
+Existing connections are listed under **Your Connections** with links to the accounts the viewer can access. All connected accounts also appear in the main **Accounts** list.
+
+## Unlinking
+
+You can unlink a Wallet connection from the web UI. Because a single publisher credential covers all selected Wallet accounts, unlinking one disconnects the entire Wallet connection and makes its accounts manual.
+
+Unlinking:
+
+- Revokes the publisher credential and queued uploads
+- Preserves existing accounts, balances, transactions, and source identities
+- Does not delete any financial data
+
+To reconnect, open the iOS app and start a new enrollment. Sure reuses existing accounts and imported transactions without requiring the old connection or stream state.
+
+## Transaction dates
+
+`posted_at` is optional, including for booked Apple Card transactions. When supplied, it must be a valid timestamp no later than the capture timestamp. Sure assigns ledger dates using this order of precedence: `posted_at`, then the required `transacted_at`, both converted into the mapped account's ledger timezone.
+
+## Debugging uploads
+
+Super admins can view upload events at `/settings/debug?provider_key=financekit`. Filter further by family, log level, or source. Events share `connection_id`, `publisher_id`, `generation`, `stream_id`, and `next_sequence`.
+
+| Event | Meaning |
+| --- | --- |
+| `upload_accepted` | Sure stored the upload. Acceptance does not mean import is complete. A sequence ahead of `next_sequence` is waiting for its predecessor; a multi-chunk capture waits for all chunks. |
+| `upload_rejected` | A typed protocol error and HTTP status were recorded. Identical accepted retries reuse their receipt without re-logging. |
+| `capture_imported` | Records the resulting sync ID and counts, including records requiring conflict review. |
+| `import_retry` | Includes attempt count, retry deadline, error code, and exception class. |
+| `import_failed` | Repair is required. |
+| `import_blocked` | Failure occurred before a batch could be selected. |
+| `downstream_completed` | Account updates and rules were scheduled. |
+| `downstream_failed` | Includes the affected account or provider link when available; the inbox sweep retries this stage. |
+
+Diagnostics omit exception messages, financial payloads, credentials, transaction descriptions, merchant names, and amounts. Requests rejected before reaching the batch inbox (such as invalid credentials or wrong content type) do not create these events.
+
+## Demo and sample data
+
+The standard demo account includes a synthetic Apple Wallet connection with:
+
+- **Apple Card** (CreditCard) — a year of purchases, payments, and pending activity
+- **Apple Cash** (Depository, cash) — top-ups, purchases, and 1% Daily Cash rewards from Apple Card activity
+- **Nancy's Apple Cash** — gifts from the parent account plus small purchases
+
+Wallet demo data is included in every environment by both the full generator and the sample-data reset flow. It does not enable FinanceKit feature flags or change user permissions.
+
+To add just the Wallet accounts to an existing demo family without replacing other data:
+
+```sh
+FAMILY_ID=<demo-family-uuid> bin/rails demo_data:financekit
+```
+
+Alternatively use `DEMO_EMAIL=<demo-user-email>` (defaults to the configured demo email). `SEED=42` controls generated amounts and merchants. Reruns preserve the existing enrollment and transactions and upgrade older synthetic data with merchant-specific categories and paired transfers.
+
+## Capacity limits
+
+| Limit | Value |
+| --- | --- |
+| Selected accounts per publisher | 20 |
+| Events per batch | 500 |
+| Payload size per batch | 1 MiB |
+| Queued batches per publisher | 100 |
+| Chunks per capture | 100 |
+
+Payload bytes are retained for seven days after apply, permanent failure, or revocation for response-loss recovery. Financial data and source identity records follow Sure's normal family retention and deletion behavior. A family financial-data reset removes FinanceKit connections, lineages, observations, identities, conflicts, and batch receipts for that family.
+
+## Self-hosting deployment checklist
+
+Before enabling Apple Wallet on a new instance:
+
+1. Deploy the migration, application, worker, and scheduler with `FINANCEKIT_ENABLED=false`.
+2. Confirm the high-priority job queue and recurring `FinancekitInboxJob` scheduler are healthy.
+3. Enable only a test family via `FINANCEKIT_FAMILY_IDS`.
+4. Enroll and activate a synthetic publisher over HTTPS.
+5. Upload sequences 2 then 1 and confirm the inbox applies them in order.
+6. Retry identical bytes and confirm the receipt is stable with no ledger duplicates.
+7. Rotate the credential and confirm the prior credential cannot upload or call normal APIs.
+8. Replace the publisher and confirm canonical accounts, source identities, and tombstones are reused.
+9. Induce a bad predecessor and confirm the connection enters `repair_required`; repair must create a new generation and stream.
+10. Confirm health reports device contact, acceptance, import, and downstream completion separately.
+11. Confirm applied, permanently failed, and revoked payload bytes are removed after seven days.
