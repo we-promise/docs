@@ -105,7 +105,8 @@
               "providers/sophtron",
               "providers/trade-republic",
               "providers/trading212",
-              "providers/financekit"
+              "providers/financekit",
+              "providers/jev"
             ]
           },
           {

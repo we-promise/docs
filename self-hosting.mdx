@@ -300,6 +300,47 @@ Setting `SECURITIES_PROVIDERS` as an environment variable takes precedence over 
 `TINKOFF_INVEST_API_KEY` serves two purposes: it enables T-Invest as a securities price provider when `tinkoff_invest` is included in `SECURITIES_PROVIDERS`, and it allows Sure to fetch brand logos for all securities (including MOEX-priced ones) via T-Invest's CDN. When a token is configured but T-Invest is not enabled for prices, the T-Invest settings block shows a notice: "Not enabled for prices above — T-Invest is used to fetch brand logos for all your securities whenever a token is configured, independent of the checkbox above." Logo fetching happens regardless of whether T-Invest is selected as a price provider.
 </Note>
 
+### Categorization provider variables
+
+By default, Sure categorizes transactions using your configured LLM provider. You can optionally switch to **Jev** (by TypeSafe), a classification provider that answers typed questions about a transaction with calibrated probabilities. Because Jev only handles classification it is never used for chat, PDF processing, or merchant detection, and is configured independently of `LLM_PROVIDER`.
+
+Jev is a per-family opt-in behind the preview features gate. When the preview gate is open, each family can select their categorization provider from **Settings > Self-Hosting > Categorization provider**. The ENV override `CATEGORIZATION_PROVIDER` applies to every family on the instance.
+
+```txt
+# Required to enable Jev — no fallback to other keys
+JEV_API_KEY=your-jev-api-key
+
+# Override the categorization provider for every family on this instance
+# Accepted values: llm | jev
+CATEGORIZATION_PROVIDER=jev
+
+# Jev endpoint (default: https://api.typesafe.ai/v1/systemone)
+# To route through OpenRouter instead, set both variables:
+#   JEV_ENDPOINT=https://openrouter.ai/api/alpha/decisions
+#   JEV_MODEL=~typesafe/jev-latest
+# Note: routing through a gateway means transaction descriptions transit that
+# third party as well as TypeSafe.
+JEV_ENDPOINT=https://api.typesafe.ai/v1/systemone
+
+# Jev model (default: jev-latest)
+JEV_MODEL=jev-latest
+
+# Confidence threshold below which a Jev answer is not applied (default: 0.7, range: 0.0–1.0)
+# Answers below the threshold are left uncategorized for a later retry.
+# LLM providers, which do not report confidence, are never gated by this value.
+CATEGORIZATION_CONFIDENCE_THRESHOLD=0.7
+
+# Shadow mode: probability (0.0–1.0) that a run also queries the unselected provider
+# for comparison, without applying its answers. Off by default. Doubles spend when active.
+CATEGORIZATION_SHADOW_RATE=0.0
+```
+
+<Note>
+`JEV_ENDPOINT` must use HTTPS. An HTTP endpoint (other than loopback addresses such as `localhost` or `127.0.0.1`) is rejected because it would transmit the API key and transaction descriptions in cleartext. If a mis-typed or invalid endpoint is configured, Sure falls back to the LLM provider rather than stopping categorization entirely.
+</Note>
+
+See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing considerations, and how to choose between Jev and the LLM path.
+
 ### Property valuation provider variables
 
 Sure supports two automated valuation model (AVM) providers for property accounts: RentCast and Realie. Both are US-only and price property values in USD. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
