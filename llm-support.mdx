@@ -104,7 +104,7 @@ The form contains the following fields, grouped by function:
 | **Base URL** | Custom endpoint URL for Bedrock / Vertex proxies (maps to `ANTHROPIC_BASE_URL`) |
 | **Model** | Model name — required when Base URL is set (maps to `ANTHROPIC_MODEL`, default `claude-sonnet-4-6`) |
 
-Settings in the UI override environment variables. If an environment variable is set, the corresponding field is disabled in the UI.
+Environment variables take precedence over UI settings when set to a non-blank value. A blank environment variable (e.g. `OPENAI_MODEL=`) is treated as unset and the UI setting is used instead. If an environment variable is set to a non-blank value, the corresponding field is disabled in the UI.
 
 ## Choosing a provider
 
@@ -470,7 +470,7 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | `LLM_PROVIDER` | Active LLM provider: `openai` or `anthropic` | `openai` |
 | `OPENAI_ACCESS_TOKEN` | API key for the provider | — |
 | `OPENAI_URI_BASE` | Custom endpoint URL (leave blank for OpenAI) | — |
-| `OPENAI_MODEL` | Model name (required for custom endpoints) | `gpt-4.1` |
+| `OPENAI_MODEL` | Model name (required for custom endpoints). A blank value is treated as unset and falls through to the UI setting, then `gpt-4.1` | `gpt-4.1` |
 | `OPENAI_REQUEST_TIMEOUT` | HTTP timeout in seconds for each individual HTTP call to the model | `60` |
 | `AI_RESPONSE_TIMEOUT` | Whole-turn watchdog timeout in seconds. See [Chat response timeout](#chat-response-timeout) for sizing guidance | `90` |
 | `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `8` |
