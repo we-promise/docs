@@ -16,11 +16,21 @@ components:
       name: X-Api-Key
       in: header
       description: API key for authentication. Generate one from your account settings.
-    bearerAuth:
+    financekitPublisher:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: OAuth2 Bearer token. Obtain a token from the /api/v1/auth/login or /api/v1/auth/refresh endpoints. The token must have the 'read' or 'read_write' scope.
+      bearerFormat: opaque publisher credential
+      description: Revocable credential restricted to one FinanceKit publisher upload
+        URL.
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: "/oauth/authorize"
+          tokenUrl: "/oauth/token"
+          scopes:
+            read: Read access
+            read_write: Read and write access
   schemas:
     Pagination:
       type: object
@@ -306,6 +316,98 @@ components:
             "$ref": "#/components/schemas/ChatSummary"
         pagination:
           "$ref": "#/components/schemas/Pagination"
+    Insight:
+      type: object
+      required:
+      - id
+      - type
+      - title
+      - body
+      - priority
+      - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        priority:
+          type: string
+          enum:
+          - high
+          - medium
+          - low
+        status:
+          type: string
+          enum:
+          - active
+          - read
+        generated_at:
+          type: string
+          format: date-time
+          nullable: true
+    InsightCollection:
+      type: object
+      required:
+      - insights
+      properties:
+        insights:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Insight"
+    PushSubscriptionRegistration:
+      type: object
+      required:
+      - token
+      - environment
+      - platform
+      properties:
+        token:
+          type: string
+          maxLength: 2048
+          pattern: "^(?:[0-9a-fA-F]{2})+$"
+        environment:
+          type: string
+          enum:
+          - sandbox
+          - production
+        platform:
+          type: string
+          enum:
+          - ios
+        device_key:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional 256-bit installation secret, unique per server and
+            kept in device secure storage. Required proof to replace another user’s
+            registration for this device. Never returned.
+    PushSubscription:
+      type: object
+      required:
+      - id
+      - environment
+      - platform
+      - last_registered_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        environment:
+          type: string
+          enum:
+          - sandbox
+          - production
+        platform:
+          type: string
+          enum:
+          - ios
+        last_registered_at:
+          type: string
+          format: date-time
     RetryResponse:
       type: object
       required:
@@ -605,6 +707,7 @@ components:
       - currency
       - subcategory
       - inherits_parent_budget
+      - rollover_enabled
       - category
       - created_at
       - updated_at
@@ -666,6 +769,7 @@ components:
       - currency
       - subcategory
       - inherits_parent_budget
+      - rollover_enabled
       - category
       - created_at
       - updated_at
@@ -692,13 +796,13 @@ components:
           type: string
         display_budgeted_spending_cents:
           type: integer
-        rolled_over_amount:
-          type: string
-        rolled_over_amount_cents:
-          type: integer
         actual_spending:
           type: string
         actual_spending_cents:
+          type: integer
+        rolled_over_amount:
+          type: string
+        rolled_over_amount_cents:
           type: integer
         available_to_spend:
           type: string
@@ -1381,8 +1485,11 @@ components:
         status:
           type: string
           enum:
+          - suggested
           - active
+          - paused
           - inactive
+          - ended
         occurrence_count:
           type: integer
           minimum: 0
@@ -1391,6 +1498,98 @@ components:
           nullable: true
         manual:
           type: boolean
+        payment_url:
+          type: string
+          nullable: true
+          description: Link to the biller portal where this bill is paid. Only http
+            and https are accepted; a bare host is stored as https.
+        autopay:
+          type: boolean
+          description: Whether this bill pays itself automatically.
+        notes:
+          type: string
+          nullable: true
+          description: Free-text notes shown alongside the bill.
+        bill_type:
+          type: string
+          enum:
+          - bill
+          - subscription
+          - installment
+          - income
+          - transfer
+          - other
+          description: What kind of obligation this is.
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+        anchor_date:
+          type: string
+          format: date
+          nullable: true
+          description: Reference occurrence that phases every-N cadences.
+        weekend_adjust:
+          type: string
+          enum:
+          - none
+          - skip
+          - before
+          - after
+        end_mode:
+          type: string
+          enum:
+          - never
+          - on_date
+          - after_count
+        end_on:
+          type: string
+          format: date
+          nullable: true
+        end_after_count:
+          type: integer
+          nullable: true
+        renews_on:
+          type: string
+          format: date
+          nullable: true
+        trial_ends_on:
+          type: string
+          format: date
+          nullable: true
+        cancelled_on:
+          type: string
+          format: date
+          nullable: true
+        recurrence_rules:
+          type: array
+          description: Repetition patterns; multiple rows express semimonthly and
+            similar multi-pattern cadences. Empty means legacy monthly on expected_day_of_month.
+          items:
+            type: object
+            properties:
+              frequency:
+                type: string
+                enum:
+                - weekly
+                - monthly
+                - yearly
+              interval:
+                type: integer
+              day_of_month:
+                type: integer
+                nullable: true
+                description: "-1 means the last day of the month."
+              weekday:
+                type: integer
+                nullable: true
+              weekday_ordinal:
+                type: integer
+                nullable: true
+                description: "-1 means the last such weekday."
+              month_of_year:
+                type: integer
+                nullable: true
         expected_amount_min:
           type: string
           nullable: true
@@ -1442,8 +1641,6 @@ components:
       - id
       - date
       - amount
-      - amount_cents
-      - signed_amount_cents
       - currency
       - name
       - classification
@@ -1460,12 +1657,6 @@ components:
           format: date
         amount:
           type: string
-        amount_cents:
-          type: integer
-          description: Absolute transaction amount in currency minor units (e.g. cents for USD). Always positive.
-        signed_amount_cents:
-          type: integer
-          description: Signed transaction amount in currency minor units. Negative for expenses/outflows, positive for income/inflows.
         currency:
           type: string
         name:
@@ -1481,10 +1672,6 @@ components:
           nullable: true
         user_modified:
           type: boolean
-          description: >
-            Whether this transaction has been flagged as user-modified. When true,
-            the next bank sync will not overwrite fields the API client already set
-            (name, category, etc.), matching the protection applied to manual edits.
         classification:
           type: string
         account:
@@ -3034,6 +3221,215 @@ components:
         formatted:
           type: string
           description: Locale-formatted money string
+    FinancialPeriod:
+      type: object
+      required:
+      - start_date
+      - end_date
+      properties:
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+    SpendingPoint:
+      type: object
+      required:
+      - date
+      - amount
+      properties:
+        date:
+          type: string
+          format: date
+        amount:
+          type: string
+          description: Cumulative decimal amount in family currency
+    CashFlowSankey:
+      type: object
+      required:
+      - basis
+      - income
+      - spending
+      - net_savings
+      - nodes
+      - links
+      description: Refunds net within each category. Parent direct amounts exclude
+        child totals before partitioning by direction. Graph income/spending may differ
+        from gross monthly totals; net savings agrees. Decimal strings retain FX precision.
+        Empty flow has empty nodes and links.
+      properties:
+        basis:
+          type: string
+          enum:
+          - net_by_category
+        income:
+          type: string
+        spending:
+          type: string
+        net_savings:
+          type: string
+        nodes:
+          type: array
+          items:
+            type: object
+            required:
+            - id
+            - name
+            - kind
+            - value
+            - percentage
+            - category_id
+            - filter_value
+            - color
+            properties:
+              id:
+                type: string
+                description: Stable direction-prefixed category identifier or structural
+                  identifier
+              name:
+                type: string
+              kind:
+                type: string
+                enum:
+                - income
+                - expense
+                - cash_flow
+                - surplus
+                - deficit
+              value:
+                type: string
+                description: Nonnegative decimal in envelope currency
+              percentage:
+                type: string
+                description: Percentage of parent, or side total for root categories;
+                  structural balancing nodes use central capacity
+              category_id:
+                type: string
+                format: uuid
+                nullable: true
+              filter_value:
+                type: string
+                nullable: true
+                description: Web transaction category filter; null means no category
+                  drill-down
+              color:
+                type: string
+                nullable: true
+                description: User category color; structural colors belong to the
+                  client
+        links:
+          type: array
+          items:
+            type: object
+            required:
+            - source
+            - target
+            - value
+            - percentage
+            properties:
+              source:
+                type: integer
+                minimum: 0
+                description: Zero-based nodes index
+              target:
+                type: integer
+                minimum: 0
+                description: Zero-based nodes index
+              value:
+                type: string
+                description: Positive decimal in envelope currency
+              percentage:
+                type: string
+    CashFlowGraph:
+      type: object
+      required:
+      - as_of
+      - time_zone
+      - currency
+      - period
+      - sankey
+      properties:
+        as_of:
+          type: string
+          format: date
+        time_zone:
+          type: string
+        currency:
+          type: string
+        period:
+          "$ref": "#/components/schemas/FinancialPeriod"
+        sankey:
+          "$ref": "#/components/schemas/CashFlowSankey"
+    CashFlow:
+      type: object
+      required:
+      - month
+      - as_of
+      - time_zone
+      - currency
+      - period
+      - income
+      - spending
+      - net_savings
+      - savings_rate
+      - spending_comparison
+      properties:
+        month:
+          type: string
+          format: date
+        as_of:
+          type: string
+          format: date
+        time_zone:
+          type: string
+        currency:
+          type: string
+        period:
+          "$ref": "#/components/schemas/FinancialPeriod"
+        income:
+          type: string
+        spending:
+          type: string
+        net_savings:
+          type: string
+        sankey:
+          "$ref": "#/components/schemas/CashFlowSankey"
+        savings_rate:
+          type: string
+          nullable: true
+          description: Percentage points; null when income is nonpositive. May be
+            negative.
+        spending_comparison:
+          type: object
+          required:
+          - previous_period
+          - current_total
+          - comparison_total
+          - comparison_end_date
+          - delta
+          - current
+          - previous
+          properties:
+            previous_period:
+              "$ref": "#/components/schemas/FinancialPeriod"
+            current_total:
+              type: string
+            comparison_total:
+              type: string
+            delta:
+              type: string
+            comparison_end_date:
+              type: string
+              format: date
+            current:
+              type: array
+              items:
+                "$ref": "#/components/schemas/SpendingPoint"
+            previous:
+              type: array
+              items:
+                "$ref": "#/components/schemas/SpendingPoint"
     BalanceSheet:
       type: object
       required:
@@ -3244,347 +3640,819 @@ components:
             plaid_items:
               type: integer
               minimum: 0
-    Insight:
+    FinancekitMoney:
+      type: object
+      additionalProperties: false
+      required:
+      - amount
+      - currency
+      - direction
+      properties:
+        amount:
+          type: string
+          pattern: "^(0|[1-9][0-9]{0,14})(\\.[0-9]{1,4})?$"
+        currency:
+          type: string
+          pattern: "^[A-Z]{3,5}$"
+        direction:
+          type: string
+          enum:
+          - credit
+          - debit
+    FinancekitConsent:
+      type: object
+      additionalProperties: false
+      required:
+      - version
+      - granted_at
+      - selected_source_account_ids
+      - upload_authorized
+      - family_visibility_acknowledged
+      - remote_processing_acknowledged
+      properties:
+        version:
+          type: integer
+          enum:
+          - 1
+        granted_at:
+          type: string
+          format: date-time
+        selected_source_account_ids:
+          type: array
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        upload_authorized:
+          type: boolean
+          enum:
+          - true
+        family_visibility_acknowledged:
+          type: boolean
+          enum:
+          - true
+        remote_processing_acknowledged:
+          type: boolean
+          enum:
+          - true
+    FinancekitEnrollment:
+      type: object
+      additionalProperties: false
+      required:
+      - protocol_version
+      - enrollment_id
+      - consent
+      properties:
+        protocol_version:
+          type: integer
+          enum:
+          - 2
+        enrollment_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        replaces_connection_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        consent:
+          "$ref": "#/components/schemas/FinancekitConsent"
+    FinancekitMappingRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      - action
+      - name
+      - institution_name
+      - currency
+      - accountable_type
+      - subtype
+      - ledger_timezone
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0
+        action:
+          type: string
+          enum:
+          - create
+          - link
+        name:
+          type: string
+          maxLength: 255
+        institution_name:
+          type: string
+          maxLength: 255
+        currency:
+          type: string
+        accountable_type:
+          type: string
+          enum:
+          - Depository
+          - CreditCard
+        subtype:
+          type: string
+        ledger_timezone:
+          type: string
+        account_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        lineage_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        booked_balance:
+          "$ref": "#/components/schemas/FinancekitMoney"
+        observed_at:
+          type: string
+          format: date-time
+      description: create requires booked_balance and observed_at; link requires a
+        writable same-family account_id and may carry a prior lineage_id
+    FinancekitAccountMapping:
+      type: object
+      additionalProperties: false
+      required:
+      - source_id
+      - lineage_id
+      - mapping_version
+      - name
+      - institution_name
+      - currency
+      - accountable_type
+      - subtype
+      - ledger_timezone
+      - account_id
+      properties:
+        source_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        lineage_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        mapping_version:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+        institution_name:
+          type: string
+          nullable: true
+        currency:
+          type: string
+        accountable_type:
+          type: string
+        subtype:
+          type: string
+        ledger_timezone:
+          type: string
+        account_id:
+          allOf:
+          - type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+          nullable: true
+    FinancekitAccountBinding:
+      type: object
+      additionalProperties: false
+      required:
+      - source_account_id
+      - lineage_id
+      - mapping_version
+      properties:
+        source_account_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        lineage_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        mapping_version:
+          type: integer
+          minimum: 1
+    FinancekitConnection:
       type: object
       required:
       - id
-      - type
-      - title
-      - body
-      - priority
+      - connection_id
+      - publisher_id
       - status
-      - generated_at
+      - generation
+      - next_sequence
+      - open_conflicts
       properties:
         id:
           type: string
           format: uuid
-        type:
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        connection_id:
           type: string
-          enum:
-          - spending_anomaly
-          - cash_flow_warning
-          - net_worth_milestone
-          - subscription_audit
-          - savings_rate_change
-          - idle_cash
-          - budget_at_risk
-          - budget_on_track
-          description: The insight type that describes the financial observation.
-        title:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        publisher_id:
           type: string
-          description: Short summary of the insight.
-        body:
-          type: string
-          description: Full prose explanation of the insight, written by the LLM from pre-computed numbers.
-        priority:
-          type: string
-          enum:
-          - high
-          - medium
-          - low
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
         status:
           type: string
           enum:
+          - pending_mapping
           - active
-          - read
-          - acknowledged
-          - expired
-          description: >
-            User-facing status of the insight. `active` and `read` are visible in the feed;
-            `acknowledged` means the user dismissed it; `expired` means the underlying
-            condition cleared.
-        generated_at:
-          type: string
-          format: date-time
+          - repair_required
+          - revoked
+        generation:
+          type: integer
+          minimum: 1
+        stream_id:
+          allOf:
+          - type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
           nullable: true
-    InsightCollection:
-      type: object
-      required:
-      - insights
-      properties:
-        insights:
+        next_sequence:
+          type: integer
+          minimum: 1
+        repair_reason:
+          type: string
+          nullable: true
+        last_device_contact_at:
+          allOf:
+          - type: string
+            format: date-time
+          nullable: true
+        last_accepted_at:
+          allOf:
+          - type: string
+            format: date-time
+          nullable: true
+        last_imported_at:
+          allOf:
+          - type: string
+            format: date-time
+          nullable: true
+        last_downstream_at:
+          allOf:
+          - type: string
+            format: date-time
+          nullable: true
+        last_captured_at:
+          allOf:
+          - type: string
+            format: date-time
+          nullable: true
+        open_conflicts:
+          type: integer
+          minimum: 0
+        accounts:
           type: array
           items:
-            "$ref": "#/components/schemas/Insight"
-    PushSubscription:
+            "$ref": "#/components/schemas/FinancekitAccountMapping"
+        pagination:
+          "$ref": "#/components/schemas/Pagination"
+    FinancekitPublisherConfiguration:
+      allOf:
+      - "$ref": "#/components/schemas/FinancekitConnection"
+      - type: object
+        required:
+        - protocol_version
+        - server_url
+        - upload_url
+        - consent
+        - account_bindings
+        - max_records_per_batch
+        - max_bytes_per_batch
+        - publisher_credential
+        properties:
+          protocol_version:
+            type: integer
+            enum:
+            - 2
+          server_url:
+            type: string
+            format: uri
+          upload_url:
+            type: string
+            format: uri
+          consent:
+            "$ref": "#/components/schemas/FinancekitConsent"
+          account_bindings:
+            type: array
+            items:
+              "$ref": "#/components/schemas/FinancekitAccountBinding"
+          max_records_per_batch:
+            type: integer
+            minimum: 1
+          max_bytes_per_batch:
+            type: integer
+            minimum: 1
+          publisher_credential:
+            type: string
+            writeOnly: true
+    FinancekitAccountEvent:
       type: object
+      additionalProperties: false
       required:
-      - id
-      - environment
-      - platform
-      - last_registered_at
+      - source_id
+      - lineage_id
+      - mapping_version
+      - display_name
+      - institution_name
+      - currency
+      - kind
       properties:
-        id:
+        source_id:
           type: string
           format: uuid
-        environment:
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        lineage_id:
           type: string
-          enum:
-          - sandbox
-          - production
-        platform:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        mapping_version:
+          type: integer
+          minimum: 1
+        display_name:
           type: string
-          enum:
-          - ios
-        last_registered_at:
+          maxLength: 255
+        institution_name:
           type: string
-          format: date-time
-          description: When the device last registered this token.
-    SankeyNode:
-      type: object
-      required:
-      - id
-      - name
-      - kind
-      - value
-      - percentage
-      properties:
-        id:
+          maxLength: 255
+        currency:
           type: string
-          description: Stable string identifier for this node (e.g. `income_uuid`, `expense_sub_uuid`, `cash_flow_node`, `surplus_node`).
-        name:
-          type: string
-          description: Display name (category name, "Cash Flow", "Surplus", or "Deficit").
         kind:
           type: string
-          description: >
-            Node role. `income` and `expense` are category-level flow nodes; `cash_flow`
-            is the central node; `surplus` and `deficit` are net outcome nodes.
           enum:
-          - income
-          - expense
-          - cash_flow
-          - surplus
-          - deficit
-        value:
+          - asset
+          - liability
+        account_description:
           type: string
-          description: Absolute monetary amount as a decimal string in the family's primary currency.
-        percentage:
+          maxLength: 1000
+        opening_date:
           type: string
-          description: >
-            Share of the larger side (income or spending) as a decimal string (0–100).
-            Used to size the node in the chart.
-        category_id:
+          format: date-time
+    FinancekitBalanceEvent:
+      type: object
+      additionalProperties: false
+      required:
+      - source_id
+      - source_account_id
+      - lineage_id
+      - mapping_version
+      - kind
+      - observed_at
+      - money
+      properties:
+        source_id:
           type: string
           format: uuid
-          nullable: true
-          description: UUID of the associated category, or null for structural nodes.
-        filter_value:
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        source_account_id:
           type: string
-          nullable: true
-          description: Category filter value for drill-down navigation, or null when not applicable.
-        color:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        lineage_id:
           type: string
-          nullable: true
-          description: CSS hex color associated with the category, or null for structural nodes.
-    SankeyLink:
-      type: object
-      required:
-      - source
-      - target
-      - value
-      - percentage
-      properties:
-        source:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        mapping_version:
           type: integer
-          description: Zero-based index into the `nodes` array for the link's source node.
-        target:
-          type: integer
-          description: Zero-based index into the `nodes` array for the link's target node.
-        value:
-          type: string
-          description: Monetary flow amount as a decimal string.
-        percentage:
-          type: string
-          description: Flow as a percentage of the relevant side total (income or spending).
-    SankeyGraph:
-      type: object
-      required:
-      - basis
-      - income
-      - spending
-      - net_savings
-      - nodes
-      - links
-      properties:
-        basis:
+          minimum: 1
+        kind:
           type: string
           enum:
-          - net_by_category
-          description: >
-            Calculation basis. `net_by_category` means refunds are netted within each
-            category before flows are partitioned into income and expense sides.
-        income:
+          - available
+          - booked
+        observed_at:
           type: string
-          description: Total income for the period as a decimal string.
-        spending:
-          type: string
-          description: Total spending for the period as a decimal string.
-        net_savings:
-          type: string
-          description: >
-            income minus spending as a decimal string (negative when spending exceeds income).
-        nodes:
-          type: array
-          items:
-            "$ref": "#/components/schemas/SankeyNode"
-        links:
-          type: array
-          items:
-            "$ref": "#/components/schemas/SankeyLink"
-    SpendingComparisonDay:
+          format: date-time
+        money:
+          "$ref": "#/components/schemas/FinancekitMoney"
+    FinancekitTransactionEvent:
       type: object
+      additionalProperties: false
       required:
-      - date
+      - source_id
+      - source_account_id
+      - lineage_id
+      - mapping_version
       - amount
+      - transaction_description
+      - original_transaction_description
+      - transaction_type
+      - status
+      - transacted_at
       properties:
-        date:
+        source_id:
           type: string
-          format: date
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        source_account_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        lineage_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        mapping_version:
+          type: integer
+          minimum: 1
         amount:
+          "$ref": "#/components/schemas/FinancekitMoney"
+        foreign_amount:
+          "$ref": "#/components/schemas/FinancekitMoney"
+        foreign_exchange_rate:
           type: string
-          description: Cumulative spending through this date as a decimal string.
-    SpendingComparison:
+        transaction_description:
+          type: string
+          maxLength: 1000
+        original_transaction_description:
+          type: string
+          maxLength: 1000
+        transaction_type:
+          type: string
+          maxLength: 100
+        status:
+          type: string
+          enum:
+          - authorized
+          - pending
+          - booked
+          - rejected
+          - memo
+          - unknown
+        transacted_at:
+          type: string
+          format: date-time
+        posted_at:
+          type: string
+          format: date-time
+        merchant_name:
+          type: string
+          maxLength: 255
+        merchant_category_code:
+          type: integer
+          minimum: -32768
+          maximum: 32767
+    FinancekitTombstoneEvent:
       type: object
+      additionalProperties: false
       required:
-      - previous_period
-      - current_total
-      - comparison_total
-      - comparison_end_date
-      - delta
-      - current
-      - previous
+      - source_id
+      - source_account_id
+      - lineage_id
+      - mapping_version
       properties:
-        previous_period:
-          type: object
-          required:
-          - start_date
-          - end_date
-          properties:
-            start_date:
-              type: string
-              format: date
-            end_date:
-              type: string
-              format: date
-        current_total:
+        source_id:
           type: string
-          description: Cumulative spending for the current period as a decimal string.
-        comparison_total:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        source_account_id:
           type: string
-          description: >
-            Cumulative spending for the previous period up to the equivalent comparison
-            day as a decimal string.
-        comparison_end_date:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        lineage_id:
           type: string
-          format: date
-          description: Last date included in comparison_total.
-        delta:
-          type: string
-          description: current_total minus comparison_total as a decimal string.
-        current:
-          type: array
-          description: Day-by-day cumulative spending series for the current period.
-          items:
-            "$ref": "#/components/schemas/SpendingComparisonDay"
-        previous:
-          type: array
-          description: Day-by-day cumulative spending series for the previous month.
-          items:
-            "$ref": "#/components/schemas/SpendingComparisonDay"
-    CashFlow:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        mapping_version:
+          type: integer
+          minimum: 1
+    FinancekitEvent:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - account
+        properties:
+          kind:
+            type: string
+            enum:
+            - account_upsert
+          account:
+            "$ref": "#/components/schemas/FinancekitAccountEvent"
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - source_account_id
+        - lineage_id
+        - mapping_version
+        properties:
+          kind:
+            type: string
+            enum:
+            - account_unavailable
+          source_account_id:
+            type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+          lineage_id:
+            type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+          mapping_version:
+            type: integer
+            minimum: 1
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - balance
+        properties:
+          kind:
+            type: string
+            enum:
+            - balance_upsert
+          balance:
+            "$ref": "#/components/schemas/FinancekitBalanceEvent"
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - transaction
+        properties:
+          kind:
+            type: string
+            enum:
+            - transaction_upsert
+          transaction:
+            "$ref": "#/components/schemas/FinancekitTransactionEvent"
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - tombstone
+        properties:
+          kind:
+            type: string
+            enum:
+            - transaction_tombstone
+          tombstone:
+            "$ref": "#/components/schemas/FinancekitTombstoneEvent"
+    FinancekitBatch:
       type: object
+      additionalProperties: false
       required:
-      - month
-      - as_of
-      - time_zone
-      - currency
-      - period
-      - income
-      - spending
-      - net_savings
-      - spending_comparison
+      - protocol_version
+      - connection_id
+      - publisher_id
+      - generation
+      - stream_id
+      - batch_id
+      - sequence
+      - capture_id
+      - chunk_index
+      - chunk_count
+      - capture_mode
+      - snapshot_complete
+      - captured_at
+      - selected_source_account_ids
+      - events
       properties:
-        month:
+        protocol_version:
+          type: integer
+          enum:
+          - 2
+        connection_id:
           type: string
-          format: date
-          description: First day of the requested month (ISO 8601).
-        as_of:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        publisher_id:
           type: string
-          format: date
-          description: Date the response was calculated.
-        time_zone:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        generation:
+          type: integer
+          minimum: 1
+        stream_id:
           type: string
-          description: IANA time zone identifier for the authenticated user.
-        currency:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        batch_id:
           type: string
-          description: Family primary currency code.
-        period:
-          type: object
-          required:
-          - start_date
-          - end_date
-          properties:
-            start_date:
-              type: string
-              format: date
-            end_date:
-              type: string
-              format: date
-        income:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        sequence:
+          type: integer
+          minimum: 1
+        predecessor_digest:
           type: string
-          description: Total income for the period as a decimal string.
-        spending:
+          pattern: "^[0-9a-f]{64}$"
+        capture_id:
           type: string
-          description: Total spending for the period as a decimal string.
-        net_savings:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        chunk_index:
+          type: integer
+          minimum: 0
+        chunk_count:
+          type: integer
+          minimum: 1
+          maximum: 100
+        capture_mode:
           type: string
-          description: "`income - spending` as a decimal string."
-        savings_rate:
+          enum:
+          - snapshot
+          - delta
+        snapshot_complete:
+          type: boolean
+        captured_at:
+          type: string
+          format: date-time
+        selected_source_account_ids:
+          type: array
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        events:
+          type: array
+          maxItems: 500
+          items:
+            "$ref": "#/components/schemas/FinancekitEvent"
+      description: Immutable ordered publisher batch. sequence 1 omits predecessor_digest;
+        later batches carry the SHA-256 digest of the preceding payload. Omission
+        never deletes data.
+    FinancekitBatchReceipt:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - publisher_id
+      - generation
+      - stream_id
+      - batch_id
+      - sequence
+      - payload_digest
+      - status
+      - accepted_at
+      - applied_at
+      - error_code
+      properties:
+        connection_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        publisher_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        generation:
+          type: integer
+        stream_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        batch_id:
+          type: string
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        sequence:
+          type: integer
+        payload_digest:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        status:
+          type: string
+          enum:
+          - accepted
+          - processing
+          - applied
+          - failed
+          - revoked
+        accepted_at:
+          type: string
+          format: date-time
+        applied_at:
+          type: string
+          format: date-time
+          nullable: true
+        error_code:
           type: string
           nullable: true
-          description: >
-            Savings rate as a percentage decimal string (0–100), or null when income is zero.
-        spending_comparison:
-          "$ref": "#/components/schemas/SpendingComparison"
-        sankey:
-          "$ref": "#/components/schemas/SankeyGraph"
-          nullable: true
-          description: >
-            Sankey graph data. Present only when `include=sankey` is passed.
-    CashFlowGraph:
+    FinancekitConflict:
       type: object
       required:
-      - as_of
-      - time_zone
-      - currency
-      - period
-      - sankey
+      - id
+      - kind
+      - status
+      - details
+      - created_at
       properties:
-        as_of:
+        id:
           type: string
-          format: date
-          description: Date the response was calculated.
-        time_zone:
+          format: uuid
+          pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+        kind:
           type: string
-          description: IANA time zone identifier for the authenticated user.
-        currency:
+        status:
           type: string
-          description: Family primary currency code.
-        period:
+          enum:
+          - open
+          - resolved
+        details:
           type: object
-          required:
-          - start_date
-          - end_date
-          properties:
-            start_date:
-              type: string
-              format: date
-            end_date:
-              type: string
-              format: date
-        sankey:
-          "$ref": "#/components/schemas/SankeyGraph"
+        resolution:
+          type: string
+          nullable: true
+        resolved_at:
+          allOf:
+          - type: string
+            format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        financekit_account_lineage_id:
+          allOf:
+          - type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+          nullable: true
+        financekit_transaction_id:
+          allOf:
+          - type: string
+            format: uuid
+            pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[1-5][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+          nullable: true
+    FinancekitConflictResolution:
+      type: object
+      additionalProperties: false
+      required:
+      - resolution
+      properties:
+        resolution:
+          type: string
+          description: "`keep_sure` closes the conflict without mutating the publisher
+            stream. `retry_after_repair` closes the conflict, moves the connection
+            to repair_required, revokes queued work and credentials, and requires
+            POST /repair before uploads resume."
+          enum:
+          - keep_sure
+          - retry_after_repair
+    FinancekitCapabilities:
+      type: object
+      additionalProperties: false
+      required:
+      - available
+      - protocol_versions
+      - delivery
+      - max_payload_bytes
+      - max_records
+      - max_accounts
+      - max_queued_batches
+      - transaction_statuses
+      - amount_precision
+      - amount_scale
+      properties:
+        available:
+          type: boolean
+        protocol_versions:
+          type: array
+          items:
+            type: integer
+            enum:
+            - 2
+        delivery:
+          type: string
+          enum:
+          - background_publisher
+        max_payload_bytes:
+          type: integer
+        max_records:
+          type: integer
+        max_accounts:
+          type: integer
+        max_queued_batches:
+          type: integer
+        transaction_statuses:
+          type: array
+          items:
+            type: string
+        amount_precision:
+          type: integer
+        amount_scale:
+          type: integer
+    FinancekitError:
+      type: object
+      additionalProperties: false
+      required:
+      - error
+      properties:
+        error:
+          type: string
 paths:
   "/api/v1/accounts":
     get:
@@ -3593,7 +4461,6 @@ paths:
       - Accounts
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -3635,7 +4502,6 @@ paths:
       - Accounts
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: include_disabled
         in: query
@@ -3673,6 +4539,9 @@ paths:
       summary: Sign up a new user
       tags:
       - Auth
+      description: Creates a new user and family. The first user on a fresh instance
+        is assigned the super_admin role; later family creators are assigned an admin
+        role.
       parameters: []
       responses:
         '201':
@@ -3821,7 +4690,7 @@ paths:
                       ai_enabled:
                         type: boolean
         '401':
-          description: invalid credentials or MFA required
+          description: invalid credentials, MFA required, or account deactivated
           content:
             application/json:
               schema:
@@ -3954,7 +4823,7 @@ paths:
                   created_at:
                     type: integer
         '401':
-          description: invalid refresh token
+          description: invalid or revoked refresh token, or account deactivated
           content:
             application/json:
               schema:
@@ -4038,7 +4907,7 @@ paths:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
         '401':
-          description: invalid credentials or expired linking code
+          description: invalid credentials, expired linking code, or account deactivated
           content:
             application/json:
               schema:
@@ -4080,7 +4949,9 @@ paths:
       description: Creates a new user and family from a previously issued linking
         code. Links the SSO identity via OidcIdentity, logs the JIT account creation
         via SsoAuditLog, and issues mobile OAuth tokens. The linking code must have
-        allow_account_creation enabled.
+        allow_account_creation enabled. The first user on a fresh instance is assigned
+        the super_admin role; later family creators are assigned an admin-capable
+        role.
       parameters: []
       responses:
         '200':
@@ -4173,7 +5044,6 @@ paths:
       - Auth
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: ai enabled
@@ -4224,7 +5094,6 @@ paths:
         and total liabilities with amounts converted to the family's primary currency.
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: balance sheet returned
@@ -4238,117 +5107,6 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/cash_flow":
-    get:
-      summary: Show cash flow
-      tags:
-      - Cash Flow
-      description: >
-        Returns income, spending, net savings, and a day-by-day comparison against
-        the previous month for a given calendar month, or a Sankey graph for an
-        arbitrary date range.
-
-
-        **Query modes**
-
-
-        | Parameters | Response shape |
-        |---|---|
-        | `month` (or none) | `CashFlow` — monthly summary with spending comparison series |
-        | `month` + `include=sankey` | `CashFlow` with an additional `sankey` field |
-        | `view=sankey` + `start_date` + `end_date` | `CashFlowGraph` — Sankey-only response for any date range |
-
-
-        `include` and `view` cannot be combined. Both parameters currently support
-        only the value `sankey`. `view=sankey` requires `start_date` and `end_date`
-        and must not include `month`.
-      security:
-      - apiKeyAuth: []
-      - bearerAuth: []
-      parameters:
-      - name: month
-        in: query
-        required: false
-        description: >
-          First day of the calendar month to summarize (ISO 8601, e.g. `2025-01-01`).
-          Defaults to the current month. Must not be in the future. Cannot be combined
-          with `view=sankey`.
-        schema:
-          type: string
-          format: date
-      - name: include
-        in: query
-        required: false
-        description: >
-          Pass `sankey` to append a Sankey graph to the standard monthly `CashFlow`
-          response. Cannot be combined with `view`.
-        schema:
-          type: string
-          enum:
-          - sankey
-      - name: view
-        in: query
-        required: false
-        description: >
-          Pass `sankey` to retrieve a Sankey-only `CashFlowGraph` response for an
-          arbitrary date range. Requires `start_date` and `end_date`. Cannot be
-          combined with `include` or `month`.
-        schema:
-          type: string
-          enum:
-          - sankey
-      - name: start_date
-        in: query
-        required: false
-        description: >
-          Start of the custom date range (ISO 8601). Required when `view=sankey`.
-        schema:
-          type: string
-          format: date
-      - name: end_date
-        in: query
-        required: false
-        description: >
-          End of the custom date range (ISO 8601). Required when `view=sankey`.
-          Must be on or after `start_date`.
-        schema:
-          type: string
-          format: date
-      responses:
-        '200':
-          description: cash flow returned
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - "$ref": "#/components/schemas/CashFlow"
-                - "$ref": "#/components/schemas/CashFlowGraph"
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-        '422':
-          description: invalid query parameters
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                - error
-                - message
-                properties:
-                  error:
-                    type: string
-                    enum:
-                    - invalid_view
-                    - invalid_period
-                    - invalid_month
-                    description: Machine-readable error code.
-                  message:
-                    type: string
-                    description: Human-readable explanation of the validation failure.
   "/api/v1/balances":
     get:
       summary: List balance history records
@@ -4356,7 +5114,6 @@ paths:
       - Balances
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4437,7 +5194,6 @@ paths:
       - Balances
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: balance retrieved
@@ -4470,7 +5226,6 @@ paths:
       - Budget Categories
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4554,7 +5309,6 @@ paths:
       - Budget Categories
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: budget category retrieved
@@ -4587,7 +5341,6 @@ paths:
       - Budgets
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4655,7 +5408,6 @@ paths:
       - Budgets
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: budget retrieved
@@ -4681,6 +5433,81 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/cash_flow":
+    get:
+      summary: Show cash flow and optional Sankey graph
+      tags:
+      - Cash Flow
+      description: Server-calculated income, spending, savings, and daily cumulative
+        comparison in family currency. Uses the authenticated user’s finance accounts
+        and Sure reporting rules. Browser sessions do not authenticate this public
+        API.
+      parameters:
+      - name: month
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+        description: Non-future first day YYYY-MM-01; defaults to the current month
+          in the family time zone.
+      - name: include
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - sankey
+        description: Append server-calculated graph to the monthly summary; cannot
+          combine with view.
+      - name: view
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - sankey
+        description: Graph-only envelope; omits daily comparison. Accepts month or
+          an explicit date range; cannot combine with include.
+      - name: start_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+        description: Inclusive ISO date. Requires end_date and view=sankey; cannot
+          combine with month.
+      - name: end_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+        description: Inclusive ISO date at or after start_date. Explicit ranges preserve
+          their bounds, including future dates.
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: summary returned
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - "$ref": "#/components/schemas/CashFlow"
+                - "$ref": "#/components/schemas/CashFlowGraph"
+        '422':
+          description: invalid query
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
   "/api/v1/categories":
     get:
       summary: List categories
@@ -4688,7 +5515,6 @@ paths:
       - Categories
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -4728,7 +5554,6 @@ paths:
       - Categories
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -4781,7 +5606,6 @@ paths:
       - Categories
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: subcategory retrieved with parent
@@ -4802,7 +5626,6 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: chats listed
@@ -4822,7 +5645,6 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -4869,7 +5691,6 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: chat retrieved
@@ -4889,7 +5710,6 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -4926,7 +5746,6 @@ paths:
       - Chats
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '204':
           description: chat deleted
@@ -4946,7 +5765,6 @@ paths:
       - Chat Messages
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -4994,7 +5812,6 @@ paths:
       - Chat Messages
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '202':
           description: retry started
@@ -5021,7 +5838,6 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -5060,7 +5876,6 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '202':
@@ -5108,7 +5923,6 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: family export shown
@@ -5148,7 +5962,6 @@ paths:
       - Family Exports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '302':
           description: family export download redirected
@@ -5184,7 +5997,6 @@ paths:
       - Family Settings
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: family settings retrieved
@@ -5204,6 +6016,1015 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/financekit/capabilities":
+    get:
+      summary: Discover FinanceKit background publisher support
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read
+      responses:
+        '200':
+          description: Publisher limits and protocol versions
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitCapabilities"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+  "/api/v1/financekit/connections":
+    post:
+      summary: Enroll a FinanceKit device publisher
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      parameters: []
+      responses:
+        '201':
+          description: Publisher enrolled pending account mapping
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitConnection"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/FinancekitEnrollment"
+        required: true
+  "/api/v1/financekit/connections/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    get:
+      summary: Read publisher health and paginated mappings
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Publisher health
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitConnection"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+    delete:
+      summary: Revoke a publisher and retain imported financial history
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      responses:
+        '204':
+          description: Publisher revoked
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+  "/api/v1/financekit/connections/{connection_id}/account_mappings/{source_id}":
+    parameters:
+    - name: connection_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: source_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    put:
+      summary: Explicitly create or link a canonical account lineage
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      parameters: []
+      responses:
+        '200':
+          description: Stable account lineage binding
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitAccountMapping"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/FinancekitMappingRequest"
+        required: true
+  "/api/v1/financekit/connections/{connection_id}/activate":
+    parameters:
+    - name: connection_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    post:
+      summary: Activate the background publisher
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      responses:
+        '200':
+          description: Publisher configuration and a newly issued restricted credential
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitPublisherConfiguration"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+  "/api/v1/financekit/connections/{connection_id}/credential":
+    parameters:
+    - name: connection_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    post:
+      summary: Credential the background publisher
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      responses:
+        '200':
+          description: Publisher configuration and a newly issued restricted credential
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitPublisherConfiguration"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+  "/api/v1/financekit/connections/{connection_id}/repair":
+    parameters:
+    - name: connection_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    post:
+      summary: Repair the background publisher
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      responses:
+        '200':
+          description: Publisher configuration and a newly issued restricted credential
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitPublisherConfiguration"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+  "/api/v1/financekit/publishers/{publisher_id}/batches":
+    parameters:
+    - name: publisher_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    post:
+      summary: Durably accept an ordered FinanceKit publisher batch
+      tags:
+      - FinanceKit
+      security:
+      - financekitPublisher: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: X-Sure-Payload-SHA256
+        in: header
+        required: false
+        schema:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+      responses:
+        '202':
+          description: Immutable bytes accepted into the inbox
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitBatchReceipt"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid publisher credential
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Digest, sequence, predecessor, generation, or idempotency conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/FinancekitBatch"
+        required: true
+  "/api/v1/financekit/publishers/{publisher_id}/batches/{batch_id}":
+    parameters:
+    - name: publisher_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: batch_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    get:
+      summary: Read the durable receipt for an accepted batch
+      description: Recover an accepted batch receipt, including its current processing
+        status.
+      tags:
+      - FinanceKit
+      security:
+      - financekitPublisher: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Durable receipt for a previously accepted batch
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitBatchReceipt"
+        '429':
+          description: Rate limited
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid publisher credential
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: No batch with that identity in the current generation
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+  "/api/v1/financekit/connections/{connection_id}/conflicts":
+    parameters:
+    - name: connection_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    get:
+      summary: List conflicts requiring user review
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read
+      responses:
+        '200':
+          description: Conflict collection
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - conflicts
+                properties:
+                  conflicts:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/FinancekitConflict"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+  "/api/v1/financekit/connections/{connection_id}/conflicts/{id}":
+    parameters:
+    - name: connection_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    patch:
+      summary: Resolve a FinanceKit import conflict
+      tags:
+      - FinanceKit
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      parameters: []
+      responses:
+        '200':
+          description: Conflict resolved
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitConflict"
+        '400':
+          description: Malformed or unsupported protocol
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '401':
+          description: Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '403':
+          description: Insufficient permission or publisher eligibility
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '409':
+          description: Enrollment, mapping, lineage, generation, or stream conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '413':
+          description: Payload or record limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '422':
+          description: Invalid typed record or consent
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '429':
+          description: Rate limited or publisher inbox full
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+        '503':
+          description: Feature unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FinancekitError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/FinancekitConflictResolution"
+        required: true
   "/api/v1/holdings":
     get:
       summary: List holdings
@@ -5211,7 +7032,6 @@ paths:
       - Holdings
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -5299,7 +7119,6 @@ paths:
       - Holdings
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: holding retrieved
@@ -5328,7 +7147,6 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -5399,7 +7217,6 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: import session retrieved
@@ -5441,7 +7258,6 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -5539,7 +7355,6 @@ paths:
       - Import Sessions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '202':
           description: import session publish queued
@@ -5591,7 +7406,6 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -5652,7 +7466,6 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -5915,7 +7728,6 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: import retrieved
@@ -5945,7 +7757,6 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6000,7 +7811,6 @@ paths:
       - Imports
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -6259,6 +8069,26 @@ paths:
                   type: string
                   description: CSV imports only. Column value that marks an amount
                     as an inflow when using custom_column strategy
+  "/api/v1/insights":
+    get:
+      summary: List proactive insights
+      tags:
+      - Insights
+      security:
+      - apiKeyAuth: []
+      responses:
+        '200':
+          description: insights listed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/InsightCollection"
+        '403':
+          description: preview features disabled
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
   "/api/v1/merchants":
     get:
       summary: List merchants
@@ -6266,7 +8096,6 @@ paths:
       - Merchants
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: merchants listed
@@ -6282,7 +8111,6 @@ paths:
       - Merchants
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -6330,7 +8158,6 @@ paths:
       - Merchants
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: merchant retrieved
@@ -6354,7 +8181,6 @@ paths:
       - Provider Connections
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: provider connection status summaries listed
@@ -6374,6 +8200,65 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/push_subscriptions":
+    post:
+      summary: Register an APNs device token
+      description: Available only in hosted (managed) mode. Requires write scope.
+      tags:
+      - Push Subscriptions
+      security:
+      - apiKeyAuth: []
+      parameters: []
+      responses:
+        '403':
+          description: push unavailable in self-hosted mode or insufficient write
+            scope
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '201':
+          description: token registered
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PushSubscription"
+        '422':
+          description: invalid or conflicting subscription
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PushSubscriptionRegistration"
+        required: true
+  "/api/v1/push_subscriptions/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    delete:
+      summary: Unregister an APNs device token
+      description: Available only in hosted (managed) mode. Requires write scope.
+      tags:
+      - Push Subscriptions
+      security:
+      - apiKeyAuth: []
+      responses:
+        '403':
+          description: push unavailable in self-hosted mode or insufficient write
+            scope
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '204':
+          description: token unregistered
   "/api/v1/recurring_transactions":
     get:
       summary: List recurring transactions
@@ -6381,7 +8266,6 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6436,7 +8320,6 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -6513,6 +8396,18 @@ paths:
                       minimum: 0
                     manual:
                       type: boolean
+                    payment_url:
+                      type: string
+                      nullable: true
+                      description: Link to the biller portal. Only http and https
+                        are accepted; a bare host is stored as https.
+                    autopay:
+                      type: boolean
+                      description: Whether this bill pays itself automatically.
+                    notes:
+                      type: string
+                      nullable: true
+                      description: Free-text notes shown alongside the bill.
                     expected_amount_min:
                       type: number
                       nullable: true
@@ -6550,7 +8445,6 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: recurring transaction retrieved
@@ -6576,7 +8470,6 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -6630,6 +8523,19 @@ paths:
                     next_expected_date:
                       type: string
                       format: date
+                    payment_url:
+                      type: string
+                      nullable: true
+                      description: Link to the biller portal. Only http and https
+                        are accepted; a bare host is stored as https. Send an empty
+                        string to clear it.
+                    autopay:
+                      type: boolean
+                      description: Whether this bill pays itself automatically.
+                    notes:
+                      type: string
+                      nullable: true
+                      description: Free-text notes shown alongside the bill.
         required: true
     delete:
       summary: Delete recurring transaction
@@ -6637,7 +8543,6 @@ paths:
       - Recurring Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: recurring transaction deleted
@@ -6670,7 +8575,6 @@ paths:
       - Rejected Transfers
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6744,7 +8648,6 @@ paths:
       - Rejected Transfers
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: rejected transfer retrieved
@@ -6778,7 +8681,6 @@ paths:
       - Rule Runs
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6873,7 +8775,6 @@ paths:
       - Rule Runs
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: rule run retrieved
@@ -6906,7 +8807,6 @@ paths:
       - Rules
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -6973,7 +8873,6 @@ paths:
       - Rules
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: rule retrieved
@@ -7006,7 +8905,6 @@ paths:
       - Securities
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -7087,7 +8985,6 @@ paths:
       - Securities
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: security retrieved
@@ -7120,7 +9017,6 @@ paths:
       - Security Prices
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -7208,7 +9104,6 @@ paths:
       - Security Prices
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: security price retrieved
@@ -7234,175 +9129,6 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/sync":
-    post:
-      summary: Trigger a full family sync
-      description: >
-        Enqueues a background job that applies all active rules, syncs all connected
-        accounts, and auto-matches transfers for the authenticated user's family.
-        Returns HTTP 202 Accepted with the queued sync object. Requires write scope.
-      tags:
-      - Sync
-      security:
-      - apiKeyAuth: []
-      - bearerAuth: []
-      responses:
-        '202':
-          description: sync queued
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                - id
-                - status
-                - message
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                    example: pending
-                  syncable_type:
-                    type: string
-                    nullable: true
-                  syncable_id:
-                    type: string
-                    format: uuid
-                    nullable: true
-                  syncing_at:
-                    type: string
-                    format: date-time
-                    nullable: true
-                  completed_at:
-                    type: string
-                    format: date-time
-                    nullable: true
-                  window_start_date:
-                    type: string
-                    format: date
-                    nullable: true
-                  window_end_date:
-                    type: string
-                    format: date
-                    nullable: true
-                  message:
-                    type: string
-                    example: Sync has been queued and will apply all active rules
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-        '403':
-          description: insufficient scope
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/usage":
-    get:
-      summary: Retrieve API usage and rate limit info
-      description: >
-        Returns rate limit status and usage information for the current API key.
-        For OAuth authentication, returns a brief message indicating that detailed
-        usage tracking is only available for API key authentication.
-        Requires read scope.
-      tags:
-      - Usage
-      security:
-      - apiKeyAuth: []
-      - bearerAuth: []
-      responses:
-        '200':
-          description: usage information returned
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - type: object
-                  description: Response when authenticated with an API key
-                  required:
-                  - api_key
-                  - rate_limit
-                  properties:
-                    api_key:
-                      type: object
-                      required:
-                      - name
-                      - scopes
-                      - created_at
-                      properties:
-                        name:
-                          type: string
-                        scopes:
-                          type: array
-                          items:
-                            type: string
-                        last_used_at:
-                          type: string
-                          format: date-time
-                          nullable: true
-                        created_at:
-                          type: string
-                          format: date-time
-                    rate_limit:
-                      type: object
-                      required:
-                      - tier
-                      - limit
-                      - current_count
-                      - remaining
-                      - reset_in_seconds
-                      - reset_at
-                      properties:
-                        tier:
-                          type: string
-                          enum:
-                          - standard
-                          - premium
-                          - enterprise
-                        limit:
-                          type: integer
-                          description: Maximum requests allowed per hour
-                        current_count:
-                          type: integer
-                          description: Requests made in the current hour window
-                        remaining:
-                          type: integer
-                          description: Requests remaining in the current window
-                        reset_in_seconds:
-                          type: integer
-                          description: Seconds until the rate limit window resets
-                        reset_at:
-                          type: string
-                          format: date-time
-                          description: Timestamp when the rate limit window resets
-                - type: object
-                  description: Response when authenticated with OAuth
-                  required:
-                  - authentication_method
-                  - message
-                  properties:
-                    authentication_method:
-                      type: string
-                      example: oauth
-                    message:
-                      type: string
-        '401':
-          description: unauthorized
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-        '403':
-          description: insufficient scope
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
   "/api/v1/syncs":
     get:
       summary: Lists sync history
@@ -7412,7 +9138,6 @@ paths:
       - Syncs
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -7454,7 +9179,6 @@ paths:
       - Syncs
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: latest sync shown
@@ -7489,7 +9213,6 @@ paths:
       - Syncs
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: sync shown
@@ -7522,7 +9245,6 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: tags listed
@@ -7536,7 +9258,6 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -7586,7 +9307,6 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: tag retrieved
@@ -7606,7 +9326,6 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -7641,7 +9360,6 @@ paths:
       - Tags
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '204':
           description: tag deleted
@@ -7654,7 +9372,6 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -7721,7 +9438,6 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -7844,7 +9560,6 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: trade retrieved
@@ -7870,7 +9585,6 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -7944,7 +9658,6 @@ paths:
       - Trades
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: trade deleted
@@ -7977,7 +9690,6 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       description: Returns global ledger history for accessible accounts, including
         disabled accounts but excluding accounts pending deletion.
       parameters:
@@ -8097,7 +9809,6 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -8174,20 +9885,16 @@ paths:
                       type: string
                       description: Optional source namespace for external_id. Requires
                         external_id and defaults to api when external_id is provided
+                    user_modified:
+                      type: boolean
+                      description: Whether provider syncs should preserve user-supplied
+                        transaction changes
                     tag_ids:
                       type: array
                       items:
                         type: string
                         format: uuid
                       description: Array of tag IDs
-                    user_modified:
-                      type: boolean
-                      description: >
-                        Set to true to mark this transaction as user-modified. When set,
-                        the next bank sync will not overwrite the fields this API client
-                        has set (name, category, etc.), giving the same sync-protection
-                        as a manual edit. Useful when writing into an account that is
-                        also linked to a bank-sync provider.
                   required:
                   - account_id
                   - date
@@ -8211,7 +9918,6 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: transaction retrieved
@@ -8231,7 +9937,6 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -8301,7 +10006,6 @@ paths:
       - Transactions
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: transaction deleted
@@ -8322,7 +10026,6 @@ paths:
       - Transfers
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -8405,7 +10108,6 @@ paths:
       - Transfers
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: transfer retrieved
@@ -8442,7 +10144,6 @@ paths:
         only; reset status is family-scoped, not job-scoped. Requires admin role.
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: account reset initiated
@@ -8479,7 +10180,6 @@ paths:
         if new data is created after reset.
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: reset status returned
@@ -8508,7 +10208,6 @@ paths:
         data. This action cannot be undone.
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: account deleted
@@ -8533,7 +10232,6 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters:
       - name: page
         in: query
@@ -8593,7 +10291,6 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '201':
@@ -8676,7 +10373,6 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       responses:
         '200':
           description: valuation retrieved
@@ -8696,7 +10392,6 @@ paths:
       - Valuations
       security:
       - apiKeyAuth: []
-      - bearerAuth: []
       parameters: []
       responses:
         '200':
@@ -8737,119 +10432,3 @@ paths:
                       type: string
                       description: Additional notes
         required: true
-  "/api/v1/insights":
-    get:
-      summary: List insights
-      description: >
-        Returns all visible (active and read) insights for the authenticated user's family,
-        ordered by priority then recency. Requires preview features to be enabled for the user.
-      tags:
-      - Insights
-      security:
-      - apiKeyAuth: []
-      - bearerAuth: []
-      responses:
-        '200':
-          description: insights retrieved
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/InsightCollection"
-        '403':
-          description: preview features not enabled
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/push_subscriptions":
-    post:
-      summary: Register a push subscription
-      description: >
-        Registers an APNs device token for push notifications. If the token already
-        exists for the user it is updated in place. Requires write scope.
-      tags:
-      - Push Subscriptions
-      security:
-      - apiKeyAuth: []
-      - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-              - token
-              - environment
-              - platform
-              properties:
-                token:
-                  type: string
-                  description: >
-                    APNs device token (hex string, 64–200 lowercase hex characters).
-                environment:
-                  type: string
-                  enum:
-                  - sandbox
-                  - production
-                  description: APNs environment the token belongs to.
-                platform:
-                  type: string
-                  enum:
-                  - ios
-                  description: The platform of the device. Currently only `ios` is supported.
-                device_key:
-                  type: string
-                  description: >
-                    Optional 64-character lowercase hex string that identifies a specific
-                    app installation. When a token is re-registered for a different user,
-                    Sure checks this value against the stored digest before transferring
-                    the subscription. Omit when the device has never previously registered
-                    under a different user.
-      responses:
-        '201':
-          description: push subscription registered or updated
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/PushSubscription"
-        '403':
-          description: push notifications not available in self-hosted mode
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-        '422':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
-  "/api/v1/push_subscriptions/{id}":
-    parameters:
-    - name: id
-      in: path
-      required: true
-      description: Push subscription ID
-      schema:
-        type: string
-    delete:
-      summary: Remove a push subscription
-      description: >
-        Unregisters a device token. Call this when the user signs out or revokes
-        notification permission so the device stops receiving push notifications.
-        Requires write scope.
-      tags:
-      - Push Subscriptions
-      security:
-      - apiKeyAuth: []
-      - bearerAuth: []
-      responses:
-        '204':
-          description: push subscription removed
-        '404':
-          description: push subscription not found
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorResponse"
