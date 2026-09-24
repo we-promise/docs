@@ -1082,7 +1082,15 @@ EXTERNAL_ASSISTANT_URL=https://your-agent/v1/chat/completions
 EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
 ```
 
-3. Choose how to activate:
+3. Select the agent model. Once the URL and token are saved, Sure queries the endpoint's models list and populates the agent selector in **Settings > Self-Hosting > AI Assistant**. Select the agent from the dropdown, or set it via environment variable to lock the choice:
+
+```txt
+EXTERNAL_ASSISTANT_MODEL=openclaw/main   # Defaults to openclaw/main
+```
+
+When `EXTERNAL_ASSISTANT_MODEL` is set in the environment, the dropdown in the UI is disabled and the env value is used. If you have an older install that used `EXTERNAL_ASSISTANT_AGENT_ID`, that variable still works as a fallback when no model is selected, but `EXTERNAL_ASSISTANT_MODEL` is the recommended approach.
+
+4. Choose how to activate:
    - **Per-family (UI):** Go to **Settings > Self-Hosting > AI Assistant**, select "External"
    - **Global (env):** Set `ASSISTANT_TYPE=external` to force all families to use external
 
@@ -1092,7 +1100,7 @@ To use the bundled OpenClaw service instead of a separately hosted agent, start 
 docker compose -f compose.ai.yml --profile external-assistant up -d
 ```
 
-See the `docs/hosting/ai.md` file in the Sure repository for full configuration details including agent ID, session keys, and email allowlisting.
+See the `docs/hosting/ai.md` file in the Sure repository for full configuration details including session keys and email allowlisting.
 
 ### Pipelock security proxy
 
