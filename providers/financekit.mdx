@@ -5,28 +5,13 @@ description: Sync Apple Wallet data directly from iOS devices
 
 FinanceKit is an Apple framework that lets users share their Apple Wallet accounts — bank accounts, credit cards, and transaction history — directly with Sure from their iPhone. The iOS app reads Wallet data on-device with the user's consent and uploads it to Sure over HTTPS. No Apple credentials, private keys, or FinanceKit framework components are required on the server.
 
-FinanceKit support is currently in alpha and is off by default.
-
 ## How it works
 
 The iOS client uses Apple's FinanceKit framework to read Wallet data. It enrolls a publisher connection with Sure, maps each selected source account to a Sure account, and uploads ordered batches of events. Sure's server-side worker applies each batch and updates your ledger.
 
 Both foreground "Sync now" (triggered manually from the app) and optional background delivery use the same enrollment, upload, receipt, and conflict-resolution protocol.
 
-## Requirements
-
-FinanceKit ingestion requires:
-
-- `FINANCEKIT_ENABLED=true`
-- `FINANCEKIT_FAMILY_IDS` — a comma-separated list of family UUIDs to allow
-- An active enrolling family administrator with preview features enabled
-- The `FinancekitInboxJob` scheduled sweep running alongside the per-batch worker jobs
-
-## Enabling FinanceKit
-
-1. Set `FINANCEKIT_ENABLED=true` and populate `FINANCEKIT_FAMILY_IDS` with the family UUIDs you want to allow.
-2. Deploy the migration, application, worker, and scheduler with the feature flag disabled, then enable it after confirming the high-priority queue and scheduler are healthy.
-3. Enroll a test publisher, upload a synthetic sequence, and verify the receipt is stable before enabling for production families.
+Whether Wallet sync is offered to a user is the iOS client's decision, made through StoreKit. The server does not gate access by family ID or a feature flag — any family administrator can enroll a publisher.
 
 ## Protocol overview
 
@@ -63,7 +48,7 @@ Protocol 2 enforces per-publisher limits:
 ### Batch receipt status
 
 | Status | Meaning |
-|--------|---------|
+|--------|---------| 
 | `accepted` | Durably stored, awaiting processing |
 | `processing` | Worker has started applying the batch |
 | `applied` | Ledger updated successfully |
@@ -85,13 +70,28 @@ Two resolutions are available:
 - `keep_sure` — closes the conflict without modifying the publisher stream. The conflicting source identity is settled permanently so the same record does not re-enter the conflict branch on future captures.
 - `retry_after_repair` — closes the conflict, moves the connection to `repair_required`, revokes queued work and credentials, and requires a repair call before uploads resume.
 
+A balance observation that disagrees with a stored value raises a conflict and allows ingestion to continue. The stored observation and canonical balance stay unchanged; the connection keeps applying subsequent batches while the conflict is open.
+
+## Disconnecting a publisher
+
+Deleting a connection revokes the publisher credential and removes the AccountProvider links. What happens to the imported financial data depends on the `disposition` parameter passed to `DELETE /api/v1/financekit/connections/{connection_id}`.
+
+| Disposition | Behavior | Response |
+|-------------|----------|----------|
+| `retain` (default) | Keeps every account, balance, and transaction | `204 No Content` |
+| `discard` | Removes imported accounts, entries, identities, and lineage data in the background | `202 Accepted` |
+
+When `discard` is accepted, the connection payload includes `purge_requested_at`. Poll `GET /api/v1/financekit/connections/{connection_id}` and check `purge_completed_at` to confirm the removal has finished.
+
+Which dispositions a build supports is advertised in the `connection_dispositions` array returned by `GET /api/v1/financekit/capabilities`. Client code should feature-detect against that list rather than hardcoding the available values.
+
+<Note>
+A discard is irreversible. Imported entries the family reconciled, excluded, split, or edited are removed along with the rest.
+</Note>
+
 ## Data retention
 
 Exact payload bytes are retained for seven days after a batch is applied, permanently failed, or revoked. This supports response-loss recovery and operational investigation. Canonical financial data follows Sure's normal family retention behavior. A family financial-data reset removes all FinanceKit connections, lineages, observations, identities, conflicts, and batch receipts for that family.
-
-## Rollback
-
-Disable `FINANCEKIT_ENABLED` first. Existing Sure data remains readable and workers stop applying batches. Do not drop the FinanceKit tables during an application rollback — keep receipts and lineage data until all deployed versions no longer reference them.
 
 ## API reference
 
@@ -99,13 +99,14 @@ The FinanceKit endpoints are documented in the [API reference](/api-reference).
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /api/v1/financekit/capabilities` | Discover supported protocol versions and limits |
+| `GET /api/v1/financekit/capabilities` | Discover supported protocol versions, limits, and connection dispositions |
 | `POST /api/v1/financekit/connections` | Enroll a new publisher |
 | `GET /api/v1/financekit/connections/{id}` | Read connection status and paginated account mappings |
 | `PUT /api/v1/financekit/connections/{connection_id}/account_mappings/{source_id}` | Map a source account |
 | `POST /api/v1/financekit/connections/{connection_id}/activate` | Activate the publisher |
 | `POST /api/v1/financekit/connections/{connection_id}/credential` | Rotate the publisher credential |
 | `POST /api/v1/financekit/connections/{connection_id}/repair` | Open a new generation after repair_required |
+| `DELETE /api/v1/financekit/connections/{connection_id}` | Disconnect a publisher, retaining or discarding imported history |
 | `POST /api/v1/financekit/publishers/{publisher_id}/batches` | Upload a batch |
 | `GET /api/v1/financekit/publishers/{publisher_id}/batches/{batch_id}` | Read a batch receipt |
 | `GET /api/v1/financekit/connections/{connection_id}/conflicts` | List open conflicts |
