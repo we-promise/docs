@@ -214,6 +214,30 @@ Sure fetches liability details (minimum payment, next payment due date, APR) for
 
 Plaid reports an item's products across three lists: `available_products`, `billed_products`, and `consented_products`. Sure treats all three as supported. Products granted through `additional_consented_products` during the Link flow appear in `consented_products` until they are first billed — if Sure only checked the first two lists, those products would appear unsupported and their data would not be fetched.
 
+## Transaction names
+
+Plaid returns both a cleaned merchant name and the bank's original description. Sure combines them into a single transaction name — for example, `Target - TARGET 00023 SAN MATEO CA` — so distinct transactions from the same merchant stay distinguishable. If Plaid resolves no merchant, the bank's description is used on its own.
+
+Merchant records, logos, and reports are still built from the merchant name alone, so grouping and reporting are unaffected by the combined display name.
+
+### Rules and combined names
+
+Rules using **contains** (`like`) automatically reach both parts of the combined name, so a rule matching "Target" still catches all Target transactions.
+
+Rules using **is** (`=`) or **is not** (`!=`) continue to match on the merchant name alone, so an existing `= "Target"` rule keeps working without any changes. This applies only to Plaid transactions — manually entered transactions are not affected.
+
+## Transaction details
+
+The transaction detail drawer shows Plaid-specific metadata under **Additional details** when Plaid reports it. This can include:
+
+- **Original description** — the bank's own description before Plaid cleaned it
+- **Payment channel** — how the transaction was made (in-store, online, etc.)
+- **Transaction code** — Plaid's payment type code
+- **Payment meta** — reference numbers and other payment metadata
+- **Counterparties** — merchant or financial institution details
+
+These fields are updated on every sync to reflect what Plaid currently reports.
+
 ## Features
 
 - **US bank coverage**: Comprehensive support for US financial institutions
