@@ -122,8 +122,19 @@ Recurring transactions support a range of cadences beyond monthly:
 | Quarterly | Every three months on a given day |
 | Semiannual | Every six months on a given day |
 | Annual | Once per year on a given month and day |
+| Custom interval | Every N weeks, months, or years (1–99), for cadences not covered by a named preset |
 
-When a recurring transaction uses an interval-based cadence (biweekly, quarterly, semiannual), an anchor date is required to establish the phase of the schedule.
+When a recurring transaction uses an interval-based cadence (biweekly, quarterly, semiannual, or a custom interval), an anchor date is required to establish the phase of the schedule.
+
+### Custom intervals
+
+The frequency picker includes a **Custom interval** option that lets you set a bill to repeat every N weeks, months, or years, where N is any whole number from 1 to 99. Use this for cadences that named presets do not cover — for example, every 3 weeks, every 2 months, or every 2 years.
+
+When you enter a custom interval, the value must be a whole number. Decimal values (e.g. `2.5`) and non-numeric input (e.g. `3abc`) are rejected with a validation error.
+
+If the interval you enter matches a named preset — for example, every 3 months is the same schedule as quarterly — the app treats it as that preset. Reapplying the same cadence is a no-op.
+
+Custom intervals are not available to the assistant's `create_bill` and `update_bill` tools, which accept only the named preset cadences.
 
 ### Recurrence rule validation
 
@@ -334,7 +345,7 @@ Only manually declared income series (bill type `income`) define pay periods. Au
 
 All write tools confirm their arguments strictly and return a clear error rather than guessing at ambiguous input.
 
-**`create_bill`** — creates a bill, subscription, installment plan, or income schedule. Required fields: `name`, `amount` (always a positive magnitude), and `first_due_on` (seeds the due-day anchor). Optional fields include `frequency`, `is_income`, `bill_type`, `account_name`, `category_name`, `autopay`, `payment_url`, and `notes`. Unrecognized frequency values are rejected with the list of valid cadences rather than silently defaulting to monthly.
+**`create_bill`** — creates a bill, subscription, installment plan, or income schedule. Required fields: `name`, `amount` (always a positive magnitude), and `first_due_on` (seeds the due-day anchor). Optional fields include `frequency`, `is_income`, `bill_type`, `account_name`, `category_name`, `autopay`, `payment_url`, and `notes`. The `frequency` field accepts the named preset cadences only (`monthly`, `weekly`, `biweekly`, `semimonthly`, `quarterly`, `semiannual`, `annual`). Custom intervals cannot be set through this tool. Unrecognized frequency values are rejected with the list of valid cadences rather than silently defaulting to monthly.
 
 **`update_bill`** — updates one bill's configuration. Pass only the fields being changed. Amount changes apply forward only; occurrences already due keep their original figure. Changing the frequency pins the schedule so automatic detection respects it as the user's intent. `status` accepts `active` or `paused`.
 
@@ -449,5 +460,7 @@ Identify recurring income like:
 - Amount variance for manual recurring entries is bounded to 2× the anchor amount; charges outside that range are treated as separate recurring entries
 - Projected transactions are hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
-- Interval-based cadences (biweekly, quarterly, semiannual) require an anchor date
+- Interval-based cadences (biweekly, quarterly, semiannual, and custom intervals) require an anchor date
+- Custom interval values must be whole numbers between 1 and 99; decimal or non-numeric input is rejected
+- Custom intervals are available in the app UI but not through the assistant's `create_bill` or `update_bill` tools
 - The API writes only `active` and `inactive` status; other statuses are managed by the detection pipeline
