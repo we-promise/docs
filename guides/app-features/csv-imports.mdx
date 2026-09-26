@@ -98,6 +98,31 @@ Date,Amount,Name,Account,Category,Notes
 01/20/2024,2500.00,Paycheck,Main Checking,Income,Bi-weekly salary
 ```
 
+## Importing merchants
+
+Merchant imports create new merchant records in bulk. Sure creates every row as a family-owned merchant, so the `color` column applies and a hex value is accepted. Provider-detected merchants (created automatically during bank sync or AI enrichment) are managed by Sure and do not support a color.
+
+### CSV format
+
+| Column | Required | Description |
+|--------|----------|-------------|
+| name | Yes | Merchant name |
+| color | No | Hex color code (e.g. `#e99537`). A random color is assigned if omitted. |
+| website_url | No | Merchant website URL |
+
+### Example CSV
+
+```csv
+name,color,website_url
+Coffee Shop,#e99537,https://coffeeshop.com
+Pizza Palace,#4da568,https://pizzapalace.com
+Bookstore,,
+```
+
+### How duplicate names are handled
+
+If a merchant with the same name already exists in your family, that row is skipped. The import reports the count of created merchants and the count of skipped rows separately.
+
 ## Import process
 
 The import wizard shows a step indicator at the top of the page. Step labels display in your configured language (set under **Settings → Preferences → Language**). On mobile, the indicator shows a "Step X of Y" progress count instead.
@@ -284,6 +309,30 @@ Preflight missing-reference error and warning messages are displayed in your con
 Category and tag names must be unique within a family. If your NDJSON file contains two or more Category (or Tag) records with the same name, preflight will reject the import with a `duplicate_taxonomy_name` error. Remove or rename the duplicate entries in your export file before retrying.
 
 If the duplicate names already exist in your Sure database from before this constraint was enforced, Sure automatically merges them during the upgrade migration. The oldest record (by creation date) is kept, and all references — transactions, rules, budget lines, and import mappings — are updated to point to the surviving record.
+
+### Sure NDJSON import on a fresh family shows warnings about existing categories, tags, or merchants
+
+When you import a Sure export into a fresh family, Sure seeds that family with a default set of categories during onboarding. If your export contains categories, tags, or merchants whose names match those defaults, Sure treats the collision as a warning rather than an error: the existing record is reused and updated with the imported data instead of creating a duplicate. The import proceeds normally. The confirm screen lists how many records were reused so you can verify the outcome.
+
+No action is needed. If you see these warnings and the import finishes without errors, your data imported correctly.
+
+### Sure NDJSON import shows a warning about merchant details differing
+
+Provider-assigned merchants (detected by bank sync or AI enrichment) are shared across all families on a Sure instance. When an imported `ProviderMerchant` record already exists on the instance with different details — for example, a different website URL or name — Sure keeps the existing record as-is and surfaces the differences on the confirm screen as a warning.
+
+This is expected behavior. The import still proceeds; affected transactions reference the existing shared merchant. No action is required unless you want to update the merchant's details, which you can do manually from **Settings → Merchants** after the import completes.
+
+### Sure NDJSON import reports missing merchants as warnings instead of errors
+
+Exports taken before provider-merchant support was added (before version containing [#3113](https://github.com/we-promise/sure/pull/3113)) did not include `ProviderMerchant` rows. When you import such a file, Sure cannot resolve the merchant references. The import now treats unresolvable `merchant_id` values as warnings rather than blocking errors — the affected transactions and recurring transactions import without a merchant assigned. The confirm screen shows the count of affected records.
+
+If you import from a newer export and still see this warning, it may mean some merchant records were not exported. Re-export from the source instance and retry the import.
+
+### Unnamed recurring transactions are skipped when their merchant is missing
+
+A recurring transaction series requires either a name or a merchant to import. If a series has neither — because its merchant could not be resolved and it has no name — Sure skips it and reports the count on the confirm screen. Named series without a merchant import normally.
+
+Automatically detected recurring transactions that are skipped are rebuilt after the import completes when Sure syncs the family's accounts.
 
 ## Limits
 
