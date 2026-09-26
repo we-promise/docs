@@ -98,6 +98,31 @@ Date,Amount,Name,Account,Category,Notes
 01/20/2024,2500.00,Paycheck,Main Checking,Income,Bi-weekly salary
 ```
 
+## Importing merchants
+
+Merchant imports create new merchant records in bulk. Sure creates every row as a family-owned merchant, so the `color` column applies and a hex value is accepted. Provider-detected merchants (created automatically during bank sync or AI enrichment) are managed by Sure and do not support a color.
+
+### CSV format
+
+| Column | Required | Description |
+|--------|----------|-------------|
+| name | Yes | Merchant name |
+| color | No | Hex color code (e.g. `#e99537`). A random color is assigned if omitted. |
+| website_url | No | Merchant website URL |
+
+### Example CSV
+
+```csv
+name,color,website_url
+Coffee Shop,#e99537,https://coffeeshop.com
+Pizza Palace,#4da568,https://pizzapalace.com
+Bookstore,,
+```
+
+### How duplicate names are handled
+
+If a merchant with the same name already exists in your family, that row is skipped. The import reports the count of created merchants and the count of skipped rows separately.
+
 ## Import process
 
 The import wizard shows a step indicator at the top of the page. Step labels display in your configured language (set under **Settings → Preferences → Language**). On mobile, the indicator shows a "Step X of Y" progress count instead.
