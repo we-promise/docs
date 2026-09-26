@@ -498,6 +498,38 @@ Importing an `all.ndjson` export could fail with two unrelated errors:
 
 If a previous import attempt failed for either of these reasons, retry the import after upgrading.
 
+## Sure import fails with unresolved merchant references from an older export
+
+Exports produced before provider-merchant support was added did not include `ProviderMerchant` rows in the `all.ndjson` file. Importing such a file into a current version of Sure would previously fail preflight with a blocking error for every transaction whose `merchant_id` pointed at a provider-assigned merchant.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    An unresolvable `merchant_id` on a transaction or recurring transaction is now a preflight warning rather than a blocking error. Sure imports the row without a merchant assigned. The confirm screen shows the number of affected records under a "merchant references not found" notice.
+
+    Unnamed recurring transaction series that have neither a name nor a resolvable merchant are skipped entirely (and reported separately). Named series without a merchant import normally.
+  </Accordion>
+
+  <Accordion title="How do I get the merchants into the new instance?">
+    Re-export from the source instance using a current version of Sure. The exporter now includes all `ProviderMerchant` records referenced by the family's transactions and recurring transactions. Importing that newer export resolves the merchant references without warnings.
+
+    If the source instance is no longer available, the missing merchants are rebuilt automatically the next time Sure syncs the family's connected accounts.
+  </Accordion>
+</AccordionGroup>
+
+## Sure import fails because categories or tags already exist on the destination family
+
+When a fresh family is created, Sure seeds it with a default set of categories. Importing a Sure export from another instance into that family previously failed preflight if any exported Category, Tag, or Merchant names matched the existing defaults.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    Name collisions on family-owned taxonomy records (Category, Tag, and family Merchant) are now preflight warnings rather than blocking errors. Sure reuses the existing record and updates it with the imported data. The confirm screen lists how many records were reused.
+  </Accordion>
+
+  <Accordion title="Will my data be correct after the import?">
+    Yes. Transactions and rules that referenced the imported category or tag are remapped to the surviving (reused) record. The imported data updates that record's fields. No manual cleanup is needed.
+  </Accordion>
+</AccordionGroup>
+
 ## Reading auto-categorization debug logs
 
 When auto-categorization runs, Sure writes structured entries to the debug log under the `auto_categorization` category. Go to **Settings → Debug** and filter by `auto_categorization` to see them.
