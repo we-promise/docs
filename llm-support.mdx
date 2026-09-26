@@ -25,10 +25,10 @@ Sure has two separate AI systems that operate independently. Understanding this 
 
 | Setting | Chat assistant | Auto-categorization | Merchant detection |
 | --- | --- | --- | --- |
-| `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Bayes first, then OpenAI | Uses OpenAI provider |
-| `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then OpenAI | Uses OpenAI provider |
+| `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
+| `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
 
-If you use an external agent for chat, you still need `OPENAI_ACCESS_TOKEN` set for the LLM categorization pass and merchant detection to work. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
+If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (or `ANTHROPIC_ACCESS_TOKEN` for Anthropic) for those features, or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
 
 ## Quickstart
 
@@ -680,7 +680,7 @@ This is useful when:
 - You want to keep LLM credentials and logic entirely outside Sure.
 
 <Note>
-The external assistant handles chat only. Auto-categorization and merchant detection still use the OpenAI-compatible provider (`OPENAI_ACCESS_TOKEN`).
+The external assistant handles chat only. Auto-categorization and merchant detection still use the configured LLM provider (`OPENAI_ACCESS_TOKEN` for OpenAI-compatible providers, or Jev if you have selected it as the categorization provider).
 </Note>
 
 ### How it works
@@ -700,7 +700,7 @@ The agent's API must be OpenAI chat completions compatible: accept `POST` with a
 1. Go to **Settings → Self-Hosting**.
 2. Set **Assistant type** to "External (remote agent)".
 3. Enter the **Endpoint URL** and **API Token** from your agent provider.
-4. Optionally set an **Agent ID** if the provider hosts multiple agents.
+4. Sure loads the available agents from the endpoint's `/v1/models` response and shows them in the **Agent** dropdown. Select the agent that should handle conversations.
 
 **Environment variables:**
 
@@ -708,7 +708,7 @@ The agent's API must be OpenAI chat completions compatible: accept `POST` with a
 ASSISTANT_TYPE=external                          # Global override (or set per-family in UI)
 EXTERNAL_ASSISTANT_URL=https://your-agent/v1/chat/completions
 EXTERNAL_ASSISTANT_TOKEN=your-api-token
-EXTERNAL_ASSISTANT_AGENT_ID=main                 # Optional, defaults to "main"
+EXTERNAL_ASSISTANT_MODEL=openclaw/main           # Agent identifier from /v1/models; defaults to openclaw/main
 EXTERNAL_ASSISTANT_SESSION_KEY=agent:main:main   # Optional, for session persistence
 EXTERNAL_ASSISTANT_ALLOWED_EMAILS=user@example.com  # Optional, comma-separated allowlist
 ```
@@ -716,6 +716,10 @@ EXTERNAL_ASSISTANT_ALLOWED_EMAILS=user@example.com  # Optional, comma-separated 
 When environment variables are set, the corresponding UI fields are disabled and the env values take precedence.
 
 Set `ASSISTANT_TYPE=external` to route all users to the external agent globally. Without it, routing falls back to each family's `assistant_type` setting in the UI (default: `builtin`).
+
+<Note>
+`EXTERNAL_ASSISTANT_AGENT_ID` is a legacy variable kept for backwards compatibility. Use `EXTERNAL_ASSISTANT_MODEL` for new installs.
+</Note>
 
 ### MCP callback endpoint
 
