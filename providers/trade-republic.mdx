@@ -7,7 +7,7 @@ Trade Republic is a European neo-broker that lets you buy stocks, ETFs, bonds, c
 
 ## How it works
 
-Sure authenticates to Trade Republic using the same web login flow as the Trade Republic web app. After you confirm the login on your phone, Sure stores an encrypted session token and uses it for all future syncs. Your PIN is never stored. It is used only to start a new login session and is discarded immediately after. The PIN is also filtered from request logs so it never appears in server-side log output.
+Sure authenticates to Trade Republic using the same web login flow as the Trade Republic web app. After you confirm the login on your phone, Sure stores an encrypted session token and uses it for all future syncs. Your PIN or password is never stored. It is used only to start a new login session and is discarded immediately after. The credential is also filtered from request logs so it never appears in server-side log output.
 
 Sure discovers two accounts from your Trade Republic connection:
 
@@ -18,9 +18,9 @@ Sure discovers two accounts from your Trade Republic connection:
 
 Sure supports two login methods:
 
-### Phone number and PIN
+### Phone number and PIN or password
 
-1. Enter your Trade Republic phone number and PIN
+1. Enter your Trade Republic phone number and your PIN or password
 2. Sure starts a web login session with Trade Republic
 3. Trade Republic sends a push notification or authenticator code to confirm the login
 4. Confirm the login in the Trade Republic app, then click **Confirm login** in Sure
@@ -32,13 +32,13 @@ Sure supports two login methods:
 3. Open the Trade Republic mobile app and scan the QR code
 4. Sure detects the approved session automatically
 
-Use the QR login if you prefer not to enter your PIN in Sure, or if you do not have the Trade Republic authenticator set up.
+Use the QR login if you prefer not to enter your PIN or password in Sure, or if you do not have the Trade Republic authenticator set up.
 
 ## Setting up Trade Republic
 
 1. In Sure, go to **Settings > Providers**
 2. Find the **Trade Republic** section and click to expand it
-3. Choose your login method (phone and PIN, or QR code) and complete the login
+3. Choose your login method (phone number and PIN or password, or QR code) and complete the login
 4. After a successful login, click **Sync** to discover your accounts
 5. Once the sync finishes, click **Set up accounts** to link the discovered portfolio and cash accounts to Sure accounts
 
@@ -90,7 +90,7 @@ Session tokens are refreshed automatically during each sync when Trade Republic 
 
 ### Re-authentication required
 
-Your Trade Republic session expired. Go to **Settings > Providers > Trade Republic** and log in again using your phone and PIN or the QR code method.
+Your Trade Republic session expired. Go to **Settings > Providers > Trade Republic** and log in again using your phone number and PIN or password, or the QR code method.
 
 ### Accounts need setup
 
@@ -123,7 +123,7 @@ Cash balance discrepancies can occur if a sync captured a partial response from 
 The push notification or authenticator code confirmation window is limited. If it expires before you confirm:
 
 1. Click **Cancel** or wait for the panel to reset
-2. Start a new login from **Settings > Providers > Trade Republic**
+2. Start a new login from **Settings > Providers > Trade Republic** and enter your PIN or password again
 
 ## Limitations
 
