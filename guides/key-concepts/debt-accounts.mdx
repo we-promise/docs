@@ -199,3 +199,42 @@ A variable-rate loan with no recorded rate changes runs at its base rate, just a
 
 > [!NOTE]
 > The monthly payment field on the loan overview is only shown for fixed-rate loans. For variable-rate loans, use the Schedule tab to see the current payment in force.
+
+## Loan balance chart
+
+Loan accounts include a balance chart that shows three series together:
+
+| Series | What it shows |
+| --- | --- |
+| Actual (solid) | Your recorded balance from origination to today |
+| Scheduled (dashed) | The original contract balance from origination to the contracted payoff date |
+| Projected (dashed) | Where today's recorded balance is heading if you keep paying the contracted amount |
+
+The gap between the actual and scheduled lines shows whether you are ahead of or behind the original contract. The projected line starts at today's balance and ends when the loan is paid off at the contracted repayment.
+
+The chart offers a period picker with the same windows available on other account charts (month, 90 days, year, 5 years, 10 years, and all time). Each window is clamped so it never opens before the loan's origination date. Under **All**, the domain extends far enough to show every series, including the full projected payoff.
+
+The forward-looking series (scheduled and projected) are only drawn under the **All** window, since they extend past today. The summary cards beside the chart show the projection figures regardless of which period is selected.
+
+## Payoff projection
+
+The **Schedule** tab shows a payoff projection alongside the amortization table. The projection starts from your current recorded balance and applies the contracted repayment each period to show where the loan is actually heading — not where the original contract said it would be.
+
+The Schedule tab summary shows:
+
+| Figure | Description |
+| --- | --- |
+| Opening payment | The level amount at the start of the loan |
+| Total interest | All interest charged over the life of the loan |
+| Total cost | Principal plus total interest |
+| Forecasted payoff date | The date the loan will actually be paid off based on today's balance and the contracted repayment |
+
+The forecasted payoff date reflects any extra payments you have already made: if your current balance is lower than the contract expected, the projection finishes sooner and saves interest. If your balance has grown past what the contract expected, the projection may not converge — in that case the tab shows a notice instead of a date.
+
+The projection runs only to the original contracted maturity date. It does not extend the term or invent a new repayment size. This means:
+
+- A borrower who is ahead of schedule finishes earlier and saves interest.
+- A borrower whose balance has grown may reach the end of the contracted term still owing a balance. The tab shows that remaining balance rather than a payoff date.
+
+> [!NOTE]
+> The projection is not shown when the loan has no amortization schedule (for example, if the interest rate, term, or original balance is missing), or when the current balance is zero.
