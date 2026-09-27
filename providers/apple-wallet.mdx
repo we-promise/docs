@@ -31,9 +31,14 @@ Sure records the following for each Apple Wallet connection:
 
 ## Viewing your connection
 
-Once connected, Apple Wallet appears under **Settings → Bank Sync** alongside other providers. The card shows sync status, the last time the device contacted the server, the last accepted upload, and the last import timestamp.
+Once connected, Apple Wallet appears under **Settings → Bank Sync** alongside other providers. The panel shows:
 
-Existing connections are listed under **Your Connections** with links to the accounts the viewer can access. All connected accounts also appear in the main **Accounts** list.
+- **Status** — `Sync active` when the connection is healthy, or `Repair required — open the Sure iOS app` when the connection needs attention.
+- **Last accepted by Sure** — when Sure last durably stored an upload from the device.
+- **Last imported into your family** — when the background worker last applied a batch to your ledger.
+- **Linked accounts** — the accounts connected through this publisher, each with a link to the account page.
+
+All connected accounts also appear in the main **Accounts** list.
 
 ## Unlinking
 
