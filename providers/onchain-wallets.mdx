@@ -13,7 +13,7 @@ For each asset Sure records:
 
 - The **quantity** held, read from the chain
 - A **holding** valued at the current price, or at zero when no price is available
-- The **transfers** in and out, recorded as investment trades labeled "Transfer" when the price for that day is known. Each entry is named "Received" or "Sent" (or the equivalent in your family’s language) followed by the quantity and asset symbol. When that day’s price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
+- The **transfers** in and out, recorded as investment trades labeled "Transfer" when the price for that day is known. Each entry is named "Received" or "Sent" (or the equivalent in your family’s language) followed by the quantity and asset symbol. Transfer trades carry a cash amount of zero — the value lives in quantity and price for cost basis purposes, but no cash leg is recorded (a self-custody wallet has no cash side). When that day’s price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
 
 Balances are read-only and always derived from the chain. Editing them by hand is pointless: the next sync overwrites them.
 
@@ -159,7 +159,7 @@ The native coin is never affected, and anything already tracked keeps syncing re
 
 **A Solana token shows as `SPL:abcd…wxyz`.** The token list does not vouch for that mint, so Sure will not name or price it. Tick it anyway to track the quantity.
 
-**Transfers appear with a value of 0 and are excluded from totals.** No price was available for that date yet. Once market data covers the range, the next sync upgrades those entries to trades automatically. If they stay at zero, the date is outside what your market data provider can serve.
+**Transfers appear with a value of 0 and are excluded from totals.** No price was available for that date yet. Once market data covers the range, the next sync upgrades those entries to trades automatically. If they stay at zero, the date is outside what your market data provider can serve. Note that transfer trades always carry a cash amount of zero by design — the value lives in quantity and price, not in a cash figure.
 
 **Manage wallets says the history is incomplete.** The address has more transfers than one sync reads. Balances are unaffected. Raise `ONCHAIN_HISTORY_MAX_PAGES` if you need the full history and can afford the extra requests.
 
