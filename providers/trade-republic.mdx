@@ -44,6 +44,14 @@ Use the QR login if you prefer not to enter your PIN or password in Sure, or if 
 
 If you already have a manual investment account in Sure, you can link the discovered Trade Republic portfolio account to it instead of creating a new one.
 
+## Multiple connections
+
+Sure supports more than one Trade Republic connection per family. Each connection is shown as a separate card in the Trade Republic panel. To add another connection, click **Add another connection** at the bottom of the Trade Republic section and complete the login for the second account.
+
+Each connection card shows a short identifier to help you tell them apart. For phone number logins, Sure displays the last four digits of the phone number. For QR-code logins with no phone number on file, Sure falls back to the last four characters of the linked brokerage account number once a sync has run.
+
+If you complete a login and Sure detects that the Trade Republic account is already linked through another connection in the same family, the new connection is discarded automatically and you will see a notice explaining the duplicate was removed.
+
 ## Account types
 
 | Account | Sure account type | What it tracks |
@@ -146,7 +154,6 @@ The push notification or authenticator code confirmation window is limited. If i
 ## Limitations
 
 - **European accounts only**: Trade Republic operates in Europe. Accounts in unsupported regions cannot be connected.
-- **Single connection per family**: Sure supports one Trade Republic connection per family account.
 - **Session expiry**: Long periods without a sync can cause the session to expire, requiring re-authentication.
 - **Unpriced positions**: Some securities (particularly private market instruments) may not have a current price available from Trade Republic.
 - **No options or derivatives**: Derivative instruments are not imported.
