@@ -64,7 +64,7 @@ Example: you can keep one Enable Banking provider config in Sure, then add one c
 ### Account access
 
 - **Account details**: View account information including IBAN and account type
-- **Balance information**: Real-time balance data from your bank
+- **Balance information**: Balance data fetched from your bank using a priority order that prefers reconciled booked figures
 - **Transaction history**: Import historical transactions with date range filtering
 - **Multiple accounts**: Connect multiple accounts from different banks
 - **Duplicate detection**: Automatic deduplication of transactions with different entry reference IDs
@@ -106,6 +106,24 @@ You can disable pending transaction imports in your sync settings by toggling "I
 <Note>
 Disable this option if your bank provides unreliable pending transaction data.
 </Note>
+
+### Balance selection
+
+When Enable Banking returns multiple balance types for an account, Sure picks the most reliable figure using a fixed priority order that prefers reconciled booked balances over available or expected ones:
+
+1. **CLBD / closingBooked** — closing booked balance
+2. **ITBD / interimBooked** — interim booked balance
+3. **OPBD / openingBooked** — opening booked balance (start of current period)
+4. **PRCD / previouslyClosedBooked** — previously closed booked balance (end of last period)
+5. **XPCD / expected** — expected balance
+6. **CLAV / closingAvailable** — closing available balance
+7. **ITAV / interimAvailable** — interim available balance
+
+Available balances are last because some banks include an arranged overdraft facility in the available figure, which would overstate actual cash.
+
+OPBD and PRCD are period-boundary snapshots rather than live figures, so they may be up to a day old. To guard against this, Sure checks the optional `reference_date` field on each balance. If the same response contains a newer XPCD, CLAV, or ITAV balance with a strictly later `reference_date`, the fresher balance wins instead of the period-boundary one. When `reference_date` is absent on either side, the priority order applies unchanged.
+
+If none of the recognised types are present, Sure falls back to the first balance the API returns.
 
 ### Account type mapping
 
