@@ -69,6 +69,20 @@ rake evals:show_run[run_id]
 rake evals:report[run_ids]
 ```
 
+### Cascade and analysis
+
+```bash
+# Benchmark the Bayes -> provider cascade
+# (measures provider accuracy on the transactions Bayes declined to categorize)
+rake evals:cascade[bayes_run_id,provider_run_id1,provider_run_id2]
+# or: BAYES=<run_id> PROVIDERS=<id1>,<id2> rake evals:cascade
+
+# Analyze a candidate provider against a baseline
+# (shows calibration, disagreement, and a recommendation)
+rake evals:analyze[baseline_run_id,candidate_run_id]
+# or: BASELINE=<run_id> CANDIDATE=<run_id> rake evals:analyze
+```
+
 ## Langfuse integration
 
 Track experiments in Langfuse for side-by-side comparison and analysis.
@@ -158,6 +172,46 @@ Tests function calling and response quality for the AI assistant.
 **Datasets:**
 - `chat_golden_v1` - 50 samples
 - `chat_golden_v2` - routing and analytical tool scenarios; exercises CHAT classification (no tools), aggregate queries routed to `get_income_statement` / `get_balance_sheet`, and new analytical tool selection
+
+### Naive Bayes categorizer
+
+The `naive-bayes` provider evaluates the family-trained Naive Bayes categorizer — the first stage of the auto-categorization cascade that runs before any paid provider sees a transaction. Pass `PROVIDER=bayes` to use the Bayes runner:
+
+```bash
+PROVIDER=bayes SPLIT_ROLE=test rake 'evals:run[categorization_golden_v2,naive-bayes]'
+```
+
+The Bayes runner trains the classifier on the dataset's training split and scores it on the held-out test split. A `SPLIT_ROLE` of `test` restricts the run to the test split only; omit it to run on all samples.
+
+**Important caveat:** Golden datasets contain roughly one transaction per distinct merchant, chosen for coverage. Real families have the opposite shape — the same handful of merchants repeating hundreds of times — which is exactly the repetition Naive Bayes learns from. Numbers from this runner are a lower bound on production accuracy, not a measurement.
+
+### Cascade reporting
+
+The cascade report shows how a paid provider performs on the transactions Bayes declined to categorize. This measures the value each provider adds on top of Bayes — the residual the LLM actually needs to handle.
+
+Produce the runs first, all on the same test split:
+
+```bash
+# Step 1: run Bayes on the test split
+PROVIDER=bayes SPLIT_ROLE=test rake 'evals:run[categorization_golden_v2,naive-bayes]'
+
+# Step 2: run your provider(s) on the same test split
+PROVIDER=jev SPLIT_ROLE=test rake 'evals:run[categorization_golden_v2,~typesafe/jev-latest]'
+PROVIDER=openai SPLIT_ROLE=test rake 'evals:run[categorization_golden_v2,gpt-4.1]'
+
+# Step 3: view the cascade report
+rake evals:cascade[<bayes_run_id>,<jev_run_id>,<openai_run_id>]
+```
+
+### Candidate analysis
+
+The analyze command compares a candidate provider against a baseline. It outputs a side-by-side accuracy comparison, a confidence-calibration table for the candidate, a transaction-level disagreement breakdown, and a recommendation verdict.
+
+```bash
+rake evals:analyze[baseline_run_id,candidate_run_id]
+```
+
+Both runs must cover the same dataset. The candidate is the provider under evaluation; the baseline is what it would replace.
 
 ## Creating custom datasets
 
