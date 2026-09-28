@@ -141,6 +141,14 @@ Example: Transferring from a USD checking account to a EUR savings account:
 
 The transfer is valid because one amount is negative and one is positive, even though the numbers differ due to the exchange rate.
 
+### How exchange rates are looked up
+
+Sure syncs exchange rates from each account's currency to your family currency. For a transfer between two non-family currencies — for example, RUB to THB in a USD family — there is no direct RUB→THB rate stored. Sure derives the cross rate through the family currency instead: (RUB→USD) / (THB→USD). This means automatic matching works for transfers between any two currencies as long as both have a rate against the family currency, not just transfers that involve the family currency directly.
+
+When a direct rate exists, Sure uses it. The derived rate is only used when no direct pair rate is available or when the direct rate is zero.
+
+Exact same-currency matches (where amounts are equal and no FX math is involved) are always ranked ahead of FX-tolerance guesses, so a coincidental cross-currency candidate cannot claim a transaction that has a real exact-amount counterpart.
+
 ### Automatic matching and manual accounts
 
 During a sync, Sure uses a tolerance band around the exchange rate to find cross-currency transfer pairs automatically. This automatic path only considers accounts that have a live provider connection (Plaid, SimpleFIN, or another connected provider). Manual accounts — those with no institution behind them — are excluded from automatic cross-currency matching because a coincidental pair of round-number transactions in different currencies could fall inside the tolerance band and be silently linked as a transfer.
