@@ -65,20 +65,33 @@ The portfolio account category follows the assets held. Sure maps Trade Republic
 ### Portfolio account
 
 - Current holdings with quantities and market values
-- Trade history (buys and sells)
-- Savings plan executions
+- Trade history (buys and sells), including fees recorded separately on each trade
+- Savings plan executions, including historical savings-plan invoices
+- Saveback reinvestments (recorded as portfolio trades)
+- Round Up investments (recorded as portfolio trades)
 
 ### Cash account
 
 - Cash balance
-- Deposits and withdrawals
+- Deposits and withdrawals, including Google Pay deposits
 - Card payments and ATM withdrawals
 - Card refunds
 - Interest payouts
-- Dividends
+- Dividends, including per-share amount and withholding tax where available
 - Tax refunds
+- Round Up outflows (recorded as cash withdrawals when both accounts are linked)
 
-When both accounts are linked, buy and sell trades are recorded on the portfolio account only. Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only.
+When both accounts are linked, buy and sell trades are recorded on the portfolio account only. Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only. Saveback events are recorded as portfolio trades only.
+
+## Trade names
+
+Trades are labelled using the format `{ticker} · {quantity}x {name}`. When the security name matches the ticker, the name is omitted: `{ticker} · {quantity}x`. The Buy or Sell direction appears as an activity label rather than in the entry name.
+
+## Securities and market data
+
+Sure resolves holdings and historical trades to exchange tickers when Trade Republic provides a venue symbol. Exchange-listed securities use real ticker symbols for market data lookups. When no usable exchange symbol is available for a position, the security is marked offline and price importers skip it automatically. Sure retries unresolved ISINs at most once per day for up to 30 days.
+
+Private market positions are valued using quotes from Trade Republic's private markets feed when available. If no live quote exists, Sure uses the average cost basis as the holding value. Other positions without a live price show a price-unavailable indicator rather than a flat return.
 
 ## Syncing
 
@@ -104,7 +117,7 @@ The login succeeded, but no accounts have been found yet. Click **Sync** from th
 
 If buy or sell trades are missing from your portfolio account, run a manual sync from **Settings > Providers > Trade Republic**. Previous syncs may have skipped order executions due to a locale mismatch — a sync after updating Sure will import them correctly.
 
-If trades are still missing after syncing, check the activity feed on your portfolio account. Trades are recorded with the canonical labels "Buy" and "Sell" regardless of your language setting.
+If trades are still missing after syncing, check the activity feed on your portfolio account. Trades are recorded in the format `{ticker} · {quantity}x {name}` with Buy or Sell as the activity label.
 
 ### Holdings show the wrong value
 
@@ -112,7 +125,8 @@ If a position shows no price or an incorrect value:
 
 - Run a manual sync to refresh market prices
 - Check the **Data quality** section on the Trade Republic panel for positions flagged as unpriced
-- Prices for some securities (especially private market instruments) may not be available until Trade Republic returns a market price
+- Private market positions without a live quote are valued at their average cost basis
+- Other positions without a live price display a price-unavailable indicator
 
 ### Balance does not match the Trade Republic app
 
