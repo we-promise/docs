@@ -130,7 +130,9 @@ If a position shows no price or an incorrect value:
 
 ### Balance does not match the Trade Republic app
 
-Cash balance discrepancies can occur if a sync captured a partial response from Trade Republic. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
+Sure uses the booked cash balance from Trade Republic, which matches the balance shown in the Trade Republic app. Funds reserved for open orders (such as pending limit orders) are not subtracted from this balance — those orders have not settled, so no matching transaction exists yet.
+
+If the balance still does not match, a sync may have captured a partial response. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
 
 ### QR code login appears to expire right after scanning
 
