@@ -130,6 +130,10 @@ Sure supports any OpenAI-compatible API endpoint, giving you flexibility to use:
 - **OpenRouter** - Access to multiple providers (Anthropic, Google, etc.)
 - **Other providers** - Groq, Together AI, Anyscale, Replicate, and more
 
+<Note>
+  Sure normalizes tool-call payloads to the strict OpenAI wire format before sending them. Tool result messages omit the deprecated `name` field that some endpoints reject, and function arguments are always serialized as a JSON-encoded string rather than a raw object. Blank or missing arguments are sent as `{}`. These adjustments fix `400` errors on endpoints such as GLM/Z.ai that enforce the schema strictly.
+</Note>
+
 ### OpenAI
 
 ```bash
