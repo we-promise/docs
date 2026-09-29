@@ -236,6 +236,14 @@ Investment accounts support recording various types of trades to track your port
 | **Sell** | Sale of securities | Yes |
 | **Dividend** | Dividend payments received | Yes |
 | **Interest** | Interest earned on cash or securities | No (optional) |
+| **Deposit** | Cash added to the investment account from another account | No |
+| **Withdrawal** | Cash removed from the investment account to another account | No |
+
+### Deposits and withdrawals
+
+A deposit or withdrawal moves cash between your investment account and a second account (the transfer account). Because the trade books an entry on both sides, Sure requires write access on the transfer account — the same requirement that applies when creating a transfer directly.
+
+The transfer account picker only shows accounts you can write to. If an account is shared with you as view-only, it does not appear in the list. When using the API, passing a `transfer_account_id` that belongs to a read-only or inaccessible account returns a `404 Not Found` response.
 
 ### Recording Dividends and Interest
 

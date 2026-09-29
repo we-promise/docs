@@ -442,6 +442,27 @@ end
 
 Edit the generated panel view `app/views/settings/providers/_my_bank_panel.html.erb` to add custom content.
 
+`StyledFormBuilder` (used via `styled_form_with`) accepts these options on every text-type field in addition to standard HTML attributes:
+
+| Option | Description |
+|--------|-------------|
+| `label:` | Label text shown above the field. Pass `true` to derive it from the field name, or a string for custom text. |
+| `help_text:` | Hint shown below the field. Linked to the input via `aria-describedby`. |
+| `label_tooltip:` | Tooltip icon placed beside the label with explanatory text. |
+| `container_class:` | Extra CSS classes on the wrapper `div`. |
+| `required:` | Adds a red asterisk to the label and the `required` HTML attribute to the input. |
+
+Example — adding a hint to the API key field:
+
+```erb
+<%= form.text_field :api_key,
+    label: t(".api_key_label"),
+    help_text: t(".api_key_hint"),
+    type: :password %>
+```
+
+Fields rendered without a label (`label: false` or `inline: true`) receive the hint directly after the input, without a wrapper, so their layout stays unchanged.
+
 ## Examples
 
 ### Example 1: Simple API key provider
