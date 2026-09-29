@@ -81,15 +81,21 @@ The portfolio account category follows the assets held. Sure maps Trade Republic
 ### Cash account
 
 - Cash balance
-- Deposits and withdrawals, including Google Pay deposits
+- Deposits and withdrawals, including Google Pay deposits (recorded as funds movements, not investment contributions)
 - Card payments and ATM withdrawals
 - Card refunds
 - Interest payouts
 - Dividends, including per-share amount and withholding tax where available
 - Tax refunds
-- Round Up outflows (recorded as cash withdrawals when both accounts are linked)
+- Trade settlements: each buy records an investment contribution and each sell records a funds movement when both accounts are linked
+- Round Up outflows (recorded as investment contributions when both accounts are linked)
 
-When both accounts are linked, buy and sell trades are recorded on the portfolio account only. Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only. Saveback events are recorded as portfolio trades only.
+When both accounts are linked:
+
+- Buy and sell trades are recorded on the portfolio account. Each trade also produces a corresponding entry on the cash account: buys appear as uncategorized investment contributions and sale proceeds appear as funds movements.
+- Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only.
+- Saveback events are recorded as portfolio trades only.
+- Round Up events produce a portfolio trade and a cash investment contribution when both accounts are linked.
 
 ## Trade names
 
@@ -136,9 +142,15 @@ If a position shows no price or an incorrect value:
 - Private market positions without a live quote are valued at their average cost basis
 - Other positions without a live price display a price-unavailable indicator
 
+### Deposits showing as investment contributions
+
+Earlier syncs classified Trade Republic cash-account deposits as investment contributions. A sync after updating Sure resets those entries to standard funds movements automatically. If any deposits still appear under investment contributions after syncing, run a manual sync from **Settings > Providers > Trade Republic**.
+
 ### Balance does not match the Trade Republic app
 
-Cash balance discrepancies can occur if a sync captured a partial response from Trade Republic. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
+Sure uses the booked cash balance from Trade Republic, which matches the balance shown in the Trade Republic app. Funds reserved for open orders (such as pending limit orders) are not subtracted from this balance — those orders have not settled, so no matching transaction exists yet.
+
+If the balance still does not match, a sync may have captured a partial response. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
 
 ### QR code login appears to expire right after scanning
 
