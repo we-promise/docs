@@ -99,6 +99,10 @@ Sure syncs Trade Republic accounts on the same schedule as other connected provi
 
 Session tokens are refreshed automatically during each sync when Trade Republic returns a renewed token. If the session expires, the status changes to **Re-authentication required** and you will need to log in again.
 
+### Categories and labels on cash deposits
+
+Categories and activity labels assigned to cash deposits by a Rule are preserved across syncs. Earlier versions of Sure would clear an Investment Contributions category or Contribution label on cash-account inflows during each sync, undoing any Rule that assigned them. This is fixed: Rule-assigned categories and labels on Trade Republic cash deposits are no longer removed when you sync.
+
 ## Troubleshooting
 
 ### Re-authentication required
