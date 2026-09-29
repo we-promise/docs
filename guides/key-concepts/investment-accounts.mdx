@@ -236,6 +236,14 @@ Investment accounts support recording various types of trades to track your port
 | **Sell** | Sale of securities | Yes |
 | **Dividend** | Dividend payments received | Yes |
 | **Interest** | Interest earned on cash or securities | No (optional) |
+| **Deposit** | Cash added to the investment account from another account | No |
+| **Withdrawal** | Cash removed from the investment account to another account | No |
+
+### Deposits and withdrawals
+
+A deposit or withdrawal moves cash between your investment account and a second account (the transfer account). Because the trade books an entry on both sides, Sure requires write access on the transfer account — the same requirement that applies when creating a transfer directly.
+
+The transfer account picker only shows accounts you can write to. If an account is shared with you as view-only, it does not appear in the list. When using the API, passing a `transfer_account_id` that belongs to a read-only or inaccessible account returns a `404 Not Found` response.
 
 ### Recording Dividends and Interest
 
@@ -458,6 +466,14 @@ When a security is priced in a different currency from the one your account uses
 The same applies to exchange rates that are zero or negative. Sure treats those as absent, so a bad rate in the database does not silently produce a wrong gain or loss.
 
 If a realized gain figure is absent for a foreign-currency disposal, check that an exchange rate exists for the security's currency against your account's currency on the disposal date. You can add missing rates at **Settings → Exchange rates**.
+
+### Automatic exchange rate import for foreign-currency securities
+
+When an account holds securities priced in a currency other than the account currency — for example, a USD-priced crypto asset in a EUR account — Sure automatically imports exchange rates for those price currencies during each sync. Rates are fetched starting from the first date the account needs a price for each security, based on your own trades and holdings rather than the security's global price history.
+
+Security prices are imported before exchange rates so the relevant currencies are known at the start of each sync. Only price currencies that have a price on or after the first required date are included, so currencies from older listings used by other accounts do not trigger unnecessary rate imports.
+
+This means the portfolio cache can always convert each security price into your account currency without falling back to live per-day provider requests. Syncs that previously repeated hundreds of exchange rate lookups because rates were missing from the database complete in normal time after upgrading.
 
 ## Crypto-Specific Features
 

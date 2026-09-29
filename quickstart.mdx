@@ -67,6 +67,12 @@ SEED=12345 rake demo_data:default
 Demo data is only available when running Sure in development mode, not in production or self-hosted deployments.
 </Note>
 
+### Design system previews
+
+Sure uses [Lookbook](https://lookbook.build/) to render component previews. After starting `bin/dev`, open `/design-system` in your browser to browse and preview all `DS::*` components.
+
+The preview routes are only available outside of production. If a preview returns an error, confirm you are running in development mode.
+
 ### Setup guides
 
 <CardGroup cols={2}>
