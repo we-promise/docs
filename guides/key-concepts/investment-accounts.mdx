@@ -459,6 +459,14 @@ The same applies to exchange rates that are zero or negative. Sure treats those 
 
 If a realized gain figure is absent for a foreign-currency disposal, check that an exchange rate exists for the security's currency against your account's currency on the disposal date. You can add missing rates at **Settings → Exchange rates**.
 
+### Automatic exchange rate import for foreign-currency securities
+
+When an account holds securities priced in a currency other than the account currency — for example, a USD-priced crypto asset in a EUR account — Sure automatically imports exchange rates for those price currencies during each sync. Rates are fetched starting from the first date the account needs a price for each security, based on your own trades and holdings rather than the security's global price history.
+
+Security prices are imported before exchange rates so the relevant currencies are known at the start of each sync. Only price currencies that have a price on or after the first required date are included, so currencies from older listings used by other accounts do not trigger unnecessary rate imports.
+
+This means the portfolio cache can always convert each security price into your account currency without falling back to live per-day provider requests. Syncs that previously repeated hundreds of exchange rate lookups because rates were missing from the database complete in normal time after upgrading.
+
 ## Crypto-Specific Features
 
 Crypto accounts work similarly to investment accounts but have unique characteristics:
