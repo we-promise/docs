@@ -44,6 +44,14 @@ Use the QR login if you prefer not to enter your PIN or password in Sure, or if 
 
 If you already have a manual investment account in Sure, you can link the discovered Trade Republic portfolio account to it instead of creating a new one.
 
+## Multiple connections
+
+Sure supports more than one Trade Republic connection per family. Each connection is shown as a separate card in the Trade Republic panel. To add another connection, click **Add another connection** at the bottom of the Trade Republic section and complete the login for the second account.
+
+Each connection card shows a short identifier to help you tell them apart. For phone number logins, Sure displays the last four digits of the phone number. For QR-code logins with no phone number on file, Sure falls back to the last four characters of the linked brokerage account number once a sync has run.
+
+If you complete a login and Sure detects that the Trade Republic account is already linked through another connection in the same family, the new connection is discarded automatically and you will see a notice explaining the duplicate was removed.
+
 ## Account types
 
 | Account | Sure account type | What it tracks |
@@ -73,15 +81,21 @@ The portfolio account category follows the assets held. Sure maps Trade Republic
 ### Cash account
 
 - Cash balance
-- Deposits and withdrawals, including Google Pay deposits
+- Deposits and withdrawals, including Google Pay deposits (recorded as funds movements, not investment contributions)
 - Card payments and ATM withdrawals
 - Card refunds
 - Interest payouts
 - Dividends, including per-share amount and withholding tax where available
 - Tax refunds
-- Round Up outflows (recorded as cash withdrawals when both accounts are linked)
+- Trade settlements: each buy records an investment contribution and each sell records a funds movement when both accounts are linked
+- Round Up outflows (recorded as investment contributions when both accounts are linked)
 
-When both accounts are linked, buy and sell trades are recorded on the portfolio account only. Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only. Saveback events are recorded as portfolio trades only.
+When both accounts are linked:
+
+- Buy and sell trades are recorded on the portfolio account. Each trade also produces a corresponding entry on the cash account: buys appear as uncategorized investment contributions and sale proceeds appear as funds movements.
+- Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only.
+- Saveback events are recorded as portfolio trades only.
+- Round Up events produce a portfolio trade and a cash investment contribution when both accounts are linked.
 
 ## Trade names
 
@@ -102,6 +116,10 @@ Private market positions are valued using quotes from Trade Republic's private m
 Sure syncs Trade Republic accounts on the same schedule as other connected providers. You can also trigger a manual sync from the Trade Republic panel in **Settings > Providers**.
 
 Session tokens are refreshed automatically during each sync when Trade Republic returns a renewed token. If the session expires, the status changes to **Re-authentication required** and you will need to log in again.
+
+### Categories and labels on cash deposits
+
+Categories and activity labels assigned to cash deposits by a Rule are preserved across syncs. Earlier versions of Sure would clear an Investment Contributions category or Contribution label on cash-account inflows during each sync, undoing any Rule that assigned them. This is fixed: Rule-assigned categories and labels on Trade Republic cash deposits are no longer removed when you sync.
 
 ## Troubleshooting
 
@@ -132,9 +150,15 @@ If a position shows no price or an incorrect value:
 - Private market positions without a live quote are valued at their average cost basis
 - Other positions without a live price display a price-unavailable indicator
 
+### Deposits showing as investment contributions
+
+Earlier syncs classified Trade Republic cash-account deposits as investment contributions. A sync after updating Sure resets those entries to standard funds movements automatically. If any deposits still appear under investment contributions after syncing, run a manual sync from **Settings > Providers > Trade Republic**.
+
 ### Balance does not match the Trade Republic app
 
-Cash balance discrepancies can occur if a sync captured a partial response from Trade Republic. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
+Sure uses the booked cash balance from Trade Republic, which matches the balance shown in the Trade Republic app. Funds reserved for open orders (such as pending limit orders) are not subtracted from this balance — those orders have not settled, so no matching transaction exists yet.
+
+If the balance still does not match, a sync may have captured a partial response. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
 
 ### QR code login appears to expire right after scanning
 
@@ -142,15 +166,16 @@ If Sure shows a login-expired or already-used error immediately after you scan t
 
 ### Phone number and PIN or password login confirmation times out
 
-The push notification or authenticator code confirmation window is limited. If it expires before you confirm:
+The push login confirmation window is open for approximately two minutes. Sure polls Trade Republic at one-second intervals and backs off automatically if Trade Republic is rate-limiting or temporarily unavailable. If the window closes before you confirm:
 
 1. Click **Cancel** or wait for the panel to reset
 2. Start a new login from **Settings > Providers > Trade Republic** and enter your PIN or password again
 
+If the panel shows a rate-limit or outage alert, wait a moment and then click **Check login status** to retry manually. Sure will resume automatic polling on the next login attempt.
+
 ## Limitations
 
 - **European accounts only**: Trade Republic operates in Europe. Accounts in unsupported regions cannot be connected.
-- **Single connection per family**: Sure supports one Trade Republic connection per family account.
 - **Session expiry**: Long periods without a sync can cause the session to expire, requiring re-authentication.
 - **Unpriced positions**: Some securities (particularly private market instruments) may not have a current price available from Trade Republic.
 - **No options or derivatives**: Derivative instruments are not imported.
