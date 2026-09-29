@@ -543,6 +543,16 @@ The callback URL is shown in admin UI when editing a provider (with copy button)
 - Review audit logs to see what groups are received
 - Some IdPs require additional configuration to include groups
 
+### `POST /api/v1/auth/sso_create_account` returns "account already exists"
+
+When a mobile SSO account creation attempt conflicts with an existing record (for example, the same email address or identity is already registered), the API returns HTTP 422 with:
+
+```json
+{ "errors": ["An account or sign-in identity with these details already exists"] }
+```
+
+This is a generic message that does not expose internal database index names or field values. To resolve, have the user sign in with the existing account and link the SSO identity from Settings → Security → Connected Accounts instead.
+
 ## Security considerations
 
 ### Encryption
@@ -565,6 +575,19 @@ The callback URL is shown in admin UI when editing a provider (with copy button)
 - SSO provider management requires `super_admin` role
 - Regular `admin` users (family admins) cannot access `/admin/sso_providers`
 - All provider changes logged with user ID
+
+### Log filtering
+
+Sure filters sensitive values from request logs so they never appear in log output, even when verbose parameter logging is on. The following parameters are always redacted:
+
+- Passwords, tokens, keys, and secrets (standard Rails defaults)
+- One-time codes: MFA TOTP codes, backup codes, OAuth and bank authorization codes, and the desktop SSO exchange code (the `code` parameter, anchored — `currency_code`, `country_code`, and `postal_code` remain readable)
+- Mobile SSO linking code (`linking_code`) and invitation code (`invite_code`)
+- SimpleFIN access URL (`access_url`)
+- Device authorization flow fields (`device_code`, `user_code`, `verification_uri_complete`)
+- FinanceKit publisher credential and event fields
+
+These are configured in `config/initializers/filter_parameter_logging.rb`.
 
 ### Rate limiting
 
