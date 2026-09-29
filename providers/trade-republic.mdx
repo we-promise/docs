@@ -91,6 +91,10 @@ Trades are labelled using the format `{ticker} · {quantity}x {name}`. When the 
 
 Sure resolves holdings and historical trades to exchange tickers when Trade Republic provides a venue symbol. Exchange-listed securities use real ticker symbols for market data lookups. When no usable exchange symbol is available for a position, the security is marked offline and price importers skip it automatically. Sure retries unresolved ISINs at most once per day for up to 30 days.
 
+### Crypto holdings
+
+Trade Republic identifies crypto positions using pseudo-ISINs that encode the coin symbol — for example, `XF000BTC0017` for Bitcoin and `XF000ETH0019` for Ether. When the crypto price provider is enabled in Sure, holdings and trades for these ISINs are resolved to the shared `CRYPTO:<SYMBOL>` security used by on-chain wallets and exchange integrations. Any existing rows stored under the Trade Republic ISIN are migrated over automatically. When the crypto price provider is not enabled, the offline ISIN security is kept and positions remain valued at Trade Republic's own snapshot prices.
+
 Private market positions are valued using quotes from Trade Republic's private markets feed when available. If no live quote exists, Sure uses the average cost basis as the holding value. Other positions without a live price show a price-unavailable indicator rather than a flat return.
 
 ## Syncing
