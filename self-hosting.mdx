@@ -1161,7 +1161,7 @@ Both `web` and `worker` must share the same `REDIS_URL` (or `REDIS_SENTINEL_HOST
 1. Sign in to the Sure iOS app with the same account as the super-admin signed in to the web app, and enable push notifications in the app.
 2. Open **System Health → Background jobs → Push notifications** in the web app.
 3. Click **Send test push notification**. The test is sent only to the current account's recently registered iOS devices.
-4. Click **Refresh results** to see each device's outcome. Results remain for 24 hours. **Accepted by APNs** confirms Apple's acceptance; verify presentation on a real device to confirm delivery.
+4. Click **Refresh results** to see each device's outcome. Results remain for 24 hours. **Accepted by APNs** confirms Apple's acceptance; verify presentation on a real device to confirm delivery. The results table is keyboard-navigable and can be scrolled with the keyboard when it overflows.
 
 The button is disabled when there is no current registration, APNs is unconfigured, delivery is disabled (`APNS_ENABLED=false`), or another test was requested in the last 30 seconds.
 
