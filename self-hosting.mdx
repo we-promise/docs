@@ -828,7 +828,7 @@ The system health page always bypasses the cache and fetches fresh state, so you
 
 ### AI status tab
 
-The system health page has an **AI** tab at `/admin/system_health?tab=ai`. Opening it runs bounded, non-destructive live checks against the effective AI configuration:
+The system health page has an **AI** tab at `/admin/system_health?tab=ai`. When you first open the tab, Sure shows a loading placeholder and then fetches the results in the background. This keeps the page responsive while up to six live probes run. The checks are bounded, non-destructive, and cover the effective AI configuration:
 
 - **LLM probe** — Verifies the configured model is available. For standard OpenAI, it queries the models list. For OpenAI-compatible endpoints (Ollama, OpenRouter, etc.), it sends a short chat completion request instead, since many compatible providers do not implement the models list endpoint.
 - **Function calling (tools) probe** — Asks the configured model for one trivial tool call using the same `tools` payload the assistant sends for its own function calls. A pass means tool calls work end-to-end. Two distinct failure outcomes are reported separately: if the tools request is rejected as a client error but the same request without tools succeeds, the probe marks tool support as **unsupported** (common with models on providers like OpenRouter that answer a bare 404); if the endpoint accepted the tools parameter but the model replied with text instead of calling the tool, the probe marks it as **tools accepted, but the model called none**. The probe uses the same API route the assistant takes — Responses API for hosted OpenAI when `supports_responses_endpoint?` is true, Chat Completions otherwise — so it always reflects the path live chat follows.
