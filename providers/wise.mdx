@@ -96,3 +96,5 @@ Generating a new keypair does not automatically revoke the previous public key i
 **A currency balance is missing**: run a sync, then check **Set Up Accounts** on the connection — new balances only become Sure accounts once you link them.
 
 **Incoming payments are missing**: the balance-statement endpoint requires SCA. Follow the [SCA setup steps](#strong-customer-authentication-sca) to generate a keypair and register the public key with Wise.
+
+**Connection appears under Available instead of Your connections**: after a successful setup, the Wise panel should move to the "Your connections" section of **Settings → Providers** and show a status pill, sync button, and last-synced line. If it stays in Available, the connection was not saved. Re-enter the API token and save again.
