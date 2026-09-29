@@ -3,6 +3,29 @@ title: "Troubleshooting"
 ---
 
 
+## Confirmation dialogs could run script from bank-provided names
+
+In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
+
+Because provider merchant rows are shared across families, a crafted merchant name could reach any user who opened a confirmation involving that merchant.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Confirmation dialogs that showed a record name in the body text, including:
+
+    - Provider merchant deletion confirmations (the merchant name came from bank feeds and was shared across families)
+    - SimpleFIN account replacement prompts (account name from the bank)
+    - SnapTrade brokerage and holdings reset confirmations (brokerage name and ticker symbols from the provider)
+    - Any other confirmation built through `CustomConfirm` or the raw `turbo_confirm` hash that included a record name
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The confirmation dialog now sets its body using `textContent` instead of `innerHTML`. Record names are rendered as plain text regardless of how the confirmation was constructed, so HTML in a name is never parsed or executed.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Category avatar preview does not update when picking a color
 
 When editing or creating a category, changing the color using the color picker previously did not update the avatar preview — the icon and background appeared to stay at the original color until the form was saved.
