@@ -61,6 +61,38 @@ Yahoo Finance is the default provider and requires no API key. It offers broad g
 - **Coverage**: Global stocks, ETFs, mutual funds, indices, crypto
 - **API key**: Not required
 
+#### European and other non-US exchanges
+
+Sure automatically appends Yahoo Finance's required exchange suffix when fetching prices for securities listed on European and other international exchanges. The following venues are supported:
+
+| Exchange | MIC | Yahoo suffix | Currency |
+| --- | --- | --- | --- |
+| Xetra | XETR | `.DE` | EUR |
+| Frankfurt floor | XFRA | `.F` | EUR |
+| Munich | XMUN | `.MU` | EUR |
+| Stuttgart | XSTU | `.SG` | EUR |
+| London Stock Exchange | XLON | `.L` | GBP |
+| Euronext Paris | XPAR | `.PA` | EUR |
+| Euronext Amsterdam | XAMS | `.AS` | EUR |
+| Euronext Brussels | XBRU | `.BR` | EUR |
+| Euronext Lisbon | XLIS | `.LS` | EUR |
+| Bolsa de Madrid | XMAD | `.MC` | EUR |
+| Borsa Italiana | XMIL | `.MI` | EUR |
+| SIX Swiss Exchange | XSWX | `.SW` | CHF |
+| Nasdaq Stockholm | XSTO | `.ST` | SEK |
+| Nasdaq Copenhagen | XCSE | `.CO` | DKK |
+| Nasdaq Helsinki | XHEL | `.HE` | EUR |
+| Oslo Børs | XOSL | `.OL` | NOK |
+| Vienna Stock Exchange | XWBO | `.VI` | EUR |
+| NSE India | XNSE | `.NS` | INR |
+| BSE India | XBOM | `.BO` | INR |
+| Colombia | XBOG | `.CL` | COP |
+| Indonesia | XIDX | `.JK` | IDR |
+
+London-listed securities are quoted in pence (GBp) by Yahoo Finance. Sure converts pence prices to GBP automatically.
+
+If a security's exchange is not in the table above, its ticker is sent to Yahoo Finance without a suffix. You can still find and add such securities by searching with the full suffixed symbol as shown on Yahoo Finance's quote page URL.
+
 #### Searching for securities with exchange suffixes
 
 Yahoo Finance's search index has gaps for some instruments — notably non-US managed funds such as Australian APIR-coded funds (e.g. `VAN0111AU.AX`). When the search index returns no results for a query that looks like a fully qualified symbol (contains a `.` exchange suffix, such as `.AX` for ASX or `.L` for LSE), Sure retries the query directly against the Yahoo Finance chart endpoint and synthesizes a result from the returned metadata.
