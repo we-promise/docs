@@ -158,10 +158,12 @@ If Sure shows a login-expired or already-used error immediately after you scan t
 
 ### Phone number and PIN or password login confirmation times out
 
-The push notification or authenticator code confirmation window is limited. If it expires before you confirm:
+The push login confirmation window is open for approximately two minutes. Sure polls Trade Republic at one-second intervals and backs off automatically if Trade Republic is rate-limiting or temporarily unavailable. If the window closes before you confirm:
 
 1. Click **Cancel** or wait for the panel to reset
 2. Start a new login from **Settings > Providers > Trade Republic** and enter your PIN or password again
+
+If the panel shows a rate-limit or outage alert, wait a moment and then click **Check login status** to retry manually. Sure will resume automatic polling on the next login attempt.
 
 ## Limitations
 
