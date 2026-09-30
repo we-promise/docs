@@ -931,6 +931,35 @@ OPENAI_EXTRA_HEADERS='{"x-opencode-session": "{session_id}"}'
 The Sidekiq health banner, system health page, and AI status tab are only available in self-hosted mode. Managed deployments do not show these features.
 </Note>
 
+## Demo data refresh
+
+Self-hosted super admins can opt into a daily demo family refresh from **Settings > Self-Hosting > Demo data refresh**. When enabled, Sure automatically regenerates the designated demo family's data every day — removing all its existing transactions, accounts, and logins and replacing them with freshly generated sample data. All other families on the instance are untouched.
+
+### Requirements
+
+- A running `worker` process with at least 2 GiB of RAM. The demo generator is memory-intensive and will fail on smaller workers.
+- A disposable demo family that was created with Sure's built-in demo generator. Do not select a real user's family.
+
+### Setup
+
+1. Load sample data to create a demo family: go to **Settings** and use the demo data generator. This creates a family owned by the configured demo email address.
+2. Go to **Settings > Self-Hosting > Demo data refresh**.
+3. Under **Disposable demo family**, select the demo family you just created. The dropdown only shows families that own the demo email address and have no super-admin members.
+4. Click **Save demo family**.
+5. Toggle **Enable daily demo family refresh** on.
+
+After you save a demo family and enable the toggle, Sure runs the refresh job once a day. The job:
+
+- Generates a fresh set of demo data under the same demo email address.
+- Retires and destroys the previous demo family.
+- Updates the stored family ID to point at the newly created family.
+
+If the selected family no longer meets the safety checks (for example, a super-admin was added to it), the job skips that run and logs a warning instead of destroying data.
+
+<Warning>
+The refresh permanently destroys all data in the selected demo family. Select only a disposable family that was created specifically for this purpose.
+</Warning>
+
 ## Running Sure on small (512 MB) hosts
 
 Sure runs comfortably on hosts or containers limited to 512 MB of RAM, which makes it a good fit for the smallest tiers on platforms like Render, Fly.io, or a cheap VPS.
