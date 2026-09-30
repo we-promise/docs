@@ -292,7 +292,7 @@ To prevent duplicate refresh requests, Sure uses a shared cache to coalesce call
 
 The coalescing logic requires a shared cache store. Sure skips the Plaid refresh request (and logs a warning) if the cache store is the default file-based or in-memory store. To enable refresh on a self-hosted instance, configure one of the following:
 
-- **Redis** — set `CACHE_URL` to a Redis connection string
+- **Redis** — set `REDIS_URL` to a Redis connection string
 - **Memcache** — configure `MEMCACHE_SERVERS`
 - **SolidCache** — enabled by default in the Docker Compose setup
 
