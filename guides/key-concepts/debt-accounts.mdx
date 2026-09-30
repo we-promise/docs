@@ -90,6 +90,9 @@ Loan accounts support additional fields:
 | Rate Type | Fixed, variable, or adjustable |
 | Term | Loan duration (months) |
 | Start date | Date the loan was drawn down (optional — defaults to the account's opening balance date) |
+| Down payment | What you paid upfront. Not part of the amortization, but used to calculate your leverage ratio on the overview. |
+| Insurance rate | Annual insurance premium rate, charged monthly alongside the repayment. |
+| Insurance type | How the premium is calculated: **Level term** charges the rate on the original balance each month (constant premium); **Decreasing** charges it on the outstanding balance (falls as you repay). |
 | Monthly Payment | Calculated from loan details (fixed-rate only) |
 
 > [!NOTE]
@@ -156,6 +159,32 @@ Sure tracks your loan balance, which represents the remaining principal. As you 
 
 > [!TIP]
 > To track loan payments accurately, create a [transfer](./transfers.mdx) from your checking account to your loan account. This properly reflects the payment in both accounts.
+
+## Loan overview
+
+The **Overview** tab on a loan account shows a grid of summary cards and a repayment progress section.
+
+### Summary cards
+
+| Card | Description |
+| --- | --- |
+| Original Loan Amount | The original principal (what was borrowed) |
+| Remaining Loan Amount | Your current outstanding balance |
+| Interest Rate | The rate in force today — for variable-rate loans this reflects the most recent recorded rate change |
+| Monthly Payment | The contracted payment for fixed-rate loans; for variable-rate loans, the payment currently in force based on the latest re-amortization |
+| Term | Total loan duration in years (or months for loans shorter than one year) |
+| Original Payoff Date | The date the final scheduled payment falls due under the original contract |
+| Type | Fixed, variable, or adjustable |
+| Total Cost | Total principal plus interest over the life of the loan. When an insurance rate is recorded the card is labeled **Total Cost incl. Insurance** and includes the premium total. |
+| Insurance | Only shown when an insurance rate is recorded. Displays the total premium if a schedule is available, or the annual rate if not. |
+| Leverage | Only shown when a down payment is recorded. Displays the loan-to-deposit ratio and a band (Conservative, Moderate, or High). |
+
+### Repayment progress
+
+Below the summary cards, the overview shows how far into repayment you are:
+
+- **Repaid ring** — A donut chart showing the percentage of the original loan amount already repaid, based on your current balance.
+- **Payment breakdown** — The current scheduled installment split into principal, interest, and insurance (if applicable), each shown as an amount and a share of the total payment.
 
 ## Amortization schedule
 
