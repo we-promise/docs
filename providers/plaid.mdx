@@ -292,7 +292,7 @@ To prevent duplicate refresh requests, Sure uses a shared cache to coalesce call
 
 The coalescing logic requires a shared cache store. Sure skips the Plaid refresh request (and logs a warning) if the cache store is the default file-based or in-memory store. To enable refresh on a self-hosted instance, configure one of the following:
 
-- **Redis** — set `CACHE_URL` to a Redis connection string
+- **Redis** — set `REDIS_URL` to a Redis connection string
 - **Memcache** — configure `MEMCACHE_SERVERS`
 - **SolidCache** — enabled by default in the Docker Compose setup
 
@@ -313,6 +313,14 @@ If you run into Plaid errors that are not visible in Sure, check the Plaid Dashb
 If you linked a credit card or loan account through Plaid and Sure imported balances and liabilities but no transactions, the connection was affected by a bug that is now fixed. Plaid places the `transactions` product in `consented_products` for liability accounts until the first billing call — Sure previously only checked `available_products` and `billed_products`, so `transactions` appeared unsupported and the fetch was skipped.
 
 To resolve this, trigger a manual sync from the account page. Sure will now recognize `transactions` as a supported product and import your transaction history.
+
+### Retracted transactions not removed
+
+When Plaid removes a transaction (for example, a pending transaction that never settled, or a duplicate Plaid later corrects), Sure deletes the matching entry from your account during the next sync.
+
+Entries imported before the `ProviderImportAdapter` was introduced were stored with a `plaid_id` field, and Sure used that field to find and delete retracted transactions. Entries imported after the adapter was introduced are stored with an `external_id` and a source identifier instead, leaving `plaid_id` empty. Because of this, retractions that targeted the newer entries were never matched and the transactions stayed in the account.
+
+This is now fixed. Sure looks up retracted transactions by `external_id` and source first, then falls back to `plaid_id` for older entries that predate the adapter. If you have transactions that should have been removed by a Plaid retraction, trigger a manual sync from the account page — Sure will process any pending removals during that sync.
 
 ### Link popup closes after selecting a bank
 

@@ -56,7 +56,7 @@ The token must have **Read Only** access. Tokens created with write access or no
 
 ### Expired credentials
 
-Mercury tokens can be revoked from the developer settings. Generate a new token and update the connection in **Settings → Providers → Mercury**.
+Mercury tokens can be revoked from the developer settings. When Mercury rejects the token with a 401 or 403, Sure marks the connection as requiring an update and the sync fails — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. Generate a new token and update the connection in **Settings → Providers → Mercury**.
 
 ### Connection fails with a network error
 
