@@ -76,7 +76,7 @@ The token must include all four required scopes: `accounts.cash.readonly`, `acco
 
 ### Expired credentials
 
-Brex tokens can expire or be revoked. Generate a new token and update the connection in **Settings → Providers → Brex**.
+Brex tokens can expire or be revoked. When Brex rejects the token with a 401 or 403, Sure marks the connection as requiring an update and the sync fails — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. This also applies when the token can list your accounts but is refused access to their transactions. Generate a new token and update the connection in **Settings → Providers → Brex**.
 
 ### No accounts found after syncing
 
