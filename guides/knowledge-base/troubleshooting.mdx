@@ -152,25 +152,32 @@ When rules run asynchronously (during a sync or via a background job), failures 
 
 ## Category Rule Popup Behavior
 
-When a user selects a category for a transaction, a popup may appear to create an automatic categorization rule. This popup is intentionally gated by several conditions:
+When you select a category for a transaction, a prompt appears to create an automatic categorization rule. This prompt has two controls:
+
+- **X (close)** — removes this individual prompt only. It makes no server call and does not affect future prompts.
+- **Hide for today** — hides all rule suggestion prompts for 24 hours. A note below the buttons reads "Hide for today pauses these suggestions for 24 hours." so the behavior is always visible.
+
+There is also a **Don't show this again** checkbox that permanently disables rule prompts for your account.
+
+The prompt is gated by several conditions:
 
 <AccordionGroup>
-  <Accordion title="When does the popup appear?">
-    The popup only shows when **all** of these conditions are met:
-    
-    1. User has not disabled rule prompts (`rule_prompts_disabled` is false)
-    2. User hasn't dismissed the popup in the last **24 hours**
+  <Accordion title="When does the prompt appear?">
+    The prompt only shows when **all** of these conditions are met:
+
+    1. You have not disabled rule prompts (`rule_prompts_disabled` is false)
+    2. You have not clicked **Hide for today** in the last **24 hours**
     3. The transaction category actually changed
     4. No existing rule already sets this category for similar transactions
     5. The transaction has a category assigned
   </Accordion>
-  
-  <Accordion title="Why isn't the popup showing?">
+
+  <Accordion title="Why isn't the prompt showing?">
     Check these common reasons:
-    
-    - **Recently dismissed**: Wait 24 hours after dismissing the popup
+
+    - **Recently snoozed**: You clicked **Hide for today** — wait 24 hours for prompts to resume
     - **Rule already exists**: A matching rule may already be in place
-    - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for the user
+    - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for your account (set via **Don't show this again**)
   </Accordion>
 </AccordionGroup>
 
