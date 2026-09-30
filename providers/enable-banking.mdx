@@ -184,6 +184,10 @@ For technical details about the Enable Banking API, see the [official documentat
 
 N26 (and some other ASPSPs via Enable Banking) rejects out-of-range transaction date windows with a `PERIOD_INVALID` error rather than the more common `WRONG_TRANSACTIONS_PERIOD` shape. Sure recognizes both error shapes and automatically retries the sync with a shorter date window, so you should not need to take any action if a sync fails with this error.
 
+### Bank rejects the session mid-sync
+
+Some banks reject an Enable Banking session with a 401 or 404 during a sync even though the session has not yet expired by its recorded expiry date. When this happens, Sure marks the connection as requiring re-authorization and finishes the sync cleanly — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. Click **Reconnect** and complete the bank authorization flow again to restore syncing.
+
 ## Limitations
 
 - Only supports banks in EU/EEA countries

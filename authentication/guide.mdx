@@ -554,6 +554,14 @@ The callback URL is shown in admin UI when editing a provider (with copy button)
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 - If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
 
+### TOTP one-time use
+
+Each TOTP code is accepted only once. When a user signs in with a code, Sure records the time step of that code and rejects any subsequent use of the same step—including concurrent requests that arrive at the same time. A code seen over the shoulder, captured by a proxy, or relayed by a phishing page cannot be replayed within its validity window.
+
+The time step is claimed atomically with a conditional database update, so two simultaneous requests using the same code can never both succeed.
+
+Setting up or disabling two-factor authentication clears the recorded time step.
+
 ### Issuer validation
 
 - OIDC identities store the issuer claim from ID token
