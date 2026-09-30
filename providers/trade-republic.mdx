@@ -9,10 +9,11 @@ Trade Republic is a European neo-broker that lets you buy stocks, ETFs, bonds, c
 
 Sure authenticates to Trade Republic using the same web login flow as the Trade Republic web app. After you confirm the login on your phone, Sure stores an encrypted session token and uses it for all future syncs. Your PIN or password is never stored. It is used only to start a new login session and is discarded immediately after. The credential is also filtered from request logs so it never appears in server-side log output.
 
-Sure discovers two accounts from your Trade Republic connection:
+Sure discovers up to three accounts from your Trade Republic connection:
 
-- **Portfolio account** — holds your securities positions (stocks, ETFs, bonds, crypto, private market instruments) and tracks their current value
+- **Portfolio account** — holds your securities positions (stocks, ETFs, bonds, private market instruments) and tracks their current value
 - **Cash account** — holds your Trade Republic cash balance and records deposits, withdrawals, card payments, interest, and dividends
+- **Crypto account** — holds your crypto positions and their trade history; created automatically once the portfolio holds or has traded crypto
 
 ## Logging in
 
@@ -40,9 +41,11 @@ Use the QR login if you prefer not to enter your PIN or password in Sure, or if 
 2. Find the **Trade Republic** section and click to expand it
 3. Choose your login method (phone number and PIN or password, or QR code) and complete the login
 4. After a successful login, click **Sync** to discover your accounts
-5. Once the sync finishes, click **Set up accounts** to link the discovered portfolio and cash accounts to Sure accounts
+5. Once the sync finishes, click **Set up accounts** to link the discovered accounts to Sure accounts
 
-If you already have a manual investment account in Sure, you can link the discovered Trade Republic portfolio account to it instead of creating a new one.
+Sure discovers a Portfolio account and a Cash account for every connection. If your portfolio holds or has traded crypto, a Crypto account is also discovered and shown in the account setup flow.
+
+If you already have a manual investment account in Sure, you can link the discovered Trade Republic portfolio account to it instead of creating a new one. A Crypto provider account can be linked to an existing Crypto (exchange) or Investment account.
 
 ## Multiple connections
 
@@ -56,23 +59,29 @@ If you complete a login and Sure detects that the Trade Republic account is alre
 
 | Account | Sure account type | What it tracks |
 |---|---|---|
-| Portfolio | Investment | Securities positions and their current value |
+| Portfolio | Investment | Securities positions (excluding crypto once the Crypto account is linked) and their current value |
 | Cash | Depository | Cash balance, deposits, withdrawals, card payments, interest, dividends |
+| Crypto | Crypto (exchange) | Crypto positions and trade history; only created when the portfolio holds or has traded crypto |
 
-The portfolio account category follows the assets held. Sure maps Trade Republic's portfolio categories to account subtypes:
+The portfolio account subtype follows the non-crypto assets held. Sure maps Trade Republic's portfolio categories to account subtypes:
 
 | Trade Republic category | Sure account subtype |
 |---|---|
 | Stocks and ETFs | Brokerage |
 | Private markets | Private markets |
 | Interest / bonds | Interest products |
-| Crypto | Crypto wallet |
+
+### Crypto account linkage
+
+The Crypto provider account links only to a **Crypto** account in Sure (exchange subtype) or to an **Investment** account. Portfolio and Cash provider accounts continue to link to Investment and Depository accounts respectively. Account setup shows only compatible account types for each provider account.
+
+Until you link the Crypto provider account to a Sure account, crypto positions and trades remain on the Portfolio account. Once you link it, crypto positions and trades move to the Crypto account and the Portfolio leaves them and their value out of its total.
 
 ## What gets imported
 
 ### Portfolio account
 
-- Current holdings with quantities and market values
+- Current holdings with quantities and market values (crypto excluded once the Crypto account is linked)
 - Trade history (buys and sells), including fees recorded separately on each trade
 - Savings plan executions, including historical savings-plan invoices
 - Saveback reinvestments (recorded as portfolio trades)
@@ -81,21 +90,28 @@ The portfolio account category follows the assets held. Sure maps Trade Republic
 ### Cash account
 
 - Cash balance
-- Deposits and withdrawals, including Google Pay deposits (recorded as funds movements, not investment contributions)
+- Deposits and withdrawals, including Google Pay deposits (recorded as standard transactions, not investment contributions)
 - Card payments and ATM withdrawals
 - Card refunds
 - Interest payouts
 - Dividends, including per-share amount and withholding tax where available
 - Tax refunds
-- Trade settlements: each buy records an investment contribution and each sell records a funds movement when both accounts are linked
+- Trade settlements: each buy records an investment contribution and each sell records a funds movement when the relevant securities account is linked
 - Round Up outflows (recorded as investment contributions when both accounts are linked)
 
-When both accounts are linked:
+### Crypto account
 
-- Buy and sell trades are recorded on the portfolio account. Each trade also produces a corresponding entry on the cash account: buys appear as uncategorized investment contributions and sale proceeds appear as funds movements.
-- Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the cash account only.
-- Saveback events are recorded as portfolio trades only.
-- Round Up events produce a portfolio trade and a cash investment contribution when both accounts are linked.
+- Crypto positions taken from the portfolio snapshot, with quantities and market values
+- Crypto trade history (buys, sells, round-up settlements) moved over from the portfolio once the Crypto account is linked
+- Trades the user has not edited are moved automatically; edited trades stay on the Portfolio
+
+When all three accounts are linked:
+
+- Non-crypto buy and sell trades are recorded on the Portfolio account. Each trade also produces a corresponding entry on the Cash account: buys appear as uncategorized investment contributions and sale proceeds appear as funds movements.
+- Crypto buys, sells, and round-up settlements are recorded on the Crypto account. Each trade produces a corresponding Cash entry linked to it as a confirmed transfer.
+- Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the Cash account only.
+- Saveback events are recorded as Portfolio trades only.
+- Round Up events produce a trade on whichever account holds the position (Portfolio or Crypto) and a cash investment contribution.
 
 ## Trade names
 
@@ -108,6 +124,8 @@ Sure resolves holdings and historical trades to exchange tickers when Trade Repu
 ### Crypto holdings
 
 Trade Republic identifies crypto positions using pseudo-ISINs that encode the coin symbol — for example, `XF000BTC0017` for Bitcoin and `XF000ETH0019` for Ether. When the crypto price provider is enabled in Sure, holdings and trades for these ISINs are resolved to the shared `CRYPTO:<SYMBOL>` security used by on-chain wallets and exchange integrations. Any existing rows stored under the Trade Republic ISIN are migrated over automatically. When the crypto price provider is not enabled, the offline ISIN security is kept and positions remain valued at Trade Republic's own snapshot prices.
+
+Crypto positions and trades import on the **Crypto account** once it is linked. Before linking, they remain on the Portfolio account. Sure creates the Crypto provider account automatically the first time a sync detects crypto holdings or trades in your Trade Republic portfolio.
 
 Private market positions are valued using quotes from Trade Republic's private markets feed when available. If no live quote exists, Sure uses the average cost basis as the holding value. Other positions without a live price show a price-unavailable indicator rather than a flat return.
 
@@ -152,7 +170,7 @@ If a position shows no price or an incorrect value:
 
 ### Deposits showing as investment contributions
 
-Earlier syncs classified Trade Republic cash-account deposits as investment contributions. A sync after updating Sure resets those entries to standard funds movements automatically. If any deposits still appear under investment contributions after syncing, run a manual sync from **Settings > Providers > Trade Republic**.
+Earlier syncs classified Trade Republic cash-account deposits as investment contributions. A sync after updating Sure resets those entries to standard transactions automatically. If any deposits still appear under investment contributions after syncing, run a manual sync from **Settings > Providers > Trade Republic**.
 
 ### Balance does not match the Trade Republic app
 
