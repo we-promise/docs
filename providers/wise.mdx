@@ -89,7 +89,7 @@ Generating a new keypair does not automatically revoke the previous public key i
 
 ## Troubleshooting
 
-**Invalid token / connection requires update**: your API token was revoked, is invalid, or lacks permissions (Wise personal API tokens don't expire on their own). Create a new personal token in Wise and update it in the Wise provider panel.
+**Invalid token / connection requires update**: your API token was revoked, is invalid, or lacks permissions (Wise personal API tokens don't expire on their own). When Wise rejects the token with a 401 or 403, Sure marks the connection as requiring an update and the sync fails — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. Create a new personal token in Wise and update it in the Wise provider panel.
 
 **No profiles found**: the token doesn't have access to any Wise profile. Check the token's permissions in Wise and try again.
 
