@@ -78,6 +78,14 @@ After saving the query, use the gear icon in the **Flex Web Service Configuratio
 
 After the first sync, discovered IBKR accounts appear in the setup queue. Click **Set up accounts** in the provider panel to select which brokerage accounts to link and confirm the linkage. You can also link a discovered IBKR account to an existing manual investment account if you already have one in Sure.
 
+## How balances work
+
+Sure anchors your IBKR account balance on the date of the Flex report, not the date of the sync. The NAV (Net Asset Value) comes from the equity summary in your Flex report and is recorded as of that report's date. Holdings imported alongside it are also written on that same date.
+
+If IBKR delivers a statement with a date older than the most recent balance already on record, Sure records that statement as a historical reconciliation entry on its own date and leaves the newer balance in place. This preserves balance history without walking the account's reported value backwards.
+
+A balance write failure is logged to **Settings → Debug** against the connection so you can identify and diagnose it.
+
 ## Limitations
 
 - Historical activity is limited to the report window of your Flex Query. Sure imports up to 365 days of activity based on the query's configured period.
@@ -96,3 +104,7 @@ If the connection shows a "Credentials need attention" status, your Query ID or 
 ### Only manual investment accounts can be linked
 
 When linking a discovered IBKR account to an existing account, the existing account must be a manual investment account without an existing provider link. Convert the account to manual first if needed.
+
+### Balance shows unexpected cash or looks incorrect after sync
+
+If your account balance or cash position looks wrong after a sync, the most likely cause is a mismatch between the NAV date in your Flex report and the date Sure recorded it on. This was a known issue that has been fixed: Sure now anchors the balance on the Flex report's own date rather than the sync date. Run a manual sync from **Settings → Providers** to pull a fresh report and recalculate the balance.
