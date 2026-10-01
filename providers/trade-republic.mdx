@@ -90,14 +90,15 @@ Until you link the Crypto provider account to a Sure account, crypto positions a
 ### Cash account
 
 - Cash balance
-- Deposits and withdrawals, including Google Pay deposits (recorded as standard transactions, not investment contributions)
+- Deposits and withdrawals, including Google Pay deposits (recorded as standard transactions; automatic transfer matching turns a deposit into a transfer when the counterpart bank account is also in Sure)
 - Card payments and ATM withdrawals
 - Card refunds
-- Interest payouts
-- Dividends, including per-share amount and withholding tax where available
+- Interest payouts (labeled Interest)
+- Dividends, including per-share amount and withholding tax where available (labeled Dividend)
+- Fees (labeled Fee)
 - Tax refunds
-- Trade settlements: each buy records an investment contribution and each sell records a funds movement when the relevant securities account is linked
-- Round Up outflows (recorded as investment contributions when both accounts are linked)
+- Trade settlements: each buy and sell settlement records a cash outflow or inflow linked to the portfolio by a confirmed transfer when both accounts are linked
+- Round Up outflows (labeled Buy, linked to the portfolio by a confirmed transfer when both accounts are linked)
 
 ### Crypto account
 
@@ -111,7 +112,7 @@ When all three accounts are linked:
 - Crypto buys, sells, and round-up settlements are recorded on the Crypto account. Each trade produces a corresponding Cash entry linked to it as a confirmed transfer.
 - Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the Cash account only.
 - Saveback events are recorded as Portfolio trades only.
-- Round Up events produce a trade on whichever account holds the position (Portfolio or Crypto) and a cash investment contribution.
+- Round Up events produce a trade on whichever account holds the position (Portfolio or Crypto) and a corresponding cash outflow linked by a confirmed transfer.
 
 ## Trade names
 
@@ -137,7 +138,7 @@ Session tokens are refreshed automatically during each sync when Trade Republic 
 
 ### Categories and labels on cash deposits
 
-Categories and activity labels assigned to cash deposits by a Rule are preserved across syncs. Earlier versions of Sure would clear an Investment Contributions category or Contribution label on cash-account inflows during each sync, undoing any Rule that assigned them. This is fixed: Rule-assigned categories and labels on Trade Republic cash deposits are no longer removed when you sync.
+Categories and activity labels assigned to cash deposits by a Rule are preserved across syncs. Rule-assigned categories and labels on Trade Republic cash deposits are not removed when you sync.
 
 ## Troubleshooting
 
@@ -168,9 +169,9 @@ If a position shows no price or an incorrect value:
 - Private market positions without a live quote are valued at their average cost basis
 - Other positions without a live price display a price-unavailable indicator
 
-### Deposits showing as investment contributions
+### Deposits showing as transfers or investment contributions
 
-Earlier syncs classified Trade Republic cash-account deposits as investment contributions. A sync after updating Sure resets those entries to standard transactions automatically. If any deposits still appear under investment contributions after syncing, run a manual sync from **Settings > Providers > Trade Republic**.
+Earlier syncs classified Trade Republic cash-account deposits as funds movements (which appeared as transfers) or investment contributions. A sync resets those entries to standard transactions automatically, unless you edited them or they are part of a matched transfer. If any deposits still appear incorrectly after syncing, run a manual sync from **Settings > Providers > Trade Republic**.
 
 ### Balance does not match the Trade Republic app
 
