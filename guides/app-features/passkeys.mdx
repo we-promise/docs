@@ -91,3 +91,17 @@ AUTH_PASSKEY_LOGIN_ENABLED=true
 ```
 
 Set it to `false` if you only want passkeys and security keys to work as an MFA method after email/password sign-in.
+
+### Upgrading an instance that already has passkeys
+
+Passwordless sign-in is on by default, and it applies to passkeys that were registered before this feature existed. A passkey a user added purely as a second factor can, after the upgrade, sign that user in on its own.
+
+This applies to a credential only if the authenticator that holds it made it discoverable. Registration asks with `residentKey: "preferred"`, which an authenticator is free to decline, and nothing in the database records what it decided — so Sure cannot tell you in advance which existing credentials are affected. Password managers and platform authenticators (Proton Pass, iCloud Keychain, 1Password, Bitwarden, Windows Hello) store discoverable credentials by default, so theirs generally are. A credential stored non-discoverably — such as one on a hardware key with no free resident-key slot — stays second-factor only. Nothing needs to be re-registered either way.
+
+The opt-out is instance-wide. There is no per-user or per-credential setting: to keep passkeys as a second factor for everyone, set `AUTH_PASSKEY_LOGIN_ENABLED=false` before upgrading. A single user can only opt out by removing the credential.
+
+This is not a reduction in security. The passwordless ceremony requires user verification, so the passkey alone is still two factors. It is a change in what an already-registered credential can do.
+
+### Browser autofill
+
+When the browser supports conditional mediation, saved passkeys are offered from the email field's autofill menu before any button is clicked. Browsers without that support fall back to the **Sign in with a passkey** button, which works the same way.

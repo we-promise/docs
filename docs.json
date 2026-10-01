@@ -407,6 +407,7 @@
               "GET /api/v1/financekit/capabilities",
               "POST /api/v1/financekit/connections",
               "GET /api/v1/financekit/connections/{id}",
+              "DELETE /api/v1/financekit/connections/{id}",
               "PUT /api/v1/financekit/connections/{connection_id}/account_mappings/{source_id}",
               "POST /api/v1/financekit/connections/{connection_id}/activate",
               "POST /api/v1/financekit/connections/{connection_id}/credential",
