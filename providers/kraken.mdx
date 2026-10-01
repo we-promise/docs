@@ -11,6 +11,9 @@ Sure imports one combined Crypto exchange account per Kraken connection, contain
 
 - Current crypto holdings and balances
 - Spot trade fills (buy/sell history)
+- Deposits and withdrawals (as separate entries for principal and fee, so transfers can be matched across accounts)
+- Staking rewards and Earn income
+- Standalone fees
 
 ## Setting up Kraken
 
@@ -20,9 +23,10 @@ Sure imports one combined Crypto exchange account per Kraken connection, contain
 2. Create a new API key with the following permissions only:
    - **Query Funds**
    - **Query Closed Orders & Trades**
+   - **Query Ledger Entries**
 
 <Warning>
-Do not grant trading, cancellation, withdrawal, export, ledger, Earn, staking, or transfer permissions. Sure only imports balances, holdings, and spot trade fills. Granting write permissions is unnecessary and a security risk.
+Do not grant trading, cancellation, withdrawal, export, or transfer permissions. Sure only needs read access. Granting write permissions is unnecessary and a security risk.
 </Warning>
 
 3. Copy the **API Key** and **Private Key** shown after creation.
