@@ -7,14 +7,9 @@ Apple Wallet integration uses Apple's FinanceKit framework to import Apple Card,
 
 ## Requirements
 
-Apple Wallet sync is a server-side opt-in. Before any family can enroll, a self-hosted admin must enable the feature:
+Apple Wallet sync requires no server-side configuration. There is no feature flag and no family allowlist — any deployment running this code serves the FinanceKit endpoints automatically.
 
-```txt
-FINANCEKIT_ENABLED=true
-FINANCEKIT_FAMILY_IDS=<comma-separated family UUIDs>
-```
-
-The enrolling user must also be a family administrator with preview features enabled. No Apple entitlement, private key, or FinanceKit framework is needed on the server.
+The enrolling user must be a family administrator. No Apple entitlement, private key, or FinanceKit framework is needed on the server.
 
 ## How it works
 
@@ -105,16 +100,15 @@ Payload bytes are retained for seven days after apply, permanent failure, or rev
 
 ## Self-hosting deployment checklist
 
-Before enabling Apple Wallet on a new instance:
+Before accepting Apple Wallet connections on a new instance:
 
-1. Deploy the migration, application, worker, and scheduler with `FINANCEKIT_ENABLED=false`.
+1. Deploy the migration, application, worker, and scheduler.
 2. Confirm the high-priority job queue and recurring `FinancekitInboxJob` scheduler are healthy.
-3. Enable only a test family via `FINANCEKIT_FAMILY_IDS`.
-4. Enroll and activate a synthetic publisher over HTTPS.
-5. Upload sequences 2 then 1 and confirm the inbox applies them in order.
-6. Retry identical bytes and confirm the receipt is stable with no ledger duplicates.
-7. Rotate the credential and confirm the prior credential cannot upload or call normal APIs.
-8. Replace the publisher and confirm canonical accounts, source identities, and tombstones are reused.
-9. Induce a bad predecessor and confirm the connection enters `repair_required`; repair must create a new generation and stream.
-10. Confirm health reports device contact, acceptance, import, and downstream completion separately.
-11. Confirm applied, permanently failed, and revoked payload bytes are removed after seven days.
+3. Enroll and activate a synthetic publisher over HTTPS using a disposable test family.
+4. Upload sequences 2 then 1 and confirm the inbox applies them in order.
+5. Retry identical bytes and confirm the receipt is stable with no ledger duplicates.
+6. Rotate the credential and confirm the prior credential cannot upload or call normal APIs.
+7. Replace the publisher and confirm canonical accounts, source identities, and tombstones are reused.
+8. Induce a bad predecessor and confirm the connection enters `repair_required`; repair must create a new generation and stream.
+9. Confirm health reports device contact, acceptance, import, and downstream completion separately.
+10. Confirm applied, permanently failed, and revoked payload bytes are removed after seven days.
