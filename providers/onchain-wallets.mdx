@@ -153,6 +153,8 @@ The native coin is never affected, and anything already tracked keeps syncing re
 
 **Solana shows balances but no transfers.** The free endpoint throttles the history methods; balances are kept and the history is marked incomplete. Set `SOLANA_RPC_URL` to your own node or a paid endpoint to get the transfers.
 
+**On a self-hosted instance, "Track selected assets" or the Review tokens submit button did nothing.** This happened when the crypto price-provider warning was rendered inside the asset-selection form. The warning's "Enable crypto prices" button is itself a form, and browsers do not allow nested forms — the inner form's closing tag ended the outer form early, leaving the checkboxes and submit button outside any form. The fix moves the warning above the form. If you are on an older build, enable a crypto price provider first under **Settings → Self-Hosting → Market data providers** before using **Track selected assets** or **Review tokens**.
+
 **Adding an address fails with "already tracked" even though no account exists for it.** The address has a leftover internal record from a previously deleted account. Adding the address again clears that record automatically. If you are on a self-hosted instance that has not yet received the fix, you can work around it by using **Review tokens** on any existing wallet that still has that address, then unticking all assets; the orphan record is removed when you save.
 
 **A token I received is not showing up.** New assets are never imported automatically. Use **Review tokens** and tick it.
