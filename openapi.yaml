@@ -9386,11 +9386,14 @@ paths:
       parameters: []
       responses:
         '201':
-          description: trade created
+          description: trade created. Returns a Trade for most trade types. Returns a Transaction when the type results in a cash-only entry (e.g. dividend recorded as a transaction). Returns a Transfer when type is deposit or withdrawal.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/TransactionResponse"
+                oneOf:
+                - "$ref": "#/components/schemas/Trade"
+                - "$ref": "#/components/schemas/TransactionResponse"
+                - "$ref": "#/components/schemas/Transfer"
         '403':
           description: forbidden - api key missing read_write scope
           content:
