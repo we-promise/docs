@@ -53,6 +53,8 @@ Projected transactions only appear when no filters are applied to the transactio
 
 The projected recurring list is cached per user and refreshed automatically when any of the following change: your recurring transactions, account statuses, the merchants attached to your recurring transactions, or your account sharing access. The cache also resets at the start of each new day, since the list shows charges due within the next 10 days.
 
+Only recurring transaction IDs are stored in the cache. The full records are loaded fresh on every request using those IDs, and account access is re-verified at that point. This means a series moved to an account you no longer have access to is excluded immediately, even if a cache entry was written just before the change. It also means the cache remains valid across application upgrades that add new columns to recurring transactions — stale cached objects that predate a schema change will not cause errors.
+
 ## Account scoping
 
 Recurring transactions respect account sharing and permissions:
@@ -212,22 +214,24 @@ The API accepts only `active` and `inactive` on write. The other statuses are ow
 
 The Bills surface is a pay-run workspace that lets you see, pay, and plan around your recurring obligations. It is available to family members who have enabled preview features.
 
-The Bills page title, navigation tabs, and action buttons (Add bill, Add income, Review with AI) display in the language you have set in **Settings → Preferences**.
+The Bills page title, navigation tabs, and action buttons (Add bill, Add income, Review with AI) display in the language you have set in **Settings → Preferences**. Due dates shown in bill rows — in the date rail, the "Next up" strip, and the subline on narrow screens — also follow your locale. Locales that use day-first order (such as French, Polish, and Russian) show dates in that order, and any date that falls in a future year includes the year.
 
 ### Views
 
 The Bills page offers four views, switchable from the view switcher at the top of the page:
 
-- **Overview** — your current month at a glance: overdue bills, what's due this month, what's coming later, and what you've already paid. Bills are grouped by due date and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill. Each boundary band shows the paycheck label and the total due before the next payday. On narrow list widths — such as on a phone, or on a desktop with both sidebars open — the label and total stack vertically so neither wraps. A "Next up" strip shows the next few upcoming occurrences; select **View calendar** to open the Calendar view.
+- **Overview** — your current month at a glance: overdue bills, what's due this month, what's coming later, and what you've already paid. Bills are grouped by due date and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill. Each boundary band shows the paycheck label and the total due before the next payday. On narrow list widths — such as on a phone, or on a desktop with both sidebars open — the label and total stack vertically so neither wraps. A "Next up" strip shows the next few upcoming occurrences; select **View calendar** to open the Calendar view. On wider screens, each row in a dated section shows a date rail on the left. On narrow screens (phones, or desktop windows with both sidebars open) the date rail is hidden; the row's subline leads with the same date instead — for example, "Sep 22 · Monthly on the 22nd" or "Today · Amount changed" — so the due date is always visible regardless of screen width. When you have no confirmed bills (overdue, due this month, coming later, or dormant), the month summary and AI prompt chips are hidden and the page shows an empty state instead. Detected suggestions that are not yet confirmed do not count as bills for this purpose.
 - **All** — the complete list of active bill series, filterable by payment state (`overdue`, `due`, `partial`, `paid`) and lifecycle state (`paused`, `ended`). On larger screens the list displays as a scrollable table with columns for name, type, frequency, amount, next due date, status, and actions. On smaller screens the same bills are shown as a compact list.
 - **Calendar** — upcoming bills laid out on a monthly calendar.
 - **Paycheck planner** — upcoming bills apportioned across your next pay periods (see [Paycheck planner](#paycheck-planner) below).
+
+Clicking a bill row in the Overview or a Next up item opens the bill summary in the right-hand drawer. Opening a bill URL in a new tab or navigating to it directly renders the same summary as a full page instead.
 
 Each bill has a detail drawer showing payment history, price changes, cost analytics, and quick actions to pay, edit, or manage the series.
 
 ### Occurrence drawer
 
-Tapping a bill row in the Overview, Calendar, or Paycheck planner opens the occurrence drawer — the action surface for resolving that specific billing cycle. It is separate from the bill-level detail drawer and focused on what needs to happen right now.
+Clicking a bill row in the Overview, Calendar, or Paycheck planner opens the occurrence drawer — the action surface for resolving that specific billing cycle. It is separate from the bill-level detail drawer and focused on what needs to happen right now.
 
 The occurrence drawer shows:
 
@@ -268,10 +272,12 @@ The paycheck planner slices your upcoming bills across the pay periods defined b
 
 For each pay period the planner shows:
 
-- The income arriving in that period
+- The payday date and the income arriving in that period
+- The safe-to-spend headroom (or shortfall, if obligations exceed income) as the headline figure for that period
+- A three-column breakdown — bills due this period, bills reserved for later, and the safe/short amount — each with a colored swatch tied to the allocation bar
+- An allocation bar showing how income is split across due, reserved, and safe (or covered and short) segments
 - Bills due inside the period and their share of that paycheck
 - Bills due in a later period that are too large for their own paycheck and have a reserved slice held back from this period
-- Whether the period comes up short and by how much
 
 A leading window covers the time between today and the next payday. It has no income, so shortfalls in that window are measured against your cash on hand (the sum of your visible depository accounts, excluding tax-advantaged accounts). When the balance cannot be determined, the window is shown without a shortfall judgment.
 
@@ -292,13 +298,28 @@ Key properties of the calendar feed:
 
 ### AI helpers
 
-Two in-page AI helpers are available when an LLM provider is configured and you have AI features enabled in your account:
+Several in-page AI helpers are available when an LLM provider is configured and you have AI features enabled in your account.
+
+**Quick-prompt chips** — shortcut buttons that seed the AI chat sidebar with a pre-written question about your bills. Clicking a chip opens the sidebar and starts a conversation without you typing anything.
+
+The Overview shows three chips:
+
+- "What's due before my next paycheck?"
+- "Which subscriptions went up this year?"
+- "What am I paying monthly for subscriptions?"
+
+The Paycheck planner shows two chips:
+
+- "What's due before my next paycheck?"
+- "How much is safe to spend this period?"
+
+The Paycheck planner chips only appear when you have at least one declared income schedule. Without declared income there is no pay period or paycheck to ask about, so the chips are hidden.
 
 **Smart fill** — when you add a new bill from the Bills page and pick an existing transaction as the starting point, the smart fill button analyzes that transaction's charge history and proposes the bill name, amount, cadence, due day, and autopay status. You review and adjust the proposal before saving.
 
 **Smart configure** — on an existing bill's detail view, the smart configure button reads the bill's own charge history and proposes corrections to any fields that the history contradicts (for example, a different due day or amount). Only fields where the history suggests a change come back with a proposal; everything else is left as is. You review the proposal in a dialog and apply only the changes you accept.
 
-Both helpers require the family's LLM provider to be configured. They are not available on self-hosted installs without a provider set up.
+All helpers require the family's LLM provider to be configured. They are not available on self-hosted installs without a provider set up.
 
 
 
