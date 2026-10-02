@@ -53,6 +53,8 @@ Projected transactions only appear when no filters are applied to the transactio
 
 The projected recurring list is cached per user and refreshed automatically when any of the following change: your recurring transactions, account statuses, the merchants attached to your recurring transactions, or your account sharing access. The cache also resets at the start of each new day, since the list shows charges due within the next 10 days.
 
+Only recurring transaction IDs are stored in the cache. The full records are loaded fresh on every request using those IDs, and account access is re-verified at that point. This means a series moved to an account you no longer have access to is excluded immediately, even if a cache entry was written just before the change. It also means the cache remains valid across application upgrades that add new columns to recurring transactions — stale cached objects that predate a schema change will not cause errors.
+
 ## Account scoping
 
 Recurring transactions respect account sharing and permissions:
@@ -268,10 +270,12 @@ The paycheck planner slices your upcoming bills across the pay periods defined b
 
 For each pay period the planner shows:
 
-- The income arriving in that period
+- The payday date and the income arriving in that period
+- The safe-to-spend headroom (or shortfall, if obligations exceed income) as the headline figure for that period
+- A three-column breakdown — bills due this period, bills reserved for later, and the safe/short amount — each with a colored swatch tied to the allocation bar
+- An allocation bar showing how income is split across due, reserved, and safe (or covered and short) segments
 - Bills due inside the period and their share of that paycheck
 - Bills due in a later period that are too large for their own paycheck and have a reserved slice held back from this period
-- Whether the period comes up short and by how much
 
 A leading window covers the time between today and the next payday. It has no income, so shortfalls in that window are measured against your cash on hand (the sum of your visible depository accounts, excluding tax-advantaged accounts). When the balance cannot be determined, the window is shown without a shortfall judgment.
 
