@@ -53,6 +53,8 @@ Projected transactions only appear when no filters are applied to the transactio
 
 The projected recurring list is cached per user and refreshed automatically when any of the following change: your recurring transactions, account statuses, the merchants attached to your recurring transactions, or your account sharing access. The cache also resets at the start of each new day, since the list shows charges due within the next 10 days.
 
+Only recurring transaction IDs are stored in the cache. The full records are loaded fresh on every request using those IDs, and account access is re-verified at that point. This means a series moved to an account you no longer have access to is excluded immediately, even if a cache entry was written just before the change. It also means the cache remains valid across application upgrades that add new columns to recurring transactions — stale cached objects that predate a schema change will not cause errors.
+
 ## Account scoping
 
 Recurring transactions respect account sharing and permissions:
