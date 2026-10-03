@@ -45,6 +45,14 @@ Fill in the details and click **Add transaction**.
 
 Want to contribute to Sure? Set up your local development environment.
 
+Run the full test suite after setup to confirm everything is working:
+
+```bash
+bin/rails test
+```
+
+The suite should report zero failures and zero errors. If you are using the devcontainer, the PostgreSQL connection is configured with `username:` (the Rails-documented key), so no authentication errors should appear.
+
 After running `bin/setup`, you can optionally load demo data with:
 
 ```bash
