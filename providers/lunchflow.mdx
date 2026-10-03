@@ -5,6 +5,8 @@ description: Connect bank accounts worldwide with global coverage
 
 Lunch Flow is a paid third-party provider that offers global bank account connectivity. It's the recommended option for users who need to connect accounts from multiple countries or regions outside the EU and US.
 
+See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
 ## How it works
 
 Lunch Flow provides a unified API to access bank accounts across different countries and financial institutions:
@@ -50,7 +52,9 @@ Choose from the following types during setup:
 
 ### Historical data range
 
-During setup you can choose how far back Sure should sync transaction history. Up to three years of history is available.
+The setup form accepts a historical start date, but the transaction importer at the [verified Sure commit](/providers/transaction-history) does not use the saved connection start date. A newly created provider account normally requests about seven days of transactions. Later syncs use a recent overlap rather than automatically recovering older history.
+
+This is a Sure integration limitation, not a statement about how much history Lunch Flow or your bank can provide. Selecting an earlier setup date does not currently guarantee that range will be fetched.
 
 ## Features
 

@@ -76,6 +76,7 @@
             "group": "Third party providers",
             "pages": [
               "providers/overview",
+              "providers/transaction-history",
               "providers/market-data",
               "providers/mansa",
               "providers/property-valuations",
