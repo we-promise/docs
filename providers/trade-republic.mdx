@@ -5,6 +5,8 @@ description: Connect a Trade Republic investment account via secure web login
 
 Trade Republic is a European neo-broker that lets you buy stocks, ETFs, bonds, crypto, and private market assets. Sure connects to Trade Republic directly using its authenticated web API — no third-party aggregator is required.
 
+See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
 ## How it works
 
 Sure authenticates to Trade Republic using the same web login flow as the Trade Republic web app. After you confirm the login on your phone, Sure stores an encrypted session token and uses it for all future syncs. Your PIN or password is never stored. It is used only to start a new login session and is discarded immediately after. The credential is also filtered from request logs so it never appears in server-side log output.

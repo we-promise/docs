@@ -7,6 +7,18 @@ description: "Import your financial data from CSV files into Sure"
 
 Sure supports importing financial data from CSV files, making it easy to migrate from other financial apps or add bulk data.
 
+## Importing older history
+
+A historical export can fill gaps left by a bank connection. File imports use the dates in the file rather than a bank-feed lookback window. See [Transaction history and import limits](/providers/transaction-history) to check your source first.
+
+- Export only the missing date range where possible, and check for overlapping transactions already in Sure.
+- Choose the importer matching the file format, verify the destination account and currency, and review the preview before publishing.
+- Do not assume that file imports automatically deduplicate transactions already received from a provider.
+
+<Note>
+The general transaction-import account mapping dropdown currently lists manual accounts only. Although the backend supports an account-specific import targeting a linked account, that path has not been browser-verified for this guide. These instructions do not promise that an existing linked account will appear in the dropdown. Do not create a duplicate account or unlink an existing connection merely to bypass this limitation.
+</Note>
+
 ## Supported import types
 
 You can import the following types of data via CSV:

@@ -5,6 +5,8 @@ description: Sync Apple Wallet data directly from iOS devices
 
 FinanceKit is an Apple framework that lets users share their Apple Wallet accounts — bank accounts, credit cards, and transaction history — directly with Sure from their iPhone. The iOS app reads Wallet data on-device with the user's consent and uploads it to Sure over HTTPS. No Apple credentials, private keys, or FinanceKit framework components are required on the server.
 
+See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
 ## How it works
 
 The iOS client uses Apple's FinanceKit framework to read Wallet data. It enrolls a publisher connection with Sure, maps each selected source account to a Sure account, and uploads ordered batches of events. Sure's server-side worker applies each batch and updates your ledger.
