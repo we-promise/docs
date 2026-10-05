@@ -437,6 +437,8 @@ POSTHOG_FEEDBACK_ENABLED=true
 
 `POSTHOG_FEEDBACK_ENABLED` controls whether the in-app feedback widget appears. Set it to `false` to hide the widget on your instance.
 
+When `POSTHOG_FEEDBACK_ENABLED` is `true` and `POSTHOG_KEY` is set, Sure emits one `web_ui_served_daily` event per user per calendar day. The event carries a daily pseudonym derived from the user ID and the current date — no account ID or persistent person profile is created. It also includes the `sure_version`, whether the user has preview features enabled, and the client IP for GeoIP enrichment. The pseudonym rotates every day, so the event counts daily active web users without linking activity across days. A shared Redis cache prevents duplicate events from parallel sessions or tab reloads; cache loss can allow a repeat event for the same user on the same day.
+
 ## Running the application
 
 ### Start the application
@@ -825,6 +827,19 @@ Super-admins can view live Sidekiq state at **Settings → Advanced → System h
 - Per-queue depth breakdown
 
 The system health page always bypasses the cache and fetches fresh state, so you can confirm a worker restart took effect immediately.
+
+### Hosted usage tab
+
+On the two project-operated installations (`app.sure.am` and `demo.sure.am`), the system health page shows a **Hosted usage** tab. The tab is not available on self-hosted instances and does not appear when `APP_DOMAIN` is set to any other value.
+
+The tab loads a read-only snapshot of the database. It does not contact Stripe, run cleanup jobs, or modify any data. The snapshot covers:
+
+- **Summary** — trial household and member counts for the last 30 days, trials expiring in the next 7 days, cleanup-eligible households, and local supporter status counts.
+- **Recent trial households** — up to 100 subscriptions recorded in the last 30 days that retain a trial end date, including converted trials. The table shows retained sign-in session counts, not currently-online users or visit counts. Signing out deletes a session record.
+- **Cleanup eligibility** — households that match the existing cleanup scope (a paused or trialing subscription ended more than 14 days ago, or no subscription and a household older than 59 days). Matching the scope does not confirm deletion.
+- **Local supporter status** — current subscription rows with Stripe-shaped customer and subscription IDs, grouped by status. No Stripe request is made; these reflect the local database only.
+
+The tab is loaded lazily and does not affect the initial page load time. Click the **Hosted usage** tab to fetch the snapshot. The page rejects the tab parameter on installations where the feature is unavailable and falls back to the **Background jobs** tab.
 
 ### AI status tab
 
