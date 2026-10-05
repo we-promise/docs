@@ -164,8 +164,17 @@ Enable Banking includes robust content-based deduplication to prevent API-level 
 
 This keeps your transaction history clean and accurate even when the API returns duplicate data.
 
-> [!NOTE]
-> When `transaction_id` is nil for multiple transactions, pure content comparison applies. In rare cases, this could collapse two genuinely distinct transactions with identical fields, but this trade-off prevents the more common issue of API-level duplicates.
+### ID-less transaction handling
+
+Some banks (ASPSPs) omit both `transaction_id` and `entry_reference` from their responses, which are both optional under PSD2. For these transactions, Sure generates a deterministic ID based on date, amount, currency, direction, creditor, debtor, and remittance information.
+
+When two transactions in the same sync response share this content-based hash — for example, two transfers of the same amount on the same day — Sure assigns each a unique suffix rather than letting the second silently overwrite the first. The suffix is resolved over the whole batch before any transaction is imported:
+
+- A transaction whose full-content identity is already stored in the ledger keeps that identity
+- A transaction whose bare hash is already stored and whose recorded fingerprint matches is assigned the bare hash
+- Any remaining transactions receive new identifiers: identical rows are numbered from the bare hash, and rows that differ in an unhashed field each take an ID based on their full content
+
+Transactions that already carry a provider ID are not affected by this logic. Transactions imported before this suffix mechanism was introduced keep their existing IDs unchanged.
 
 ## Supported account types
 
