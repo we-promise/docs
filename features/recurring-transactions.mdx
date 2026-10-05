@@ -229,6 +229,22 @@ Clicking a bill row in the Overview or a Next up item opens the bill summary in 
 
 Each bill has a detail drawer showing payment history, price changes, cost analytics, and quick actions to pay, edit, or manage the series.
 
+### Row actions
+
+On wider screens, each bill row in the Overview reserves a fixed slot at the trailing edge for an action. A row shows an action only when the bill needs you now. The first matching rule applies:
+
+- **No action** — the bill is paused, or the occurrence is already settled.
+- **Review match** — a payment suggestion is waiting, regardless of due date.
+- **Add payment** — the occurrence has been partially paid and is still within its payment window.
+- **No action** — the bill is on autopay and is not yet overdue (autopay will handle it).
+- **Pay** — the bill has a payment portal URL and the occurrence is within its payment window.
+- **Find payment** — no payment portal URL is set and the occurrence is within its payment window.
+- **No action** — the occurrence is outside the payment window.
+
+On narrow screens (phones, or a desktop with both sidebars open) rows carry no action. The row's subline describes why the bill needs attention, and tapping opens the drawer.
+
+The occurrence drawer always shows an action, regardless of screen size.
+
 ### Occurrence drawer
 
 Clicking a bill row in the Overview, Calendar, or Paycheck planner opens the occurrence drawer — the action surface for resolving that specific billing cycle. It is separate from the bill-level detail drawer and focused on what needs to happen right now.
