@@ -109,9 +109,13 @@ Trades are synced incrementally — only new trades are fetched on subsequent sy
 
 ### Currency handling
 
-- All values are stored internally in USD
-- Stablecoins (USDT, BUSD, FDUSD, TUSD, USDC, DAI) are treated as 1:1 with USD
-- Values are converted to your family's preferred currency for display
+- The account is created in your family's currency. Individual trade entries keep whatever currency they were made in and convert at display time.
+- Stablecoins (USDT, BUSD, FDUSD, TUSD, USDC, DAI) are treated as 1:1 with USD.
+- If no exchange rate is available when the account is first created, the account opens at zero. The first sync writes the converted balance.
+
+### Opening balance
+
+Your Binance exchange account opens at zero. The full balance is established after the first import completes. The opening anchor is dated the day before your earliest imported entry, so no history appears before its own opening balance.
 
 ## Security
 
