@@ -190,7 +190,7 @@ You can store a payment link on a bill. When set, you can open the link directly
 
 ### Autopay
 
-Mark a bill as autopay to indicate that the payment is handled automatically. Autopay bills still appear in your bill list but are not flagged as requiring action.
+Mark a bill as autopay to indicate that the payment is handled automatically. Autopay bills still appear in your bill list but are not flagged as requiring action. On the overview, autopay rows are visually de-emphasized: the name and amount are shown in a secondary color rather than full contrast, making it easy to focus on bills that still need attention.
 
 ### Notes
 
@@ -221,6 +221,12 @@ The Bills page title, navigation tabs, and action buttons (Add bill, Add income,
 The Bills page offers four views, switchable from the view switcher at the top of the page:
 
 - **Overview** — your current month at a glance: overdue bills, what's due this month, what's coming later, and what you've already paid. Bills are grouped by due date and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill. Each boundary band shows the paycheck label and the total due before the next payday. On narrow list widths — such as on a phone, or on a desktop with both sidebars open — the label and total stack vertically so neither wraps. A "Next up" strip shows the next few upcoming occurrences; select **View calendar** to open the Calendar view. The overview shows only payable series (bills, subscriptions, installment payments, and debt repayments) — detected income and transfers do not appear here. Banners, notices, and payment suggestions on the overview are scoped to this same set of payable series. On wider screens, each row in a dated section shows a date rail on the left. On narrow screens (phones, or desktop windows with both sidebars open) the date rail is hidden; the row's subline leads with the same date instead — for example, "Sep 22 · Monthly on the 22nd" or "Today · Amount changed" — so the due date is always visible regardless of screen width. When you have no overdue, due-this-month, or upcoming bills, the month summary and AI prompt chips are hidden and the page shows an empty state instead. Paused (dormant) bills do not trigger the pulse or chips, because they owe nothing this month. Detected suggestions that are not yet confirmed do not count as bills for this purpose.
+
+  Above the bill list, the overview shows up to three action sections, each with a labeled heading and item count:
+
+  - **Changes** — notices about upcoming trials converting to paid plans, upcoming renewals, and price changes. Urgent notices (those you can still act on) appear at the top. Lower-priority routine notices collapse under a disclosure so they don't push the worklist off screen.
+  - **Needs review** — payment suggestions the matching engine found for open occurrences. Each row shows the suggested transaction and the bill it was matched to, with Confirm and Not this one actions. On narrow screens the action buttons stack below the text so neither the transaction name nor the bill name is truncated.
+  - **Possible new bills** — recurring outflow patterns the detector found but you haven't confirmed yet. This section is collapsible and remembers whether you left it open or closed on each device, so you can fold it away and return to your confirmed bills without losing your place. On narrow screens, the Confirm and Dismiss actions stack below the bill name.
 - **All** — the complete list of active bill series, filterable by payment state (`overdue`, `due`, `partial`, `paid`) and lifecycle state (`paused`, `ended`). On larger screens the list displays as a scrollable table with columns for name, type, frequency, amount, next due date, status, and actions. On smaller screens the same bills are shown as a compact list.
 - **Calendar** — upcoming bills laid out on a monthly calendar.
 - **Paycheck planner** — upcoming bills apportioned across your next pay periods (see [Paycheck planner](#paycheck-planner) below).
