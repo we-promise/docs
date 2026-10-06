@@ -45,6 +45,14 @@ After the first sync, your CoinSpot exchange account appears in the setup queue.
 
 If you have multiple CoinSpot accounts, add a separate named connection for each one. Each connection imports one combined Crypto exchange account.
 
+## Account currency
+
+When Sure creates your CoinSpot exchange account, it uses your family's currency. Individual trade entries keep the currency they were made in and convert at display time, the same as every other account type.
+
+## Opening balance
+
+Your CoinSpot exchange account opens at zero. The full balance is established after the first import completes. The opening anchor is dated the day before your earliest imported entry, so no history appears before its own opening balance.
+
 ## Sync history
 
 If no sync start date is set, Sure imports up to 365 days of order, transfer, deposit, and withdrawal history on the first sync. Order history is fetched in 30-day windows to work within CoinSpot's API limits. To import a different range, set a sync start date before adding the connection.

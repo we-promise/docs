@@ -51,6 +51,14 @@ After the first sync, your Kraken exchange account appears in the setup queue. C
 
 If you have multiple Kraken accounts, add a separate named connection for each one. Each connection imports one combined crypto account.
 
+## Account currency
+
+When Sure creates your Kraken exchange account, it uses your family's currency, not Kraken's reporting currency (USD). All balances and holdings are displayed in your family's currency. Individual trade entries keep the currency they were made in and convert at display time, the same as every other account type.
+
+## Opening balance
+
+Your Kraken exchange account opens at zero. The full balance is established after the first import completes, once all trade history is in place. The opening anchor is dated the day before your earliest imported entry, so no history appears before its own opening balance.
+
 ## Troubleshooting
 
 ### Credentials need updating
@@ -65,6 +73,14 @@ After adding a connection, wait for the first sync to complete. If no accounts a
 
 When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.
 
+### Setup screen shows USD balance instead of your currency
+
+The setup screen converts Kraken's reported balance into your family's currency before display. If no exchange rate is available for the conversion, the screen shows zero rather than an unconverted figure. The account opens at zero regardless, so the displayed amount reflects what the account will actually hold.
+
 ### Crypto holdings history looks wrong for older accounts
 
 If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync — no re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
+
+### Balance history looks wrong for accounts older than two years
+
+If you connected Kraken before October 2026, the opening balance may have been anchored to today's balance rather than zero, or dated two years back rather than before your earliest trade. Sure now opens new accounts at zero and anchors the opening date before the first imported entry. For existing accounts that were set up incorrectly, re-importing the connection resets the opening anchor to the correct date and balance.
