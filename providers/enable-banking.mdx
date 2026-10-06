@@ -18,6 +18,8 @@ Enable Banking uses the PSD2 open banking framework to securely access your bank
 
 All authentication happens directly with your bank. Enable Banking and Sure never see your banking credentials.
 
+The authorization flow is tied to your browser session. Sure generates a unique, random state value for each authorization attempt and stores it in your session. When your bank redirects back to Sure, the callback is matched against that stored state before proceeding. This means the authorization must complete in the same browser where you started it.
+
 ## Supported regions
 
 Enable Banking supports banks across the European Union and EEA countries. You can query available banks by country code (e.g., "GB", "DE", "FR").
@@ -184,6 +186,16 @@ When connecting a bank, Sure validates the selected account type against the typ
 For technical details about the Enable Banking API, see the [official documentation](https://enablebanking.com/docs/api/reference/).
 
 ## Troubleshooting
+
+### Authorization callback fails with "Connection not found"
+
+This error means the OAuth state returned by your bank did not match any pending authorization in your browser session. It can happen if you:
+
+- Opened the bank's authorization page in a different browser or profile than the one where you started the flow
+- Completed the bank's authorization after your Sure session expired
+- Navigated away from Sure and your session was cleared
+
+Start the authorization again from **Settings > Bank sync > Enable Banking** and complete the bank's approval without switching browsers or letting your session time out.
 
 ### N26 and PERIOD_INVALID errors
 
