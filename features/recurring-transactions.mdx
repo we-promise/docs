@@ -290,10 +290,15 @@ For each pay period the planner shows:
 
 - The payday date and the income arriving in that period
 - The safe-to-spend headroom (or shortfall, if obligations exceed income) as the headline figure for that period
-- A three-column breakdown — bills due this period, bills reserved for later, and the safe/short amount — each with a colored swatch tied to the allocation bar
-- An allocation bar showing how income is split across due, reserved, and safe (or covered and short) segments
+- A three-column breakdown showing bills due this period, bills reserved for later, and the safe or short amount
+- An allocation bar tied to the breakdown columns by colored swatches
 - Bills due inside the period and their share of that paycheck
 - Bills due in a later period that are too large for their own paycheck and have a reserved slice held back from this period
+
+The allocation bar and its swatches change shape depending on whether the period is short:
+
+- **Normal period** — the bar splits into three segments: due (dark), reserved (muted), and safe (green). Each column in the breakdown has a swatch matching its segment.
+- **Short period** — the bar splits into two segments: covered (muted, the portion income reaches) and short (red, the gap). Only the short column gets a swatch, because only the shortfall has a corresponding segment on the bar. The due and reserved columns still show their figures but without swatches.
 
 A leading window covers the time between today and the next payday. It has no income, so shortfalls in that window are measured against your cash on hand (the sum of your visible depository accounts, excluding tax-advantaged accounts). When the balance cannot be determined, the window is shown without a shortfall judgment.
 
