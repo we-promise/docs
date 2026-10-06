@@ -186,7 +186,7 @@ Transfers are typed automatically when the recurring transaction has a destinati
 
 ### Payment URL
 
-You can store a payment link on a bill. When set, you can open the link directly from the bill's detail view to navigate to the payment portal.
+You can store a payment link on a bill. When set, you can open the link directly from the bill drawer to navigate to the payment portal.
 
 ### Autopay
 
@@ -225,9 +225,9 @@ The Bills page offers four views, switchable from the view switcher at the top o
 - **Calendar** — upcoming bills laid out on a monthly calendar.
 - **Paycheck planner** — upcoming bills apportioned across your next pay periods (see [Paycheck planner](#paycheck-planner) below).
 
-Clicking a bill row in the Overview or a Next up item opens the bill summary in the right-hand drawer. Opening a bill URL in a new tab or navigating to it directly renders the same summary as a full page instead.
+Clicking a bill row in the Overview or a Next up item opens the bill in the right-hand drawer. Navigating directly to a bill URL (for example, `/bills/:id`) opens the same drawer over the Bills overview.
 
-Each bill has a detail drawer showing payment history, price changes, cost analytics, and quick actions to pay, edit, or manage the series.
+The bill drawer is the complete bill surface. It shows the bill summary at the top, followed by collapsible sections — Overview (12-month chart, per-year totals, price changes), Coming up (upcoming due dates), History (settled cycles and what paid each one), and Notes. The deep sections load lazily when you scroll to them. Edit, AI configure, Pause/Resume, and Delete are available from a menu in the drawer header, next to the close button.
 
 ### Row actions
 
@@ -247,7 +247,7 @@ The occurrence drawer always shows an action, regardless of screen size.
 
 ### Occurrence drawer
 
-Clicking a bill row in the Overview, Calendar, or Paycheck planner opens the occurrence drawer — the action surface for resolving that specific billing cycle. It is separate from the bill-level detail drawer and focused on what needs to happen right now.
+Clicking a bill row in the Overview, Calendar, or Paycheck planner opens the occurrence drawer — the action surface for resolving that specific billing cycle. It is separate from the bill drawer and focused on what needs to happen right now.
 
 The occurrence drawer shows:
 
@@ -262,7 +262,7 @@ All labels and feedback messages in the occurrence drawer — including the due 
 
 ### Recording payments
 
-From the bill detail drawer you can apply a payment to the current occurrence in several ways:
+From the bill drawer you can apply a payment to the current occurrence in several ways:
 
 - **Link a transaction** — select an existing transaction from your accounts to record as the payment. If the transaction is in a different currency, the app converts at the exchange rate for that transaction's date.
 - **Manual payment** — enter an amount and date directly, with no transaction linked.
@@ -333,7 +333,7 @@ The Paycheck planner chips only appear when you have at least one declared incom
 
 **Smart fill** — when you add a new bill from the Bills page and pick an existing transaction as the starting point, the smart fill button analyzes that transaction's charge history and proposes the bill name, amount, cadence, due day, and autopay status. You review and adjust the proposal before saving.
 
-**Smart configure** — on an existing bill's detail view, the smart configure button reads the bill's own charge history and proposes corrections to any fields that the history contradicts (for example, a different due day or amount). Only fields where the history suggests a change come back with a proposal; everything else is left as is. You review the proposal in a dialog and apply only the changes you accept.
+**Smart configure** — in the bill drawer, the smart configure button reads the bill's own charge history and proposes corrections to any fields that the history contradicts (for example, a different due day or amount). Only fields where the history suggests a change come back with a proposal; everything else is left as is. You review the proposal in a dialog and apply only the changes you accept.
 
 All helpers require the family's LLM provider to be configured. They are not available on self-hosted installs without a provider set up.
 
