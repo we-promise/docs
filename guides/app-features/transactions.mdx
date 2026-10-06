@@ -54,6 +54,15 @@ Click anywhere on a transaction row to open it and update the fields that affect
 
 You can also mark a transaction as excluded. Excluded transactions are removed from budgeting calculations and reports, which is useful for activity you do not want counted in normal spending analysis. Excluded transactions remain visible in the account activity list so you can review or re-include them at any time.
 
+### How syncs interact with your edits
+
+When a connected provider re-imports a transaction, Sure protects fields you have changed:
+
+- **Date and amount**: If you update a transaction's date or amount — through the app, the API, or the AI assistant — Sure locks those values. Later syncs from the provider will not overwrite them.
+- **Name, category, and merchant**: These fields are protected only when you set `user_modified: true` on the API request (or when you edit the transaction through the app with that flag enabled). Without it, the provider's enriched values can still update these fields.
+
+The result is that correcting a wrong date or amount is permanent: the next sync keeps your value. Correcting a name or category stays permanent only when you opt in to full sync protection via `user_modified`.
+
 ### Create a merchant inline
 
 If the merchant you need does not exist yet, you can create it directly from the merchant selector in the transaction detail or new-transaction form. Type a name in the merchant field and select the option to create it. Sure saves the new merchant and immediately assigns it to the transaction. There is no need to navigate to **Settings → Merchants** first.
