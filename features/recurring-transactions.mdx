@@ -220,7 +220,7 @@ The Bills page title, navigation tabs, and action buttons (Add bill, Add income,
 
 The Bills page offers four views, switchable from the view switcher at the top of the page:
 
-- **Overview** — your current month at a glance: overdue bills, what's due this month, what's coming later, and what you've already paid. Bills are grouped by due date and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill. Each boundary band shows the paycheck label and the total due before the next payday. On narrow list widths — such as on a phone, or on a desktop with both sidebars open — the label and total stack vertically so neither wraps. A "Next up" strip shows the next few upcoming occurrences; select **View calendar** to open the Calendar view. The overview shows only payable series (bills, subscriptions, installment payments, and debt repayments) — detected income and transfers do not appear here. Banners, notices, and payment suggestions on the overview are scoped to this same set of payable series. On wider screens, each row in a dated section shows a date rail on the left. On narrow screens (phones, or desktop windows with both sidebars open) the date rail is hidden; the row's subline leads with the same date instead — for example, "Sep 22 · Monthly on the 22nd" or "Today · Amount changed" — so the due date is always visible regardless of screen width. When you have no overdue, due-this-month, or upcoming bills, the month summary and AI prompt chips are hidden and the page shows an empty state instead. Paused (dormant) bills do not trigger the pulse or chips, because they owe nothing this month. Detected suggestions that are not yet confirmed do not count as bills for this purpose.
+- **Overview** — your current month at a glance: overdue bills, what's due this month, what's coming later, and what you've already paid. Bills are grouped by due date and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill. Each boundary band shows the paycheck label and the total due before the next payday. On narrow list widths — such as on a phone, or on a desktop with both sidebars open — the label and total stack vertically so neither wraps. A "Next up" strip shows the next few upcoming occurrences; select **View calendar** to open the Calendar view. The overview shows only payable series (bills, subscriptions, installment payments, and debt repayments) — detected income and transfers do not appear here. Banners, notices, and payment suggestions on the overview are scoped to this same set of payable series. Every row in every section shows a date rail on the left (from medium-width screens and up). On narrow screens (phones, or desktop windows with both sidebars open) the date rail is hidden; the row's subline leads with the same date instead — for example, "Sep 22 · Monthly on the 22nd" or "Today · Amount changed" — so the due date is always visible regardless of screen width. Dates in a future year include the year on a second line inside the rail so they do not wrap mid-date. When you have no overdue, due-this-month, or upcoming bills, the month summary and AI prompt chips are hidden and the page shows an empty state instead. Paused (dormant) bills do not trigger the pulse or chips, because they owe nothing this month. Detected suggestions that are not yet confirmed do not count as bills for this purpose.
 - **All** — the complete list of active bill series, filterable by payment state (`overdue`, `due`, `partial`, `paid`) and lifecycle state (`paused`, `ended`). On larger screens the list displays as a scrollable table with columns for name, type, frequency, amount, next due date, status, and actions. On smaller screens the same bills are shown as a compact list.
 - **Calendar** — upcoming bills laid out on a monthly calendar.
 - **Paycheck planner** — upcoming bills apportioned across your next pay periods (see [Paycheck planner](#paycheck-planner) below).
@@ -228,6 +228,24 @@ The Bills page offers four views, switchable from the view switcher at the top o
 Clicking a bill row in the Overview or a Next up item opens the bill summary in the right-hand drawer. Opening a bill URL in a new tab or navigating to it directly renders the same summary as a full page instead.
 
 Each bill has a detail drawer showing payment history, price changes, cost analytics, and quick actions to pay, edit, or manage the series.
+
+### Bill row subline
+
+Each bill row shows a single subline with context about that occurrence. The subline follows a fixed order, truncating from the end when space is tight:
+
+1. Due date (narrow screens only, in the same color as the date rail)
+2. Autopay (only when the bill is active and set to autopay — paused bills do not show Autopay)
+3. Attention reason (see below)
+4. Payment N of M (for installment plans)
+5. Debt payment (for transfer-type series)
+6. Frequency
+7. Account
+
+**Attention reasons** — when a bill needs action, the subline names the specific reason. Only the overdue reason is shown in red; other reasons (such as "Match needs review" or "Partial") remain uncolored even when the bill is also overdue. For a paused bill, the subline shows "Paused" regardless of whether there is an unpaid occurrence.
+
+**Amount changed** — a price-change notice appears only when the bill's amount has shifted by 10% or more within the last 30 days. Smaller changes do not surface in the row.
+
+**Estimated amount range** — on wider screens, a bill with variable amounts shows its expected range beneath the amount column. On narrow screens this is hidden; open the bill drawer to see the full range.
 
 ### Row actions
 
@@ -251,12 +269,12 @@ Clicking a bill row in the Overview, Calendar, or Paycheck planner opens the occ
 
 The occurrence drawer shows:
 
-- **Due label** — a context-aware label describing when the payment is due. The label adapts to the occurrence's state: overdue (with the number of days past due), due today, due in N days, snoozed until a date, or the original due date if the cycle is already settled.
+- **Due label** — a context-aware label describing when the payment is due. The label adapts to the occurrence's state: overdue (with the number of days past due), due today, due in N days, snoozed until a date, or the original due date if the cycle is already settled. For a non-active series (paused or dismissed), the label leads with the series status — for example, "Paused · Due Sep 10" — rather than showing an overdue count. The Autopay indicator is also hidden in the drawer for paused bills.
 - **Payment progress** — the amount paid so far, the expected amount, and a progress ring. The headline reads the current state: the paid amount if fully paid, "Skipped", "Marked missed", or the remaining balance.
 - **Linked payments** — any transactions already allocated to this occurrence, each with an unlink option.
 - **Candidate matching** — when the occurrence is still open, the drawer surfaces the most likely matching transaction from your accounts as a card with a single "Link payment" action. Other likely matches appear below it. You can also search all transactions by name.
 - **Manual payment** — if no matching transaction exists, a disclosure panel lets you record a payment by amount and date directly without linking a bank transaction.
-- **Quick actions** — mark paid (settles the remainder without recording a transaction), skip, snooze for one week, and reopen (for already-settled or skipped occurrences).
+- **Quick actions** — mark paid (settles the remainder without recording a transaction), skip, snooze for one week, and reopen (for already-settled or skipped occurrences). Snoozing moves the bill to its new date across the overview, pay-period groupings, and the "Next up" strip — a bill snoozed into the following month moves out of this month's total entirely.
 
 All labels and feedback messages in the occurrence drawer — including the due label states, payment summaries, and action confirmations — are displayed in your configured display language (set under **Settings → Preferences → Language**).
 
