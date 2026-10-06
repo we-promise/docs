@@ -352,12 +352,14 @@ All bill tools share a consistent error contract: if a call fails, the response 
 | Filter | Description |
 |---|---|
 | `status` | Series lifecycle: `active` (default), `suggested`, `paused`, `ended`, or `all` |
-| `payment_state` | Current occurrence state: `overdue`, `due`, `upcoming`, `partial`, or `paid` |
+| `payment_state` | Current occurrence state: `overdue`, `due`, `upcoming`, `partial`, or `paid`. Non-active bills (paused, ended, inactive) never match `overdue` or `due`; their open occurrence `state` returns the series status (e.g. `"paused"`) instead of a schedule-derived state. |
 | `bill_type` | Kind of obligation (e.g. `bill`, `subscription`, `installment`, `income`) |
 | `search` | Substring match on the bill or merchant name |
 | `due_within_days` | Only bills whose next due date falls within this many days (1–365) |
 
 The response includes per-currency totals (active monthly equivalent spend, overdue count) computed over the full filtered set, not just the page shown. When the result is empty, `get_bills` checks whether bills exist under other statuses and returns a hint pointing there.
+
+The `current_occurrence.state` field on each returned bill reflects the series' active state. For active bills, `state` is one of `overdue`, `due`, `upcoming`, `paid`, `skipped`, or `missed`. For non-active bills (paused, inactive, ended), `state` returns the series status rather than a schedule-derived value — a paused bill with an open unpaid leftover reports `"paused"`, not `"overdue"`. Use the `status` filter rather than `payment_state` to find bills by lifecycle state.
 
 **`get_bill_details`** — returns one bill's full story: configuration, every open occurrence, the last 12 settled occurrences with their payments, upcoming due dates for the next 400 days (first 3), price-change history (24-month window), and cost analytics. Analytics are derived from confirmed payments only, never from estimates. Pass the exact `bill_id` returned by `get_bills`.
 
