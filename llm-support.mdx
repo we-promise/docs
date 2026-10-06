@@ -197,32 +197,39 @@ OPENAI_MODEL=your-model-name
 
 ### Google Gemini
 
-Gemini provides an OpenAI-compatible endpoint that works with a Gemini API key from Google AI Studio:
+You can connect to Gemini directly via Google AI Studio's OpenAI-compatible endpoint, or via OpenRouter.
+
+**Recommended Gemini models:**
+
+- `gemini-3.8-flash` - Best all-around choice; fast, strong reasoning, and reliable tool calling for chat and finance tools
+- `gemini-3.5-flash-lite` - Ultra-low cost and fast; ideal for background categorization and merchant detection
+- `gemini-3.1-pro-preview` - Best for complex financial analysis, portfolio queries, and multi-year trends
+- `gemini-2.5-flash` - Previous-generation budget model; fast and dependable fallback
+- `gemini-2.5-pro` - Previous-generation model for complex financial analysis
+
+#### Direct via Google AI Studio
+
+[Google AI Studio](https://aistudio.google.com/) provides direct API access to Gemini models with a free tier and an OpenAI-compatible endpoint:
 
 ```bash
-OPENAI_ACCESS_TOKEN=your-gemini-api-key
-OPENAI_URI_BASE=https://generativelanguage.googleapis.com/v1beta/openai/
-OPENAI_MODEL=gemini-2.5-flash
+OPENAI_ACCESS_TOKEN=your-google-ai-studio-api-key
+OPENAI_URI_BASE=https://generativelanguage.googleapis.com/v1beta/openai
+OPENAI_MODEL=gemini-3.8-flash
 ```
 
-Recommended models:
-
-- `gemini-2.5-flash` - Fast and capable
-- `gemini-2.5-pro` - Higher quality, more thorough responses
-
-### OpenRouter
+#### Via OpenRouter
 
 Access multiple providers through a single API:
 
 ```bash
 OPENAI_ACCESS_TOKEN=your-openrouter-api-key
 OPENAI_URI_BASE=https://openrouter.ai/api/v1
-OPENAI_MODEL=google/gemini-2.0-flash-exp
+OPENAI_MODEL=google/gemini-3.8-flash
 ```
 
-Recommended models:
+Recommended models via OpenRouter:
 
-- `google/gemini-2.5-flash` - Fast and capable
+- `google/gemini-3.8-flash` - Fast and capable
 - `anthropic/claude-sonnet-4.5` - Excellent reasoning
 - `anthropic/claude-haiku-4.5` - Fast and cost-effective
 
