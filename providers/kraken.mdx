@@ -65,6 +65,12 @@ After adding a connection, wait for the first sync to complete. If no accounts a
 
 When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.
 
+### Historical account value looks wrong after a buy or sell
+
+If your Kraken account was connected before October 2026, trade entries may have been recorded with their cash flow direction inverted: a buy was recorded as money arriving and a sell as money leaving, rather than the reverse. This caused the historical balance series to show incorrect values, sometimes by a large amount on accounts with significant trading activity.
+
+Sure corrects these entries automatically on the next sync — no re-import or manual action is needed. The balance series rebuilds on the account's next sync pass. Entries you have manually edited are left as-is.
+
 ### Crypto holdings history looks wrong for older accounts
 
 If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync — no re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
