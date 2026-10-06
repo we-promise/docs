@@ -479,15 +479,38 @@ This means the portfolio cache can always convert each security price into your 
 
 Crypto accounts work similarly to investment accounts but have unique characteristics:
 
-| Subtype | Description | Manual Trades |
-| --- | --- | --- |
-| Wallet | Self-custody or provider-synced | No |
-| Exchange | Centralized exchanges (Binance, Coinbase, etc.) | Yes |
+| Subtype | Description | Manual Trades | Transaction-to-trade conversion |
+| --- | --- | --- | --- |
+| Wallet | Self-custody or provider-synced | No | No |
+| Exchange | Centralized exchanges (Binance, Coinbase, etc.) | Yes | Yes |
 
 - **Exchange accounts** support manual trade entry, letting you record buys and sells
 - **Wallet accounts** are sync-only, holdings are updated through provider connections
 
 Crypto is taxable by default, though it can be held in tax-advantaged accounts (for example, a self-directed IRA).
+
+### Converting a transaction to a trade (crypto exchange accounts)
+
+When a provider syncs your crypto exchange account as plain transactions rather than trades, you can convert any transaction into a trade directly from the activity feed.
+
+To convert a transaction:
+
+1. Open your crypto exchange account and go to the **Activity** tab.
+2. Click the activity label badge on the transaction you want to convert.
+3. Select **Buy** or **Sell** from the label picker. Sure opens a conversion form pre-populated with the transaction's amount and date.
+4. Enter either a **quantity** or a **price per unit** — Sure calculates the missing value from the transaction amount automatically.
+5. Select the security (cryptocurrency) from the list, or choose **Enter custom ticker** to type one in.
+6. Confirm the details and submit the form.
+
+Sure replaces the original transaction with a new trade entry. The original transaction's name and date are preserved in a note on the trade.
+
+If the price you enter (or the price implied by the quantity you enter) differs from the security's current market price by more than 50%, Sure shows a warning. This is not an error — it means you may have selected the wrong security or entered an unusual value. Review the ticker and amount before saving.
+
+<Note>
+This conversion is not available for wallet-type crypto accounts. Only exchange accounts (`subtype: "exchange"`) support trades and transaction conversion.
+</Note>
+
+The conversion is also not available if the transaction has already been converted (marked as excluded). Each transaction can be converted at most once.
 
 ## Adding Investment Accounts
 
