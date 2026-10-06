@@ -58,6 +58,7 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `delete_transaction` | Permanently delete a transaction and its ledger entry, recalculating the account balance. Pass the transaction `id` returned by `get_transactions` or `create_transaction`. Optionally pass `account_id` as a guard so a mismatched id cannot delete the wrong record. Split child transactions cannot be deleted individually; delete the split parent instead. |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
 | `update_budget` | Update budget allocations for a month |
+| `set_opening_balance` | Set a manual account's opening balance and, optionally, the date it applies from. Returns whether the current balance will change as a result. Pass `dry_run: true` to preview the effect without writing. Accounts synced from a provider are refused. |
 
 `create_transaction` and `delete_transaction` write to the ledger. `delete_transaction` is permanent and irreversible. `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
