@@ -135,6 +135,19 @@ Bookstore,,
 
 If a merchant with the same name already exists in your family, that row is skipped. The import reports the count of created merchants and the count of skipped rows separately.
 
+## Permissions required to publish or revert
+
+Imports are family-scoped, so any family member can view an import created by someone else. However, publishing an import (writing transactions into accounts) and reverting a published import (deleting those entries) each require **write access** — owner or full_control — to every account the import targets.
+
+This covers:
+
+- The primary destination account selected during mapping
+- Any accounts referenced via column mappings
+- Accounts that already received entries from a previous publish of the same import
+- For QIF files with embedded account names: any existing Sure accounts whose names match those in the file
+
+If your access to an account has been downgraded to read-only since the import was configured, the publish or revert step will fail with a permissions error. Ask the account owner to grant you write access, or have them complete the action themselves.
+
 ## Import process
 
 The import wizard shows a step indicator at the top of the page. Step labels display in your configured language (set under **Settings → Preferences → Language**). On mobile, the indicator shows a "Step X of Y" progress count instead.
