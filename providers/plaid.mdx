@@ -175,6 +175,47 @@ When a member accepts an invitation to join a different family, their Plaid conn
 
 If a member is demoted to guest, they lose the ability to manage their Plaid connections. The connections are not deleted, but only an admin can manage them until the member's role is restored.
 
+## Duplicate institution warning
+
+When you complete a Plaid Link flow for an institution you already have connected, Sure detects the overlap before creating a second connection and shows a warning dialog. This prevents duplicate connections, which consume a Plaid Item slot that cannot be recovered on the Trial plan even if the duplicate is later removed.
+
+Sure compares the accounts Link reported with your existing connections by account name and last-four mask, then offers different actions depending on what it finds.
+
+### All accounts already connected
+
+If every account in the new Link session matches an existing connection, Sure shows a "Close" button only. Adding the connection would only duplicate accounts already in your family.
+
+The dialog points you to two alternatives:
+
+- Use **Add accounts** on the existing connection to add more accounts from that institution without creating a second connection.
+- Go through Link again with a different bank login if you intended to connect a different account at the same institution.
+
+### Some accounts are new
+
+If the new session includes accounts not yet connected alongside ones that are, Sure recommends updating the existing connection. Updating adds the new accounts through the existing connection rather than creating a second one.
+
+A **Confirm this connection** option is also available for cases where the overlap is explained by a different login sharing an account (such as a joint account).
+
+### No accounts match
+
+If none of the reported accounts match an existing connection, Sure treats this as a different login and leads with **Confirm this connection**. You can still close without adding if you changed your mind.
+
+### Nothing to compare
+
+When Sure cannot reliably compare accounts — for example, when an account has no last-four mask — it leads with Close. Update and confirm options remain available.
+
+### Expired token
+
+The held public token expires after 30 minutes. If you leave the warning dialog open past that point and then try to confirm, Sure redirects to Accounts with an alert asking you to go through Link again.
+
+### Admin and member behavior
+
+Admins see the family's connections in the warning. When overlap exists only with connections owned by other members (such as a joint account a member already connected), the warning names whose connection holds the accounts rather than saying "you've already made this connection." Close is the only action in that case.
+
+Members see only their own connections in the warning.
+
+---
+
 ## Managing accounts
 
 ### Adding accounts to an existing connection
