@@ -72,6 +72,12 @@ If you have **Editor** permission on a shared account, you can:
 
 If you have **Viewer** permission, you can only view the account data without making changes.
 
+### Imports and account write access
+
+Publishing or reverting an import writes to (or removes entries from) its target accounts. Sure requires **write access** — owner or full_control — to every account the import targets, including accounts referenced via column mappings and any accounts that already received entries from a previous publish of the same import.
+
+A family member with read-only access to an account cannot publish or revert an import that targets it, even if they created the import. If a member's access to an account is downgraded after an import is configured, an account owner or admin must complete the publish or revert.
+
 > [!NOTE]
 > When recording a deposit or withdrawal on an investment account, Sure books the transaction on a second account (the transfer account). You must have editor access on that transfer account as well. Accounts shared with you as view-only do not appear in the transfer account picker.
 
