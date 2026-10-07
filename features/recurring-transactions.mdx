@@ -254,7 +254,7 @@ The occurrence drawer shows:
 - **Due label** — a context-aware label describing when the payment is due. The label adapts to the occurrence's state: overdue (with the number of days past due), due today, due in N days, snoozed until a date, or the original due date if the cycle is already settled.
 - **Payment progress** — the amount paid so far, the expected amount, and a progress ring. The headline reads the current state: the paid amount if fully paid, "Skipped", "Marked missed", or the remaining balance.
 - **Linked payments** — any transactions already allocated to this occurrence, each with an unlink option.
-- **Candidate matching** — when the occurrence is still open, the drawer surfaces the most likely matching transaction from your accounts as a card with a single "Link payment" action. Other likely matches appear below it. You can also search all transactions by name.
+- **Candidate matching** — when the occurrence is still open, the drawer surfaces the most likely matching transaction from your accounts as a card with a single "Link payment" action. Other likely matches appear below it. You can also search all transactions by name. For recurring transfers, the engine matches the outflow leg of a transfer between the series’ source and destination accounts rather than matching by name or merchant.
 - **Manual payment** — if no matching transaction exists, a disclosure panel lets you record a payment by amount and date directly without linking a bank transaction.
 - **Quick actions** — mark paid (settles the remainder without recording a transaction), skip, snooze for one week, and reopen (for already-settled or skipped occurrences).
 
@@ -277,6 +277,8 @@ When the app cannot record a payment it shows an error message. Common reasons:
 To remove a payment, use the unlink action in the payment history section of the drawer.
 
 **Suggested payments** — the matching engine may automatically suggest a transaction for an open occurrence. You can confirm the suggestion to apply it or dismiss it. Dismissing a suggestion marks that transaction so it will not be suggested for the same bill again. Suggestions appear only for occurrences the overview currently lists; occurrences from ended bills or outside the visible window are not surfaced.
+
+Recurring transfers are matched by their account pair: the engine looks for the outflow leg of a transfer from the series' source account into its destination account. This means a mortgage payment or card payment that you have marked as recurring will receive automatic payment suggestions the same way a regular bill does.
 
 All payment feedback messages — confirmations and errors — appear in your configured display language.
 
