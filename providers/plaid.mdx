@@ -310,6 +310,12 @@ After you complete re-authentication, the warning is not cleared immediately. Su
 
 If you run into Plaid errors that are not visible in Sure, check the Plaid Dashboard logs under **Developers > Logs**. These logs can show whether the issue is coming from Plaid Link configuration, product approval, institution support, or another Plaid-side validation error.
 
+### Investment account shows unexpected cash balance after a sync
+
+If a Plaid investment account shows a cash balance that grows or fluctuates each day even though you have not made any cash changes, the balance snapshot was being anchored on the wrong date. Plaid dates each holding with the institution's price date, which is often the previous trading session's close for syncs run before the market closes. When that total was anchored on today's date instead, repricing the holdings for today left a gap that appeared as phantom cash.
+
+This is now fixed. Sure anchors the balance snapshot on the newest price date the holdings report, capped at today. Syncs run before the market closes correctly use the prior session's date, so the total and the holdings always describe the same moment. Trigger a manual sync from the account page to pick up the corrected snapshot.
+
 ### Credit card or loan shows no transactions after linking
 
 If you linked a credit card or loan account through Plaid and Sure imported balances and liabilities but no transactions, the connection was affected by a bug that is now fixed. Plaid places the `transactions` product in `consented_products` for liability accounts until the first billing call — Sure previously only checked `available_products` and `billed_products`, so `transactions` appeared unsupported and the fetch was skipped.
