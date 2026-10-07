@@ -20,6 +20,10 @@ Sure imports one combined Crypto exchange account per Kraken connection, contain
 
 Crypto ledger entries (deposits, withdrawals, staking rewards, and so on) are recorded as trades that carry a unit quantity and the price on the day they moved, not as cash transactions. This keeps your crypto position history accurate and separate from your cash balance.
 
+Fiat balances held at the exchange (EUR, USD, and other supported currencies) are treated as cash, not as holdings. This prevents them from being valued twice alongside the cash your ledger already tracks.
+
+Staked and bonded asset variants — for example, ETH2.S or DOT28.S — are treated as the same position as their underlying asset. A staked ETH balance and a spot ETH balance appear together as one holding.
+
 ## Setting up Kraken
 
 ### Step 1: Create a Kraken API key
@@ -67,4 +71,12 @@ When the exact exchange rate for a given date is unavailable, Sure shows the bal
 
 ### Crypto holdings history looks wrong for older accounts
 
-If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync — no re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
+If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync. No re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
+
+### The same asset appears as multiple holdings
+
+If you see separate holdings for what should be one position — for example, BTC split across different entries — your account may have synced before the October 2026 fix that resolved each asset to a single security. Re-syncing the account consolidates them.
+
+### Fiat balance appears as a holding
+
+If a currency like EUR or USD appears in your holdings list, the balance was imported before Sure began excluding fiat from the holdings snapshot. Re-syncing the account removes these entries.
