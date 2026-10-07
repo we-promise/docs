@@ -560,6 +560,44 @@ When a fresh family is created, Sure seeds it with a default set of categories. 
   </Accordion>
 </AccordionGroup>
 
+## Balance anchor dated away from provider holdings
+
+When Sure syncs an investment or crypto account, it compares the date of the balance anchor (the recorded current balance) with the date of the newest holding that the provider reported. If the two dates differ, Sure writes a warning to the debug log so you can investigate before the discrepancy causes unexpected phantom cash in balance calculations.
+
+<AccordionGroup>
+  <Accordion title="What causes this warning?">
+    Some providers date their holdings to the day the data was produced (for example, the previous trading day's close), while the balance anchor is set to the day of the sync. A one-day gap between the anchor date and the holdings date causes the reverse balance calculator to read the daily price movement as cash on every intervening day.
+
+    Interactive Brokers and Plaid are known examples of providers that can produce this gap.
+
+    Manual accounts, accounts without a current balance anchor, and accounts whose holdings carry no provider attribution are not checked and will never produce this warning.
+  </Accordion>
+
+  <Accordion title="Where do I see the warning?">
+    Go to **Settings → Debug** and filter by the `provider_sync` category. Look for `warn`-level entries with a message like:
+
+    ```
+    Balance anchor dated 1 day(s) after the newest provider holding
+    ```
+
+    Each entry includes the provider, the account, both dates, and the gap in days as structured metadata. A steady gap does not add a new entry on each sync — only a change in the gap (including the gap closing) is recorded.
+
+    When the gap closes, Sure logs an `info`-level entry:
+
+    ```
+    Balance anchor and newest provider holding are dated alike again
+    ```
+  </Accordion>
+
+  <Accordion title="What should I do about it?">
+    This warning is informational for self-hosted operators. No action is required on your part — Sure logs the gap so it is visible in the debug log rather than going unnoticed.
+
+    If you see cash appearing and disappearing in an investment account's balance chart on a one-day cycle, check **Settings → Debug** for a `provider_sync` warning on that account. The gap days value in the metadata confirms whether the anchor mismatch is the cause.
+
+    The warning does not indicate a sync failure. The sync completes normally; only the debug entry is written.
+  </Accordion>
+</AccordionGroup>
+
 ## Reading auto-categorization debug logs
 
 When auto-categorization runs, Sure writes structured entries to the debug log under the `auto_categorization` category. Go to **Settings → Debug** and filter by `auto_categorization` to see them.
