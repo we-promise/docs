@@ -90,7 +90,7 @@ To add a fee to a trade:
 2. Enter the fee amount in the fee field
 3. The total amount updates automatically to include the fee
 
-Fees are automatically factored into your cost basis calculations and realized gains/losses.
+For acquisitions, the fee is folded into the per-share cost basis: a $5 fee on 10 shares adds $0.50 to the average cost per share. Disposal fees do not affect the cost basis of shares you still hold.
 
 ## Securities types
 
@@ -162,10 +162,12 @@ This hierarchy ensures your manual entries always take precedence, calculated va
 
 Sure uses the **weighted-average cost** method to compute your cost basis from trades:
 
-- **Buys** raise the running average: the new share cost is folded into the existing position at the average weighted by quantity.
-- **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain.
+- **Buys** raise the running average: the new share cost is folded into the existing position at the average weighted by quantity. Any acquisition fee is included in the per-share cost — a $5 fee on 10 shares adds $0.50 to the average cost per share.
+- **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain. A disposal fee does not affect the basis of the remaining shares.
 - **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
 - **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
+
+Price and fee conversions for foreign-currency trades use the exchange rate on the date of the trade, not today's rate. This means the cost basis reflects what you actually paid at the time and does not drift as exchange rates change.
 
 This means `avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects only the cost of the shares you currently hold, not an average across every purchase the account ever made for that security.
 
@@ -280,7 +282,7 @@ All trades support an optional fee field to track transaction costs:
 
 - Fees are included in the total amount calculation: `total = (qty × price) + fee`
 - Fees default to 0 if not specified
-- Fees are tracked separately for accurate cost basis calculations
+- Acquisition fees are folded into the per-share cost basis; disposal fees do not affect the basis of remaining shares
 
 ## Investment Activity Labels
 
@@ -333,7 +335,7 @@ Example: Buying 10 shares at $50 with a $5 commission:
 - **Total: $505** (10 × $50 + $5)
 
 Fees are particularly important for:
-- Accurate cost basis calculations
+- Accurate cost basis calculations (acquisition fees raise the per-share basis; disposal fees do not)
 - Understanding true investment returns
 - Tax reporting and record keeping
 
