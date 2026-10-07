@@ -37,7 +37,7 @@ Sure recognizes different types of transfers based on the destination account:
 | **Funds Movement** | Between asset accounts | Excluded |
 | **CC Payment** | Payment to a credit card | Excluded |
 | **Loan Payment** | Payment to a loan account | Treated as expense |
-| **Investment Contribution** | To investment or crypto accounts | Excluded |
+| **Investment Contribution** | To investment or crypto accounts | Treated as expense |
 
 ### Funds Movement
 
@@ -62,8 +62,9 @@ When syncing transactions from a provider, Sure automatically classifies transac
 
 Payments to loan accounts (mortgage, auto, student loans) are treated as `loan_payment` transfers.
 
-> [!NOTE]
-> Loan payments can be treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt.
+<Note>
+  Loan payments are treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt. You can assign a category, merchant, and tags to loan payment transactions.
+</Note>
 
 When syncing transactions from a provider, Sure automatically classifies transactions to loan accounts as loan payment transfers.
 
@@ -74,7 +75,7 @@ Transfers to investment or crypto accounts:
 - Adding funds to a brokerage account
 - Moving money to a crypto exchange
 
-These are excluded from budgets because you're saving/investing, not spending.
+Investment contributions are tracked as expenses in budgets because they represent a real cash outflow from your spending accounts. You can assign a category, merchant, and tags to these transactions.
 
 ## Creating Transfers Manually
 
@@ -185,11 +186,12 @@ Transfers are generally **excluded** from budget calculations because they don't
 | --- | --- |
 | Funds Movement | Excluded |
 | CC Payment | Excluded |
-| Investment Contribution | Excluded |
-| Loan Payment | Can be included as expense |
+| Investment Contribution | Treated as expense |
+| Loan Payment | Treated as expense |
 
-> [!TIP]
-> If you want to budget for loan payments, you may want to track them as expenses. Sure treats loan payments specially since they represent ongoing obligations.
+<Note>
+  Loan payments and investment contributions are both treated as expenses in budgets because they represent real cash outflows. You can assign a category, merchant, and tags to either type of transfer.
+</Note>
 
 ## Understanding Net Worth Impact
 

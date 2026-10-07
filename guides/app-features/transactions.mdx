@@ -84,6 +84,8 @@ If you arrive at the transaction list from a link that filters by a parent categ
 
 The Uncategorized filter, the uncategorized badge count, and the Quick Categorize wizard all use the same definition: a transaction is uncategorized when it has no category assigned and its kind is not a pure inter-account transfer leg (specifically, `funds_movement` and `cc_payment` are excluded because those legs have nothing to categorize). All other transaction kinds — including `loan_payment`, `investment_contribution`, and `one_time` — appear in the uncategorized list if they have no category. The dashboard's uncategorized aggregate uses the same set, so the count shown on the dashboard always matches what you see in the Transactions list.
 
+Loan payment and investment contribution transfers are categorizable. You can assign a category, merchant, and tags to these transactions from the transaction detail view, the same way you would for any other transaction.
+
 ### Filter by AI categorization status
 
 The search popover on the Transactions page includes an **AI** filter group with two independent checkboxes:
