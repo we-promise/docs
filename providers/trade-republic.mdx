@@ -130,6 +130,8 @@ Trade Republic identifies crypto positions using pseudo-ISINs that encode the co
 
 Crypto positions and trades import on the **Crypto account** once it is linked. Before linking, they remain on the Portfolio account. Sure creates the Crypto provider account automatically the first time a sync detects crypto holdings or trades in your Trade Republic portfolio.
 
+Bond positions are quoted by Trade Republic as a percentage of par (for example, 84.04 means 84.04% of face value). Sure converts this to a per-unit price before computing market value, so the holding value matches the true market price of your nominal bond position.
+
 Private market positions are valued using quotes from Trade Republic's private markets feed when available. If no live quote exists, Sure uses the average cost basis as the holding value. Other positions without a live price show a price-unavailable indicator rather than a flat return.
 
 ## Syncing
@@ -170,6 +172,8 @@ If a position shows no price or an incorrect value:
 - Check the **Data quality** section on the Trade Republic panel for positions flagged as unpriced
 - Private market positions without a live quote are valued at their average cost basis
 - Other positions without a live price display a price-unavailable indicator
+
+**Bond values were previously inflated 100x.** Trade Republic quotes bond prices as a percentage of par (for example, 84.04 means 84.04% of face value), while the position size is the nominal amount. A sync run before October 2026 multiplied the two directly, producing values 100x too high. A fix and a one-time data migration corrected this automatically. If your bond history still looks inflated after syncing, click **Repair** in the data quality section of the Trade Republic panel to re-process the affected snapshots.
 
 ### Deposits showing as transfers or investment contributions
 
