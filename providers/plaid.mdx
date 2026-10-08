@@ -324,6 +324,14 @@ Entries imported before the `ProviderImportAdapter` was introduced were stored w
 
 This is now fixed. Sure looks up retracted transactions by `external_id` and source first, then falls back to `plaid_id` for older entries that predate the adapter. If you have transactions that should have been removed by a Plaid retraction, trigger a manual sync from the account page — Sure will process any pending removals during that sync.
 
+### Investment holdings not syncing with encryption enabled
+
+If your Sure instance has Active Record encryption configured and Plaid investment account syncs are failing with a `NoMethodError`, you were affected by a bug that is now fixed.
+
+The `raw_holdings_payload` column was previously named `raw_investments_payload`. An invalid `previous:` fallback option on the encryption declaration caused `ActiveRecord::Encryption::Context#attribute=` to raise `NoMethodError` when Sure tried to decrypt holdings data using the previous scheme. The column rename preserves the stored ciphertext, and Active Record Encryption does not bind ciphertext to the attribute name, so no fallback scheme was needed.
+
+Update to the latest Sure version and trigger a manual sync from the account page. Holdings will decrypt and sync correctly after the update.
+
 ### Link popup closes after selecting a bank
 
 If the Plaid popup closes immediately after you select a bank, and Sure shows no useful app logs, the problem may be on Plaid's side rather than in your Sure configuration.
