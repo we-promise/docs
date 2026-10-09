@@ -34,10 +34,10 @@ Sure recognizes different types of transfers based on the destination account:
 
 | Transfer Type | When It's Used | Budget Impact |
 | --- | --- | --- |
-| **Funds Movement** | Between asset accounts | Excluded |
+| **Funds Movement** | Between asset accounts, or between two investment/crypto accounts | Excluded |
 | **CC Payment** | Payment to a credit card | Excluded |
 | **Loan Payment** | Payment to a loan account | Treated as expense |
-| **Investment Contribution** | To investment or crypto accounts | Excluded |
+| **Investment Contribution** | From a non-investment account to an investment or crypto account | Treated as expense |
 
 ### Funds Movement
 
@@ -69,12 +69,14 @@ When syncing transactions from a provider, Sure automatically classifies transac
 
 ### Investment Contribution
 
-Transfers to investment or crypto accounts:
-- Contributing to your 401(k)
-- Adding funds to a brokerage account
-- Moving money to a crypto exchange
+Transfers from a non-investment account to an investment or crypto account:
+- Contributing to your 401(k) from checking
+- Adding funds to a brokerage account from savings
+- Moving money to a crypto exchange from a bank account
 
-These are excluded from budgets because you're saving/investing, not spending.
+Investment contributions are counted as expenses in budgets because they represent real cash leaving your spending accounts.
+
+When the source account is also an investment or crypto account, Sure classifies the transfer as Funds Movement instead, since the money stays within your investment portfolio.
 
 ## Creating Transfers Manually
 
@@ -157,6 +159,14 @@ Manual accounts still participate in same-currency matching, where amounts must 
 
 If you have a real cross-currency transfer that involves a manual account, you can still confirm it yourself. Open either transaction, choose **Match as transfer**, and select the counterpart from the dialog. The manual match dialog uses a wider tolerance (up to 10%) and shows manual account candidates so you can find and confirm the match by hand.
 
+## Categorizing Transfers
+
+For transfers where a category is meaningful (investment contributions and loan payments), Sure assigns the category to the outflow leg — the transaction in the spending account that budgets and reports count.
+
+The inflow leg of the same transfer displays the outflow's category as a read-only field. Editing the category on the inflow side has no effect; changes must be made on the outflow leg.
+
+This ownership is based on the Transfer record itself, not the leg's transaction kind. If a provider sync updates a leg's kind, the category assignment does not change.
+
 ## Transfer Summary Totals
 
 When viewing your transaction list filtered by transfers, Sure displays **Inflow** and **Outflow** totals instead of the standard Income and Expenses labels.
@@ -185,11 +195,8 @@ Transfers are generally **excluded** from budget calculations because they don't
 | --- | --- |
 | Funds Movement | Excluded |
 | CC Payment | Excluded |
-| Investment Contribution | Excluded |
-| Loan Payment | Can be included as expense |
-
-> [!TIP]
-> If you want to budget for loan payments, you may want to track them as expenses. Sure treats loan payments specially since they represent ongoing obligations.
+| Investment Contribution | Treated as expense |
+| Loan Payment | Treated as expense |
 
 ## Understanding Net Worth Impact
 
