@@ -216,6 +216,20 @@ The Bills surface is a pay-run workspace that lets you see, pay, and plan around
 
 The Bills page title, navigation tabs, and action buttons (Add bill, Add income, Review with AI) display in the language you have set in **Settings → Preferences**. Due dates shown in bill rows — in the date rail, the "Next up" strip, and the subline on narrow screens — also follow your locale. Locales that use day-first order (such as French, Polish, and Russian) show dates in that order, and any date that falls in a future year includes the year.
 
+### Header and actions
+
+The Bills page header follows the same layout as the Transactions page. An overflow menu appears on the left side of the action area, and the primary action button appears on the right.
+
+The overflow menu contains:
+- The secondary add action (Add income when on the Paycheck view; Add bill on all other views)
+- Review with AI (when an LLM provider is configured and AI features are enabled)
+
+The primary action button is:
+- A labeled button on wider screens (Add bill, or Add income on the Paycheck view)
+- A round + button on narrow screens (phones, or a desktop with both sidebars open), with the action name as its accessible label
+
+The Bills page also has a page heading (“Bills”) at the top of the header, giving screen readers a landmark to navigate to.
+
 ### Views
 
 The Bills page offers four views, switchable from the view switcher at the top of the page:
