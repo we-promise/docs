@@ -184,6 +184,12 @@ Transfers are typed automatically when the recurring transaction has a destinati
 
 ## Bill fields
 
+### Currency
+
+When you create a new bill, the amount field includes a currency picker. It defaults to your family's currency, or to the transaction's currency if you are starting the bill from an existing transaction. Once a bill is saved, its currency is fixed and shown read-only when you edit it.
+
+The amount step follows the selected currency's precision (for example, JPY uses whole units, USD uses two decimal places, BTC uses eight). Bills reject amounts finer than four decimal places or the currency's own precision, whichever is coarser. An amount that cannot be stored exactly is rejected with a validation error rather than being silently rounded.
+
 ### Payment URL
 
 You can store a payment link on a bill. When set, you can open the link directly from the bill's detail view to navigate to the payment portal.
@@ -255,7 +261,7 @@ The occurrence drawer shows:
 - **Payment progress** — the amount paid so far, the expected amount, and a progress ring. The headline reads the current state: the paid amount if fully paid, "Skipped", "Marked missed", or the remaining balance.
 - **Linked payments** — any transactions already allocated to this occurrence, each with an unlink option.
 - **Candidate matching** — when the occurrence is still open, the drawer surfaces the most likely matching transaction from your accounts as a card with a single "Link payment" action. Other likely matches appear below it. You can also search all transactions by name.
-- **Manual payment** — if no matching transaction exists, a disclosure panel lets you record a payment by amount and date directly without linking a bank transaction.
+- **Manual payment** — if no matching transaction exists, a disclosure panel lets you record a payment using a styled money field and date picker, without linking a bank transaction.
 - **Quick actions** — mark paid (settles the remainder without recording a transaction), skip, snooze for one week, and reopen (for already-settled or skipped occurrences).
 
 All labels and feedback messages in the occurrence drawer — including the due label states, payment summaries, and action confirmations — are displayed in your configured display language (set under **Settings → Preferences → Language**).
@@ -495,6 +501,7 @@ Identify recurring income like:
 - Last occurrence must be within 45 days for automatic detection
 - Transactions in Investment and Crypto accounts are excluded from bill and income detection
 - Amount variance for manual recurring entries is bounded to 2× the anchor amount; charges outside that range are treated as separate recurring entries
+- Bill amounts are stored to four decimal places; amounts finer than the column precision (or the currency's own precision, whichever is coarser) are rejected with a validation error
 - Projected transactions are hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
 - Interval-based cadences (biweekly, quarterly, semiannual, and custom intervals) require an anchor date
