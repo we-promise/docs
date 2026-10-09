@@ -546,6 +546,22 @@ Exports produced before provider-merchant support was added did not include `Pro
   </Accordion>
 </AccordionGroup>
 
+## Editing a provider merchant's website had no effect in older versions
+
+In versions before the fix in [#3824](https://github.com/we-promise/sure/pull/3824), submitting a website-only edit on a provider-assigned merchant (one created automatically by bank sync or AI enrichment) updated the shared merchant record for every family on the instance. If you had a same-name family merchant already, the edit form reported success but silently kept the old URL because the existing family merchant was not updated.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    Changing the name or website of a provider-assigned merchant now converts it to a family-owned merchant scoped to your family only. Other families on the instance are unaffected. If your family already has a merchant with the same name, Sure reuses that record and applies the submitted website (including a blank value to clear it). A submitted color is also applied to the reused merchant.
+
+    Saving the edit form without making any changes still keeps the shared provider merchant as-is.
+  </Accordion>
+
+  <Accordion title="What if I see the old website after upgrading?">
+    Open **Settings → Merchants**, find the merchant, and submit the edit form with the correct website. The current version will apply your change to a family-owned copy of the merchant.
+  </Accordion>
+</AccordionGroup>
+
 ## Sure import fails because categories or tags already exist on the destination family
 
 When a fresh family is created, Sure seeds it with a default set of categories. Importing a Sure export from another instance into that family previously failed preflight if any exported Category, Tag, or Merchant names matched the existing defaults.
