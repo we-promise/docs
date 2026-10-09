@@ -66,17 +66,33 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 </AccordionGroup>
 
-## Every click on the reports page navigates to a transaction drill-down in Safari
+## Dragging a section on the reports page activates mid-scroll on mobile
 
-In Safari, clicking anywhere on the reports page — including the period picker or other controls — could unexpectedly navigate to a category's transactions drill-down instead of performing the intended action.
+On mobile, a brief pause while scrolling the reports page could accidentally activate drag mode on a reorderable section, visibly shifting the section and interrupting the scroll.
 
 <AccordionGroup>
   <Accordion title="What causes this issue?">
-    The category rows in the reports breakdown use a stretched link whose overlay was anchored to the parent `<tr>` element. CSS 2.1 §9.3.1 leaves `position: relative` on table rows undefined, and Safari does not implement it. The overlay therefore resolved against a much larger positioned ancestor, blanketing the entire reports page and intercepting every click. Chrome and Firefox establish the containing block on the row itself, so the issue was invisible in those browsers.
+    The reports page lets you reorder sections by touch-holding the grip handle and dragging. The previous hold delay was 150ms with no movement threshold, so a normal scroll gesture — a short pause followed by a swipe — was enough to trigger drag mode mid-scroll. Once drag mode activated, the section moved with the finger instead of the page scrolling.
   </Accordion>
 
   <Accordion title="How was it fixed?">
-    The stretched-link overlay is now anchored to the flex wrapper inside the category cell — a `<div>`, which is an unambiguous containing block in every browser engine. The clickable area narrows from the whole page to just the category cell (icon, name, and entry count), which is the intended behavior.
+    The hold delay is raised to 800ms and a 10-pixel movement threshold is added. If the touch moves more than 10px before the hold delay expires, the pending drag is cancelled and native scrolling continues uninterrupted. A `touchcancel` event (for example, from an interrupting system gesture) now also discards the pending reorder instead of committing it.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Every click on the reports page navigates to a transaction drill-down in Safari
+
+In Safari, clicking anywhere on the reports page — including the period picker or other controls — could unexpectedly navigate to a category's transactions drill-down instead of performing the intended action. On iOS Safari, the same layout also caused scrolling to freeze for the entire page.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Clickable category rows in the reports breakdown used a `position: absolute; inset: 0` overlay stretched across the parent `<tr>` element to capture clicks. CSS 2.1 §9.3.1 leaves `position: relative` on table-internal elements undefined, and WebKit/iOS Safari does not implement it. The overlay resolved against a much larger positioned ancestor, blanketing the entire page and intercepting every click. On iOS Safari the same layout also corrupted the scroll container's computed `scrollHeight`, freezing page scrolling even with JavaScript disabled.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The stretched-link overlay is replaced with normal-flow `<a>` elements wrapping the icon, name, and entry count in the category cell, and separate `<a>` elements to the same destination in the amount and percentage cells. No `position` is applied to table-internal elements, so the layout is unambiguous in every browser engine. Page scrolling and all other controls work normally again.
 
     Upgrade to the latest release to get this fix. No configuration change is required.
   </Accordion>
