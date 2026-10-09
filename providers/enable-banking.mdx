@@ -127,6 +127,18 @@ OPBD and PRCD are period-boundary snapshots rather than live figures, so they ma
 
 If none of the recognised types are present, Sure falls back to the first balance the API returns.
 
+### Multi-currency accounts
+
+Some wallets and payment services (such as PayPal) report multiple balances under the same balance type — one per currency — in a single response. Without special handling, the last entry would win, causing the account to display the wrong currency and an empty balance.
+
+When Sure detects a multi-currency response, it keeps only the balances in the account's reported currency:
+
+- Sure reads the currency from the raw account snapshot, not the stored column, to avoid using a value that a previous faulty sync may have set incorrectly.
+- If the snapshot currency is not present in the response (for example, PayPal reports `XXX` for its wallet), Sure falls back to the first currency listed, which is the wallet's primary one.
+- Balances in other currencies are not discarded silently. If any non-selected currency carries a non-zero amount, Sure logs the details to **Settings > Debug** under the `provider_sync` category so support can investigate if needed.
+
+Single-currency accounts are not affected by this logic.
+
 ### Account type mapping
 
 Sure automatically maps your bank's account types to the appropriate Sure account type:
