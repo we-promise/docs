@@ -168,6 +168,10 @@ This keeps your transaction history clean and accurate even when the API returns
 
 Some banks (ASPSPs) omit both `transaction_id` and `entry_reference` from their responses, which are both optional under PSD2. For these transactions, Sure generates a deterministic ID based on date, amount, currency, direction, creditor, debtor, and remittance information.
 
+When the bank later assigns a real identifier to one of these transactions — for example, once a statement closes — Sure re-keys the stored row to the new identifier rather than importing a second entry. This preserves any category, merchant, or transfer link already attached to the original row.
+
+This re-keying only applies to booked (settled) transactions on both sides. Pending transactions are excluded from the re-keying pool and from the candidate set that receives claims, so Enable Banking's own pending-to-booked reconciliation handles the settlement transition independently without the two mechanisms conflicting.
+
 Transactions that already carry a provider ID are not affected by this logic.
 
 ## Supported account types
