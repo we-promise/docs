@@ -37,6 +37,12 @@ Set `EXCHANGE_RATE_PROVIDER` (or **Settings → Self hosting**) to a provider yo
 
 When an asset ends up valued at zero for either reason, it is recorded in **Settings → Debug logs** under the `onchain_wallet` provider, with the reasons listed.
 
+### ETH as a currency
+
+ETH (Ethereum) is a supported currency denomination in Sure, alongside standard fiat currencies. You can denominate an account directly in ETH — balances display with the Ξ symbol and up to 8 decimal places. Internally, amounts are stored in Wei (1 ETH = 10^18 Wei).
+
+This is separate from tracking ETH as an investment holding. An account denominated in ETH records its cash balance and transactions in ETH, whereas an on-chain wallet account tracked by the provider holds ETH as a security with a quantity and a market value.
+
 ## Data sources
 
 | Network | Source | Key required | Override |
