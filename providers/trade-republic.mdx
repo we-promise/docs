@@ -130,6 +130,8 @@ Trade Republic identifies crypto positions using pseudo-ISINs that encode the co
 
 Crypto positions and trades import on the **Crypto account** once it is linked. Before linking, they remain on the Portfolio account. Sure creates the Crypto provider account automatically the first time a sync detects crypto holdings or trades in your Trade Republic portfolio.
 
+Bond positions use prices quoted as a percentage of par (for example, 84.04 means 84.04% of face value). Sure converts these percent-of-par quotes to per-unit prices before calculating the market value of your bond holdings, so the values shown in Sure match what you see in the Trade Republic app.
+
 Private market positions are valued using quotes from Trade Republic's private markets feed when available. If no live quote exists, Sure uses the average cost basis as the holding value. Other positions without a live price show a price-unavailable indicator rather than a flat return.
 
 ## Syncing
@@ -161,6 +163,14 @@ The login succeeded, but no accounts have been found yet. Click **Sync** from th
 If buy or sell trades are missing from your portfolio account, run a manual sync from **Settings > Providers > Trade Republic**. Previous syncs may have skipped order executions due to a locale mismatch — a sync after updating Sure will import them correctly.
 
 If trades are still missing after syncing, check the activity feed on your portfolio account. Trades are recorded in the format `{ticker} · {quantity}x {name}` with Buy or Sell as the activity label.
+
+### Bond positions show inflated values
+
+Trade Republic reports bond positions with the nominal (face-value) quantity as the size, while bond prices are quoted as a percentage of par — for example, a price of 84.04 means the bond trades at 84.04% of its face value. Before the fix in this release, Sure multiplied the two directly, producing values 100× too high.
+
+Sure corrects existing bond history automatically when you next sync. Snapshots stored before the fix are rescaled so that your portfolio balance and historical charts reflect the correct value. No manual action is required.
+
+If you see bond values that still appear inflated after syncing, run a manual sync from **Settings > Providers > Trade Republic**. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process your bond positions.
 
 ### Holdings show the wrong value
 
