@@ -334,6 +334,8 @@ Provider-assigned merchants (detected by bank sync or AI enrichment) are shared 
 
 This is expected behavior. The import still proceeds; affected transactions reference the existing shared merchant. No action is required unless you want to update the merchant's details, which you can do manually from **Settings → Merchants** after the import completes.
 
+If the import file contains a `ProviderMerchant` that does not exist on the instance at all, Sure creates a family-owned merchant (a `FamilyMerchant`) for the importing family instead of registering a new shared provider merchant. The transactions in the import are linked to that family-owned merchant, and the import proceeds normally.
+
 ### Sure NDJSON import reports missing merchants as warnings instead of errors
 
 Exports taken before provider-merchant support was added (before version containing [#3113](https://github.com/we-promise/sure/pull/3113)) did not include `ProviderMerchant` rows. When you import such a file, Sure cannot resolve the merchant references. The import now treats unresolvable `merchant_id` values as warnings rather than blocking errors — the affected transactions and recurring transactions import without a merchant assigned. The confirm screen shows the count of affected records.
