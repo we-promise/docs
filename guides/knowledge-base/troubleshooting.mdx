@@ -3,6 +3,24 @@ title: "Troubleshooting"
 ---
 
 
+## AI-detected merchants were created as shared records
+
+When merchant detection identified a new merchant from a transaction's description, Sure previously created a globally-shared `ProviderMerchant` record (source: `ai`). Because those records are visible to every family on the deployment, a transaction description crafted to steer the LLM's output could create or match a shared merchant with an attacker-chosen name, website, or logo — affecting all other families.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    The `Family::AutoMerchantDetector` class, which runs as part of the background merchant detection job. When no existing merchant could be matched for a transaction, it fell back to creating a `ProviderMerchant` (source: `ai`) scoped globally rather than to the family.
+
+    Reusing an already-existing shared merchant by website or name was not affected — that path does not write new data into shared records.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When AI detection cannot find a shared merchant to reuse, it now creates a `FamilyMerchant` scoped to the requesting family instead of a global `ProviderMerchant`. AI-sourced merchants from before this fix are also limited to the family that already has them on its transactions — they are no longer matched by name or URL across families.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Confirmation dialogs could run script from bank-provided names
 
 In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
