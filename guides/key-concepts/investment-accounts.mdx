@@ -138,6 +138,24 @@ Each security can be classified by asset class, sub-class, sector, industry, and
 
 **Classification locked** is a boolean flag. When `true`, no automated source — provider, AI, or default — can overwrite the classification. Sure sets this automatically when you change a security's classification manually.
 
+## Stock splits
+
+A stock split changes a security's share count without a trade. A 2-for-1 split turns 10 shares into 20; a 1-for-10 reverse split turns 100 into 10. The money invested does not change, so the cost per share moves by the inverse of the ratio.
+
+### How splits are applied
+
+Sure applies a split at the open of its ex-date, before that day's trades. If you hold a security on the ex-date, your share count is scaled up (or down for a reverse split) and the per-share cost is adjusted by the inverse ratio so that your total cost basis does not change.
+
+Splits are applied from your account's start date through today. A split with a future ex-date takes effect when that date arrives — it is not applied early.
+
+### Splits on provider-synced accounts
+
+When a provider snapshot is older than the ex-date, Sure carries the snapshot forward through any splits that occurred between the snapshot date and today before applying it to your portfolio. This ensures your current holdings reflect the correct post-split share count even when a sync is delayed or the provider's data is stale.
+
+### Precision
+
+Quantities after a split are rounded to 18 decimal places, matching the precision of the stored share count column. A scale-then-unscale round trip can land one unit in the last decimal place away from the original — this is the floor the storage format imposes and affects only negligibly small fractions of a share.
+
 ## Cost Basis Tracking
 
 Cost basis is the original purchase price of your investments. It's essential for:
