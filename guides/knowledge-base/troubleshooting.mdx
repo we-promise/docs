@@ -490,6 +490,28 @@ Split transaction grouping now applies consistently to both the Transactions pag
 
 Transactions marked as excluded were previously hidden from the account activity feed entirely. This made it impossible to re-include them because there was no row to click. Excluded transactions now appear greyed-out in the account activity list so you can still open them and toggle exclusion off if needed.
 
+## Rule rejected with an invalid field error
+
+If saving a rule or importing rules fails with an "invalid" validation error on a name, condition value, or action value, the field likely contains a null byte (`\0`) or a malformed UTF-8 sequence. PostgreSQL rejects strings with null bytes, and Sure now catches them before they reach the database.
+
+<AccordionGroup>
+  <Accordion title="What triggers this error?">
+    The error appears when:
+
+    - A rule name, condition value, or action value was copied from a source that embedded a null byte (for example, certain export tools or scripted database edits).
+    - A CSV or NDJSON import file contains rule rows with binary garbage or truncated multibyte characters in any text field.
+    - A condition type, action type, or resource type field in a submitted form contains a malformed encoding — in that case the form returns an error as plain text rather than re-rendering.
+  </Accordion>
+
+  <Accordion title="How do I fix it?">
+    - **Manually created rules**: Open the rule in **Settings → Rules**, clear and retype the affected field, then save.
+    - **Imported rules**: Open the import file in a text editor, find the row flagged in the error, remove or replace any non-printable characters in the name, condition value, or action value column, and re-run the import.
+    - **CSV files**: Ensure the file is saved as UTF-8 without BOM and without embedded null bytes. Most spreadsheet apps can re-export a clean UTF-8 file.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Rule category, merchant, or tag names missing in exports
 
 When you export your data (via **Settings → Exports**), rule conditions and actions that reference a category, merchant, or tag should appear with the human-readable name rather than the raw UUID. In older versions, two bugs could cause the name to be missing or stale in the exported `rules.csv` and `all.ndjson` files:
