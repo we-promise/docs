@@ -398,6 +398,41 @@ Investment accounts have different tax implications based on their type:
 
 Sure automatically assigns tax treatment based on account subtype, but you can adjust it manually if needed.
 
+## How investment cash flows are classified
+
+Every entry in an investment or crypto account belongs to one of five flow classes. Sure uses these classes to compute portfolio returns, allocation breakdowns, and income figures consistently.
+
+| Class | What it covers |
+| --- | --- |
+| **External inflow** | Money or assets arriving from outside the scope being measured (a deposit, a contribution) |
+| **External outflow** | Money or assets leaving the scope (a withdrawal) |
+| **Income** | A dividend or interest payment |
+| **Fee** | An account fee or commission |
+| **Internal** | A buy, sell, reinvestment, sweep, exchange, or a transfer whose other leg sits inside the same scope |
+
+The classification is determined by the activity label on the entry, and in the case of transfers, by whether the counterpart account falls inside the scope being measured. A transfer between two of your brokerage accounts is **internal** when you are looking at your whole portfolio, but **external** (an outflow from one account and an inflow to the other) when you are looking at either account on its own.
+
+Activity labels map to flow classes as follows:
+
+| Label | Flow class |
+| --- | --- |
+| Dividend | Income |
+| Interest | Income |
+| Fee | Fee |
+| Buy | Internal |
+| Sell | Internal |
+| Reinvestment | Internal |
+| Sweep In | Internal |
+| Sweep Out | Internal |
+| Exchange | Internal |
+| Contribution | External (inflow or outflow by direction, unless the counterpart is in scope) |
+| Withdrawal | External (inflow or outflow by direction, unless the counterpart is in scope) |
+| Transfer | Internal if the other leg is in scope; external by direction otherwise |
+
+Excluded and pending entries are skipped entirely and do not count in any class.
+
+Setting the correct activity label on an entry is the primary way you control how it affects your portfolio return figures. A deposit mistakenly left without a label is classified as an external inflow and correctly excluded from the investment return; a dividend labelled as a contribution would be counted as a cash flow in rather than as income. Use the activity label selector in the entry detail view to correct misclassified entries.
+
 ## Portfolio returns: time-weighted vs. money-weighted
 
 Sure tracks two different return figures for your investments, because no single number answers every question about performance.
