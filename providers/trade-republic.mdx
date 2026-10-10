@@ -86,15 +86,17 @@ Until you link the Crypto provider account to a Sure account, crypto positions a
 - Current holdings with quantities and market values (crypto excluded once the Crypto account is linked)
 - Trade history (buys and sells), including fees recorded separately on each trade
 - Savings plan executions, including historical savings-plan invoices
-- Saveback reinvestments (recorded as portfolio trades)
+- Saveback reinvestments (recorded as portfolio trades; no cash leg, because Trade Republic pays for the shares)
+- Stock Bonus shares (ACQUISITION_TRADE_PERK events, recorded as portfolio trades; no cash leg, because Trade Republic pays for the shares)
 - Round Up investments (recorded as portfolio trades)
 
 ### Cash account
 
 - Cash balance
-- Deposits and withdrawals, including Google Pay deposits (recorded as standard transactions; automatic transfer matching turns a deposit into a transfer when the counterpart bank account is also in Sure)
-- Card payments and ATM withdrawals
-- Card refunds
+- Deposits and withdrawals, including Google Pay deposits and credit card top-ups (recorded as standard transactions; automatic transfer matching turns a deposit into a transfer when the counterpart bank account is also in Sure)
+- Card payments and ATM withdrawals, including card-funded transfers out such as topping up PayPal, Revolut, or Paysafecard (CARD_AFT events, labeled Card payment)
+- Card refunds, including card credits such as merchant refunds pushed directly to the card (CARD_OCT events, labeled Card refund)
+- Italian stamp duty charges (imposta di bollo); cancellations are imported as tax refunds
 - Interest payouts (labeled Interest)
 - Dividends, including per-share amount and withholding tax where available (labeled Dividend)
 - Fees (labeled Fee)
@@ -113,7 +115,7 @@ When all three accounts are linked:
 - Non-crypto buy and sell trades are recorded on the Portfolio account. Each trade also produces a corresponding entry on the Cash account: buys appear as uncategorized investment contributions and sale proceeds appear as funds movements.
 - Crypto buys, sells, and round-up settlements are recorded on the Crypto account. Each trade produces a corresponding Cash entry linked to it as a confirmed transfer.
 - Cash movements (deposits, withdrawals, card payments, interest, dividends) are recorded on the Cash account only.
-- Saveback events are recorded as Portfolio trades only.
+- Saveback events and Stock Bonus events are recorded as Portfolio trades only, with no cash leg on either account.
 - Round Up events produce a trade on whichever account holds the position (Portfolio or Crypto) and a corresponding cash outflow linked by a confirmed transfer.
 
 ## Trade names
