@@ -1,9 +1,9 @@
 ---
 title: On-chain wallets
-description: Track self-custody Bitcoin, EVM, and Solana wallets by public address — no keys required.
+description: Track self-custody Bitcoin, EVM, Solana, and Polkadot wallets by public address — no keys required.
 ---
 
-Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, and Solana — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
+Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, Solana, and Polkadot — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
@@ -50,6 +50,7 @@ When an asset ends up valued at zero for either reason, it is recorded in **Sett
 | Gnosis | Blockscout (`gnosis.blockscout.com`) | No | `BLOCKSCOUT_GNOSIS_URL` |
 | Solana | Public JSON-RPC (`api.mainnet-beta.solana.com`) | No | `SOLANA_RPC_URL` |
 | Solana token names | Jupiter token search (`lite-api.jup.ag`) | No | `SOLANA_TOKEN_LIST_URL` |
+| Polkadot | Parity Asset Hub Sidecar (`polkadot-asset-hub-public-sidecar.parity-chains.parity.io`) | No | `POLKADOT_SIDECAR_URL` |
 
 Every override expects the base URL of a compatible instance, without a trailing slash — useful if you run your own indexer or node, or if a public endpoint rate limits you.
 
@@ -112,6 +113,7 @@ All the default endpoints are free and shared, so they throttle. Per sync, per a
 | Bitcoin | 1 + up to 10 history pages |
 | EVM | 1 summary + up to 10 pages of transfers + up to 10 pages of token transfers |
 | Solana | ~2 + up to 25 transaction reads |
+| Polkadot | 1 (balance only) |
 
 History is capped by default at 10 pages per source and at 25 transactions for Solana. Wallets with more history than that keep their **current balance correct** — balances come from an address summary, never from history — but their oldest transfers are not imported.
 
@@ -136,6 +138,10 @@ The native coin is never affected, and anything already tracked keeps syncing re
 **Bitcoin is one address at a time.** Extended keys (`xpub`, `ypub`, `zpub`) are not supported and are rejected as addresses. Most Bitcoin wallets are HD wallets where one extended key derives thousands of addresses — tracking a single address of such a wallet reports only that address's balance.
 
 **Solana token names depend on a token list.** RPC returns mints, not names, so names come from Jupiter's token search — and only for mints it reports as *verified*. Unverified or unknown mints keep a label built from their mint address and are tracked by quantity only. Names are cached for 24 hours per mint.
+
+**Polkadot tracks balance only.** No keyless public source indexes Polkadot transfers, so only the current DOT balance is recorded. The balance is free plus reserved, so staked DOT counts. Token assets on Polkadot Asset Hub (other than DOT itself) are not tracked.
+
+**Polkadot addresses use the SS58 format with the Polkadot network prefix.** A valid address starts with `1` and is 47–48 characters long. Extended public keys (derived from a mnemonic) are not supported — enter the public address of the specific account you want to track.
 
 **Fees are not itemised.** Network fees are included in the net effect of each transfer rather than recorded separately.
 
