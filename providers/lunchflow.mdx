@@ -84,6 +84,16 @@ For investment accounts, Lunch Flow provides:
 
 Note: Not all account types support holdings. The API will indicate when holdings are not available for a specific account.
 
+### Balance reported as available credit
+
+Some banks report a credit card's remaining available credit instead of the amount owed. For example, a card with a £5,000 limit and £16.17 outstanding might return +£4,983.83 rather than -£16.17. Without correction, Sure interprets this as a large credit balance and overstates your net worth by roughly the full card limit.
+
+To fix this, open the credit card's edit dialog and enable **Balance is available credit**. This option appears only when the card is linked to Lunch Flow.
+
+When the toggle is on, Sure derives the debt from the card's **Available credit** field (which holds the limit, since Lunch Flow does not report one) using the formula: limit minus the reported amount. If no limit is set, Sure keeps the last known balance and logs a warning rather than recording the available credit figure as debt. Overpayments remain a negative (credit) balance, matching the default Lunch Flow behaviour.
+
+If you change the card limit while the toggle is on, Sure queues a sync automatically so the balance is updated immediately.
+
 ### Sync status
 
 The Lunch Flow connection card shows the current sync state:
