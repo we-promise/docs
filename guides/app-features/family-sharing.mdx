@@ -13,11 +13,15 @@ Each Sure family can have multiple members with different permission levels. You
 
 ### Permission Levels
 
-| Permission | Description | Can View | Can Edit |
-| --- | --- | --- | --- |
-| **Owner** | Full control over the account | ✅ | ✅ |
-| **Editor** | Can view and modify transactions | ✅ | ✅ |
-| **Viewer** | Read-only access | ✅ | ❌ |
+When sharing an account you assign one of three permission levels to each family member.
+
+| Permission | Description | Can view | Can categorize, tag, and add notes | Can edit and delete transactions |
+| --- | --- | --- | --- | --- |
+| **Full control** | Can view, edit, and manage transactions | ✅ | ✅ | ✅ |
+| **Can annotate** | Can categorize, tag, and add notes | ✅ | ✅ | ❌ |
+| **View only** | Read-only access | ✅ | ❌ | ❌ |
+
+The account owner always retains full control and cannot be removed through the sharing settings.
 
 ## Sharing an Account
 
@@ -49,7 +53,7 @@ Family sharing respects privacy boundaries:
 - **Reports**: Financial reports are scoped to only include accounts the user has access to
 - **Budgets**: The household budget includes shared accounts. Personal budgets (when enabled) are scoped to each member's own accounts independently.
 - **Totals**: Net worth and other totals reflect only accessible accounts
-- **Providers**: Third-party provider connections are scoped per family
+- **Providers**: Third-party provider connections are scoped per family. When a sync completes, each family member's browser re-fetches the page with its own authenticated request, so each member sees only the accounts shared with them — provider cards are never broadcast across the whole family.
 - **Merchants**: Merchant data is shared across the family for consistency
 - **Personal budgets**: When personal budgets are enabled, each member's actual spending is scoped to their own accounts only
 
@@ -64,16 +68,19 @@ Shared accounts appear in your account list with an indicator showing they're sh
 
 ### Editing Shared Accounts
 
-If you have **Editor** permission on a shared account, you can:
+If you have **Full control** permission on a shared account, you can:
 - Add, edit, and delete transactions
 - Update account settings
 - Record trades (for investment accounts)
-- Categorize and tag transactions
+- Categorize, tag, and add notes to transactions
 
-If you have **Viewer** permission, you can only view the account data without making changes.
+If you have **Can annotate** permission, you can categorize, tag, and add notes to transactions but cannot add, edit, or delete them.
 
-> [!NOTE]
-> When recording a deposit or withdrawal on an investment account, Sure books the transaction on a second account (the transfer account). You must have editor access on that transfer account as well. Accounts shared with you as view-only do not appear in the transfer account picker.
+If you have **View only** permission, you can see the account data but cannot make any changes.
+
+<Note>
+When recording a deposit or withdrawal on an investment account, Sure books the transaction on a second account (the transfer account). You must have Full control on that transfer account as well. Accounts shared with you as View only or Can annotate do not appear in the transfer account picker.
+</Note>
 
 ### Removing Access
 
@@ -131,7 +138,7 @@ Share investment accounts with a financial advisor or trusted family member for 
 
 ## Best Practices
 
-1. **Start with view-only**: Give new family members viewer access first, then upgrade to editor as needed
+1. **Start with view-only**: Give new family members **View only** access first, then upgrade to **Can annotate** or **Full control** as needed
 2. **Regular reviews**: Periodically review who has access to your accounts
 3. **Clear communication**: Discuss financial goals and boundaries with family members
 4. **Use categories consistently**: Establish category conventions for shared accounts
