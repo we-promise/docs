@@ -26,6 +26,22 @@ Because provider merchant rows are shared across families, a crafted merchant na
   </Accordion>
 </AccordionGroup>
 
+## MXN amounts show wrong number separators in Spanish
+
+When the interface language is set to Spanish, Mexican peso (MXN) amounts were formatted using European-style separators — a comma as the decimal separator and a dot as the thousands separator. This produced values like `1.234,56 MXN` instead of the correct `1,234.56 MXN`.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Sure formats currency amounts using the active locale's separator rules. Spanish uses European-style separators for most currencies, but MXN natively uses US-style separators (dot as decimal, comma as thousands). The formatter did not have a currency-specific override for MXN under the Spanish locale, so it applied the locale's default separators instead.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The number formatter now checks the currency code before applying locale-derived separators. When the currency is MXN, the US-style separators are used regardless of the active locale. All other currencies continue to follow the locale's own separator conventions.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Category avatar preview does not update when picking a color
 
 When editing or creating a category, changing the color using the color picker previously did not update the avatar preview — the icon and background appeared to stay at the original color until the form was saved.

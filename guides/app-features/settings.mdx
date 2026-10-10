@@ -267,6 +267,10 @@ The AI chat interface is fully localized in Brazilian Portuguese (pt-BR). This i
 
 Several account page UI strings that previously failed to resolve in non-English locales now display correctly. The balance tooltip and "no balance data" message on account activity date rows, the selection toggle label in the activity feed, and the period picker's accessibility label all use the correct language when a non-English locale is set. Previously these strings rendered as raw translation-missing text or fell back silently to English.
 
+### MXN number formatting in Spanish
+
+When the interface language is set to Spanish, Mexican peso (MXN) amounts now display with US-style separators — a dot (`.`) as the decimal separator and a comma (`,`) as the thousands separator — matching how MXN values are natively formatted. Previously, the Spanish locale's European-style separators were applied to MXN, producing incorrect formats such as `1.234,56` instead of `1,234.56`. All other currencies continue to use the locale-aware separators for their respective locales.
+
 ### Date formatting across all locales
 
 Dates that span multiple years — such as those shown in bills, the period picker, and transaction date pickers — now display in the correct format for your locale. Previously, only 7 of the 118 supported locales defined their own short-with-year date format. The other 111 fell back to the English format (`Jan 05, 2027`), so a German user, for example, would see `Jan 05, 2027` instead of `05. Jan 2027`. All 118 locales now have an explicit short-with-year format derived from their own long date format.
