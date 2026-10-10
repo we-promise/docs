@@ -277,6 +277,14 @@ Tag coffee runs,transaction,true,,"[{""condition_type"":""transaction_name"",""o
 
 ## Troubleshooting
 
+### File upload fails on iPhone or iPad
+
+On iOS (Safari and Chrome for iOS), tapping the file picker to upload a Sure export (NDJSON) or a bank statement (PDF) could fail silently or return an error page. The upload appeared to start but never reached the server.
+
+WebKit on iOS sends native multipart form submissions with an empty body when the form navigates away from the page, so the file never arrives. Sure now submits these upload forms through Turbo (using `requestSubmit()`) so the file is sent correctly as a fetch request with all required headers.
+
+If you are on an older version and see a "We didn't receive your file. Please try uploading it again." alert on iOS, upgrade to the latest release and retry the upload.
+
 ### Import fails with date errors
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
