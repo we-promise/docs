@@ -84,7 +84,8 @@ Until you link the Crypto provider account to a Sure account, crypto positions a
 ### Portfolio account
 
 - Current holdings with quantities and market values (crypto excluded once the Crypto account is linked)
-- Trade history (buys and sells), including fees recorded separately on each trade
+- Trade history (buys and sells for stocks, ETFs, and bonds), including fees recorded separately on each trade
+- Bond purchases: the nominal amount is imported as quantity and the quotation (price as a percent of par) is converted to a per-unit price — for example, a quotation of 92.67% becomes a price of 0.9267 per nominal unit
 - Savings plan executions, including historical savings-plan invoices
 - Saveback reinvestments (recorded as portfolio trades)
 - Round Up investments (recorded as portfolio trades)
@@ -123,6 +124,16 @@ Trades are labelled using the format `{ticker} · {quantity}x {name}`. When the 
 ## Securities and market data
 
 Sure resolves holdings and historical trades to exchange tickers when Trade Republic provides a venue symbol. Exchange-listed securities use real ticker symbols for market data lookups. When no usable exchange symbol is available for a position, the security is marked offline and price importers skip it automatically. Sure retries unresolved ISINs at most once per day for up to 30 days.
+
+### Bonds
+
+Trade Republic lists every bond on its exchange under the placeholder symbol "BOND". Sure bypasses that listing and resolves each bond directly to an offline ISIN security instead. Each bond gets its own security, so two bonds in the same portfolio no longer share a single holding row.
+
+Bonds are priced using Trade Republic's own snapshot prices rather than a market data feed.
+
+Bond securities are named using the format `{issuer} {coupon} {maturity}` — for example, "Italy 3.1% Mar 2040". The coupon is omitted when the bond's information is unavailable; the name then falls back to the instrument name from Trade Republic.
+
+Holdings that were previously stored on the shared BOND listing are moved to each bond's own ISIN security automatically on the next sync.
 
 ### Crypto holdings
 
