@@ -156,6 +156,18 @@ You'll see the transaction in your transaction history and the net worth chart w
 
 <img width="500" height="512" alt="Filled-out expense form" src="https://github.com/user-attachments/assets/7c1d38d1-edb8-4d12-8b3e-bbef4836cc92" />
 
+## Uploading statements
+
+You can keep your bank's statements alongside an account and let Sure check balances against them. Open an account and upload PDF, CSV, or XLSX files in **Statements**, or go to **Settings → Statement Vault** to upload first and link later.
+
+Sure needs each statement's **period** to show which months are covered and to compare balances. It finds the period in this order:
+
+1. **Inside the PDF** — when the statement includes its period as a date range (e.g. `01 Apr 2026 - 30 Apr 2026`) or as the dates next to the opening and closing balance (e.g. "Saldo iniziale al 01.07.2025"). Sure also reads opening and closing balances from a summary table or next to labels such as "Opening balance" and "Closing balance". Month names and labels are recognized in English, Italian, German, French, Spanish, Dutch, and Portuguese.
+2. **Dates in the filename** — for everything else, e.g. `2026-04`, `2026-04-30`, or `Apr 2026`.
+3. **Manually** — open the statement and enter the period and balances yourself.
+
+If your bank names every file the same way, add the month to the filename before uploading, e.g. `Statement 2026-04.pdf`.
+
 ## Managing investment accounts
 
 If you're tracking investments in Sure, there are additional features to help you manage your portfolio accurately.
