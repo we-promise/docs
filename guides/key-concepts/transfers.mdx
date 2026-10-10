@@ -157,6 +157,16 @@ Manual accounts still participate in same-currency matching, where amounts must 
 
 If you have a real cross-currency transfer that involves a manual account, you can still confirm it yourself. Open either transaction, choose **Match as transfer**, and select the counterpart from the dialog. The manual match dialog uses a wider tolerance (up to 10%) and shows manual account candidates so you can find and confirm the match by hand.
 
+### Write access requirement for auto-matching
+
+For a transfer pair to be created automatically, at least one family member must have write access to both accounts involved. This ensures someone can always confirm or reject the match after it is created.
+
+Write access means being the account owner or having a full-control share on the account.
+
+An account whose owner has been removed from the family (owner nullified) does not block auto-matching on its own. A member who can write to the other side is sufficient, since they can still reject the match. Two accounts that nobody in the family can write to are skipped entirely.
+
+This write-access check applies to both legs and to any fee transactions attached to the transfer. Rejecting or unlinking a transfer also requires write access to every account that holds a fee transaction, because unlinking removes those fee transactions.
+
 ## Transfer Summary Totals
 
 When viewing your transaction list filtered by transfers, Sure displays **Inflow** and **Outflow** totals instead of the standard Income and Expenses labels.
