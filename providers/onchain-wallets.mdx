@@ -1,11 +1,15 @@
 ---
 title: On-chain wallets
-description: Track self-custody Bitcoin, EVM, and Solana wallets by public address — no keys required.
+description: Track self-custody Bitcoin, EVM, Solana, and Cosmos Hub wallets by public address — no keys required.
 ---
 
-Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, and Solana — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
+Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, Solana, and Cosmos Hub — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
+<Note>
+Cosmos Hub (ATOM) tracks balance only — spendable plus staked plus unbonding. Public Cosmos REST nodes do not index transactions, so no transfer history is imported.
+</Note>
 
 ## What gets tracked
 
@@ -50,6 +54,7 @@ When an asset ends up valued at zero for either reason, it is recorded in **Sett
 | Gnosis | Blockscout (`gnosis.blockscout.com`) | No | `BLOCKSCOUT_GNOSIS_URL` |
 | Solana | Public JSON-RPC (`api.mainnet-beta.solana.com`) | No | `SOLANA_RPC_URL` |
 | Solana token names | Jupiter token search (`lite-api.jup.ag`) | No | `SOLANA_TOKEN_LIST_URL` |
+| Cosmos Hub | Public Cosmos SDK REST (`cosmos-rest.publicnode.com`) | No | `COSMOS_REST_URL` |
 
 Every override expects the base URL of a compatible instance, without a trailing slash — useful if you run your own indexer or node, or if a public endpoint rate limits you.
 
@@ -132,6 +137,8 @@ The native coin is never affected, and anything already tracked keeps syncing re
 **A zero next to a token you know is worth something almost always means the provider does not list that token, not that the balance is wrong.** Check the quantity, which is read straight from the chain. Native coins (BTC, ETH, SOL, POL, XDAI) and large-cap tokens are the well-covered case.
 
 **DeFi positions are not seen at all.** Staked ETH, liquidity-pool tokens, lending positions, and Solana stake accounts are invisible. A wallet holding most of its value in a staking or lending protocol will report a fraction of it.
+
+**Cosmos Hub records balance only, not transfers.** The balance includes spendable, delegated (staked), and unbonding ATOM. Public REST nodes do not expose a transaction index, so no transfer history is imported for Cosmos addresses.
 
 **Bitcoin is one address at a time.** Extended keys (`xpub`, `ypub`, `zpub`) are not supported and are rejected as addresses. Most Bitcoin wallets are HD wallets where one extended key derives thousands of addresses — tracking a single address of such a wallet reports only that address's balance.
 
