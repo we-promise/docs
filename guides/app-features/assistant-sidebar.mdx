@@ -1,9 +1,9 @@
 ---
 title: "AI assistant sidebar"
-description: "Show, hide, and understand the desktop AI sidebar in Sure"
+description: "Show, hide, and understand the AI assistant on desktop and mobile in Sure"
 ---
 
-Sure includes an AI assistant sidebar on desktop. If you do not want to use it yet, you can hide it and bring it back later.
+Sure includes an AI assistant on both desktop and mobile. On desktop it appears as a right-hand sidebar; on mobile it is accessible from the bottom navigation bar.
 
 ## Hide or show the AI sidebar on desktop
 
@@ -14,6 +14,12 @@ On desktop, use the **panel-right** button in the top bar to toggle the right-ha
 - Sure saves this preference to your account
 
 This is useful if you want more room for the main app content or simply do not want to use the assistant yet.
+
+## Accessing the assistant on mobile
+
+On mobile, tap **Assistant** in the bottom navigation bar to open the AI chat interface.
+
+If AI has not been enabled for your account yet, tapping Assistant shows the consent screen rather than the chat composer. This lets you review and accept the AI terms before starting a conversation. Once you accept, the full chat interface becomes available.
 
 ## When the sidebar is hidden by default
 
@@ -31,6 +37,10 @@ When you start a new chat without providing a custom title, Sure generates a def
 ## Localized chat interface
 
 The full chat interface is localized to match your language setting. This includes the AI greeting, suggested questions, chat navigation labels, consent dialog, and error messages. Brazilian Portuguese (pt-BR) is fully supported. Set your language under Settings → Preferences to switch the chat interface to your preferred language.
+
+## Error messages from the AI provider
+
+When the AI provider returns an error during a conversation — for example, a rate-limit or quota error from OpenAI — Sure surfaces the actual error message from the provider. This makes it easier to understand what went wrong and whether the issue is temporary (such as hitting a usage limit) or requires action (such as checking your API key or plan).
 
 ## Related settings
 
