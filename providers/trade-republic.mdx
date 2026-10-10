@@ -162,6 +162,12 @@ If buy or sell trades are missing from your portfolio account, run a manual sync
 
 If trades are still missing after syncing, check the activity feed on your portfolio account. Trades are recorded in the format `{ticker} · {quantity}x {name}` with Buy or Sell as the activity label.
 
+### Some trades listed as not imported yet
+
+During a sync, Sure may encounter order executions whose detail Trade Republic has not fully delivered yet — the response is missing an ISIN or a quantity. Sure skips those executions and records a warning in the sync diagnostics listing each affected event ID, type, date, and what is missing.
+
+These warnings appear in the data quality section of the Trade Republic panel. In most cases the detail arrives on the next sync and the trade is imported automatically. If the warning persists across multiple syncs, the execution may have a permanent data issue on Trade Republic's side. You can check the Trade Republic app directly to confirm whether the trade appears in your history there.
+
 ### Holdings show the wrong value
 
 If a position shows no price or an incorrect value:
