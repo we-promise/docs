@@ -162,6 +162,12 @@ If buy or sell trades are missing from your portfolio account, run a manual sync
 
 If trades are still missing after syncing, check the activity feed on your portfolio account. Trades are recorded in the format `{ticker} · {quantity}x {name}` with Buy or Sell as the activity label.
 
+### Trade prices were corrected after a sync
+
+Sure now reads the exact share price from the trade detail's overview row (the `quantity × price` line) rather than deriving it by dividing the cent-rounded total by the quantity. For small trades, the derived price could differ slightly from the actual execution price.
+
+Stored trades whose price was derived from the rounded total are re-fetched automatically during subsequent syncs and corrected. This updates the trade price and recalculates the cost basis. The same retry pacing applies: one attempt for trades older than 30 days, daily retries for newer ones.
+
 ### Holdings show the wrong value
 
 If a position shows no price or an incorrect value:
