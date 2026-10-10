@@ -118,5 +118,7 @@ Routing through a gateway means your families' transaction descriptions transit 
 | `CATEGORIZATION_PROVIDER` | — | `llm` or `jev`. Overrides every family's choice when set. |
 | `CATEGORIZATION_CONFIDENCE_THRESHOLD` | `0.7` | Minimum confidence to apply an answer. Clamped to 0.0–1.0. |
 | `CATEGORIZATION_SHADOW_RATE` | `0.0` | Fraction of runs that also query the other provider. Clamped to 0.0–1.0. |
+| `JEV_REQUEST_TIMEOUT` | `30` | Per-request HTTP timeout in seconds. Raise for slow endpoints. |
+| `JEV_CONCURRENCY` | `8` | Maximum number of concurrent requests per categorization run. |
 
 All variables except `JEV_API_KEY` can also be set per-family through **Settings > Self-Hosting** when preview features are on. An environment variable always takes precedence over the UI setting.

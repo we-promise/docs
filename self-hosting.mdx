@@ -263,6 +263,20 @@ BRAND_FETCH_HIGH_RES_LOGOS=false
 
 When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
 
+### Application name variables
+
+By default, Sure uses "Sure" as the product name and "FOSS" as the brand name throughout the UI, emails, and page titles. You can override both to white-label your instance:
+
+```txt
+# Display name for the application (default: Sure)
+PRODUCT_NAME=MySure
+
+# Brand prefix shown in the footer and email sender name (default: FOSS)
+BRAND_NAME=MyOrg
+```
+
+The combined value appears in the footer as `© <year>, <BRAND_NAME> <PRODUCT_NAME>`, in the email sender name, and wherever the app refers to itself in UI copy.
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
