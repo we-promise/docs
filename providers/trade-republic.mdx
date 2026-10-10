@@ -99,7 +99,7 @@ Until you link the Crypto provider account to a Sure account, crypto positions a
 - Dividends, including per-share amount and withholding tax where available (labeled Dividend)
 - Fees (labeled Fee)
 - Tax refunds
-- Trade settlements: each buy and sell settlement records a cash outflow or inflow linked to the portfolio by a confirmed transfer when both accounts are linked
+- Trade settlements: each buy and sell settlement records a cash outflow or inflow linked to the portfolio by a confirmed transfer when both accounts are linked. The settled amount is the detail total from Trade Republic (fees and taxes included), which matches what Trade Republic books against your cash balance
 - Round Up outflows (labeled Buy, linked to the portfolio by a confirmed transfer when both accounts are linked)
 
 ### Crypto account
@@ -178,6 +178,8 @@ Earlier syncs classified Trade Republic cash-account deposits as funds movements
 ### Balance does not match the Trade Republic app
 
 Sure uses the booked cash balance from Trade Republic, which matches the balance shown in the Trade Republic app. Funds reserved for open orders (such as pending limit orders) are not subtracted from this balance — those orders have not settled, so no matching transaction exists yet.
+
+For sales where Trade Republic withholds tax, the settled cash amount can differ from the headline order value shown in the timeline list. Sure books the detail total (the figure Trade Republic posts against your cash balance, taxes included) rather than the list amount, so the cash account should stay consistent with the Trade Republic app.
 
 If the balance still does not match, a sync may have captured a partial response. Run a manual sync to refresh. If the discrepancy persists, click **Repair** in the data quality section of the Trade Republic panel to re-process imported data.
 
