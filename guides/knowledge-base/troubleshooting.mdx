@@ -330,6 +330,24 @@ If a provider connection shows "Deletion in progress" indefinitely and never dis
   </Accordion>
 </AccordionGroup>
 
+## Reports show stale data after merging or deleting a category
+
+When you merge categories or delete a category, dashboards and income statements could continue to display the deleted category until an unrelated transaction change occurred.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Category merges and category deletions reassign transactions in bulk using `update_all`, which skips Active Record callbacks. The cache key for family reports is driven by the `updated_at` timestamp of the most recently changed entry. Because `update_all` bypassed callbacks, the entry timestamps were never updated, so the report cache key did not change and the old category data remained visible.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now routes all bulk category reassignments through `Transaction.reassign_category!`, which updates the affected transactions and then touches the corresponding entries inside a single database transaction. Touching the entries bumps their `updated_at` values, which invalidates the report cache key immediately.
+
+    The entry touch is batched in groups of 5,000 to avoid building an unbounded `UPDATE` statement on large merges.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
