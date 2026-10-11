@@ -3,6 +3,24 @@ title: "Troubleshooting"
 ---
 
 
+## Account name and balance visible to family members without access after a sync
+
+In earlier versions, when an account finished syncing, Sure broadcast a rendered account row — including the account name and balance — on the family's shared Turbo stream. Every signed-in family member subscribed to that stream, including members who did not have access to the account. The row reached their browser after every sync even though the accounts page did not show it to them.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any account that could sync independently — linked accounts (connected via a provider) and manual accounts that were synced — could expose their name and balance to all currently signed-in family members, regardless of whether those members had view or edit access to the account.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The broadcast that replaced the account row in the family stream is removed. Instead, when a sync completes, Sure sends a lightweight sync toast to each browser. Each browser then re-fetches its own accounts page on its own authenticated request, so only members who have access to the account see the updated data.
+
+    The fix also covers linked accounts that sync on their own with no follow-up provider event, which would previously have left the accounts page stale for members who do have access.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Confirmation dialogs could run script from bank-provided names
 
 In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
