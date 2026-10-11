@@ -112,17 +112,34 @@ Sure looks for transaction pairs that:
 | Pending transactions | 4 days |
 | Confirmed transactions | 30 days |
 
-### Suggested Matches
+### Suggested matches
 
 When Sure finds a potential transfer match, it creates a **pending** transfer suggestion. You can:
 
-1. **Confirm** - Accept the match and link the transactions
-2. **Reject** - Dismiss the match (transactions remain separate)
+1. **Confirm** - Accept the match and link the transactions as a transfer
+2. **Reject** - Dismiss the match (transactions remain separate and keep their existing kinds and categories)
 
 To review suggested transfers:
 1. Open a transaction that may be part of a transfer
 2. Look for transfer match suggestions
 3. Confirm or reject as appropriate
+
+**What changes at confirmation:**
+
+- Sure assigns the appropriate transfer kind (funds movement, CC payment, investment contribution, etc.) to both legs at the moment you confirm — not when the suggestion first appears.
+- If the outflow has no category and the destination is an investment or crypto account, Sure assigns the Investment Contributions category automatically.
+- Any notes on the transfer are preserved when you confirm from the transaction list.
+
+**What stays the same while a match is pending:**
+
+- Both transactions continue to count under their own categories.
+- The category menu remains available so you can still update a transaction's category before confirming.
+- The Transfer badge is not shown until the match is confirmed.
+- Neither transaction is excluded from budgets or income-statement totals yet.
+
+**When you reject a match:**
+
+- If a transaction already had a kind (for example, one you set manually), that kind is preserved — rejection does not reset it.
 
 ## Cross-Currency Transfers
 
@@ -177,7 +194,7 @@ This helps you understand your cash movement patterns when reviewing transfers i
 > [!NOTE]
 > When filtering by both transfers and other transaction types, transfer amounts are excluded from income and expense totals to avoid confusion.
 
-## How Transfers Affect Budgets
+## How transfers affect budgets
 
 Transfers are generally **excluded** from budget calculations because they don't represent actual spending or income:
 
@@ -187,6 +204,8 @@ Transfers are generally **excluded** from budget calculations because they don't
 | CC Payment | Excluded |
 | Investment Contribution | Excluded |
 | Loan Payment | Can be included as expense |
+
+Budget exclusion applies only to **confirmed** transfers. While a suggested auto-match is still pending, both transactions continue to count under their own categories in budgets and income-statement totals. The exclusion takes effect when you confirm the match.
 
 > [!TIP]
 > If you want to budget for loan payments, you may want to track them as expenses. Sure treats loan payments specially since they represent ongoing obligations.
