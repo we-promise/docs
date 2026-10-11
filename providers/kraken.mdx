@@ -11,7 +11,7 @@ See [Transaction history and import limits](/providers/transaction-history) for 
 
 Sure imports one combined Crypto exchange account per Kraken connection, containing:
 
-- Current crypto holdings and balances
+- Current crypto holdings and balances — staked and bonded wallet balances (such as ETH.B or DOT28.S) are combined with their spot balance into a single holding per asset, valued at their balance-weighted average price
 - Spot trade fills (buy/sell history)
 - Deposits and withdrawals — each imported as two entries: the principal and a separate fee entry, so the transfer can be matched to your receiving account
 - Staking rewards and Earn income
