@@ -20,6 +20,8 @@ Sure imports one combined Crypto exchange account per Kraken connection, contain
 
 Crypto ledger entries (deposits, withdrawals, staking rewards, and so on) are recorded as trades that carry a unit quantity and the price on the day they moved, not as cash transactions. This keeps your crypto position history accurate and separate from your cash balance.
 
+For spot trades, Sure reads the filled quantity and cash movement from the Kraken ledger rather than from TradesHistory. The ledger nets each side of a trade against its fee — including fees charged in the base asset, which TradesHistory does not expose — so the recorded quantity and cash reflect what actually moved. If ledger rows are not available for a trade (for example, before the "Query Ledger Entries" permission was granted), Sure falls back to TradesHistory values and corrects the entry automatically once the ledger rows arrive.
+
 ## Setting up Kraken
 
 ### Step 1: Create a Kraken API key
@@ -68,3 +70,9 @@ When the exact exchange rate for a given date is unavailable, Sure shows the bal
 ### Crypto holdings history looks wrong for older accounts
 
 If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync — no re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
+
+### Trade quantities or cash amounts look slightly off
+
+Kraken can charge a trade's fee in either the base asset (for example, BTC on a BTC/USD buy) or the quote currency. When the fee comes out of the base asset, TradesHistory reports the gross quantity with no indication that units were taken as a fee.
+
+Sure now reads trade quantity and cash from the Kraken ledger, which nets fees correctly on both sides. Trades imported before the "Query Ledger Entries" API permission was active — or before the ledger backfill reached them — held the uncorrected gross figures. Sure corrects those trades automatically on the next sync once the ledger rows are available. Trades you have manually edited or locked are left unchanged.
