@@ -73,6 +73,9 @@ Dividends and interest are recorded as trades to maintain data integrity:
 
 This approach ensures all investment income is properly tracked while maintaining the requirement that trades reference a security.
 
+> [!NOTE]
+> Some providers — including Trading 212, Interactive Brokers, Questrade, SnapTrade, Indexa Capital, and Kraken (fiat staking and earn) — deliver dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms when calculating the dividend and interest totals shown on your investment summary.
+
 ### Transaction Fees
 
 Trades support an optional **fee** field to track transaction costs:
@@ -274,6 +277,8 @@ To record a dividend or interest payment:
 > [!NOTE]
 > Dividends require a security selection, while interest can be recorded without one. When no security is selected for interest, Sure automatically creates a per-account synthetic cash security (kind: `cash`, offline: `true`) to maintain data integrity.
 
+Some providers — including Trading 212, Interactive Brokers, Questrade, SnapTrade, Indexa Capital, and Kraken (fiat staking and earn) — import dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms when calculating the totals shown on your investment summary. Income-labeled outflows such as margin-interest charges or dividend reversals reduce the total rather than adding to it.
+
 ### Trade Fees
 
 All trades support an optional fee field to track transaction costs:
@@ -305,6 +310,8 @@ When creating a dividend or interest transaction:
 3. For interest: Optionally select a security, or leave blank to use the account's cash position
 4. Enter the amount received
 5. The trade is created with qty: 0 and price: 0, maintaining the security association
+
+Some providers import dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms in your investment totals, so the figures on your investment summary are accurate regardless of how your provider delivers the data.
 
 ## Trade Fees
 
