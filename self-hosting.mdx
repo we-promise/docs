@@ -1130,6 +1130,10 @@ EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
    - **Per-family (UI):** Go to **Settings > Self-Hosting > AI Assistant**, select "External"
    - **Global (env):** Set `ASSISTANT_TYPE=external` to force all families to use external
 
+<Note>
+If you connect your own agent via MCP and want to remove the built-in chat UI entirely, set `ASSISTANT_TYPE=mcp_only` (or select "None in app (connect your own agent via MCP)" in the UI). This disables the in-app chat, chat API endpoints, bills AI shortcuts, and AI-written insight text. The `/mcp` endpoint and background auto-categorization stay active.
+</Note>
+
 4. Select an agent. After you save a valid URL and token, Sure calls `/v1/models` on the endpoint and populates an agent dropdown in the UI. Select the agent you want to use and save. The external service manages the model behind each agent; Sure only handles routing.
 
    To skip the UI and pin an agent via environment variable, set:

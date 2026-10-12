@@ -15,6 +15,7 @@ Sure has two separate AI systems that operate independently. Understanding this 
 
 - **Builtin** (default): uses the OpenAI-compatible provider configured via `OPENAI_ACCESS_TOKEN` / `OPENAI_URI_BASE` / `OPENAI_MODEL`. Calls Sure's function tools directly.
 - **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
+- **MCP only**: disables the in-app assistant entirely — no chat sidebar, no chat API, no bills AI shortcuts, no AI-written insight text. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
 
 **Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync:
 
@@ -27,6 +28,7 @@ Sure has two separate AI systems that operate independently. Understanding this 
 | --- | --- | --- | --- |
 | `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
 | `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
+| `ASSISTANT_TYPE=mcp_only` | Disabled (in-app chat off) | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
 
 If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (or `ANTHROPIC_ACCESS_TOKEN` for Anthropic) for those features, or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
 
