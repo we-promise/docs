@@ -43,6 +43,8 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `get_tags` | List family tags alphabetically |
 | `get_categories` | List family categories hierarchically, including IDs and parent relationships |
 | `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames. This is the vector-store document index, not the Statement Vault — statements archived via `upload_account_statement` are not searchable through it |
+| `get_rules` | List the family's transaction rules: conditions, actions (with account, category, tag, and merchant names), whether each rule is active, its effective date, and its latest run. Pass `rule_id` for a single rule; pass `search` to find rules by name, condition values, or action values |
+| `get_rule_options` | Return the condition types, operators, and action types a rule can use. Call this before `preview_rule` or `create_rule` |
 
 ### Create, update, and import
 
@@ -58,8 +60,14 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `delete_transaction` | Permanently delete a transaction and its ledger entry, recalculating the account balance. Pass the transaction `id` returned by `get_transactions` or `create_transaction`. Optionally pass `account_id` as a guard so a mismatched id cannot delete the wrong record. Split child transactions cannot be deleted individually; delete the split parent instead. |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
 | `update_budget` | Update budget allocations for a month |
+| `set_opening_balance` | Set the opening balance and, optionally, the start date for a manual account. Pass `dry_run: true` to preview the effect without making changes |
+| `unmatch_transfer` | Unlink a matched transfer between two accounts so both transactions count as ordinary income and spending again. Pass the `id` of either transaction in the pair, or the `transfer_id`. By default the pairing is rejected so auto-match won't suggest it again |
+| `preview_rule` | Show which transactions a rule matches, without changing anything. Pass `rule_id` for a saved rule or a full rule definition (conditions, actions, optional `effective_date`) for an unsaved one. Returns `match_count`, a sample of recent matching transactions, and a `preview_token` required by `apply_rule` |
+| `create_rule` | Save a new transaction rule (always inactive). Returns the saved rule and the same preview as `preview_rule`; pass its `preview_token` to `apply_rule` after reviewing the sample |
+| `update_rule` | Rename a rule, replace its conditions or actions, change its effective date, or deactivate it. Changing conditions or actions deactivates the rule and returns a fresh preview; call `apply_rule` to reactivate it |
+| `apply_rule` | Activate a rule and apply it to the transactions it matches now. Requires the `preview_token` from the most recent `preview_rule`, `create_rule`, or `update_rule` call for that rule. The token expires after 30 minutes |
 
-`create_transaction` and `delete_transaction` write to the ledger. `delete_transaction` is permanent and irreversible. `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
+`create_transaction` and `delete_transaction` write to the ledger. `delete_transaction` is permanent and irreversible. `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. `apply_rule` activates a rule and rewrites every matching transaction; changes to individual transactions are not automatically reverted if you later deactivate the rule. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
 ### Preview tools
 
