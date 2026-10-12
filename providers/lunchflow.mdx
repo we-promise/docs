@@ -84,6 +84,16 @@ For investment accounts, Lunch Flow provides:
 
 Note: Not all account types support holdings. The API will indicate when holdings are not available for a specific account.
 
+### Holdings history
+
+Each sync creates a separate holding row for the current day rather than overwriting the previous day's record. Sure accumulates a daily history of your positions so you can see how your portfolio has changed over time.
+
+### User corrections carried forward
+
+When you remap a holding to a different security or lock a cost basis, Sure preserves that correction when a new day's sync creates the next holding row. The most recent correction is always carried forward, so your adjustments do not revert after a sync.
+
+If you have since undone a correction, the undone state is not revived — only the latest version is carried forward.
+
 ### Sync status
 
 The Lunch Flow connection card shows the current sync state:
