@@ -42,6 +42,35 @@ When editing or creating a category, changing the color using the color picker p
   </Accordion>
 </AccordionGroup>
 
+## Account balance or net worth drops to zero unexpectedly
+
+If an account balance or your net worth chart falls to zero for a day — without any transactions that explain it — a provider may have returned a zero or invalid exchange rate for that currency pair on that date. Storing a zero rate converts every balance in that currency to zero.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Exchange rate providers occasionally return a zero rate for a single-day lookup. Earlier versions of Sure stored whatever value the provider returned. Any conversion that used that rate multiplied the balance by zero, wiping the reported value for that day. The bulk importer was already protected, but single-rate lookups were not.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now validates every rate — whether from a single lookup or a series — before storing it. A finite, positive number is required. Rates that are zero, negative, `NaN`, or infinite are rejected:
+
+    - A single-rate lookup that returns an unusable value is treated as a failed response. The previous valid rate is carried forward.
+    - Rates in a bulk series that are unusable are dropped. The importer uses the last valid rate for those dates (last observation carried forward).
+    - A database check constraint rejects zero, negative, and non-finite values for any write that bypasses model validations, such as bulk upserts.
+    - Any rejected rate is recorded in **Settings → Debug** under the `exchange_rates` category so you can see which provider returned the bad value and on which date.
+
+    A rate of exactly `1` is valid and is stored normally (used for pegged currencies).
+
+    Existing invalid rates in the database are removed when you upgrade. The next sync refetches those dates from the provider.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="How do I confirm the cause?">
+    Go to **Settings → Debug** and filter by the `exchange_rates` category. Entries from `Provider::ExchangeRateConcept` with level `warn` show the provider name, the currency pair, and the invalid rate that was rejected.
+  </Accordion>
+</AccordionGroup>
+
 ## Account shows an error when a foreign-currency transaction has no exchange rate
 
 If an account holds transactions in a currency that has no exchange rate available for a given date, earlier versions would abort the entire balance calculation for that account, marking it as errored even though all transactions had imported correctly.
