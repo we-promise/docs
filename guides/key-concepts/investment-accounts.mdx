@@ -90,7 +90,10 @@ To add a fee to a trade:
 2. Enter the fee amount in the fee field
 3. The total amount updates automatically to include the fee
 
-Fees are automatically factored into your cost basis calculations and realized gains/losses.
+Fees are factored into gain/loss calculations:
+
+- **Unrealized gain/loss**: The purchase fee is added to your cost basis, so `cost basis = (qty × price) + fee`. This reflects what you actually paid to acquire the position.
+- **Realized gain/loss**: The sale fee is subtracted from your proceeds, so `proceeds = (qty × price) - fee`. This reflects what you actually received after selling.
 
 ## Securities types
 
@@ -447,11 +450,13 @@ Paper gains or losses on holdings you still own:
 Unrealized Gain = Current Value - Cost Basis
 ```
 
-If you bought 10 shares at $100 ($1,000 total) and they're now worth $1,200, you have an unrealized gain of $200.
+Cost basis includes any purchase fee: if you bought 10 shares at $100 with a $5 fee, your cost basis is $1,005 — not $1,000. If those shares are now worth $1,200, your unrealized gain is $195.
 
 ### Realized Gains/Losses
 
 Actual gains or losses from securities you've sold. These are what matter for taxes.
+
+Fees are included in the calculation on both sides: the purchase fee is part of your cost basis, and the sale fee is subtracted from your proceeds. For example, if you bought 10 shares at $100 with a $5 purchase fee and sold them at $110 with a $3 sale fee, your realized gain is `(10 × $110 − $3) − (10 × $100 + $5) = $1,097 − $1,005 = $92`.
 
 The **Trend** indicator on each holding shows your unrealized gain or loss, calculated from your cost basis. If cost basis is unknown (no trades and no manual entry), the trend won't display.
 
