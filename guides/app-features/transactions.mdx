@@ -13,7 +13,7 @@ Open **Transactions** from the main navigation to see recent activity across you
 
 From this screen you can:
 
-- Search and filter by account, date, type, status, amount, category, tag, or merchant. The merchant filter includes a **No merchant** option to show only transactions without an assigned merchant; the tag filter includes an **Untagged** option to show only transactions with no tags.
+- Search and filter by account, date, type, status, amount, category, tag, merchant, or attachments. The merchant filter includes a **No merchant** option to show only transactions without an assigned merchant; the tag filter includes an **Untagged** option to show only transactions with no tags; the attachments filter lets you show only transactions that have files attached or only those with no attachments.
 - View a summary of the count and total amounts for your current filter
 - Click anywhere on a transaction row to open its detail drawer
 - Add a new manual transaction
@@ -224,9 +224,34 @@ Rules can set:
 - Notes
 - Name
 
+### Rule order and stop processing
+
+Rules run in the order you set, from top to bottom. Drag the handle on each rule row to reorder them. When two rules would set the same field on a transaction, the rule higher in the list wins. Tags are an exception: every matching rule adds its tags rather than just the topmost one.
+
+Each rule has a **Stop processing further rules** toggle. When it is on and the rule matches a transaction, no rules below it in the list run against that transaction. Use this when you want a specific rule to take exclusive control over the transactions it matches.
+
+The rule order is saved per family, so reordering only affects your instance.
+
 ### Applying rules
 
-Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run every active rule against your existing transactions.
+Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run every active rule against your existing transactions in the defined order.
+
+## Transaction splits API
+
+The API exposes a nested resource for managing transaction splits programmatically:
+
+| Endpoint | Scope | Description |
+| --- | --- | --- |
+| `GET /api/v1/transactions/:transaction_id/split` | `read` | Return the child transactions of a split. Returns 404 when the transaction has not been split. |
+| `POST /api/v1/transactions/:transaction_id/split` | `read_write` | Split a transaction for the first time. Children must sum exactly to the parent amount. |
+| `PATCH /api/v1/transactions/:transaction_id/split` | `read_write` | Replace all children of an existing split. The previous children are deleted and the new ones are created. |
+| `DELETE /api/v1/transactions/:transaction_id/split` | `read_write` | Unsplit a transaction. The children are deleted and the parent is restored. |
+
+A split-child transaction ID resolves to its parent, so you can address either transaction to reach the split resource.
+
+Amounts use the same sign convention as the transaction endpoints: positive for income, negative for expenses. This differs from the web split editor, which handles sign conversion internally.
+
+API consumers need `read_write` scope and owner or full-control permission on the account. See the [OpenAPI spec](https://docs.sure.am/openapi.yaml) for full request and response schemas.
 
 ## Bill allocations
 

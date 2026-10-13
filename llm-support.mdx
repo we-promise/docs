@@ -27,6 +27,9 @@ Sure has two separate AI systems that operate independently. Understanding this 
 | --- | --- | --- | --- |
 | `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
 | `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
+| `ASSISTANT_TYPE=none` | Disabled (MCP still active) | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
+
+Setting `ASSISTANT_TYPE=none` disables the in-app chat UI entirely: the chat sidebar, its toggle, and the mobile Assistant tab are not rendered. Background AI work (auto-categorization, merchant detection, bills AI shortcuts) is also disabled. The `/mcp` endpoint and **Settings → MCP** remain fully available, so you can still connect an external AI agent over MCP without surfacing the built-in chat to users. This is useful for self-hosters who manage their own agent outside Sure.
 
 If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (or `ANTHROPIC_ACCESS_TOKEN` for Anthropic) for those features, or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
 
@@ -726,7 +729,7 @@ EXTERNAL_ASSISTANT_ALLOWED_EMAILS=user@example.com  # Optional, comma-separated 
 
 When environment variables are set, the corresponding UI fields are disabled and the env values take precedence.
 
-Set `ASSISTANT_TYPE=external` to route all users to the external agent globally. Without it, routing falls back to each family's `assistant_type` setting in the UI (default: `builtin`).
+Set `ASSISTANT_TYPE=external` to route all users to the external agent globally. Set `ASSISTANT_TYPE=none` to disable the in-app chat while keeping MCP available. Without either, routing falls back to each family's `assistant_type` setting in the UI (default: `builtin`).
 
 <Note>
 `EXTERNAL_ASSISTANT_AGENT_ID` is a legacy variable kept for backwards compatibility. Use `EXTERNAL_ASSISTANT_MODEL` for new installs.

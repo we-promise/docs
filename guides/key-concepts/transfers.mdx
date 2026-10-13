@@ -155,7 +155,9 @@ During a sync, Sure uses a tolerance band around the exchange rate to find cross
 
 Manual accounts still participate in same-currency matching, where amounts must be exactly equal and no FX approximation is involved.
 
-If you have a real cross-currency transfer that involves a manual account, you can still confirm it yourself. Open either transaction, choose **Match as transfer**, and select the counterpart from the dialog. The manual match dialog uses a wider tolerance (up to 10%) and shows manual account candidates so you can find and confirm the match by hand.
+If a pair of accounts — including manual accounts — already has at least one user-confirmed cross-currency transfer in the same direction, Sure enables automatic matching for that route going forward. New matches on a confirmed route are still created as pending suggestions for you to review; they are not confirmed silently. A pending auto-match that was never confirmed does not count as establishing the route, so suggestions cannot bootstrap themselves.
+
+If you have a real cross-currency transfer that involves a manual account with no prior confirmed transfer, you can confirm it yourself. Open either transaction, choose **Match as transfer**, and select the counterpart from the dialog. The manual match dialog uses a wider tolerance (up to 10%) and shows manual account candidates so you can find and confirm the match by hand. Once confirmed, future transfers on that same route are eligible for automatic matching.
 
 ## Transfer Summary Totals
 

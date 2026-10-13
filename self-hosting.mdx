@@ -343,7 +343,9 @@ See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing c
 
 ### Property valuation provider variables
 
-Sure supports two automated valuation model (AVM) providers for property accounts: RentCast and Realie. Both are US-only and price property values in USD. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
+Sure supports automated valuation model (AVM) providers for property accounts. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
+
+**US providers (RentCast and Realie)**
 
 ```txt
 # RentCast — US property valuations (50 requests/month on the free tier)
@@ -358,8 +360,19 @@ REALIE_MAX_REQUESTS_PER_MONTH=200
 ```
 
 <Note>
-Property valuation providers only support US addresses and always return values in USD. A property account must be denominated in USD for automatic daily refreshes to run.
+RentCast and Realie only support US addresses and always return values in USD. A property account must be denominated in USD for automatic daily refreshes to run with these providers.
 </Note>
+
+**UK provider (Chimnie)**
+
+Chimnie values UK residential properties for free using a UPRN (Unique Property Reference Number). It returns an estimated value, a value range, and a confidence level.
+
+```txt
+# Chimnie — UK property valuations via UPRN (free tier available)
+CHIMNIE_API_KEY="your-chimnie-api-key"
+```
+
+To use Chimnie, add a property account and enter the property's UPRN in the account settings. Sure uses Chimnie automatically for UK addresses when the key is configured. RentCast and Realie remain available for US addresses; only one provider runs per property account based on the address country.
 
 ### On-chain wallet variables
 
