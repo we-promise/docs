@@ -3,6 +3,26 @@ title: "Troubleshooting"
 ---
 
 
+## "All" chart period starts later than expected
+
+When you select the **All** period on a net worth or account chart, the chart now starts one month before your earliest Transaction or Trade entry — not your earliest entry of any kind.
+
+In earlier versions, Sure used the oldest entry of any type to anchor the All period. A single valuation or opening balance dated years in the past stretched every All-range chart back to that date, leaving a long flat line with no activity before any real spending or trading began.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    The All period now anchors to one month before your first Transaction or Trade entry. Valuations and opening balances no longer affect how far back the All range extends.
+
+    If your family has only valuations and no Transactions or Trades, the All period falls back to the previous behavior and uses your oldest entry date.
+  </Accordion>
+
+  <Accordion title="Why does my chart look different after upgrading?">
+    If you had a valuation or opening balance dated further back than your first real transaction, the All chart will now start later. The data is unchanged — only the visible range has shifted to focus on the period where you have actual activity.
+
+    Budgets and the AI balance sheet are not affected. They still use the oldest entry date as before.
+  </Accordion>
+</AccordionGroup>
+
 ## Confirmation dialogs could run script from bank-provided names
 
 In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
