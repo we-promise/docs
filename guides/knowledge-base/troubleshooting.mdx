@@ -3,6 +3,22 @@ title: "Troubleshooting"
 ---
 
 
+## Settings link causes a 500 error when many accounts are filtered
+
+Opening the **Settings** link from a transactions list filtered by a large number of accounts could result in a 500 error (`CookieOverflow`). The transactions list passes the current page's full URL — including all selected account IDs — as a `?return_to=` query parameter so Sure can return you to the same filtered view after you leave settings. With enough accounts selected, that URL exceeds the 4 KB limit of the cookie-backed session.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Sure stores the `?return_to=` value in the session so it can redirect back to the page you came from after completing an action in settings. The session is stored entirely in an encrypted browser cookie. When the `return_to` URL contains dozens of account IDs as query parameters, the resulting cookie size exceeds 4 KB and Rails raises a `CookieOverflow` error, producing a 500 response.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When the `return_to` value exceeds 1 KB, Sure now stores only the path without its query string. If even the bare path is over 1 KB, the `return_to` value is discarded entirely and the previous stored value is also cleared so a stale redirect target is never used. In both cases Sure falls back to the default post-action destination.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Confirmation dialogs could run script from bank-provided names
 
 In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
