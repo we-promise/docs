@@ -1,9 +1,9 @@
 ---
 title: On-chain wallets
-description: Track self-custody Bitcoin, EVM, and Solana wallets by public address — no keys required.
+description: Track self-custody Bitcoin, EVM, Solana, Cosmos Hub, and Polkadot wallets by public address — no keys required.
 ---
 
-Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, and Solana — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
+Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, Solana, Cosmos Hub (ATOM), and Polkadot (DOT) — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
@@ -50,6 +50,8 @@ When an asset ends up valued at zero for either reason, it is recorded in **Sett
 | Gnosis | Blockscout (`gnosis.blockscout.com`) | No | `BLOCKSCOUT_GNOSIS_URL` |
 | Solana | Public JSON-RPC (`api.mainnet-beta.solana.com`) | No | `SOLANA_RPC_URL` |
 | Solana token names | Jupiter token search (`lite-api.jup.ag`) | No | `SOLANA_TOKEN_LIST_URL` |
+| Cosmos Hub (ATOM) | Public Cosmos SDK REST (`cosmos-rest.publicnode.com`) | No | `COSMOS_REST_URL` |
+| Polkadot (DOT) | Parity Asset Hub Sidecar | No | `POLKADOT_SIDECAR_URL` |
 
 Every override expects the base URL of a compatible instance, without a trailing slash — useful if you run your own indexer or node, or if a public endpoint rate limits you.
 
@@ -142,6 +144,8 @@ The native coin is never affected, and anything already tracked keeps syncing re
 **Bridged assets are normalised.** USDC.e, USDbC, USDT0, WETH, and similar 1:1-redeemable forms are tracked as their canonical asset.
 
 **NFTs are not tracked.** They are filtered out by token standard.
+
+**Cosmos Hub and Polkadot are balance-only.** The public endpoints for these networks do not index transaction history, so Sure tracks the ATOM or DOT balance (including staked and unbonding/reserved amounts) but imports no transfer history.
 
 ## Troubleshooting
 

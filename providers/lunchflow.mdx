@@ -112,6 +112,14 @@ Lunch Flow is a paid service. Check [lunchflow.app](https://lunchflow.app/) for 
 
 ## Configuration
 
+### Credit card balance as available credit
+
+Some banks connected through Lunch Flow report a credit card's remaining available credit as a positive balance rather than the amount owed as a negative balance. For example, a card with a £5,000 limit and £16.17 owed might report +£4,983.83 (the remaining credit) rather than −£16.17 (the debt). This causes Sure to show an inflated negative balance that overstates net worth.
+
+To correct this for an affected card, open the credit card's edit dialog in Sure and enable **Read balance as available credit**. When this toggle is on, Sure computes the debt as `credit limit − reported balance` so the account shows the correct owed amount.
+
+This option appears only when the card is linked to Lunch Flow. You must also enter the card's credit limit if it is not already set.
+
 ### Pending transactions
 
 You can configure Lunch Flow to include pending transactions in your syncs. Pending transactions are those that have been authorized but haven't yet posted to your account.

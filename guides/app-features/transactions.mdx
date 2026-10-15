@@ -13,7 +13,7 @@ Open **Transactions** from the main navigation to see recent activity across you
 
 From this screen you can:
 
-- Search and filter by account, date, type, status, amount, category, tag, or merchant. The merchant filter includes a **No merchant** option to show only transactions without an assigned merchant; the tag filter includes an **Untagged** option to show only transactions with no tags.
+- Search and filter by account, date, type, status, amount, category, tag, merchant, or attachment. The merchant filter includes a **No merchant** option to show only transactions without an assigned merchant; the tag filter includes an **Untagged** option to show only transactions with no tags; the attachment filter lets you narrow to transactions that have files attached or that have none.
 - View a summary of the count and total amounts for your current filter
 - Click anywhere on a transaction row to open its detail drawer
 - Add a new manual transaction
@@ -223,6 +223,12 @@ Rules can set:
 - Tags (you can select multiple tags in a single action; the rule merges them with any tags already on the transaction rather than replacing them)
 - Notes
 - Name
+
+### Rule order and stop processing
+
+Rules run from top to bottom in the order shown in **Settings → Rules**. Drag a rule to change its position. For each transaction and field, the first matching rule wins — rules further down do not overwrite a value already set. Tags are additive: every matching rule adds its tags rather than competing.
+
+Enable **Stop processing further rules** on a rule to prevent any rules below it from touching the transactions it matched. This is useful when you have a specific rule that should handle certain transactions completely, with no further modifications from more general rules lower in the list.
 
 ### Applying rules
 
