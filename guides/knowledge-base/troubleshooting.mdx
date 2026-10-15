@@ -3,6 +3,39 @@ title: "Troubleshooting"
 ---
 
 
+## Mixed-currency arithmetic produces wrong totals silently
+
+Earlier versions of Sure allowed arithmetic operations (`+`, `-`, `/`, `<=>`) between `Money` objects in different currencies. The result kept the left operand's currency and discarded the right operand's — so `200 USD - 180 EUR` returned `20 USD` with no error or log line. This affected syncs, transfer matching, insight generators, and some report pages for families that hold accounts in more than one currency.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any calculation that combined two `Money` values from different currencies without an explicit `exchange_to` conversion first. Common surfaces include:
+
+    - Balance and net worth totals across multi-currency accounts
+    - Transfer matching when accounts are in different currencies
+    - Insight generators and assistant read functions
+    - Report and API responses for families mixing currencies such as EUR, GBP, and USD
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `Money` arithmetic now checks that both operands share the same currency before proceeding.
+
+    In development and test, a mismatch raises `Money::CurrencyMismatchError` immediately so the call site is easy to find.
+
+    In production, the mismatch is reported through `Rails.error` and logged at `warn` level (once per unique call site per process) and the operation keeps its previous result so no page starts failing while the root cause is fixed. Amounts in different currencies are no longer considered equal without raising.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="I see a currency mismatch warning in my logs — what do I do?">
+    A log line like `[Money] Can't apply + to USD and EUR amounts; convert one with exchange_to first` means Sure found a call site that combines amounts in two different currencies without converting first.
+
+    The log includes the call site location. In most cases the fix is to call `exchange_to` on one of the amounts before the operation, passing the target currency and the relevant date.
+
+    If you are self-hosting a customized version of Sure, search for the call site identified in the log and add the conversion. On an unmodified install, upgrade to the latest release — the known call sites are being fixed progressively.
+  </Accordion>
+</AccordionGroup>
+
 ## Confirmation dialogs could run script from bank-provided names
 
 In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
