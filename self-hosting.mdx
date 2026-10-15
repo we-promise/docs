@@ -1178,6 +1178,8 @@ The bundled devcontainer at `.devcontainer/docker-compose.yml` already sets `BIN
 
 When developing inside a GitHub Codespace, the app accepts login requests from the Codespaces preview URL without any extra configuration. The app detects the standard Codespaces environment variables (`CODESPACES`, `CODESPACE_NAME`, and `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN`) that GitHub sets automatically and narrows the allowed CSRF origin to the forwarded preview domain. The origin check applies only when `Rails.env.development?` and `CODESPACES=true` are both set, so it has no effect in staging or production.
 
+The Codespaces initializer also re-declares the cookie store with `SameSite=None; Secure` so the VS Code Preview iframe can read the session cookie. It uses the application-wide session cookie key (`_sure_session`, defined as `Sure::SESSION_COOKIE_KEY` in `config/application.rb`) rather than a hardcoded name, keeping the cookie name consistent whether the app boots with or without Codespaces.
+
 If you cannot log in through a Codespaces preview URL, confirm that the three environment variables above are present in your Codespace environment and that the app is running with `CODESPACES=true`.
 
 ## iOS push notifications
