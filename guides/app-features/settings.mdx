@@ -146,6 +146,14 @@ The preview panel includes a feedback prompt so you can compare the new chart ag
 
 **Label display:** The chart labels nodes in order of size — larger categories claim their labels first when space is limited. A small node positioned above a large one no longer causes the larger category's label to be hidden. If two nodes are the same size, the one higher in the chart takes priority.
 
+**Sort flows:** A "Sort flows" control lets you change the vertical ordering of nodes in each column of the chart. Three options are available:
+
+- **Auto** — uses d3-sankey's default layout, which minimises crossing lines between nodes.
+- **Smallest first** — orders nodes from smallest amount at the top to largest at the bottom.
+- **Largest first** — orders nodes from largest amount at the top to smallest at the bottom.
+
+Your choice is saved in the browser and applies to both the inline chart and the expanded full-screen view, keeping them in step.
+
 ### AI sidebar on desktop
 
 If you do not want to use the AI assistant yet, you can hide the desktop AI sidebar with the **panel-right** button in the top bar.
@@ -271,17 +279,21 @@ The AI chat interface is fully localized in Brazilian Portuguese (pt-BR). This i
 
 Several account page UI strings that previously failed to resolve in non-English locales now display correctly. The balance tooltip and "no balance data" message on account activity date rows, the selection toggle label in the activity feed, and the period picker's accessibility label all use the correct language when a non-English locale is set. Previously these strings rendered as raw translation-missing text or fell back silently to English.
 
+### MXN number formatting in Spanish
+
+When the interface language is set to Spanish, Mexican peso (MXN) amounts now display with US-style separators — a dot (`.`) as the decimal separator and a comma (`,`) as the thousands separator — matching how MXN values are natively formatted. Previously, the Spanish locale's European-style separators were applied to MXN, producing incorrect formats such as `1.234,56` instead of `1,234.56`. All other currencies continue to use the locale-aware separators for their respective locales.
+
 ### Date formatting across all locales
 
 Dates that span multiple years — such as those shown in bills, the period picker, and transaction date pickers — now display in the correct format for your locale. Previously, only 7 of the 118 supported locales defined their own short-with-year date format. The other 111 fell back to the English format (`Jan 05, 2027`), so a German user, for example, would see `Jan 05, 2027` instead of `05. Jan 2027`. All 118 locales now have an explicit short-with-year format derived from their own long date format.
 
 ## Release highlights
 
-When a new version of Sure is deployed, a "What's new" popover appears the first time you interact with the app after the update. It shows the release notes for the deployed version so you can see what changed without leaving the app.
+When a new version of Sure is deployed, a "What's new" dialog appears the first time you interact with the app after the update. It shows the release notes for the deployed version so you can see what changed without leaving the app.
 
-The popover appears once per release, per account. Each release — including hotfix releases — is tracked separately, so a hotfix update triggers its own popup even if you have already seen the base release. Dismissing it (by clicking **Done**, the close icon, the overlay, or pressing Escape) marks that release as seen and it will not reappear. Navigating away without dismissing does not mark it seen — the next page will offer it again.
+The dialog appears once per release, per account. Each release — including hotfix releases — is tracked separately, so a hotfix update triggers its own dialog even if you have already seen the base release. Dismissing it (by clicking **Done**, the close icon, the overlay, or pressing Escape) marks that release as seen and it will not reappear. Navigating away without dismissing does not mark it seen — the next page will offer it again.
 
-The popover is fetched lazily on your first click or keypress after the page loads, so it never interrupts the initial render.
+The dialog is fetched lazily on your first click or keypress after the page loads, so it never interrupts the initial render. If a drawer or modal is already open when you first interact, the dialog waits until the page is clear before appearing.
 
 ## Account preferences
 
