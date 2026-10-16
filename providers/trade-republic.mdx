@@ -183,6 +183,12 @@ During a sync, Sure may encounter order executions whose detail Trade Republic h
 
 The Trade Republic panel’s data quality section shows a pending-trade-details count. The detailed warning is recorded in the debug log. Later syncs retry incomplete details within the sync’s fetch budget; a trade can import once the required detail arrives. If it remains missing across syncs, check the Trade Republic app and the debug log to investigate.
 
+### Trade prices were corrected after a sync
+
+Sure prefers an explicit share price, bond quotation, or the trade detail’s `quantity × price` row. When those are unavailable, it can still derive a price from the total after accounting for fees and taxes. Deriving a price from a cent-rounded total can introduce small differences.
+
+Stored trades without a confirmed detail price are eligible for automatic detail backfill during later syncs. When a better price arrives, unprotected trades can be corrected and their calculated cost basis refreshed. Fetches share a bounded sync budget: a never-attempted trade is eligible even if older than 30 days; unsuccessful newer trades retry at most daily until they reach 30 days old. User-protected fields are preserved.
+
 ### Holdings show the wrong value
 
 If a position shows no price or an incorrect value:
