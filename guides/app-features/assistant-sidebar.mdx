@@ -40,7 +40,7 @@ The full chat interface is localized to match your language setting. This includ
 
 ## Error messages from the AI provider
 
-When the AI provider returns an error during a conversation — for example, a rate-limit or quota error from OpenAI — Sure surfaces the actual error message from the provider. This makes it easier to understand what went wrong and whether the issue is temporary (such as hitting a usage limit) or requires action (such as checking your API key or plan).
+When the AI provider returns an error, Sure shows a localized message describing the error category, such as a rate limit, temporary service problem, or configuration issue. When chat debug mode is enabled, a technical-details section can also show the stored provider error message. Raw provider details are not shown in the normal chat error message, and may be unavailable for some failures.
 
 ## Related settings
 
