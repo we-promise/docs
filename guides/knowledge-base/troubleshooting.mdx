@@ -291,6 +291,33 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Account disappears after a failed delete
+
+If you delete an account and it vanishes from every list and the balance sheet but is never actually removed, the background deletion job was not queued successfully.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Deleting an account marks it `pending_deletion` and queues a background job to remove it. In earlier versions, the status was committed to the database before the job was pushed to the queue. If the job push failed at that point — because the queue (Redis) was temporarily unreachable or the push was rejected — the account was left marked `pending_deletion` with no job coming to finish the deletion. Because `pending_deletion` accounts are excluded from every visible list, the account appeared to vanish. There was no AASM event to leave `pending_deletion`, so you could not retry from the UI.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now restores the account's previous status when the job push fails, so the account reappears in your list instead of staying hidden. The deletion attempt also runs under a row lock to prevent a double-submit from capturing a stale status. If the push was rejected, a failure alert is shown and you can try again once the queue is healthy.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if an account is already stuck?">
+    If an account is already stuck in `pending_deletion` on an older version, verify that your worker container and Redis are healthy:
+
+    ```bash
+    docker compose ps worker
+    docker compose logs worker --tail 50
+    ```
+
+    Once the worker is running and Redis is reachable, a server administrator can reset the account's status directly in the database, then attempt the deletion again from the UI.
+  </Accordion>
+</AccordionGroup>
+
 ## Deleting an account with many transfers is slow
 
 When you delete an account, Sure removes all transfers linked to its transactions. In older versions, this process issued a separate database query for each transfer's associated transaction records, causing it to slow significantly when an account had hundreds of transfers.
