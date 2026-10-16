@@ -18,6 +18,8 @@ Enable Banking uses the PSD2 open banking framework to securely access your bank
 
 All authentication happens directly with your bank. Enable Banking and Sure never see your banking credentials.
 
+The authorization flow is tied to your browser session. Sure generates a unique, random state value for each authorization attempt and stores it in your session. When your bank redirects back to Sure, the callback is matched against that stored state before proceeding. This means the authorization must complete in the same browser where you started it.
+
 ## Supported regions
 
 Enable Banking supports banks across the European Union and EEA countries. You can query available banks by country code (e.g., "GB", "DE", "FR").
@@ -46,7 +48,7 @@ If you want to connect another bank, or connect the same bank with a different l
 
 When you update an existing Enable Banking connection, the **Application ID** and **Client Certificate** fields are empty. Leave either field blank to keep the stored value. Enter a new value only when you need to replace a credential.
 
-Once a connection is authenticated (its status shows as connected), both credential fields are disabled. To change credentials, remove all linked bank connections first.
+For existing provider configurations, both credential fields are disabled while any Enable Banking connection in your family has a stored session. This applies across configurations, rather than depending only on the status of the connection being edited. Remove the connections with stored sessions before changing credentials.
 
 ### Using one provider config across different countries
 
@@ -131,6 +133,18 @@ OPBD and PRCD are period-boundary snapshots rather than live figures, so they ma
 
 If none of the recognised types are present, Sure falls back to the first balance the API returns.
 
+### Multi-currency accounts
+
+Some wallets and payment services (such as PayPal) report multiple balances under the same balance type — one per currency — in a single response. Without special handling, the last entry would win, causing the account to display the wrong currency and an empty balance.
+
+When Sure detects a multi-currency response, it keeps only the balances in the account's reported currency:
+
+- Sure reads the currency from the raw account snapshot, not the stored column, to avoid using a value that a previous faulty sync may have set incorrectly.
+- If the snapshot currency is not present in the response (for example, PayPal reports `XXX` for its wallet), Sure falls back to the first recognized currency returned.
+- Balances in other currencies are not discarded silently. If any non-selected currency carries a non-zero amount, Sure logs the details to **Settings > Debug** under the `provider_sync` category so support can investigate if needed.
+
+Single-currency accounts are not affected by this logic.
+
 ### Account type mapping
 
 Sure automatically maps your bank's account types to the appropriate Sure account type:
@@ -172,6 +186,10 @@ This keeps your transaction history clean and accurate even when the API returns
 
 Some banks (ASPSPs) omit both `transaction_id` and `entry_reference` from their responses, which are both optional under PSD2. For these transactions, Sure generates a deterministic ID based on date, amount, currency, direction, creditor, debtor, and remittance information.
 
+When the bank later assigns a real identifier to one of these transactions — for example, once a statement closes — Sure re-keys the stored row to the new identifier rather than importing a second entry. This preserves any category, merchant, or transfer link already attached to the original row.
+
+This re-keying only applies to booked (settled) transactions on both sides. Pending transactions are excluded from the re-keying pool and from the candidate set that receives claims, so Enable Banking's own pending-to-booked reconciliation handles the settlement transition independently without the two mechanisms conflicting.
+
 Transactions that already carry a provider ID are not affected by this logic.
 
 ## Supported account types
@@ -188,6 +206,16 @@ When connecting a bank, Sure validates the selected account type against the typ
 For technical details about the Enable Banking API, see the [official documentation](https://enablebanking.com/docs/api/reference/).
 
 ## Troubleshooting
+
+### Authorization callback fails with "Connection not found"
+
+Sure could not resolve a pending authorization for your current browser session and family. The returned state may not match a pending attempt, or the associated connection may no longer be available. It can happen if you:
+
+- Opened the bank's authorization page in a different browser or profile than the one where you started the flow
+- Completed the bank's authorization after your Sure session expired
+- Navigated away from Sure and your session was cleared
+
+Start the authorization again from **Settings > Bank sync > Enable Banking** and complete the bank's approval without switching browsers or letting your session time out.
 
 ### N26 and PERIOD_INVALID errors
 

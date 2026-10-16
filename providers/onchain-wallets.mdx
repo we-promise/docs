@@ -9,7 +9,7 @@ See [Transaction history and import limits](/providers/transaction-history) for 
 
 ## What gets tracked
 
-One Sure account is created per **asset**, per **address**, per **network**. A wallet holding ETH and USDC on Ethereum becomes two accounts, both Crypto accounts with the "wallet" subtype.
+One Sure account is created per **asset**, per **address**, per **network**. A wallet holding ETH, USDC, and USDT on Ethereum becomes three accounts, all Crypto accounts with the "wallet" subtype.
 
 For each asset Sure records:
 
@@ -36,6 +36,12 @@ The crypto provider quotes in USD, so valuing a wallet in any other family curre
 Set `EXCHANGE_RATE_PROVIDER` (or **Settings → Self hosting**) to a provider you can actually use; `frankfurter` needs no API key. The linking UI warns about this gap specifically, naming your currency, and a USD family never sees the warning because it needs no conversion.
 
 When an asset ends up valued at zero for either reason, it is recorded in **Settings → Debug logs** under the `onchain_wallet` provider, with the reasons listed.
+
+### ETH as a currency
+
+ETH (Ethereum) is a supported currency denomination in Sure, alongside standard fiat currencies. You can denominate an account directly in ETH — balances display with the Ξ symbol and up to 8 decimal places. Wei is the currency’s minor unit (1 ETH = 10^18 Wei), but Sure stores account balances and transaction amounts as decimal ETH, not integer Wei. Those fields currently store four decimal places; the eight-place display setting does not imply eight-place storage.
+
+This is separate from tracking ETH as an investment holding. An account denominated in ETH records its cash balance and transactions in ETH, whereas an on-chain wallet account tracked by the provider holds ETH as a security with a quantity and a market value.
 
 ## Data sources
 
