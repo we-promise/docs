@@ -121,4 +121,4 @@ Routing through a gateway means your families' transaction descriptions transit 
 | `JEV_REQUEST_TIMEOUT` | `30` | Per-request HTTP timeout in seconds. Raise for slow endpoints. |
 | `JEV_CONCURRENCY` | `8` | Maximum number of concurrent requests per categorization run. |
 
-All variables except `JEV_API_KEY` can also be set per-family through **Settings > Self-Hosting** when preview features are on. An environment variable always takes precedence over the UI setting.
+`JEV_REQUEST_TIMEOUT` and `JEV_CONCURRENCY` are environment-only controls. Jev credentials, endpoint, and model can be configured in **Settings > Self-Hosting** when preview features are enabled; those are instance settings. Categorization provider, confidence threshold, and shadow rate have family preferences. Their corresponding environment variables take precedence when set.
