@@ -168,7 +168,7 @@ The prompt is gated by several conditions:
     1. You have not disabled rule prompts (`rule_prompts_disabled` is false)
     2. You have not clicked **Hide for today** in the last **24 hours**
     3. The transaction category actually changed
-    4. No existing rule already sets this category for similar transactions
+    4. No active transaction rule that sets this category already matches this specific transaction
     5. The transaction has a category assigned
   </Accordion>
 
@@ -176,7 +176,7 @@ The prompt is gated by several conditions:
     Check these common reasons:
 
     - **Recently snoozed**: You clicked **Hide for today** — wait 24 hours for prompts to resume
-    - **Rule already exists**: A matching rule may already be in place
+    - **A matching rule already exists**: An active rule whose conditions match this transaction already sets this category. A rule that sets the same category but whose conditions do not match this transaction does not suppress the prompt.
     - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for your account (set via **Don't show this again**)
   </Accordion>
 </AccordionGroup>
