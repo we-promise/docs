@@ -491,7 +491,7 @@ Crypto is taxable by default, though it can be held in tax-advantaged accounts (
 
 ### Converting a transaction to a trade (crypto exchange accounts)
 
-When a provider syncs your crypto exchange account as plain transactions rather than trades, you can convert any transaction into a trade directly from the activity feed.
+When a provider syncs your crypto exchange account as plain transactions rather than trades, you can convert an eligible, non-excluded transaction into a trade directly from the activity feed.
 
 To convert a transaction:
 
@@ -502,7 +502,7 @@ To convert a transaction:
 5. Select the security (cryptocurrency) from the list, or choose **Enter custom ticker** to type one in.
 6. Confirm the details and submit the form.
 
-Sure replaces the original transaction with a new trade entry. The original transaction's name and date are preserved in a note on the trade.
+Sure creates a new trade entry and marks the original transaction as excluded. The original transaction's name and date are preserved in a note on the trade.
 
 If the price you enter (or the price implied by the quantity you enter) differs from the security's current market price by more than 50%, Sure shows a warning. This is not an error — it means you may have selected the wrong security or entered an unusual value. Review the ticker and amount before saving.
 
@@ -510,7 +510,7 @@ If the price you enter (or the price implied by the quantity you enter) differs 
 This conversion is not available for wallet-type crypto accounts. Only exchange accounts (`subtype: "exchange"`) support trades and transaction conversion.
 </Note>
 
-The conversion is also not available if the transaction has already been converted (marked as excluded). Each transaction can be converted at most once.
+Excluded transactions cannot be converted, including originals excluded by an earlier conversion. Re-including the original removes that exclusion, so avoid converting it again and creating a duplicate trade.
 
 ## Adding Investment Accounts
 
