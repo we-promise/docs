@@ -338,9 +338,9 @@ The **Dashboard** gives you a live snapshot of your financial picture. Several w
 
 ### Balance chart y-axis scaling
 
-Account balance charts scale the y-axis to keep real movements visible, whatever the size of your balance. The chart centres the view around the average balance for the period and expands the vertical range to fill roughly 80% of the chart height with the actual change. A 30-day view of a stable savings or pension account shows the real dips and gains rather than a near-flat line.
+Account balance charts scale the y-axis to keep real movements visible, whatever the size of your balance. The chart centres the view between the minimum and maximum balances for the period and adds padding around that range. Charts with value labels include extra space above and below the line. A 30-day view of a stable savings or pension account shows the real dips and gains rather than a near-flat line.
 
-Genuinely trivial movements — for example, a €50 change on a €100,000 balance — stay visually flat so the scale does not exaggerate noise. Near-zero balances always keep zero in view. Zooming in with drag-select reloads a narrower date range and applies the same scaling, so zoomed views reveal detail rather than flatten it further.
+Genuinely trivial movements — for example, a €50 change on a €100,000 balance — stay visually flat so the scale does not exaggerate noise. Zero is included when the series crosses zero or approaches it relative to its own scale; a small absolute balance alone does not force zero into view. Zooming in with drag-select reloads a narrower date range and applies the same scaling, so zoomed views reveal detail rather than flatten it further.
 
 ### Drag to select a date range on charts
 
