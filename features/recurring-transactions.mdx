@@ -227,7 +227,7 @@ The Bills page offers four views, switchable from the view switcher at the top o
 
 Clicking a bill row in the Overview or a Next up item opens the bill in the right-hand drawer. Navigating directly to a bill URL (for example, `/bills/:id`) opens the same drawer over the Bills overview.
 
-The bill drawer is the complete bill surface. It shows the bill summary at the top, followed by collapsible sections — Overview (12-month chart, per-year totals, price changes), Coming up (upcoming due dates), History (settled cycles and what paid each one), and Notes. The deep sections load lazily when you scroll to them. Edit, AI configure, Pause/Resume, and Delete are available from a menu in the drawer header, next to the close button.
+The bill drawer is the complete bill surface. It shows the bill summary at the top, followed by collapsible sections — Overview (12-month chart, per-year totals, price changes), Coming up (upcoming due dates), History (settled cycles and what paid each one), and Notes. Coming up, History, and Notes appear when they have content. The deep sections load lazily when you scroll to them. Edit, Pause/Resume, and Delete are available from a menu in the drawer header, next to the close button. AI configure appears there when you have enabled AI and an LLM provider is available.
 
 ### Row actions
 
@@ -247,7 +247,7 @@ The occurrence drawer always shows an action, regardless of screen size.
 
 ### Occurrence drawer
 
-Clicking a bill row in the Overview, Calendar, or Paycheck planner opens the occurrence drawer — the action surface for resolving that specific billing cycle. It is separate from the bill drawer and focused on what needs to happen right now.
+Calendar entries and bill links in pay-period lists open the occurrence drawer — the action surface for resolving that specific billing cycle. Overview rows and Next up items open the bill drawer. Actions such as Review match or Record payment open the occurrence drawer; Pay opens the bill's payment link.
 
 The occurrence drawer shows:
 
