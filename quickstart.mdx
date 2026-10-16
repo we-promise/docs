@@ -53,6 +53,8 @@ bin/rails test
 
 The suite should report zero failures and zero errors. If you are using the devcontainer, the PostgreSQL connection is configured with `username:` (the Rails-documented key), so no authentication errors should appear.
 
+The devcontainer runs `pgvector/pgvector:pg16-trixie` as its database image rather than plain `postgres:16`. This is a drop-in replacement that ships the `vector` extension, so document and PDF statement import works out of the box without any extra setup.
+
 After running `bin/setup`, you can optionally load demo data with:
 
 ```bash
