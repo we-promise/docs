@@ -255,6 +255,8 @@ The Bills page offers four views, switchable from the view switcher at the top o
 
 Clicking a bill row in the Overview or a Next up item opens the bill in the right-hand drawer. Navigating directly to a bill URL (for example, `/bills/:id`) opens the same drawer over the Bills overview.
 
+When a current occurrence is available, the bill summary drawer leads with its remaining balance or paid amount. A smaller line shows the amount paid, the expected total, and the due label. If the amount is estimated and the series has a known range, that range appears below the figure at all widths, including on phones. Without a current occurrence, the summary shows the series amount and, when known, the next expected date. A cancellation notice appears above the figure when a cancellation date is recorded but the series is still active.
+
 The bill drawer is the complete bill surface. It shows the bill summary at the top, followed by collapsible sections — Overview (12-month chart, per-year totals, price changes), Coming up (upcoming due dates), History (settled cycles and what paid each one), and Notes. Coming up, History, and Notes appear when they have content. The deep sections load lazily when you scroll to them. Edit, Pause/Resume, and Delete are available from a menu in the drawer header, next to the close button. AI configure appears there when you have enabled AI and an LLM provider is available.
 
 ### Bill row subline
