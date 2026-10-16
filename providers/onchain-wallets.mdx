@@ -9,7 +9,7 @@ See [Transaction history and import limits](/providers/transaction-history) for 
 
 ## What gets tracked
 
-One Sure account is created per **asset**, per **address**, per **network**. A wallet holding ETH and USDC on Ethereum becomes two accounts, both Crypto accounts with the "wallet" subtype.
+One Sure account is created per **asset**, per **address**, per **network**. A wallet holding ETH, USDC, and USDT on Ethereum becomes three accounts, all Crypto accounts with the "wallet" subtype.
 
 For each asset Sure records:
 
@@ -17,7 +17,7 @@ For each asset Sure records:
 - A **holding** valued at the current price, or at zero when no price is available
 - The **transfers** in and out, recorded as investment trades labeled "Transfer" when the price for that day is known. Each entry is named "Received" or "Sent" (or the equivalent in your family’s language) followed by the quantity and asset symbol. Transfer trades carry a cash amount of zero — the value lives in quantity and price for cost basis purposes, but no cash leg is recorded (a self-custody wallet has no cash side). When that day’s price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
 
-Balances are read-only and always derived from the chain. Editing them by hand is pointless: the next sync overwrites them.
+Balances are read-only and always derived from the chain. Editing them by hand is pointless: the next sync overwrites them. Every sync also revalues every linked asset at the latest stored price, so a wallet that has not moved on chain still reflects current market prices after each sync.
 
 Because a transfer is not an acquisition, Sure cannot know what the asset cost you before it arrived. A holding with any transfer in its history will show no cost basis and no gain/loss trend. To see those figures, set a manual cost basis on the holding.
 
@@ -36,6 +36,12 @@ The crypto provider quotes in USD, so valuing a wallet in any other family curre
 Set `EXCHANGE_RATE_PROVIDER` (or **Settings → Self hosting**) to a provider you can actually use; `frankfurter` needs no API key. The linking UI warns about this gap specifically, naming your currency, and a USD family never sees the warning because it needs no conversion.
 
 When an asset ends up valued at zero for either reason, it is recorded in **Settings → Debug logs** under the `onchain_wallet` provider, with the reasons listed.
+
+### ETH as a currency
+
+ETH (Ethereum) is a supported currency denomination in Sure, alongside standard fiat currencies. You can denominate an account directly in ETH — balances display with the Ξ symbol and up to 8 decimal places. Wei is the currency’s minor unit (1 ETH = 10^18 Wei), but Sure stores account balances and transaction amounts as decimal ETH, not integer Wei. Those fields currently store four decimal places; the eight-place display setting does not imply eight-place storage.
+
+This is separate from tracking ETH as an investment holding. An account denominated in ETH records its cash balance and transactions in ETH, whereas an on-chain wallet account tracked by the provider holds ETH as a security with a quantity and a market value.
 
 ## Data sources
 
@@ -167,4 +173,4 @@ The native coin is never affected, and anything already tracked keeps syncing re
 
 **Manage wallets says the history is incomplete.** The address has more transfers than one sync reads. Balances are unaffected. Raise `ONCHAIN_HISTORY_MAX_PAGES` if you need the full history and can afford the extra requests.
 
-**Balances are correct but nothing updates.** Syncs only rewrite an account when the chain actually changed — an idle wallet produces no writes at all. Check **Settings → Providers** for the last sync time, and **Settings → Debug logs** filtered to the `onchain_wallet` provider for recorded failures.
+**Balances are correct but nothing updates.** Every sync revalues all linked assets at the latest available price, even if the wallet did not move on chain. If the value still does not update, check **Settings → Providers** for the last sync time, and **Settings → Debug logs** filtered to the `onchain_wallet` provider for recorded failures.
