@@ -312,9 +312,9 @@ If you run into Plaid errors that are not visible in Sure, check the Plaid Dashb
 
 ### Investment account shows unexpected cash balance after a sync
 
-If a Plaid investment account shows a cash balance that grows or fluctuates each day even though you have not made any cash changes, the balance snapshot was being anchored on the wrong date. Plaid dates each holding with the institution's price date, which is often the previous trading session's close for syncs run before the market closes. When that total was anchored on today's date instead, repricing the holdings for today left a gap that appeared as phantom cash.
+If a Plaid investment account shows a cash balance that grows or fluctuates each day even though you have not made any cash changes, one possible cause is a balance snapshot anchored on a different date from its holdings. Plaid can report an institution price date for each holding, which may be from an earlier trading session. When that total was anchored on today's date instead, repricing the holdings for today left a gap that appeared as phantom cash.
 
-This is now fixed. Sure anchors the balance snapshot on the newest price date the holdings report, capped at today. Syncs run before the market closes correctly use the prior session's date, so the total and the holdings always describe the same moment. Trigger a manual sync from the account page to pick up the corrected snapshot.
+Sure now anchors the balance snapshot on the newest valid holding price date that is not in the future. Future dates are discarded individually; if no eligible date remains, Sure uses today. This reduces date-mismatch artifacts without assuming every holding has the same price date. Trigger a manual sync from the account page to pick up the corrected snapshot.
 
 ### Credit card or loan shows no transactions after linking
 
