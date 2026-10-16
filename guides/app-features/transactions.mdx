@@ -56,12 +56,11 @@ You can also mark a transaction as excluded. Excluded transactions are removed f
 
 ### How syncs interact with your edits
 
-When a connected provider re-imports a transaction, Sure protects fields you have changed:
+When you edit a transaction through the app, Sure automatically marks it as user-modified so later provider syncs do not overwrite it.
 
-- **Date and amount**: If you update a transaction's date or amount — through the app, the API, or the AI assistant — Sure locks those values. Later syncs from the provider will not overwrite them.
-- **Name, category, and merchant**: These fields are protected only when you set `user_modified: true` on the API request (or when you edit the transaction through the app with that flag enabled). Without it, the provider's enriched values can still update these fields.
+Edits through the API or AI assistant also lock the fields that changed, including date, amount, name, category, and merchant. These field locks protect the edited values while other unlocked fields can still be enriched. An API update with `user_modified: true` additionally protects the whole entry from provider sync updates.
 
-The result is that correcting a wrong date or amount is permanent: the next sync keeps your value. Correcting a name or category stays permanent only when you opt in to full sync protection via `user_modified`.
+These protections last until they are explicitly removed. Re-enabling sync clears the entry's user-modified and import-lock flags and its field locks.
 
 ### Create a merchant inline
 
