@@ -34,10 +34,10 @@ Sure recognizes different types of transfers based on the destination account:
 
 | Transfer Type | When It's Used | Budget Impact |
 | --- | --- | --- |
-| **Funds Movement** | Between asset accounts | Excluded |
+| **Funds Movement** | Between asset accounts, including investment/crypto accounts | Excluded |
 | **CC Payment** | Payment to a credit card | Excluded |
 | **Loan Payment** | Payment to a loan account | Treated as expense |
-| **Investment Contribution** | To investment or crypto accounts | Excluded |
+| **Investment Contribution** | From a non-investment, non-crypto account to an investment or crypto account | Treated as expense |
 
 ### Funds Movement
 
@@ -62,19 +62,20 @@ When syncing transactions from a provider, Sure automatically classifies transac
 
 Payments to loan accounts (mortgage, auto, student loans) are treated as `loan_payment` transfers.
 
-> [!NOTE]
-> Loan payments can be treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt.
+<Note>
+  Loan payments are treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt. For a matched loan payment, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
+</Note>
 
 When syncing transactions from a provider, Sure automatically classifies transactions to loan accounts as loan payment transfers.
 
 ### Investment Contribution
 
-Transfers to investment or crypto accounts:
+Transfers from a non-investment, non-crypto account to an investment or crypto account:
 - Contributing to your 401(k)
 - Adding funds to a brokerage account
 - Moving money to a crypto exchange
 
-These are excluded from budgets because you're saving/investing, not spending.
+Investment contributions from a non-investment, non-crypto account are tracked as expenses in budgets because they represent a cash outflow from that account. Transfers between investment or crypto accounts remain funds movements and are excluded. For a matched contribution, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
 
 ## Creating Transfers Manually
 
@@ -159,13 +160,21 @@ If you have a real cross-currency transfer that involves a manual account, you c
 
 ### Write access requirement for auto-matching
 
-For a transfer pair to be created automatically, at least one family member must have write access to both accounts involved. This ensures someone can always confirm or reject the match after it is created.
+For a transfer pair to be created automatically, at least one family member must have write access to both accounts involved. Ownerless accounts have the exception described below.
 
 Write access means being the account owner or having a full-control share on the account.
 
 An account whose owner has been removed from the family (owner nullified) does not block auto-matching on its own. A member who can write to the other side is sufficient, since they can still reject the match. Two accounts that nobody in the family can write to are skipped entirely.
 
-This write-access check applies to both legs and to any fee transactions attached to the transfer. Rejecting or unlinking a transfer also requires write access to every account that holds a fee transaction, because unlinking removes those fee transactions.
+The automatic matcher checks the two endpoint accounts. Rejecting or unlinking a transfer uses a separate permission check: you need write access to at least one endpoint and to every account holding an attached fee transaction, because unlinking removes those fee transactions.
+
+## Categorizing Transfers
+
+For transfers where a category is meaningful (investment contributions and loan payments), Sure assigns the category to the outflow leg — the transaction in the spending account that budgets and reports count.
+
+The inflow leg of the same transfer displays the outflow's category as a read-only field. Editing the category on the inflow side has no effect; changes must be made on the outflow leg.
+
+This ownership is based on the Transfer record itself, not the leg's transaction kind. If a provider sync updates a leg's kind, the category assignment does not change.
 
 ## Transfer Summary Totals
 
@@ -187,6 +196,10 @@ This helps you understand your cash movement patterns when reviewing transfers i
 > [!NOTE]
 > When filtering by both transfers and other transaction types, transfer amounts are excluded from income and expense totals to avoid confusion.
 
+### Currency display in transfer-only days
+
+When a day's entries are all transfers, every entry is excluded from the total, leaving a zero balance. Sure displays that zero in the original currency of the day's entry group rather than defaulting to your family currency. For example, a group of GBP entries containing only transfers shows £0.00, even when the family currency is USD. This keeps currency symbols consistent across your transaction list regardless of how many transfers a day contains.
+
 ## How Transfers Affect Budgets
 
 Transfers are generally **excluded** from budget calculations because they don't represent actual spending or income:
@@ -195,11 +208,12 @@ Transfers are generally **excluded** from budget calculations because they don't
 | --- | --- |
 | Funds Movement | Excluded |
 | CC Payment | Excluded |
-| Investment Contribution | Excluded |
-| Loan Payment | Can be included as expense |
+| Investment Contribution | Treated as expense |
+| Loan Payment | Treated as expense |
 
-> [!TIP]
-> If you want to budget for loan payments, you may want to track them as expenses. Sure treats loan payments specially since they represent ongoing obligations.
+<Note>
+  Loan payments and investment contributions are both treated as expenses in budgets because they represent real cash outflows. For matched transfers, assign a category, merchant, and tags on the outflow transaction.
+</Note>
 
 ## Understanding Net Worth Impact
 
