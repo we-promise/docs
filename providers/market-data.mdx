@@ -192,16 +192,16 @@ See the [Mansa API provider page](/providers/mansa) for full setup instructions.
 
 ## Price sync scope
 
-Sure only fetches prices for the date range each account actually needs for a given security. The range starts on the earliest date you have a trade or holding for that security, and ends based on whether you still hold it:
+Sure only fetches prices for the date range each account actually needs for a given security. The range starts with the earliest trade or positive holding for that security. For provider-synced holdings, it can extend back to the account start date. Its end depends on whether you still hold the position:
 
 - **Open positions** — prices are fetched through today.
-- **Closed positions** — prices are fetched only through the last date you held the security. Once you sell or transfer out your full position, Sure stops requesting new prices for that security in that account.
+- **Closed positions** — prices are fetched through the later of the last quantity-changing trade and the last positive holding date. Once you sell or transfer out your full position, Sure stops requesting new prices for that security in that account.
 
 If you reopen a position (by buying again, or by editing a trade that affects the net quantity), Sure detects the change and resumes fetching prices through today.
 
-This scoping applies to both account-level syncs and the daily market data import. For securities shared across multiple accounts, Sure merges the windows for each account and makes a single provider request per security.
+This scoping applies to both account-level syncs and the daily market data import. The daily importer merges the required windows across accounts before importing each security’s prices. Account-level syncs use their own account’s window.
 
-Security details (name, exchange, and classification metadata) continue to refresh for all online securities regardless of whether any account still holds them.
+The daily importer also checks security details for all online securities, even when their positions are closed. Details already present are normally reused rather than fetched again.
 
 ## Price freshness
 
