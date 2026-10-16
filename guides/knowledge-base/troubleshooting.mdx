@@ -291,6 +291,30 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Transactions disappear from income, spending, or budgets after a provider sync
+
+If one or more transactions vanish from your income, spending, or budget totals after a sync — without being deleted — the cause is likely a provider removing a pending transaction that was part of a matched transfer.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Every transfer links two transactions and assigns each a transfer-specific kind (`cc_payment`, `funds_movement`, etc.). When a provider removes a pending transaction that is one leg of a transfer, the transfer itself is destroyed. In older versions, deleting a transfer through that cascade path skipped the step that resets the surviving transaction's kind back to a standard value. The surviving transaction kept its transfer kind — `cc_payment` or `funds_movement` — with no transfer behind it, which caused it to be silently excluded from income, spending, and budget calculations.
+
+    Pending transactions from provider feeds are the most common trigger: a provider may post a pending charge, Sure matches it as a transfer leg, and then the provider cancels or replaces the pending entry before it settles.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The kind reset now runs as a `before_destroy` callback on the transfer, so every deletion path — including cascades triggered by deleting a transaction or its entry — resets the surviving leg's kind to the appropriate standard value. Pending transfers keep their existing behaviour and are not affected.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if transactions are already missing?">
+    If you have already upgraded and suspect transactions are affected, trigger a manual sync on the relevant accounts. After syncing, the surviving transactions should have their kinds corrected and reappear in income, spending, and budgets.
+
+    To find potentially affected transactions, look for transactions with no linked transfer that have a kind of `cc_payment` or `funds_movement` on accounts where those kinds are unexpected.
+  </Accordion>
+</AccordionGroup>
+
 ## Deleting an account with many transfers is slow
 
 When you delete an account, Sure removes all transfers linked to its transactions. In older versions, this process issued a separate database query for each transfer's associated transaction records, causing it to slow significantly when an account had hundreds of transfers.
