@@ -122,7 +122,9 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     
     - **Manual transaction creation** - Only triggers an Account sync (not Family sync)
     - **Manual transaction editing** - Same as above, only Account sync runs
-    - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
+    - **Inactive rules (automatic syncs)** - Rules with `active: false` never run during automatic family syncs
+    
+    **Apply All** is an exception: it runs all rules, active and inactive, so their transaction changes (category, merchant, tags, and so on) apply. Inactive rules skip the email notification action only. Matches seen while a rule is off stay unrecorded; they are handled when the rule is switched back on.
   </Accordion>
 
   <Accordion title="How do I see why a rule run failed?">
