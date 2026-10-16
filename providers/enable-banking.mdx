@@ -209,6 +209,12 @@ N26 (and some other ASPSPs via Enable Banking) rejects out-of-range transaction 
 
 Some banks reject an Enable Banking session with a 401 or 404 during a sync even though the session has not yet expired by its recorded expiry date. When this happens, Sure marks the connection as requiring re-authorization and finishes the sync cleanly — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. Click **Reconnect** and complete the bank authorization flow again to restore syncing.
 
+### Syncs keep failing without a reconnect prompt
+
+Enable Banking sometimes rejects individual account balance or transaction requests with a 401 “Invalid credentials or expired JWT” while the session-level check still reports the session as valid. Because only a session-level failure flips the connection to `requires_update`, the connection card stays green and no reconnect prompt appears automatically. Every sync silently fails for the affected accounts.
+
+To recover, open the action menu on the connection card and choose **Reconnect**. This option is always available as long as the connection is not already showing a reconnect prompt. Clicking it routes through the same reauthorization flow as a normal reconnect, so you do not need to disconnect and re-add the bank.
+
 ## Limitations
 
 - Only supports banks in EU/EEA countries
