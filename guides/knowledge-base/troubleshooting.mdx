@@ -3,6 +3,24 @@ title: "Troubleshooting"
 ---
 
 
+## AI-detected merchants were created as shared records
+
+When merchant detection identified a new merchant from a transaction's description, Sure previously created a globally-shared `ProviderMerchant` record (source: `ai`). Because those records are visible to every family on the deployment, a transaction description crafted to steer the LLM's output could create or match a shared merchant with an attacker-chosen name, website, or logo — affecting all other families.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    The `Family::AutoMerchantDetector` class, which runs as part of the background merchant detection job. When no existing merchant could be matched for a transaction, it fell back to creating a `ProviderMerchant` (source: `ai`) scoped globally rather than to the family.
+
+    Reusing an already-existing shared merchant by website or name was not affected — that path does not write new data into shared records.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When AI detection cannot find a shared merchant to reuse, it now creates a `FamilyMerchant` scoped to the requesting family instead of a global `ProviderMerchant`. AI-sourced merchants from before this fix are also limited to the family that already has them on its transactions — they are no longer matched by name or URL across families.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Confirmation dialogs could run script from bank-provided names
 
 In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
@@ -168,7 +186,7 @@ The prompt is gated by several conditions:
     1. You have not disabled rule prompts (`rule_prompts_disabled` is false)
     2. You have not clicked **Hide for today** in the last **24 hours**
     3. The transaction category actually changed
-    4. No existing rule already sets this category for similar transactions
+    4. No active transaction rule that sets this category already matches this specific transaction
     5. The transaction has a category assigned
   </Accordion>
 
@@ -176,7 +194,7 @@ The prompt is gated by several conditions:
     Check these common reasons:
 
     - **Recently snoozed**: You clicked **Hide for today** — wait 24 hours for prompts to resume
-    - **Rule already exists**: A matching rule may already be in place
+    - **A matching rule already exists**: An active rule whose conditions match this transaction already sets this category. A rule that sets the same category but whose conditions do not match this transaction does not suppress the prompt.
     - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for your account (set via **Don't show this again**)
   </Accordion>
 </AccordionGroup>
@@ -476,6 +494,27 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
 
 </AccordionGroup>
 
+## Account creation form clears all fields when a loan is saved
+
+When you clicked **Create Account** on a loan (or any account with nested fields such as an interest rate), the form could come back completely blank if the save failed after account-level validation passed. The failure happened inside the opening balance entry or during attribute locking, so the rescued exception held an Entry record rather than the account the form rendered. Sure rebuilt a blank account instead of the one you submitted, discarding every field you had typed — including the account name and the loan rate.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any manual account creation that failed after the account model itself was valid. This was most likely to surface when:
+
+    - A loan with nested fields (interest rate, term, etc.) was submitted with values that caused the opening balance entry to raise an error.
+    - The attribute lock step failed during `create_and_sync`.
+
+    On failure, the form came back empty, forcing users to re-enter every field.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now rebuilds the account from the submitted parameters on a failed save, applying the same default for nested accountable attributes that `create_and_sync` uses. The form comes back filled in with everything you typed so you can correct the specific error and resubmit without losing your work.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## "Add transaction" button does nothing when no account is selected
 
 If you click **Add transaction** on the new transaction form without selecting an account, the button previously appeared to do nothing (the request returned a 404 error). The form now re-renders with a validation error so you can see what is missing and correct it.
@@ -573,6 +612,44 @@ When a fresh family is created, Sure seeds it with a default set of categories. 
 
   <Accordion title="Will my data be correct after the import?">
     Yes. Transactions and rules that referenced the imported category or tag are remapped to the surviving (reused) record. The imported data updates that record's fields. No manual cleanup is needed.
+  </Accordion>
+</AccordionGroup>
+
+## Balance anchor dated away from provider holdings
+
+When Sure syncs an investment or crypto account, it compares the date of the balance anchor (the recorded current balance) with the date of the newest holding that the provider reported. If the two dates differ, Sure writes a warning to the debug log so you can investigate possible date-related cash artifacts in balance calculations.
+
+<AccordionGroup>
+  <Accordion title="What causes this warning?">
+    Some providers date their holdings to the day the data was produced (for example, the previous trading day's close), while the balance anchor is set to the day of the sync. A gap between the anchor date and the holdings date can cause the reverse balance calculator to interpret differences in valuation as cash.
+
+    Interactive Brokers and Plaid are known examples of providers that can produce this gap.
+
+    Manual accounts, accounts without a current balance anchor, and accounts whose holdings carry no provider attribution are not checked and will never produce this warning.
+  </Accordion>
+
+  <Accordion title="Where do I see the warning?">
+    Go to **Settings → Debug** and filter by the `provider_sync` category. Look for `warn`-level entries with a message like:
+
+    ```
+    Balance anchor dated 1 day(s) after the newest provider holding
+    ```
+
+    Each entry includes the provider, the account, both dates, and the gap in days as structured metadata. A steady gap does not add a new entry on each sync — only a change in the gap (including the gap closing) is recorded.
+
+    When the gap closes, Sure logs an `info`-level entry:
+
+    ```
+    Balance anchor and newest provider holding are dated alike again
+    ```
+  </Accordion>
+
+  <Accordion title="What should I do about it?">
+    This warning is informational for self-hosted operators. The warning itself does not change account data. Investigate it if the account balance or cash history looks wrong.
+
+    If you see cash appearing and disappearing in an investment account's balance chart on a one-day cycle, check **Settings → Debug** for a `provider_sync` warning on that account. The gap days value confirms a date mismatch, which may help explain the anomaly; it does not by itself prove the cause.
+
+    The warning does not indicate a sync failure. The sync completes normally; only the debug entry is written.
   </Accordion>
 </AccordionGroup>
 
