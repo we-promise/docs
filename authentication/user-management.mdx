@@ -68,7 +68,7 @@ For users who authenticate with a local password, super admins can set a new pas
 - At least one digit
 - At least one special character (`!@#$%^&*(),.?":{}|<>`)
 
-Password changes are silently ignored for SSO-only users — they must authenticate through their identity provider.
+**SSO-only mode:** When `AUTH_LOCAL_LOGIN_ENABLED=false`, the admin panel blocks password changes for users who are not allowed to sign in locally. Submitting a password change for such a user returns an error. Super admins can still have their own passwords set when the local admin override (`AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=true`) is active, since they are the only users the override permits to sign in with a local password.
 
 ### Deleting a family
 
