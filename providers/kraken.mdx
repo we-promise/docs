@@ -69,7 +69,7 @@ When the exact exchange rate for a given date is unavailable, Sure shows the bal
 
 If your Kraken account was connected before October 2026, trade entries may have been recorded with their cash flow direction inverted: a buy was recorded as money arriving and a sell as money leaving, rather than the reverse. This caused the historical balance series to show incorrect values, sometimes by a large amount on accounts with significant trading activity.
 
-Sure corrects these entries automatically on the next sync — no re-import or manual action is needed. The balance series rebuilds on the account's next sync pass. Entries you have manually edited are left as-is.
+The upgrade migration corrects eligible existing trade entries automatically. The balance series then rebuilds on the account's next sync; no re-import is needed. Entries marked as manually modified are left unchanged.
 
 ### Crypto holdings history looks wrong for older accounts
 
