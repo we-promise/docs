@@ -291,6 +291,28 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Account reappears as disabled after a failed deletion
+
+When you delete an account, Sure marks it as pending deletion and then runs a background job to remove it. If the background job encounters an error during destruction, the account was previously left in the pending deletion state — hidden from every account list, ineligible for any further action, and impossible to re-delete. The only way out was a direct database fix.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The deletion background job marks the account `pending_deletion` before attempting destruction. If the destroy raises an error mid-run — for example, a database constraint violation or a provider API failure — the job's own error handler reset a `scheduled_for_deletion` flag that belongs to provider items, not to accounts. The account was left stuck in `pending_deletion` with no job queued to retry it.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `Account#destroy` now catches destruction errors and fires a `restore_after_failed_deletion` event, which transitions the account from `pending_deletion` back to `disabled`. The account reappears in your account list and can be deleted again once the underlying problem is resolved.
+
+    For accounts that were already disabled before deletion was attempted, the original `disabled_at` timestamp is preserved so the net worth chart cutoff is not moved forward to the failure date.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if an account is already stuck?">
+    If an account is already stuck in pending deletion on an older version, it requires a direct database update to restore it. Set the account's `status` column back to `disabled` so it becomes visible and can be re-deleted from the UI. After upgrading, future failed deletions will recover automatically.
+  </Accordion>
+</AccordionGroup>
+
 ## Deleting an account with many transfers is slow
 
 When you delete an account, Sure removes all transfers linked to its transactions. In older versions, this process issued a separate database query for each transfer's associated transaction records, causing it to slow significantly when an account had hundreds of transfers.
