@@ -47,7 +47,7 @@ Sure supports two first-class LLM providers:
 - **OpenAI** (or any OpenAI-compatible endpoint, including Ollama, LM Studio, OpenRouter, Groq, Together AI, etc.)
 - **Anthropic** (native Claude support, including custom Anthropic-compatible endpoints such as Amazon Bedrock or Google Vertex)
 
-Set the active provider with the `LLM_PROVIDER` environment variable (or the `LLM Provider` setting in the UI). It defaults to `openai`. The matching access token must be configured for the selected provider.
+Set the active provider with the `LLM_PROVIDER` environment variable (or the `LLM Provider` setting in the UI). It defaults to `openai`. The matching access token must be configured for the selected provider. When set, `LLM_PROVIDER` takes precedence over any provider choice saved in the UI.
 
 | `LLM_PROVIDER` | Required credential |
 | --- | --- |
@@ -117,7 +117,7 @@ Select the active provider with the `LLM_PROVIDER` environment variable:
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `LLM_PROVIDER` | Active provider. Set to `openai` or `anthropic` | `openai` |
+| `LLM_PROVIDER` | Active provider. Set to `openai` or `anthropic`. When set, this value takes precedence over any provider choice saved in the UI. | `openai` |
 
 ## OpenAI compatible API
 
@@ -491,7 +491,7 @@ These optional variables fine-tune provider selection and the behavior of the Op
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `LLM_PROVIDER` | Active LLM provider: `openai` or `anthropic` | `openai` |
+| `LLM_PROVIDER` | Active LLM provider: `openai` or `anthropic`. Takes precedence over any provider choice saved in the UI. | `openai` |
 | `OPENAI_ACCESS_TOKEN` | API key for the provider | — |
 | `OPENAI_URI_BASE` | Custom endpoint URL (leave blank for OpenAI) | — |
 | `OPENAI_MODEL` | Model name (required for custom endpoints). A blank value is treated as unset and falls through to the UI setting, then `gpt-4.1` | `gpt-4.1` |
