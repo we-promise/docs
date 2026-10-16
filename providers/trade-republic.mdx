@@ -173,7 +173,7 @@ If a position shows no price or an incorrect value:
 - Private market positions without a live quote are valued at their average cost basis
 - Other positions without a live price display a price-unavailable indicator
 
-**Bond values were previously inflated 100x.** Trade Republic quotes bond prices as a percentage of par (for example, 84.04 means 84.04% of face value), while the position size is the nominal amount. A sync run before October 2026 multiplied the two directly, producing values 100x too high. A fix and a one-time data migration corrected this automatically. If your bond history still looks inflated after syncing, click **Repair** in the data quality section of the Trade Republic panel to re-process the affected snapshots.
+**Bond values were previously inflated 100x.** Trade Republic quotes bond prices as percentages of par while position sizes represent nominal amounts. Older syncs could multiply the two directly. Current syncs divide bond quotes by 100. An upgrade migration rescales eligible historical provider snapshots and cached positions. **Repair** reprocesses stored provider data but does not rerun that migration. If older values remain inflated after upgrading and syncing, report the affected holdings for investigation.
 
 ### Deposits showing as transfers or investment contributions
 
