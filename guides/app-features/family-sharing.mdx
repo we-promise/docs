@@ -13,11 +13,14 @@ Each Sure family can have multiple members with different permission levels. You
 
 ### Permission Levels
 
-| Permission | Description | Can View | Can Edit |
-| --- | --- | --- | --- |
-| **Owner** | Full control over the account | ✅ | ✅ |
-| **Editor** | Can view and modify transactions | ✅ | ✅ |
-| **Viewer** | Read-only access | ✅ | ❌ |
+| Permission | Description | Can View | Can annotate (category, merchant, tags, notes) | Can edit all fields (name, date, amount) |
+| --- | --- | --- | --- | --- |
+| **Owner** | The account creator; full control | ✅ | ✅ | ✅ |
+| **Full control** | Same capabilities as the owner | ✅ | ✅ | ✅ |
+| **Read-write** | Can annotate transactions but not change core fields | ✅ | ✅ | ❌ |
+| **Read-only** | View access only; no edits of any kind | ✅ | ❌ | ❌ |
+
+The distinction between **full control** and **read-write** matters most in bulk edit and the categorize flow: full-control shares can update every field, while read-write shares can only update annotation fields (category, merchant, tags, notes). Read-only shares are skipped by both features entirely.
 
 ## Sharing an Account
 
@@ -64,13 +67,15 @@ Shared accounts appear in your account list with an indicator showing they're sh
 
 ### Editing Shared Accounts
 
-If you have **Editor** permission on a shared account, you can:
-- Add, edit, and delete transactions
+If you have **full control** permission on a shared account, you can:
+- Add, edit, and delete transactions (all fields)
 - Update account settings
 - Record trades (for investment accounts)
 - Categorize and tag transactions
 
-If you have **Viewer** permission, you can only view the account data without making changes.
+If you have **read-write** permission, you can annotate transactions (category, merchant, tags, notes) but cannot change core fields such as name, date, or amount, and cannot add or delete transactions.
+
+If you have **read-only** permission, you can only view the account data without making changes.
 
 ### Imports and account write access
 
