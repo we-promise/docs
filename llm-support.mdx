@@ -204,8 +204,10 @@ You can connect to Gemini directly via Google AI Studio's OpenAI-compatible endp
 - `gemini-3.8-flash` - Best all-around choice; fast, strong reasoning, and reliable tool calling for chat and finance tools
 - `gemini-3.5-flash-lite` - Ultra-low cost and fast; ideal for background categorization and merchant detection
 - `gemini-3.1-pro-preview` - Best for complex financial analysis, portfolio queries, and multi-year trends
-- `gemini-2.5-flash` - Previous-generation budget model; fast and dependable fallback
-- `gemini-2.5-pro` - Previous-generation model for complex financial analysis
+- `gemini-2.5-flash` - Previous-generation option for users with existing access
+- `gemini-2.5-pro` - Previous-generation reasoning model for users with existing access
+
+Google limits direct Gemini 2.5 API access to users who actively used those models previously. For new projects, use `gemini-3.5-flash-lite` or `gemini-3.8-flash`; see [Google's model availability guidance](https://ai.google.dev/gemini-api/docs/models).
 
 #### Direct via Google AI Studio
 
