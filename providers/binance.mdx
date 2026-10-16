@@ -109,13 +109,13 @@ Trades are synced incrementally — only new trades are fetched on subsequent sy
 
 ### Currency handling
 
-- The account is created in your family's currency. Individual trade entries keep whatever currency they were made in and convert at display time.
+- The account is created in your family's currency. Spot and futures trade entries are stored in USD after quote-currency conversion; P2P entries retain their fiat currency.
 - Stablecoins (USDT, BUSD, FDUSD, TUSD, USDC, DAI) are treated as 1:1 with USD.
-- If no exchange rate is available when the account is first created, the account opens at zero. The first sync writes the converted balance.
+- The initial current balance is the provider balance converted into your family's currency, or zero if a conversion rate is unavailable. A subsequent sync updates the converted balance when rate data is available.
 
 ### Opening balance
 
-Your Binance exchange account opens at zero. The full balance is established after the first import completes. The opening anchor is dated the day before your earliest imported entry, so no history appears before its own opening balance.
+New Binance exchange accounts have a zero historical opening anchor, separate from the current balance imported from the provider. After importing entries, Sure moves that zero anchor to the day before the earliest entry only if it is not already earlier. Existing nonzero opening anchors are preserved.
 
 ## Security
 

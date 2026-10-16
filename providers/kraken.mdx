@@ -53,11 +53,11 @@ If you have multiple Kraken accounts, add a separate named connection for each o
 
 ## Account currency
 
-When Sure creates your Kraken exchange account, it uses your family's currency, not Kraken's reporting currency (USD). All balances and holdings are displayed in your family's currency. Individual trade entries keep the currency they were made in and convert at display time, the same as every other account type.
+When Sure creates your Kraken exchange account, it uses your family's currency, not Kraken's reporting currency (USD). All balances and holdings are displayed in your family's currency. Kraken trade entries retain their quote currency and are converted for display.
 
 ## Opening balance
 
-Your Kraken exchange account opens at zero. The full balance is established after the first import completes, once all trade history is in place. The opening anchor is dated the day before your earliest imported entry, so no history appears before its own opening balance.
+New Kraken exchange accounts have a zero historical opening anchor, separate from the current balance imported from the provider. After importing entries, Sure moves that zero anchor to the day before the earliest entry only if it is not already earlier. Existing nonzero opening anchors are preserved.
 
 ## Troubleshooting
 
@@ -75,7 +75,7 @@ When the exact exchange rate for a given date is unavailable, Sure shows the bal
 
 ### Setup screen shows USD balance instead of your currency
 
-The setup screen converts Kraken's reported balance into your family's currency before display. If no exchange rate is available for the conversion, the screen shows zero rather than an unconverted figure. The account opens at zero regardless, so the displayed amount reflects what the account will actually hold.
+The setup screen converts Kraken's reported balance into your family's currency before display. If no exchange rate is available for the conversion, the screen shows zero rather than an unconverted figure. The initial current account balance uses the same conversion. The zero historical opening anchor is separate from this current balance.
 
 ### Crypto holdings history looks wrong for older accounts
 
@@ -83,4 +83,4 @@ If your Kraken account was connected before October 2026, crypto ledger entries 
 
 ### Balance history looks wrong for accounts older than two years
 
-If you connected Kraken before October 2026, the opening balance may have been anchored to today's balance rather than zero, or dated two years back rather than before your earliest trade. Sure now opens new accounts at zero and anchors the opening date before the first imported entry. For existing accounts that were set up incorrectly, re-importing the connection resets the opening anchor to the correct date and balance.
+Older accounts may have an opening anchor dated after their earliest imported entry. After an import, Sure moves a zero opening anchor earlier when needed. It preserves nonzero opening anchors, so syncing does not automatically reset an existing nonzero opening balance.

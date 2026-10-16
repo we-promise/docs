@@ -47,11 +47,11 @@ If you have multiple CoinSpot accounts, add a separate named connection for each
 
 ## Account currency
 
-When Sure creates your CoinSpot exchange account, it uses your family's currency. Individual trade entries keep the currency they were made in and convert at display time, the same as every other account type.
+When Sure creates your CoinSpot exchange account, it uses your family's currency. CoinSpot order amounts and prices are converted from AUD into the account currency during import.
 
 ## Opening balance
 
-Your CoinSpot exchange account opens at zero. The full balance is established after the first import completes. The opening anchor is dated the day before your earliest imported entry, so no history appears before its own opening balance.
+New CoinSpot exchange accounts have a zero historical opening anchor, separate from the current balance imported from the provider. After importing entries, Sure moves that zero anchor to the day before the earliest entry only if it is not already earlier. Existing nonzero opening anchors are preserved.
 
 ## Sync history
 
