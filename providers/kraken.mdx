@@ -51,6 +51,19 @@ After the first sync, your Kraken exchange account appears in the setup queue. C
 
 If you have multiple Kraken accounts, add a separate named connection for each one. Each connection imports one combined crypto account.
 
+## Configuration
+
+The following environment variables are available for self-hosted deployments:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `KRAKEN_MIN_REQUEST_INTERVAL` | `1.0` | Seconds enforced between consecutive requests to Kraken's public and standard private endpoints |
+| `KRAKEN_HISTORY_MIN_REQUEST_INTERVAL` | `8.0` | Seconds enforced between consecutive requests to account-history endpoints (`Ledgers`, `TradesHistory`), paced separately from other calls |
+
+Sure uses separate pacing for repeated history requests during a paginated backfill. Kraken currently charges 2 counter points for ledger/trade history calls, with decay rates that depend on the account tier; see [Kraken's REST rate limits](https://docs.kraken.com/exchange/guides/rest/ratelimits). Sure's default history interval remains `8.0` seconds. Pacing is maintained per provider instance, so concurrent syncs or other applications using the same API key can still reach the limit. Consider that shared usage and your tier before reducing either interval.
+
+If either variable is set to an invalid value (non-numeric, zero, negative, or infinite), Sure raises a configuration error on the first request using that interval rather than silently disabling the throttle.
+
 ## Troubleshooting
 
 ### Credentials need updating
