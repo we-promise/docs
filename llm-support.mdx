@@ -226,6 +226,10 @@ Recommended models:
 - `anthropic/claude-sonnet-4.5` - Excellent reasoning
 - `anthropic/claude-haiku-4.5` - Fast and cost-effective
 
+<Note>
+  Cost estimates on the LLM usage screen work for OpenRouter models. Sure strips the `provider/` prefix from model names (for example, `google/gemini-3.8-flash` is priced as `gemini-3.8-flash`) before looking up the rate. Models not in Sure's pricing table show no estimated cost.
+</Note>
+
 ## Anthropic
 
 Sure can talk to Anthropic's Messages API directly, with full chat (text + streaming + tool use) parity with the OpenAI provider.
