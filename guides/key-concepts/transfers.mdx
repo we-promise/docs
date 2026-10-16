@@ -63,7 +63,7 @@ When syncing transactions from a provider, Sure automatically classifies transac
 Payments to loan accounts (mortgage, auto, student loans) are treated as `loan_payment` transfers.
 
 <Note>
-  Loan payments are treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt. You can assign a category, merchant, and tags to loan payment transactions.
+  Loan payments are treated as expenses in budgets since they represent an ongoing financial obligation, even though they also reduce your debt. For a matched loan payment, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
 </Note>
 
 When syncing transactions from a provider, Sure automatically classifies transactions to loan accounts as loan payment transfers.
@@ -75,7 +75,7 @@ Transfers to investment or crypto accounts:
 - Adding funds to a brokerage account
 - Moving money to a crypto exchange
 
-Investment contributions are tracked as expenses in budgets because they represent a real cash outflow from your spending accounts. You can assign a category, merchant, and tags to these transactions.
+Investment contributions from a non-investment, non-crypto account are tracked as expenses in budgets because they represent a cash outflow from that account. Transfers between investment or crypto accounts remain funds movements and are excluded. For a matched contribution, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
 
 ## Creating Transfers Manually
 
@@ -190,7 +190,7 @@ Transfers are generally **excluded** from budget calculations because they don't
 | Loan Payment | Treated as expense |
 
 <Note>
-  Loan payments and investment contributions are both treated as expenses in budgets because they represent real cash outflows. You can assign a category, merchant, and tags to either type of transfer.
+  Loan payments and investment contributions are both treated as expenses in budgets because they represent real cash outflows. For matched transfers, assign a category, merchant, and tags on the outflow transaction.
 </Note>
 
 ## Understanding Net Worth Impact
