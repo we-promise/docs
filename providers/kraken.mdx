@@ -58,11 +58,11 @@ The following environment variables are available for self-hosted deployments:
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `KRAKEN_MIN_REQUEST_INTERVAL` | `1.0` | Seconds enforced between consecutive requests to Kraken's public and standard private endpoints |
-| `KRAKEN_HISTORY_MIN_REQUEST_INTERVAL` | `8.0` | Seconds enforced between consecutive requests to account-history endpoints (`Ledgers`, `TradesHistory`). These endpoints cost 4 rate-limit points each against Kraken's decaying counter, so they are paced separately and more slowly than other calls |
+| `KRAKEN_HISTORY_MIN_REQUEST_INTERVAL` | `8.0` | Seconds enforced between consecutive requests to account-history endpoints (`Ledgers`, `TradesHistory`), paced separately from other calls |
 
-History endpoints are rate-limited separately because they are called repeatedly during a paginated backfill. At the default `8.0` seconds, each call costs 4 points and the counter decays at 0.5 points per second, so the pacing keeps the account within Kraken's cap throughout a full backfill. Higher-limit accounts (1.0 point per second decay) can safely halve this value.
+Sure uses separate pacing for repeated history requests during a paginated backfill. Kraken currently charges 2 counter points for ledger/trade history calls, with decay rates that depend on the account tier; see [Kraken's REST rate limits](https://docs.kraken.com/exchange/guides/rest/ratelimits). Sure's default history interval remains `8.0` seconds. Pacing is maintained per provider instance, so concurrent syncs or other applications using the same API key can still reach the limit. Consider that shared usage and your tier before reducing either interval.
 
-If either variable is set to an invalid value (non-numeric, zero, negative, or infinite), Sure raises a configuration error on the first request rather than silently disabling the throttle.
+If either variable is set to an invalid value (non-numeric, zero, negative, or infinite), Sure raises a configuration error on the first request using that interval rather than silently disabling the throttle.
 
 ## Troubleshooting
 
