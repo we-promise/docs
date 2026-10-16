@@ -146,6 +146,14 @@ The preview panel includes a feedback prompt so you can compare the new chart ag
 
 **Label display:** The chart labels nodes in order of size — larger categories claim their labels first when space is limited. A small node positioned above a large one no longer causes the larger category's label to be hidden. If two nodes are the same size, the one higher in the chart takes priority.
 
+**Sort flows:** A "Sort flows" control lets you change the vertical ordering of nodes in each column of the chart. Three options are available:
+
+- **Auto** — uses d3-sankey's default layout, which minimises crossing lines between nodes.
+- **Smallest first** — orders nodes from smallest amount at the top to largest at the bottom.
+- **Largest first** — orders nodes from largest amount at the top to smallest at the bottom.
+
+Your choice is saved in the browser and applies to both the inline chart and the expanded full-screen view, keeping them in step.
+
 ### AI sidebar on desktop
 
 If you do not want to use the AI assistant yet, you can hide the desktop AI sidebar with the **panel-right** button in the top bar.
