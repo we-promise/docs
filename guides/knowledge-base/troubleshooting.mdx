@@ -168,7 +168,7 @@ The prompt is gated by several conditions:
     1. You have not disabled rule prompts (`rule_prompts_disabled` is false)
     2. You have not clicked **Hide for today** in the last **24 hours**
     3. The transaction category actually changed
-    4. No existing rule already sets this category for similar transactions
+    4. No active transaction rule that sets this category already matches this specific transaction
     5. The transaction has a category assigned
   </Accordion>
 
@@ -176,7 +176,7 @@ The prompt is gated by several conditions:
     Check these common reasons:
 
     - **Recently snoozed**: You clicked **Hide for today** — wait 24 hours for prompts to resume
-    - **Rule already exists**: A matching rule may already be in place
+    - **A matching rule already exists**: An active rule whose conditions match this transaction already sets this category. A rule that sets the same category but whose conditions do not match this transaction does not suppress the prompt.
     - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for your account (set via **Don't show this again**)
   </Accordion>
 </AccordionGroup>
@@ -474,6 +474,27 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
 
   </Accordion>
 
+</AccordionGroup>
+
+## Account creation form clears all fields when a loan is saved
+
+When you clicked **Create Account** on a loan (or any account with nested fields such as an interest rate), the form could come back completely blank if the save failed after account-level validation passed. The failure happened inside the opening balance entry or during attribute locking, so the rescued exception held an Entry record rather than the account the form rendered. Sure rebuilt a blank account instead of the one you submitted, discarding every field you had typed — including the account name and the loan rate.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any manual account creation that failed after the account model itself was valid. This was most likely to surface when:
+
+    - A loan with nested fields (interest rate, term, etc.) was submitted with values that caused the opening balance entry to raise an error.
+    - The attribute lock step failed during `create_and_sync`.
+
+    On failure, the form came back empty, forcing users to re-enter every field.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now rebuilds the account from the submitted parameters on a failed save, applying the same default for nested accountable attributes that `create_and_sync` uses. The form comes back filled in with everything you typed so you can correct the specific error and resubmit without losing your work.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
 </AccordionGroup>
 
 ## "Add transaction" button does nothing when no account is selected

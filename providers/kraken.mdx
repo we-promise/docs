@@ -55,6 +55,27 @@ After the first sync, your Kraken exchange account appears in the setup queue. C
 
 If you have multiple Kraken accounts, add a separate named connection for each one. Each connection imports one combined crypto account.
 
+## Account currency
+
+When Sure creates your Kraken exchange account, it uses your family's currency, not Kraken's reporting currency (USD). All balances and holdings are displayed in your family's currency. Kraken trade entries retain their quote currency and are converted for display.
+
+## Opening balance
+
+New Kraken exchange accounts have a zero historical opening anchor, separate from the current balance imported from the provider. After importing entries, Sure moves that zero anchor to the day before the earliest entry only if it is not already earlier. Existing nonzero opening anchors are preserved.
+
+## Configuration
+
+The following environment variables are available for self-hosted deployments:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `KRAKEN_MIN_REQUEST_INTERVAL` | `1.0` | Seconds enforced between consecutive requests to Kraken's public and standard private endpoints |
+| `KRAKEN_HISTORY_MIN_REQUEST_INTERVAL` | `8.0` | Seconds enforced between consecutive requests to account-history endpoints (`Ledgers`, `TradesHistory`), paced separately from other calls |
+
+Sure uses separate pacing for repeated history requests during a paginated backfill. Kraken currently charges 2 counter points for ledger/trade history calls, with decay rates that depend on the account tier; see [Kraken's REST rate limits](https://docs.kraken.com/exchange/guides/rest/ratelimits). Sure's default history interval remains `8.0` seconds. Pacing is maintained per provider instance, so concurrent syncs or other applications using the same API key can still reach the limit. Consider that shared usage and your tier before reducing either interval.
+
+If either variable is set to an invalid value (non-numeric, zero, negative, or infinite), Sure raises a configuration error on the first request using that interval rather than silently disabling the throttle.
+
 ## Troubleshooting
 
 ### Credentials need updating
@@ -69,9 +90,23 @@ After adding a connection, wait for the first sync to complete. If no accounts a
 
 When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.
 
+### Historical account value looks wrong after a buy or sell
+
+If your Kraken account was connected before October 2026, trade entries may have been recorded with their cash flow direction inverted: a buy was recorded as money arriving and a sell as money leaving, rather than the reverse. This caused the historical balance series to show incorrect values, sometimes by a large amount on accounts with significant trading activity.
+
+The upgrade migration corrects eligible existing trade entries automatically. The balance series then rebuilds on the account's next sync; no re-import is needed. Entries marked as manually modified are left unchanged.
+
+### Setup screen shows USD balance instead of your currency
+
+The setup screen converts Kraken's reported balance into your family's currency before display. If no exchange rate is available for the conversion, the screen shows zero rather than an unconverted figure. The initial current account balance uses the same conversion. The zero historical opening anchor is separate from this current balance.
+
 ### Crypto holdings history looks wrong for older accounts
 
-If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync. No re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
+If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync — no re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
+
+### Balance history looks wrong for accounts older than two years
+
+Older accounts may have an opening anchor dated after their earliest imported entry. After an import, Sure moves a zero opening anchor earlier when needed. It preserves nonzero opening anchors, so syncing does not automatically reset an existing nonzero opening balance.
 
 ### The same asset appears as multiple holdings
 
