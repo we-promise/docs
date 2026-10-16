@@ -96,7 +96,7 @@ Until you link the Crypto provider account to a Sure account, crypto positions a
 - Deposits and withdrawals, including Google Pay deposits and credit card top-ups (recorded as standard transactions; automatic transfer matching turns a deposit into a transfer when the counterpart bank account is also in Sure)
 - Card payments and ATM withdrawals, including card-funded transfers out such as topping up PayPal, Revolut, or Paysafecard (CARD_AFT events, labeled Card payment)
 - Card refunds, including card credits such as merchant refunds pushed directly to the card (CARD_OCT events, labeled Card refund)
-- Italian stamp duty charges (imposta di bollo); cancellations are imported as tax refunds
+- Italian stamp duty charges (imposta di bollo); cancelled charges book nothing new, and earlier entries are removed unless protected from sync or part of a split
 - Interest payouts (labeled Interest)
 - Dividends, including per-share amount and withholding tax where available (labeled Dividend)
 - Fees (labeled Fee)
@@ -131,6 +131,8 @@ Sure resolves holdings and historical trades to exchange tickers when Trade Repu
 Trade Republic identifies crypto positions using pseudo-ISINs that encode the coin symbol — for example, `XF000BTC0017` for Bitcoin and `XF000ETH0019` for Ether. When the crypto price provider is enabled in Sure, holdings and trades for these ISINs are resolved to the shared `CRYPTO:<SYMBOL>` security used by on-chain wallets and exchange integrations. Any existing rows stored under the Trade Republic ISIN are migrated over automatically. When the crypto price provider is not enabled, the offline ISIN security is kept and positions remain valued at Trade Republic's own snapshot prices.
 
 Crypto positions and trades import on the **Crypto account** once it is linked. Before linking, they remain on the Portfolio account. Sure creates the Crypto provider account automatically the first time a sync detects crypto holdings or trades in your Trade Republic portfolio.
+
+Bond positions are quoted by Trade Republic as a percentage of par (for example, 84.04 means 84.04% of face value). Sure converts this to a per-unit price before computing market value, so the holding value matches the true market price of your nominal bond position.
 
 Private market positions are valued using quotes from Trade Republic's private markets feed when available. If no live quote exists, Sure uses the average cost basis as the holding value. Other positions without a live price show a price-unavailable indicator rather than a flat return.
 
@@ -172,6 +174,8 @@ If a position shows no price or an incorrect value:
 - Check the **Data quality** section on the Trade Republic panel for positions flagged as unpriced
 - Private market positions without a live quote are valued at their average cost basis
 - Other positions without a live price display a price-unavailable indicator
+
+**Bond values were previously inflated 100x.** Trade Republic quotes bond prices as percentages of par while position sizes represent nominal amounts. Older syncs could multiply the two directly. Current syncs divide bond quotes by 100. An upgrade migration rescales eligible historical provider snapshots and cached positions. **Repair** reprocesses stored provider data but does not rerun that migration. If older values remain inflated after upgrading and syncing, report the affected holdings for investigation.
 
 ### Deposits showing as transfers or investment contributions
 
