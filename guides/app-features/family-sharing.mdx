@@ -52,7 +52,7 @@ Family sharing respects privacy boundaries:
 - **Providers**: Third-party provider connections are scoped per family
 - **Merchants**: Merchant data is shared across the family for consistency
 - **Personal budgets**: When personal budgets are enabled, each member's actual spending is scoped to their own accounts only
-- **Insights**: The shared insights feed only shows insights about accounts every active family member can access. Revoking a share removes the related insight from the feed immediately.
+- **Insights**: The shared insights feed only shows insights about accounts every active family member can access. Access is checked again when the feed is read, so revoking a required share hides the related insight on the next read.
 
 ## Managing Shared Accounts
 
@@ -72,6 +72,12 @@ If you have **Editor** permission on a shared account, you can:
 - Categorize and tag transactions
 
 If you have **Viewer** permission, you can only view the account data without making changes.
+
+### Imports and account write access
+
+Publishing or reverting an import writes to (or removes entries from) its target accounts. Sure requires **write access** — owner or full_control — to every pre-existing account the import targets, including accounts referenced via column mappings and any accounts that already received entries from a previous publish of the same import. Accounts created by the import itself are excluded from this check. Statement imports also require permission to view and manage the associated statement.
+
+A family member with read-only access to an account cannot publish or revert an import that targets it, even if they created the import. If a member's access to an account is downgraded after an import is configured, someone with write access to every pre-existing target account must complete the publish or revert.
 
 > [!NOTE]
 > When recording a deposit or withdrawal on an investment account, Sure books the transaction on a second account (the transfer account). You must have editor access on that transfer account as well. Accounts shared with you as view-only do not appear in the transfer account picker.
@@ -103,7 +109,7 @@ Members can connect and manage their own Plaid bank connections. This is the onl
 
 ### Guest Role
 
-Guests have read-only access. They cannot create or manage any provider connections.
+Guests have read-only access. They can view categories, tags, merchants, and rules, but cannot create, edit, or delete them. They also cannot create or manage any provider connections.
 
 ## Use Cases
 
