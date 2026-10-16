@@ -86,7 +86,7 @@ Sure maps Trading 212 cash transaction types to the following labels:
 
 ## Multi-currency accounts
 
-If your Trading 212 account holds instruments listed in a different currency from your account currency, Sure books each trade in the instrument's currency and records the exchange rate automatically. For example, a EUR-account holder buying a USD stock will see the trade recorded in USD with the exchange rate derived from what Trading 212 moved in your wallet.
+If your Trading 212 account holds instruments listed in a different currency from your account currency, Sure books each trade in the instrument’s currency. It derives a trade-level exchange rate when a usable net wallet value is available in the account currency; otherwise no trade-level rate is recorded. For example, a EUR-account holder buying a USD stock will see the trade recorded in USD with a rate derived from the wallet movement when those values are available.
 
 Sure also converts prices for instruments quoted in pence (GBX) — such as London-listed stocks — to pounds (GBP) to match the convention used by market data providers.
 
