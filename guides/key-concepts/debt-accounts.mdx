@@ -89,7 +89,7 @@ Loan accounts support additional fields:
 | Interest Rate | Annual interest rate |
 | Rate Type | Fixed, variable, or adjustable |
 | Term | Loan duration (months) |
-| Start date | Date the loan was drawn down (optional — defaults to the account's opening balance date) |
+| Start date | Date the loan was drawn down. When set, Sure dates the opening anchor on this date so the loan's history starts here. If the start date is more than 30 years ago, the form's opening balance date is used for the anchor instead (the start date still drives the amortization schedule). |
 | Down payment | What you paid upfront. Not part of the amortization, but used to calculate your leverage ratio on the overview. |
 | Insurance rate | Annual insurance premium rate, charged monthly alongside the repayment. |
 | Insurance type | How the premium is calculated: **Level term** charges the rate on the original balance each month (constant premium); **Decreasing** charges it on the outstanding balance (falls as you repay). |
@@ -146,7 +146,7 @@ To add a debt account:
 
 When you add a loan, you can enter both the original principal (opening balance) and your current remaining balance. These two figures are often different — for example, a mortgage you took out years ago has a much lower remaining balance today than when it started.
 
-Sure preserves both values: the original principal is recorded as the opening balance on the loan's start date, and your current remaining balance is anchored to today. The first sync uses your current balance as the baseline and calculates forward from there, so the balance you entered is never overwritten.
+Sure preserves both values: the original principal is recorded as the opening balance, dated on the loan's start date (or the form's opening balance date if the start date is more than 30 years ago), and your current remaining balance is anchored to today. The first sync uses your current balance as the baseline and calculates forward from there, so the balance you entered is never overwritten. Dating the anchor on the start date means the loan's balance chart shows the full history from origination rather than jumping from $0 to the principal at a later date.
 
 ## Understanding Loan Payments
 
