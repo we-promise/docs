@@ -28,7 +28,10 @@ Self-hosted admins should configure the WebAuthn relying party settings before u
 3. Find **Passkeys and security keys**.
 4. Enter a recognizable key name, such as "MacBook Touch ID" or "YubiKey".
 5. Select **Add passkey or security key**.
-6. Follow your browser, operating system, password manager, or hardware key prompt.
+6. Enter your current authenticator code or an unused backup code when prompted.
+7. Follow your browser, operating system, password manager, or hardware key prompt.
+
+Sure verifies your MFA code before opening the browser registration prompt. A backup code is only consumed if the passkey is successfully saved, so a cancelled browser prompt does not spend it.
 
 After registration succeeds, the key appears in the **Passkeys and security keys** list with its creation date.
 

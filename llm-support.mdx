@@ -54,7 +54,7 @@ Set the active provider with the `LLM_PROVIDER` environment variable (or the `LL
 | `openai` *(default)* | `OPENAI_ACCESS_TOKEN` |
 | `anthropic` | `ANTHROPIC_ACCESS_TOKEN` (or `ANTHROPIC_API_KEY`) |
 
-Chat routing also honors the model name: requests with `claude-*` models are routed to the Anthropic provider, and other models to the OpenAI provider, when both are configured.
+Chat routing honors `LLM_PROVIDER` first: the provider selected by that setting is tried before any fallback. If the selected provider does not support the model in use, the other configured provider is tried as a fallback. This means setting `LLM_PROVIDER=anthropic` reliably routes chat to Anthropic even when a custom OpenAI-compatible endpoint (`OPENAI_URI_BASE`) is also configured.
 
 ## Configuration via settings
 
