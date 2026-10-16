@@ -175,6 +175,47 @@ When a member accepts an invitation to join a different family, their Plaid conn
 
 If a member is demoted to guest, they lose the ability to manage their Plaid connections. The connections are not deleted, but only an admin can manage them until the member's role is restored.
 
+## Duplicate institution warning
+
+When you complete a Plaid Link flow for an institution you already have connected, Sure detects the overlap before creating a second connection and shows a warning dialog. This prevents duplicate connections, which consume a Plaid Item slot that cannot be recovered on the Trial plan even if the duplicate is later removed.
+
+Sure compares the accounts Link reported with your existing connections by account name and last-four mask, then offers different actions depending on what it finds.
+
+### All accounts already connected
+
+If every account in the new Link session matches an existing connection, Sure shows a "Close" button only. Adding the connection would only duplicate accounts already in your family.
+
+The dialog points you to alternatives where applicable:
+
+- For a US connection you can manage and own (or a legacy connection with no owner), use **Add accounts** to add more accounts without creating a second connection. Plaid does not support this account-selection flow for UK/EU institutions.
+- Go through Link again with a different bank login if you intended to connect a different account at the same institution.
+
+### Some accounts are new
+
+If the new session includes both connected and new accounts, Sure offers an update action for eligible US connections you can manage and own (or legacy connections with no owner). Updating adds the new accounts through the existing connection. If the overlap is only with other members' connections, the dialog leads with **Confirm this connection** instead.
+
+A **Confirm this connection** option is also available for cases where the overlap is explained by a different login sharing an account (such as a joint account).
+
+### No accounts match
+
+If none of the reported accounts match an existing connection, Sure treats this as a different login and leads with **Confirm this connection**. You can still close without adding if you changed your mind.
+
+### Nothing to compare
+
+When Sure cannot reliably compare accounts — for example, when an account has no last-four mask — it leads with Close. Confirm remains available; update actions appear only for eligible US connections you can manage and own, or legacy connections with no owner.
+
+### Expired token
+
+The held public token expires after 30 minutes. If you leave the warning dialog open past that point and then try to confirm, Sure redirects to Accounts with an alert asking you to go through Link again.
+
+### Admin and member behavior
+
+Admins can see the family's connections in the warning. When every reported account is already connected only through other members, the warning names whose connection holds the accounts and offers Close rather than confirmation. If some accounts are new, confirmation remains available. Matches narrow the listed connections to those holding matching accounts; when there are no matches or comparison is unavailable, the dialog lists the institution's existing connections.
+
+Members see only their own connections in the warning.
+
+---
+
 ## Managing accounts
 
 ### Adding accounts to an existing connection
@@ -323,6 +364,14 @@ When Plaid removes a transaction (for example, a pending transaction that never 
 Entries imported before the `ProviderImportAdapter` was introduced were stored with a `plaid_id` field, and Sure used that field to find and delete retracted transactions. Entries imported after the adapter was introduced are stored with an `external_id` and a source identifier instead, leaving `plaid_id` empty. Because of this, retractions that targeted the newer entries were never matched and the transactions stayed in the account.
 
 This is now fixed. Sure looks up retracted transactions by `external_id` and source first, then falls back to `plaid_id` for older entries that predate the adapter. If you have transactions that should have been removed by a Plaid retraction, trigger a manual sync from the account page — Sure will process any pending removals during that sync.
+
+### Investment holdings not syncing with encryption enabled
+
+If your Sure instance has Active Record encryption configured and Plaid investment account syncs are failing with a `NoMethodError`, you were affected by a bug that is now fixed.
+
+The `raw_holdings_payload` column was previously named `raw_investments_payload`. An invalid `previous:` fallback option on the encryption declaration caused `ActiveRecord::Encryption::Context#attribute=` to raise `NoMethodError` when Sure tried to decrypt holdings data using the previous scheme. The column rename preserves the stored ciphertext, and Active Record Encryption does not bind ciphertext to the attribute name, so no fallback scheme was needed.
+
+Update to the latest Sure version and trigger a manual sync from the account page. Holdings will decrypt and sync correctly after the update.
 
 ### Link popup closes after selecting a bank
 
