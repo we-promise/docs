@@ -75,8 +75,8 @@ If your Kraken account was connected before October 2026, crypto ledger entries 
 
 ### The same asset appears as multiple holdings
 
-If you see separate holdings for what should be one position — for example, BTC split across different entries — your account may have synced before the October 2026 fix that resolved each asset to a single security. Re-syncing the account consolidates them.
+If you see separate holdings for what should be one position — for example, BTC split across different entries — older snapshots may use different security records for the same asset. Current imports resolve each asset to a canonical security and combine spot, staked, and bonded variants in the new snapshot. This does not guarantee that all older duplicate holding records are removed.
 
 ### Fiat balance appears as a holding
 
-If a currency like EUR or USD appears in your holdings list, the balance was imported before Sure began excluding fiat from the holdings snapshot. Re-syncing the account removes these entries.
+If a currency like EUR or USD appears in your holdings list, the balance was imported before Sure began excluding fiat from the holdings snapshot. Current imports skip fiat holdings. This does not guarantee removal of fiat holding records already stored by an older import.
