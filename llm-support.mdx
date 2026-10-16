@@ -280,7 +280,7 @@ ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
 
 Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via **forced tool calls**: a single output tool whose `input_schema` mirrors the desired result, invoked with `tool_choice: { type: "tool", disable_parallel_tool_use: true }`. This guarantees schema-valid output without JSON-mode fallbacks.
 
-Each batch operation caps the number of items at **25 per request**, matching the OpenAI provider. Requests above this limit are rejected with a clear error before they are sent.
+Each batch operation sends `LLM_MAX_ITEMS_PER_CALL` items per request (default `25`), the same limit that applies to every provider. Unlike the OpenAI-compatible provider, Anthropic batches are not split to fit a context window, so raise `ANTHROPIC_MAX_TOKENS` alongside `LLM_MAX_ITEMS_PER_CALL` if you increase the batch size, or replies may be cut off.
 
 ## Token budget
 
