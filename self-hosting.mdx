@@ -876,6 +876,8 @@ You can tune the AI status checks with these environment variables:
 | `AI_HEALTH_PROBE_TIMEOUT` | Per-request timeout in seconds for each live check | `5` |
 | `AI_HEALTH_PROBE_CACHE_TTL` | Seconds to cache probe results. Also deduplicates failure log entries | `60` |
 
+`AI_HEALTH_PROBE_TIMEOUT` is also configurable from the Settings UI without a restart. Go to **Settings → Self-Hosting**, scroll to the **Timeouts** section under AI Provider, and enter a value in the **Health Check Timeout in Seconds** field. The environment variable takes precedence over the UI setting when set to a positive value. Raise this value if PDF text or vision probes time out with a cloud model like gpt-4.1 — the PDF probes do a full extraction round trip that can take longer than the 5-second default, even when real PDF imports succeed.
+
 ### Verifying worker configuration
 
 The checks above all run from the `web` process. Most AI work — assistant responses, PDF processing, embeddings, auto-categorization, and merchant detection — actually executes in a Sidekiq `worker` process, which can differ from `web` in network access, DNS, proxy rules, or the credentials it loaded. This is most common in Kubernetes deployments using workload-specific environment overrides or a Secret updated without a pod restart. A passing web check does not prove a worker can reach the same provider.
