@@ -33,6 +33,12 @@ Tags can only be added or removed by users who have annotate permission on the a
 
 Pending transactions are visible in your transaction list but are excluded from account balance calculations. Balances reflect only settled (posted) transactions. Once a pending transaction posts, it is included in balance and report totals. If Sure detects that a pending transaction might duplicate a posted one, you can merge the duplicate or keep both transactions.
 
+When you merge a pending duplicate into its posted counterpart, Sure carries over the data you added while the transaction was pending:
+
+- **Attachments** (receipts, invoices): attachment files from the pending transaction move to the posted transaction. If the posted transaction already references the same stored attachment blob, the duplicate attachment row is dropped rather than duplicated. A merge is refused if it would push the posted transaction above 10 attachments total; the pending transaction and its attachments remain untouched in that case.
+- **Tags**: any tags on the pending transaction that the posted transaction does not already have are added to the posted transaction.
+- **Notes**: if only the pending transaction has notes, those notes are copied to the posted transaction. If the posted transaction already has notes, the pending notes are appended after a blank line, unless the same complete paragraphs already appear consecutively in the posted notes. A partial text match does not count as a duplicate.
+
 ## Add a manual transaction
 
 To add a transaction that was not imported from a provider, select **Add transaction** from the Transactions screen. Fill in the date, amount, account, and any other details, then save.
@@ -126,6 +132,8 @@ The Filter popover on each account's activity list includes an **Uncategorized o
 
 The categorize flow (accessible when uncategorized transactions exist) displays a category picker that groups subcategories under their parent, consistent with the rest of the app. Both the parent label and its subcategories are visible together, making it straightforward to pick the right level of detail without navigating a flat list.
 
+The categorize flow only surfaces transactions on accounts you have permission to annotate — owner, full-control share, or read-write share. Transactions on read-only or unshared accounts are excluded from both the count displayed on the Transactions page and from the flow itself. If a bulk categorization would skip every selected entry because none belong to accounts you can annotate, no rule is created. This ensures the wizard accurately reflects what you can change.
+
 ### Create a category inline
 
 If the category you need does not exist yet, you can create it directly from the transaction form or detail panel without leaving the transaction. Type a new name in the category selector and choose **Create "[name]"** from the dropdown. The new category is saved and immediately assigned to the transaction.
@@ -137,6 +145,8 @@ To create a subcategory instead, select **Add as a subcategory…** below the cr
 The quick category picker that opens from a transaction row in the list now also supports inline creation. When you type a name that does not match any existing category, the picker shows a **Create "[name]"** row. Click the row or press Enter to create the category and assign it to the transaction in one step. The row refreshes in place and the rule suggestion prompt appears as normal.
 
 To create a subcategory instead, click **Add as a subcategory…** below the create row. The picker swaps to a list of your top-level categories. Select a parent to create the new category under it and immediately assign it.
+
+If category creation fails, an error message appears in the picker so you can correct the name and try again. In the category selector used by transaction forms, focus also returns to the search field, where Escape closes the selector. The transaction row’s quick picker shows the error but does not perform that focus reset.
 
 These options are only shown when you have permission to annotate the transaction's account.
 
@@ -158,6 +168,16 @@ Bulk editing can update:
 Before saving, review the selected transactions so you do not apply a cleanup change to unrelated activity.
 
 If your selection includes split transactions, Sure applies the bulk edit to the individual split entries rather than the parent transaction. The parent itself is not updated directly.
+
+### Bulk edit and account permissions
+
+Bulk edit respects the account share permissions of the user making the change:
+
+- **Owner or full control share**: all fields (name, date, category, merchant, tags, notes) can be updated.
+- **Read-write share**: only annotation fields (category, merchant, tags, notes) can be updated. Name and date changes are ignored for these transactions.
+- **Read-only share or no access**: the transaction is skipped entirely and not updated.
+
+This means a bulk edit applied to a mixed selection may update different fields on different transactions depending on the account each transaction belongs to. The final notice shows how many transactions were actually updated.
 
 ## Group split transactions
 
@@ -227,6 +247,14 @@ Rules let you automatically apply categories, merchants, tags, and other attribu
 
 If a rule was created on an older version of Sure and includes a condition type that no longer exists, that condition shows an "Unsupported" label in the rule editor. The condition matches no transactions while in that state. You can delete the unsupported condition and replace it with a supported one to restore the rule's behavior.
 
+### Validation for rule types
+
+Sure validates recognized resource and action types before saving. The supported resource type is `transaction`; action types must be registered transaction actions. The web rule form returns a 422 response when validation fails. Other callers receive errors through their own API or import interface; direct database writes can bypass model validation.
+
+This validation does not repair previously stored invalid types. If a legacy rule prevents the Rules page from loading, a maintainer must repair the stored rule through an administrative path that does not depend on that page before it can be edited normally.
+
+AI actions such as auto-categorize and auto-detect merchants remain valid on existing rules even when the AI provider is not configured. Their execution still depends on the available categorization and LLM providers; absence of a configured LLM does not make the action type invalid.
+
 Rules support the following condition types:
 
 - **Transaction name** – match on the transaction name or description
@@ -275,7 +303,9 @@ When a rule with stop processing is enabled, a **Stop** badge appears next to it
 
 ### Applying rules
 
-Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run every active rule against your existing transactions.
+Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run all rules against your existing transactions.
+
+**Apply All** runs every rule in the family — including inactive ones — so their transaction changes (category, merchant, tags, and so on) take effect. Inactive rules skip the email notification action only: matches seen while a rule is off are not recorded and no digest email is sent. When you switch a rule back on, those unrecorded matches are picked up on the next run.
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 

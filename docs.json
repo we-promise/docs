@@ -22,6 +22,7 @@
               "self-hosting",
               "self-hosting-render",
               "self-hosting-hostim",
+              "self-hosting-pethost",
               "self-hosting-helm",
               "roadmap"
             ]
