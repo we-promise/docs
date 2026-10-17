@@ -541,6 +541,24 @@ When you delete an account, Sure marks it as pending deletion and then runs a ba
   </Accordion>
 </AccordionGroup>
 
+## Dashboard loads slowly with many accounts
+
+When a user has access to many accounts (through family sharing or account groups), earlier versions issued a separate database query to load accessible accounts on each access during a single request. This caused the dashboard to slow down noticeably as the account count grew.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    `Current.accessible_accounts` was computed fresh on every call within a request cycle. Controllers and views that accessed `Current.accessible_accounts` multiple times — common on the dashboard, which renders several widgets — each triggered a new database query. With a large number of shared accounts, this produced many redundant queries per page load.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `Current.accessible_accounts` is now memoized for the duration of each request. The query runs once and the result is reused across every controller and view that accesses it. The memoized value is cleared automatically when the request context resets.
+
+    `Current.finance_accounts` received the same fix.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Deleting an account with many transfers is slow
 
 When you delete an account, Sure removes all transfers linked to its transactions. In older versions, this process issued a separate database query for each transfer's associated transaction records, causing it to slow significantly when an account had hundreds of transfers.
