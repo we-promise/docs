@@ -351,6 +351,12 @@ After you complete re-authentication, the warning is not cleared immediately. Su
 
 If you run into Plaid errors that are not visible in Sure, check the Plaid Dashboard logs under **Developers > Logs**. These logs can show whether the issue is coming from Plaid Link configuration, product approval, institution support, or another Plaid-side validation error.
 
+### Investment account shows unexpected cash balance after a sync
+
+If a Plaid investment account shows a cash balance that grows or fluctuates each day even though you have not made any cash changes, one possible cause is a balance snapshot anchored on a different date from its holdings. Plaid can report an institution price date for each holding, which may be from an earlier trading session. When that total was anchored on today's date instead, repricing the holdings for today left a gap that appeared as phantom cash.
+
+Sure now anchors the balance snapshot on the newest valid holding price date that is not in the future. Future dates are discarded individually; if no eligible date remains, Sure uses today. This reduces date-mismatch artifacts without assuming every holding has the same price date. Trigger a manual sync from the account page to pick up the corrected snapshot.
+
 ### Credit card or loan shows no transactions after linking
 
 If you linked a credit card or loan account through Plaid and Sure imported balances and liabilities but no transactions, the connection was affected by a bug that is now fixed. Plaid places the `transactions` product in `consented_products` for liability accounts until the first billing call — Sure previously only checked `available_products` and `billed_products`, so `transactions` appeared unsupported and the fetch was skipped.
@@ -372,6 +378,14 @@ If your Sure instance has Active Record encryption configured and Plaid investme
 The `raw_holdings_payload` column was previously named `raw_investments_payload`. An invalid `previous:` fallback option on the encryption declaration caused `ActiveRecord::Encryption::Context#attribute=` to raise `NoMethodError` when Sure tried to decrypt holdings data using the previous scheme. The column rename preserves the stored ciphertext, and Active Record Encryption does not bind ciphertext to the attribute name, so no fallback scheme was needed.
 
 Update to the latest Sure version and trigger a manual sync from the account page. Holdings will decrypt and sync correctly after the update.
+
+### Link modal closes with no error message
+
+If the Plaid Link modal closes immediately when you try to open it — before any bank selection screen appears — and Sure shows no error message, a link-token creation error may be the cause. This can happen when your Plaid credentials are misconfigured, a required product is not enabled for your account, or your institution is not available in your region.
+
+Sure now shows the error as a page-level alert instead of silently closing the modal. If you see a message such as "Your account is not enabled for the following products" or a similar Plaid configuration error, follow the instructions in that message to resolve the issue in your [Plaid Dashboard](https://dashboard.plaid.com).
+
+If the alert is a generic connection error with no specific guidance, verify that your `PLAID_CLIENT_ID`, `PLAID_SECRET`, and `PLAID_ENV` values are correct and that your Sure instance is reachable over HTTPS. Check **Developers > Logs** in the Plaid Dashboard for more detail on what failed.
 
 ### Link popup closes after selecting a bank
 
