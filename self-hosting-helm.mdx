@@ -186,7 +186,7 @@ email:
   smtpTlsSkipVerify: false
 ```
 
-For the SMTP password, add `SMTP_PASSWORD` to your app secret. When `rails.secret.enabled` is true and `rails.secret.values.SMTP_PASSWORD` is non-empty, the chart injects it automatically. When you manage the secret yourself, pass it through `rails.extraEnvVars`:
+For the SMTP password, add `SMTP_PASSWORD` to your app secret. When the chart creates the app secret (`rails.secret.enabled` is true and `rails.existingSecret` is empty), a non-empty `rails.secret.values.SMTP_PASSWORD` is injected automatically unless `SMTP_PASSWORD` is explicitly supplied through `rails.settings` or `rails.extraEnv`. When you manage the secret yourself, pass it through `rails.extraEnvVars`:
 
 ```yaml
 rails:
