@@ -94,6 +94,16 @@ When the toggle is on, Sure derives the debt from the card's **Available credit*
 
 If you change the card limit while the toggle is on, Sure queues a sync automatically to update the balance when that sync runs.
 
+### Holdings history
+
+Holdings are stored by date: a sync on a new day creates that day’s row, while another sync on the same day updates it instead of overwriting the previous day’s record. Sure accumulates a daily history of your positions so you can see how your portfolio has changed over time.
+
+### User corrections carried forward
+
+When you remap a holding to a different security or lock a cost basis, Sure preserves that correction when a new day's sync creates the next holding row. Sure uses the latest earlier row for the same account, provider, provider security, and currency, carrying its active security and cost-basis locks forward.
+
+If you have since undone a correction, the undone state is not revived — only the latest version is carried forward.
+
 ### Sync status
 
 The Lunch Flow connection card shows the current sync state:
