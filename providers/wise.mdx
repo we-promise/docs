@@ -91,7 +91,7 @@ Generating a new keypair does not automatically revoke the previous public key i
 
 ## Troubleshooting
 
-**"No Wise connection configured" error**: If you see this alert when trying to add a Wise account, your API token has not been saved yet. Go to **Settings > Providers > Wise**, paste your personal API token, and save before adding accounts.
+**"No Wise connection configured" error**: If you see this alert when trying to add a Wise account, Sure could not find an active Wise connection for the request. The selected connection may have been removed; this alert is not itself a token-validity check. Go to **Settings > Providers > Wise**, paste your personal API token, and save before adding accounts.
 
 **Invalid token / connection requires update**: your API token was revoked, is invalid, or lacks permissions (Wise personal API tokens don't expire on their own). When Wise rejects the token with a 401 or 403, Sure marks the connection as requiring an update and the sync fails — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. Create a new personal token in Wise and update it in the Wise provider panel.
 
