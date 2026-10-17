@@ -56,8 +56,8 @@ Your API secret is only shown once. Store it securely - you'll need both the API
 
 After connecting, Sure discovers your Coinbase wallets through the initial sync. You can link them in two ways:
 
-- **From Add Account**: Open the Add Account dialog, choose **Crypto** > **Coinbase**, and Sure opens the wallet setup for your existing connection directly. After you finish, Sure returns you to where you started.
-- **From Settings**: Navigate to **Settings** > **Bank sync**, find your Coinbase connection, and open the wallet setup from there.
+- **From Add Account**: Open the Add Account dialog, choose **Crypto** > **Coinbase**, and Sure opens wallet setup directly when there is exactly one active connection with configured credentials, or when a specific connection was selected. After you finish, Sure returns you to where you started.
+- **From Settings**: Navigate to **Settings** > **Providers**, find your Coinbase connection, and open the wallet setup from there.
 
 In the wallet setup screen:
 
@@ -65,7 +65,7 @@ In the wallet setup screen:
 2. Select the wallets you want to import
 3. Click **Import selected** to create Sure accounts for each wallet
 
-If you have more than one Coinbase connection, Sure opens the setup for the matching connection. If no match is found, Sure shows an alert and returns you to Provider Settings.
+If more than one eligible Coinbase connection exists and none was explicitly selected, Sure returns to Provider Settings with an alert asking you to choose a connection. An unavailable selected connection or missing credentials also returns you there with an alert.
 
 ## Supported features
 
@@ -120,17 +120,20 @@ All Coinbase API requests include timeouts to prevent hanging connections and en
 
 ### Manual sync
 
-To manually sync your Coinbase accounts:
+To manually sync your Coinbase accounts, an admin can use either of these options:
 
-1. Navigate to **Settings** > **Bank sync**
-2. Find your Coinbase connection
-3. Click **Sync now**
+- On the **Accounts** page, find your Coinbase connection card and click the refresh icon in the header row.
+- Go to **Settings** > **Providers**, find your Coinbase connection, and click **Sync**.
 
 ### Automatic sync
 
 Sure automatically syncs your Coinbase accounts on a regular schedule along with your other connected accounts.
 
 ## Troubleshooting
+
+### Credentials need updating
+
+If the Coinbase connection card shows "Credentials need updating", Sure could not read a configured API key and secret. This warning alone does not establish that the provider revoked a key. Click **Update credentials** in the connection card header to go to **Settings** > **Providers**, then enter your new API key and secret.
 
 ### Connection errors
 
@@ -153,7 +156,7 @@ If transactions are missing:
 If you have trouble linking wallets:
 
 1. Ensure you've selected wallets to import during setup
-2. If Sure shows a "connection unavailable" alert from Add Account, the connection may have been removed or its credentials are no longer configured — go to **Settings** > **Bank sync** to check
+2. If Sure shows a "connection unavailable" alert from Add Account, the connection may have been removed or its credentials are no longer configured — go to **Settings** > **Providers** to check
 3. Try syncing the connection first so Sure can discover new wallets before opening setup
 4. Check that the wallet is active in your Coinbase account
 
