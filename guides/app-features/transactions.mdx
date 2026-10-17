@@ -229,6 +229,14 @@ Rules let you automatically apply categories, merchants, tags, and other attribu
 
 If a rule was created on an older version of Sure and includes a condition type that no longer exists, that condition shows an "Unsupported" label in the rule editor. The condition matches no transactions while in that state. You can delete the unsupported condition and replace it with a supported one to restore the rule's behavior.
 
+### Validation for rule types
+
+Sure validates recognized resource and action types before saving. The supported resource type is `transaction`; action types must be registered transaction actions. The web rule form returns a 422 response when validation fails. Other callers receive errors through their own API or import interface; direct database writes can bypass model validation.
+
+This validation does not repair previously stored invalid types. If a legacy rule prevents the Rules page from loading, a maintainer must repair the stored rule through an administrative path that does not depend on that page before it can be edited normally.
+
+AI actions such as auto-categorize and auto-detect merchants remain valid on existing rules even when the AI provider is not configured. Their execution still depends on the available categorization and LLM providers; absence of a configured LLM does not make the action type invalid.
+
 Rules support the following condition types:
 
 - **Transaction name** – match on the transaction name or description
