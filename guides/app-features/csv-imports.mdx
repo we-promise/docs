@@ -290,6 +290,14 @@ Tag coffee runs,transaction,true,,"[{""condition_type"":""transaction_name"",""o
 
 ## Troubleshooting
 
+### File upload fails on iPhone or iPad
+
+On iOS (Safari and Chrome for iOS), tapping the file picker to upload a Sure export (NDJSON) or a bank statement (PDF) could fail silently or return an error page. The upload appeared to start but never reached the server.
+
+The affected Sure upload forms used native form submission. They now submit through Turbo using `requestSubmit()`, allowing Turbo to send the selected file in its fetch request.
+
+If you are on an older version and see a "We didn't receive your file. Please try uploading it again." alert on iOS, upgrade to the latest release and retry the upload.
+
 ### Import fails with date errors
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
@@ -343,9 +351,11 @@ No action is needed. If you see these warnings and the import finishes without e
 
 ### Sure NDJSON import shows a warning about merchant details differing
 
-Provider-assigned merchants (detected by bank sync or AI enrichment) are shared across all families on a Sure instance. When an imported `ProviderMerchant` record already exists on the instance with different details — for example, a different website URL or name — Sure keeps the existing record as-is and surfaces the differences on the confirm screen as a warning.
+Provider-assigned merchants (including legacy AI-created provider records) are shared across all families on a Sure instance. When an imported `ProviderMerchant` record already exists on the instance with different details — for example, a different website URL or name — Sure keeps the existing record as-is and surfaces the differences on the confirm screen as a warning.
 
 This is expected behavior. The import still proceeds; affected transactions reference the existing shared merchant. No action is required unless you want to update the merchant's details, which you can do manually from **Settings → Merchants** after the import completes.
+
+If the import file contains a `ProviderMerchant` that does not exist on the instance at all, Sure creates a family-owned merchant (a `FamilyMerchant`) for the importing family instead of registering a new shared provider merchant. The transactions in the import are linked to that family-owned merchant, and the import proceeds normally.
 
 ### Sure NDJSON import reports missing merchants as warnings instead of errors
 
