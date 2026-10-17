@@ -33,6 +33,12 @@ Tags can only be added or removed by users who have annotate permission on the a
 
 Pending transactions are visible in your transaction list but are excluded from account balance calculations. Balances reflect only settled (posted) transactions. Once a pending transaction posts, it is included in balance and report totals. If Sure detects that a pending transaction might duplicate a posted one, you can merge the duplicate or keep both transactions.
 
+When you merge a pending duplicate into its posted counterpart, Sure carries over the data you added while the transaction was pending:
+
+- **Attachments** (receipts, invoices): attachment files from the pending transaction move to the posted transaction. If the posted transaction already references the same stored attachment blob, the duplicate attachment row is dropped rather than duplicated. A merge is refused if it would push the posted transaction above 10 attachments total; the pending transaction and its attachments remain untouched in that case.
+- **Tags**: any tags on the pending transaction that the posted transaction does not already have are added to the posted transaction.
+- **Notes**: if only the pending transaction has notes, those notes are copied to the posted transaction. If the posted transaction already has notes, the pending notes are appended after a blank line, unless the same complete paragraphs already appear consecutively in the posted notes. A partial text match does not count as a duplicate.
+
 ## Add a manual transaction
 
 To add a transaction that was not imported from a provider, select **Add transaction** from the Transactions screen. Fill in the date, amount, account, and any other details, then save.
