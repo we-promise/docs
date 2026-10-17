@@ -103,6 +103,8 @@ Sure maps the full range of SnapTrade activity types to trades or cash entries:
 
 **Trade activities** (always imported as investment trades): BUY, SELL, REI, REINVEST, OPTION_BUY, OPTION_SELL, OPTIONASSIGNMENT, ASSIGNED, OPTIONEXERCISE, EXERCISED, OPTIONEXPIRATION, EXPIRED, STOCK_DIVIDEND, SPLIT, REVERSE_SPLIT, SPINOFF, and asset transfer variants (EXTERNAL_ASSET_TRANSFER_IN/OUT, INTERNAL_ASSET_TRANSFER_IN/OUT).
 
+When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers that option ticker (for example, `TQQQ  260220C00051000`) over the regular symbol, which may identify the underlying equity. OPTION_BUY and OPTION_SELL are imported as trades, but the activity type alone does not supply an option ticker; without one, Sure falls back to the regular symbol data. Fees on option trades are stored separately and factored into realized gain/loss the same way as equity trades.
+
 **Unit-dependent activities** (ADJUSTMENT, STOCK_MERGER, MERGER, CORP_ACTION): imported as trades when SnapTrade reports a non-zero share quantity, and as cash entries when the quantity is absent or zero. This lets zero-cash corporate actions (splits, mergers with no cash consideration) record correctly as unit-only trades while still capturing any cash component when it is present.
 
 **Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.

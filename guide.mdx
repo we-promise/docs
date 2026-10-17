@@ -138,7 +138,11 @@ Each account and account group in the sidebar displays a small 30-day sparkline 
 
 The sparkline and trend percentage only appear once there is enough balance history. For a brand-new account with no historical data, the sidebar shows a placeholder instead. Once balances accumulate over time, the chart and trend fill in automatically.
 
+Sparklines inside collapsed account groups are loaded lazily — Sure only fetches them when the group is expanded and the rows scroll into view. Until then, those rows keep their loading placeholder. This is expected behavior and does not indicate an error.
+
 For linked investment and crypto accounts, the sparkline only covers the period supported by your provider connection. Data from before the provider's first import is excluded, so the sparkline reflects your actual account history rather than estimated or zero-filled values from before the connection was established.
+
+Group sparklines in the sidebar are scoped to the accounts you can access. If another family member has not shared an account with you, that account's balance history is excluded from the group sparkline you see. Each member sees a sparkline that reflects only their own accessible accounts.
 
 ## Adding transactions
 
@@ -164,7 +168,8 @@ Sure needs each statement's **period** to show which months are covered and to c
 
 1. **Inside the PDF** — when the statement includes its period as a date range (e.g. `01 Apr 2026 - 30 Apr 2026`) or as the dates next to the opening and closing balance (e.g. "Saldo iniziale al 01.07.2025"). Sure also reads opening and closing balances from a summary table or next to labels such as "Opening balance" and "Closing balance". Month names and labels are recognized in English, Italian, German, French, Spanish, Dutch, and Portuguese.
 2. **Dates in the filename** — for everything else, e.g. `2026-04`, `2026-04-30`, or `Apr 2026`.
-3. **Manually** — open the statement and enter the period and balances yourself.
+3. **Dates inside a CSV** — if the filename did not supply the period, Sure samples up to 250 date values from a recognized date column to fill missing period boundaries. Review the result, since a sample may not cover the whole statement.
+4. **Manually** — open the statement and enter the period and balances yourself.
 
 If your bank names every file the same way, add the month to the filename before uploading, e.g. `Statement 2026-04.pdf`.
 
@@ -347,6 +352,12 @@ This feature eliminates the "black hole" effect where investment contributions w
 ## Dashboard
 
 The **Dashboard** gives you a live snapshot of your financial picture. Several widgets are available, and you can reorder and collapse them to suit your workflow.
+
+### Chart time periods
+
+The period picker on net worth and account charts includes presets such as 1 month, 90 days, 1 year, 5 years, and **All**. The **All** period starts one month before the earliest Transaction or Trade entry across your family, giving a small margin before your first real activity. A single old valuation or opening balance no longer stretches the All range back years with a flat, empty line.
+
+If your family has only valuations and no Transactions or Trades, the All period uses the family’s oldest entry date when it is before today; a missing, today, or future start falls back to five years ago.
 
 ### Balance chart y-axis scaling
 
