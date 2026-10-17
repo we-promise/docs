@@ -136,6 +136,14 @@ When enabled, transactions marked as pending by Lunch Flow will be imported and 
 
 When a pending transaction posts, Sure automatically refreshes the stored snapshot so the entry transitions from pending to posted. The "Pending" badge is removed and the transaction reflects the final posted details.
 
+### Card authorization holds
+
+Some banks return unfinalized card authorization holds with blank transaction IDs, masked card numbers instead of merchant names (for example `474836xxxxxx6879 003015315475`), and sometimes with inverted credit/debit signs.
+
+When `LUNCHFLOW_INCLUDE_PENDING=1` is set, Sure detects these holds automatically and imports them as pending expenses named **Card Authorization Hold**. No merchant is created for them. If the bank reports the hold amount as a credit (inflow), Sure corrects the sign so it appears as an outgoing expense, matching the settled transaction when it arrives.
+
+When pending transactions are disabled (`LUNCHFLOW_INCLUDE_PENDING` is not set or is `0`), unidentified card holds are filtered out and not imported.
+
 ### Debug mode
 
 For troubleshooting, you can enable debug logging to see the raw API responses:

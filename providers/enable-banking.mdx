@@ -115,6 +115,18 @@ You can disable pending transaction imports in your sync settings by toggling "I
 Disable this option if your bank provides unreliable pending transaction data.
 </Note>
 
+### Card authorization holds
+
+Some banks (ASPSPs) return unfinalized card authorization holds with a `BOOK` status while omitting the `transaction_id`, `entry_reference`, and creditor information. The remittance field contains a masked card descriptor instead of a merchant name (for example `474836xxxxxx6879 003015315475`), and the credit/debit indicator may be set to `CRDT` even though the hold is an outgoing expense.
+
+Sure detects these holds by checking for a masked card descriptor in the remittance field when the transaction lacks identifying fields. Detected holds are:
+
+- Named **Card Authorization Hold**
+- Imported as pending expenses (no merchant is created)
+- Corrected to a positive outgoing amount when the bank erroneously reports them as credit
+
+When pending transactions are disabled, unidentified card holds are filtered out and not imported.
+
 ### Balance selection
 
 When Enable Banking returns multiple balance types for an account, Sure picks the most reliable figure using a fixed priority order that prefers reconciled booked balances over available or expected ones:
