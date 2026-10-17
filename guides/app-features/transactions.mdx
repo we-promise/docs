@@ -13,7 +13,7 @@ Open **Transactions** from the main navigation to see recent activity across you
 
 From this screen you can:
 
-- Search and filter by account, date, type, status, amount, category, tag, or merchant. The merchant filter includes a **No merchant** option to show only transactions without an assigned merchant; the tag filter includes an **Untagged** option to show only transactions with no tags.
+- Search and filter by account, date, type, status, amount, category, tag, merchant, or attachments. The merchant filter includes a **No merchant** option to show only transactions without an assigned merchant; the tag filter includes an **Untagged** option to show only transactions with no tags; the attachments filter lets you show only transactions that have files attached or only those with no attachments.
 - View a summary of the count and total amounts for your current filter
 - Click anywhere on a transaction row to open its detail drawer
 - Add a new manual transaction
@@ -278,6 +278,23 @@ When a rule with stop processing is enabled, a **Stop** badge appears next to it
 Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run every active rule against your existing transactions.
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
+
+## Transaction splits API
+
+The API exposes a nested resource for managing transaction splits programmatically:
+
+| Endpoint | Scope | Description |
+| --- | --- | --- |
+| `GET /api/v1/transactions/:transaction_id/split` | `read` | Return the child transactions of a split. Returns 404 when the transaction has not been split. |
+| `POST /api/v1/transactions/:transaction_id/split` | `read_write` | Split a transaction for the first time. Children must sum exactly to the parent amount. |
+| `PATCH /api/v1/transactions/:transaction_id/split` | `read_write` | Replace all children of an existing split. The previous children are deleted and the new ones are created. |
+| `DELETE /api/v1/transactions/:transaction_id/split` | `read_write` | Unsplit a transaction. The children are deleted and the parent is restored. |
+
+A split-child transaction ID resolves to its parent, so you can address either transaction to reach the split resource.
+
+Amounts use the same sign convention as the transaction endpoints: positive for expenses, negative for income. This differs from the web split editor, which handles sign conversion internally.
+
+Read requests need read scope and access to the account. Split writes need `read_write` scope and owner or full-control permission on the account. Use `amount_decimal` from the split response for exact amounts; inputs are rounded to four decimal places before checking their sum. See the [OpenAPI spec](https://docs.sure.am/openapi.yaml) for full request and response schemas.
 
 ## Bill allocations
 
