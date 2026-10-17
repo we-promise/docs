@@ -115,17 +115,20 @@ All Coinbase API requests include timeouts to prevent hanging connections and en
 
 ### Manual sync
 
-To manually sync your Coinbase accounts:
+To manually sync your Coinbase accounts, an admin can use either of these options:
 
-1. Navigate to **Settings** > **Bank sync**
-2. Find your Coinbase connection
-3. Click **Sync now**
+- On the **Accounts** page, find your Coinbase connection card and click the refresh icon in the header row.
+- Go to **Settings** > **Providers**, find your Coinbase connection, and click **Sync**.
 
 ### Automatic sync
 
 Sure automatically syncs your Coinbase accounts on a regular schedule along with your other connected accounts.
 
 ## Troubleshooting
+
+### Credentials need updating
+
+If the Coinbase connection card shows "Credentials need updating", Sure could not read a configured API key and secret. This warning alone does not establish that the provider revoked a key. Click **Update credentials** in the connection card header to go to **Settings** > **Providers**, then enter your new API key and secret.
 
 ### Connection errors
 
