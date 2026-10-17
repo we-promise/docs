@@ -126,6 +126,8 @@ The Filter popover on each account's activity list includes an **Uncategorized o
 
 The categorize flow (accessible when uncategorized transactions exist) displays a category picker that groups subcategories under their parent, consistent with the rest of the app. Both the parent label and its subcategories are visible together, making it straightforward to pick the right level of detail without navigating a flat list.
 
+The categorize flow only surfaces transactions on accounts you have permission to annotate — owner, full-control share, or read-write share. Transactions on read-only or unshared accounts are excluded from both the count displayed on the Transactions page and from the flow itself. If a bulk categorization would skip every selected entry because none belong to accounts you can annotate, no rule is created. This ensures the wizard accurately reflects what you can change.
+
 ### Create a category inline
 
 If the category you need does not exist yet, you can create it directly from the transaction form or detail panel without leaving the transaction. Type a new name in the category selector and choose **Create "[name]"** from the dropdown. The new category is saved and immediately assigned to the transaction.
@@ -160,6 +162,16 @@ Bulk editing can update:
 Before saving, review the selected transactions so you do not apply a cleanup change to unrelated activity.
 
 If your selection includes split transactions, Sure applies the bulk edit to the individual split entries rather than the parent transaction. The parent itself is not updated directly.
+
+### Bulk edit and account permissions
+
+Bulk edit respects the account share permissions of the user making the change:
+
+- **Owner or full control share**: all fields (name, date, category, merchant, tags, notes) can be updated.
+- **Read-write share**: only annotation fields (category, merchant, tags, notes) can be updated. Name and date changes are ignored for these transactions.
+- **Read-only share or no access**: the transaction is skipped entirely and not updated.
+
+This means a bulk edit applied to a mixed selection may update different fields on different transactions depending on the account each transaction belongs to. The final notice shows how many transactions were actually updated.
 
 ## Group split transactions
 
