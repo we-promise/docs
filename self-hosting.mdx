@@ -992,6 +992,16 @@ After you save a demo family and enable the toggle, Sure runs the refresh job on
 
 If the selected family no longer meets the safety checks (for example, a super-admin was added to it), the job skips that run and logs a warning instead of destroying data.
 
+### Completion notification email
+
+After each successful refresh, Sure queues a summary email to every super admin on the instance. The email includes:
+
+- **Activity during this period** — the number of unique login sessions recorded for the previous demo family and the number of new family accounts created during the same window.
+- **Reporting period (UTC)** — the start and end timestamps of the 24-hour window the job reviewed.
+- **Previous demo family** — the name and ID of the previous family, whose deletion is queued separately. The email does not confirm that deletion has finished.
+
+The email is sent to the super admin's registered email address and uses a plain-text fallback for mail clients that do not render HTML.
+
 <Warning>
 The refresh permanently destroys all data in the selected demo family. Select only a disposable family that was created specifically for this purpose.
 </Warning>
