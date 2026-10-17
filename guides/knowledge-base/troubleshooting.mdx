@@ -55,6 +55,26 @@ Opening the **Settings** link from a transactions list filtered by a large numbe
   </Accordion>
 </AccordionGroup>
 
+## "All" chart period starts later than expected
+
+When you select the **All** period on a net worth or account chart, the chart now starts one month before the earliest Transaction or Trade entry across your family — not your earliest entry of any kind.
+
+In earlier versions, Sure used the oldest entry of any type to anchor the All period. A single valuation or opening balance dated years in the past stretched every All-range chart back to that date, leaving a long flat line with no activity before any real spending or trading began.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    The All period now anchors to one month before the first Transaction or Trade entry across your family. Valuations and opening balances no longer affect how far back the All range extends.
+
+    If your family has only valuations and no Transactions or Trades, the All period uses the family’s oldest entry date when it is before today; a missing, today, or future start falls back to five years ago.
+  </Accordion>
+
+  <Accordion title="Why does my chart look different after upgrading?">
+    If you had a valuation or opening balance dated further back than your first real transaction, the All chart will now start later. The data is unchanged — only the visible range has shifted to focus on the period where you have actual activity.
+
+    Budgets and the AI balance sheet are not affected. They still use the oldest entry date as before.
+  </Accordion>
+</AccordionGroup>
+
 ## Mixed-currency arithmetic produces wrong totals silently
 
 Earlier versions of Sure allowed arithmetic operations (`+`, `-`, `/`, `<=>`) between `Money` objects in different currencies. The result kept the left operand's currency and discarded the right operand's — so `200 USD - 180 EUR` returned `20 USD` with no error or log line. This affected syncs, transfer matching, insight generators, and some report pages for families that hold accounts in more than one currency.
