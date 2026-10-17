@@ -112,6 +112,10 @@ If a commission was imported as a separate transaction before this change, Sure 
 
 If Sure reports no accounts discovered, check that your Flex Query includes the **Account Information** section with Account ID and Currency enabled. Run a manual sync from **Settings → Providers** after updating the query.
 
+### Provider not configured
+
+If you see a "not configured" error when trying to add an IBKR account, your Query ID and Token have not been saved yet. Go to **Settings → Providers → Interactive Brokers**, enter both values, and save before adding accounts.
+
 ### Credentials need attention
 
 If the connection shows a "Credentials need attention" status, your Query ID or Token may have expired or been revoked. Generate a new token from the Flex Web Service Configuration section in IBKR and update the connection in Sure.

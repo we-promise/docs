@@ -98,6 +98,8 @@ If the `operationAmount` cannot be parsed, `fx_amount` is left unset and the inc
 
 ## Troubleshooting
 
+**"Configure Monobank in provider settings first" error**: If you see this alert when trying to add a Monobank account, your personal token has not been saved yet. Go to **Settings > Providers > Monobank**, paste your token, and save before adding accounts.
+
 **Connection requires update**: The token was revoked or is invalid. Generate a new one at [api.monobank.ua](https://api.monobank.ua/) and update it in the provider panel.
 
 **A sync says accounts were skipped**: Either the statement request budget ran out for this run, or Monobank throttled the request. One request per minute per endpoint means a manual sync started right after a scheduled one collides. These are normal and leave the connection healthy. The next sync continues where this one stopped. Raise `MONOBANK_MAX_STATEMENT_REQUESTS_PER_SYNC` if you would rather trade a longer sync for fewer runs.
