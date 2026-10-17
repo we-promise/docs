@@ -357,7 +357,11 @@
               "POST /api/v1/transactions",
               "GET /api/v1/transactions/{id}",
               "PATCH /api/v1/transactions/{id}",
-              "DELETE /api/v1/transactions/{id}"
+              "DELETE /api/v1/transactions/{id}",
+              "GET /api/v1/transactions/{transaction_id}/split",
+              "POST /api/v1/transactions/{transaction_id}/split",
+              "PATCH /api/v1/transactions/{transaction_id}/split",
+              "DELETE /api/v1/transactions/{transaction_id}/split"
             ]
           },
           {

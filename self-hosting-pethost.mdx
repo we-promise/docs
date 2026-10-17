@@ -1,22 +1,14 @@
 ---
 title: Self-hosting with Pethost
 description: Deploy Sure on Pethost with automatic HTTPS, persistent volumes, and nightly backups
-keywords: ['pethost', 'self-hosting', 'one-click deploy', 'deployment', 'docker compose']
+keywords: ['pethost', 'self-hosting', 'deployment', 'docker compose']
 ---
 
 [Pethost](https://pethost.dev) is a hosting platform that runs Docker Compose projects with automatic HTTPS, persistent volumes, and nightly backups.
 
-## One-click deploy
-
-Sure is available as a one-click template on Pethost. It starts the Rails web server, the Sidekiq worker, PostgreSQL, and Redis, and generates `SECRET_KEY_BASE` and the database password automatically.
-
-1. Open the [Sure template](https://pethost.dev/templates/sure/) and click **Deploy on Pethost**.
-2. Click **Create project**.
-3. Open the project address (`https://sure.<your-domain>`) and create your first account. To restrict future signups, see [Step 5a of the Docker guide](/self-hosting#step-5a-restrict-future-signups-optional).
-
 ## Deploy with the CLI
 
-To deploy Sure's own `compose.example.yml` from a terminal instead:
+To deploy Sure's own `compose.example.yml` from a terminal:
 
 1. Install the [`pethost` CLI](https://pethost.dev/docs/cli/).
 
@@ -54,6 +46,6 @@ To deploy Sure's own `compose.example.yml` from a terminal instead:
 
 The three volumes in the Compose file (`app-storage`, `postgres-data`, `redis-data`) are kept across deploys and included in the nightly backups.
 
-To update, set the image tag in the project's Compose file to the new release and deploy again. For a project created from the one-click template, use the Pethost panel. For a CLI deployment, update the tag in `compose.yml` (for both `web` and `worker`) and run `pethost deploy` again. The address and data are preserved.
+To update, set the image tag in the project's Compose file to the new release and deploy again. Update the tag in `compose.yml` for both `web` and `worker`, then run `pethost deploy` again. The address and data are preserved.
 
 A full walkthrough with each screen is in the [Pethost guide for Sure](https://pethost.dev/blog/self-host-sure/).
