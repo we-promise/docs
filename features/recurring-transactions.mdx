@@ -87,6 +87,8 @@ The settings page displays:
 - **Status**: Active or inactive
 - **Actions**: Toggle status or delete
 
+When detection finds recurring inflows (such as a regular paycheck), those are classified as income suggestions rather than bill suggestions. Income suggestions do not appear in the Bills overview. They appear in a separate strip on **Settings → Recurring** with wording that reflects their nature as income. Confirming an income suggestion adds it as an income series, not a bill.
+
 ### Manual actions
 
 #### Identify patterns
@@ -184,6 +186,12 @@ Transfers are typed automatically when the recurring transaction has a destinati
 
 ## Bill fields
 
+### Currency
+
+When you create a new bill, the amount field includes a currency picker. It defaults to your family's currency, or to the transaction's currency if you are starting the bill from an existing transaction. Once a bill is saved, its currency is fixed and shown read-only when you edit it.
+
+The amount input step follows the selected currency, capped at four decimal places: JPY uses whole units, USD uses two decimal places, and BTC uses four. Bill amounts are stored to four decimal places. Validation rejects meaningful precision beyond that storage limit rather than silently rounding it; the server does not separately impose each currency's display precision.
+
 ### Payment URL
 
 You can store a payment link on a bill. When set, you can open the link directly from the bill drawer to navigate to the payment portal.
@@ -214,13 +222,29 @@ The API accepts only `active` and `inactive` on write. The other statuses are ow
 
 The Bills surface is a pay-run workspace that lets you see, pay, and plan around your recurring obligations. It is available to family members who have enabled preview features.
 
-The Bills page title, navigation tabs, and action buttons (Add bill, Add income, Review with AI) display in the language you have set in **Settings → Preferences**. Due dates shown in bill rows — in the date rail, the "Next up" strip, and the subline on narrow screens — also follow your locale. Locales that use day-first order (such as French, Polish, and Russian) show dates in that order, and any date that falls in a future year includes the year.
+The Bills page title, navigation tabs, and action buttons (New bill, New income, Review with AI) display in the language you have set in **Settings → Preferences**. Due dates shown in bill rows — in the date rail, the "Next up" strip, and the subline on narrow screens — also follow your locale. Locales that use day-first order (such as French, Polish, and Russian) show dates in that order, and any date that falls in a future year includes the year.
+
+### Header and actions
+
+The Bills page header follows the same layout as the Transactions page. An overflow menu appears on the left side of the action area, and the primary action button appears on the right.
+
+The overflow menu contains:
+
+- The secondary add action (New bill when on the Paycheck view; New income on all other views)
+- Review with AI (when an LLM provider is configured and AI features are enabled)
+
+The primary action button is:
+
+- A labeled button on wider screens (New bill, or New income on the Paycheck view)
+- A round + button on narrow viewports, with the action name as its accessible label
+
+The Bills page also has a page heading (“Bills”) at the top of the header, giving screen readers a landmark to navigate to.
 
 ### Views
 
 The Bills page offers four views, switchable from the view switcher at the top of the page:
 
-- **Overview** — your current month at a glance: overdue bills, what's due this month, what's coming later, and what you've already paid. Bills are grouped by due date and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill. Each boundary band shows the paycheck label and the total due before the next payday. On narrow list widths — such as on a phone, or on a desktop with both sidebars open — the label and total stack vertically so neither wraps. A "Next up" strip shows the next few upcoming occurrences; select **View calendar** to open the Calendar view. The overview shows only payable series (bills, subscriptions, installment payments, and debt repayments) — detected income and transfers do not appear here. Banners, notices, and payment suggestions on the overview are scoped to this same set of payable series. Every row in every section shows a date rail on the left when the bill list is wide enough. On narrow screens (phones, or desktop windows with both sidebars open) the date rail is hidden; the row's subline leads with the same date instead — for example, "Sep 22 · Monthly on the 22nd" or "Today · Amount changed" — so the due date is always visible regardless of screen width. Dates in a future year include the year on a second line inside the rail so they do not wrap mid-date. When you have no overdue, due-this-month, or upcoming bills, the month summary and AI prompt chips are hidden and the page shows an empty state instead. Paused (dormant) bills do not trigger the pulse or chips, because they owe nothing this month. Detected suggestions that are not yet confirmed do not count as bills for this purpose. The overview also shows a **Needs review** queue for suggested payment matches and a **Possible new bills** strip for suggested series. On wider screens each row in those strips shows the description and review action buttons side by side. On narrow screens (phones, or a desktop with both sidebars open) the buttons drop below the description so the full bill name is readable without truncation.
+- **Overview** — your current month at a glance. A banner for detected series awaiting review can appear first. When there are overdue, due-this-month, or upcoming bills, the pulse and AI prompt chips precede the bill list. The list orders sections as **Needs attention**, **This month**, **After this month**, and **Paused**. Payment-match reviews, suggested series, and notices follow the list. Bills are grouped by their effective due date (the later of the original due date and any snoozed date) and, when you have declared income, marked with pay-period boundaries so you can see which paycheck covers which bill. Each boundary band shows the paycheck label and the total due before the next payday. On narrow list widths — such as on a phone, or on a desktop with both sidebars open — the label and total stack vertically so neither wraps. A "Next up" strip shows the next few upcoming occurrences; select **View calendar** to open the Calendar view. The overview shows only payable series (bills, subscriptions, installment payments, and debt repayments) — detected income and transfers do not appear here. Banners, notices, and payment suggestions on the overview are scoped to this same set of payable series. Every row in every section shows a date rail on the left when the bill list is wide enough. On narrow screens (phones, or desktop windows with both sidebars open) the date rail is hidden; the row's subline leads with the same date instead — for example, "Sep 22 · Monthly on the 22nd" or "Today · Amount changed" — so the due date is always visible regardless of screen width. Dates in a future year include the year on a second line inside the rail so they do not wrap mid-date. When you have no overdue, due-this-month, or upcoming bills, the month summary and AI prompt chips are hidden and the page shows an empty state instead. Paused bills do not trigger the pulse or chips, because they owe nothing this month. Detected suggestions that are not yet confirmed do not count as bills for this purpose. The overview also shows a **Needs review** queue for suggested payment matches and a **Possible new bills** strip for suggested series. On wider screens each row in those strips shows the description and review action buttons side by side. On narrow screens (phones, or a desktop with both sidebars open) the buttons drop below the description so the full bill name is readable without truncation. Detected income suggestions are excluded from the overview and reviewed in a separate strip under **Settings → Recurring**.
 
   Below the bill list, the overview shows up to three action sections in this order, each with a labeled heading and item count:
 
@@ -231,7 +255,11 @@ The Bills page offers four views, switchable from the view switcher at the top o
 - **Calendar** — upcoming bills laid out on a monthly calendar.
 - **Paycheck planner** — upcoming bills apportioned across your next pay periods (see [Paycheck planner](#paycheck-planner) below).
 
+Throughout the Overview and Paycheck planner, bills use the later of their original due date and any snoozed date. A bill snoozed to a future month moves out of the current month's totals and into the month it will actually be due.
+
 Clicking a bill row in the Overview or a Next up item opens the bill in the right-hand drawer. Navigating directly to a bill URL (for example, `/bills/:id`) opens the same drawer over the Bills overview.
+
+When a current occurrence is available, the bill summary drawer leads with its remaining balance or paid amount. A smaller line shows the amount paid, the expected total, and the due label. If the amount is estimated and the series has a known range, that range appears below the figure at all widths, including on phones. Without a current occurrence, the summary shows the series amount and, when known, the next expected date. A cancellation notice appears above the figure when a cancellation date is recorded but the series is still active.
 
 The bill drawer is the complete bill surface. It shows the bill summary at the top, followed by collapsible sections — Overview (12-month chart, per-year totals, price changes), Coming up (upcoming due dates), History (settled cycles and what paid each one), and Notes. Coming up, History, and Notes appear when they have content. The deep sections load lazily when you scroll to them. Edit, Pause/Resume, and Delete are available from a menu in the drawer header, next to the close button. AI configure appears there when you have enabled AI and an LLM provider is available.
 
@@ -278,8 +306,8 @@ The occurrence drawer shows:
 - **Due label** — a context-aware label describing when the payment is due. The label adapts to the occurrence's state: overdue (with the number of days past due), due today, due in N days, snoozed until a date, or the original due date if the cycle is already settled. For an open occurrence in a non-active series (paused or dismissed), the label leads with the series status — for example, "Paused · Due Sep 10" — rather than showing an overdue count. Paused bills omit Autopay from the bill row and drawer’s schedule subline.
 - **Payment progress** — the amount paid so far, the expected amount, and a progress ring. The headline reads the current state: the paid amount if fully paid, "Skipped", "Marked missed", or the remaining balance.
 - **Linked payments** — any transactions already allocated to this occurrence, each with an unlink option.
-- **Candidate matching** — when the occurrence is still open, the drawer surfaces the most likely matching transaction from your accounts as a card with a single "Link payment" action. Other likely matches appear below it. You can also search all transactions by name.
-- **Manual payment** — if no matching transaction exists, a disclosure panel lets you record a payment by amount and date directly without linking a bank transaction.
+- **Candidate matching** — when the occurrence is still open, the drawer surfaces the most likely matching transaction from your accounts as a card with a single "Link payment" action. Other likely matches appear below it. You can also search all transactions by name. For recurring transfers, the engine matches the outflow leg of a transfer between the series’ source and destination accounts rather than matching by name or merchant.
+- **Manual payment** — if no matching transaction exists, a disclosure panel lets you record a payment using a styled money field and date picker, without linking a bank transaction.
 - **Quick actions** — mark paid (settles the remainder without recording a transaction), skip, snooze for one week, and reopen (for already-settled or skipped occurrences). Snoozing moves the bill to its new date across the overview, pay-period groupings, and the "Next up" strip — a bill snoozed into the following month moves out of this month's total entirely.
 
 All labels and feedback messages in the occurrence drawer — including the due label states, payment summaries, and action confirmations — are displayed in your configured display language (set under **Settings → Preferences → Language**).
@@ -302,6 +330,8 @@ To remove a payment, use the unlink action in the payment history section of the
 
 **Suggested payments** — the matching engine may automatically suggest a transaction for an open occurrence. You can confirm the suggestion to apply it or dismiss it. Dismissing a suggestion marks that transaction so it will not be suggested for the same bill again. Suggestions appear only for occurrences the overview currently lists; occurrences from ended bills or outside the visible window are not surfaced.
 
+Recurring transfers are matched by their account pair: the engine looks for the outflow leg of a transfer from the series' source account into its destination account. This means a mortgage payment or card payment that you have marked as recurring will receive automatic payment suggestions the same way a regular bill does.
+
 All payment feedback messages — confirmations and errors — appear in your configured display language.
 
 When a transaction is linked to a bill, the **Applied to** section on the transaction detail view shows the bill name and occurrence due date. That date is displayed in your configured language as well.
@@ -309,6 +339,8 @@ When a transaction is linked to a bill, the **Applied to** section on the transa
 ### Paycheck planner
 
 The paycheck planner slices your upcoming bills across the pay periods defined by your declared income. Only manually declared income series (bill type `income`, set to manual) define pay periods; automatically detected inflows do not.
+
+Bills are sorted and filed by their effective due date — the later of the original due date and the snoozed date, if any. A bill snoozed past a payday is filed under the pay period it will actually be due in rather than the one that precedes it.
 
 For each pay period the planner shows:
 
@@ -324,7 +356,7 @@ The allocation bar is shown for periods with positive income. Its segments and s
 - **Normal period** — the bar has up to three segments: due (high contrast), reserved (muted), and safe (green). Zero-value segments are omitted; each breakdown column has a swatch only when its segment is present.
 - **Short period** — the bar splits into two segments: covered (muted, the portion income reaches) and short (red, the gap). Only the short column gets a swatch, because only the shortfall has a corresponding segment on the bar. The due and reserved columns still show their figures but without swatches.
 
-A leading window covers the time between today and the next payday. It has no income, so shortfalls in that window are measured against your cash on hand (the sum of your visible depository accounts, excluding tax-advantaged accounts). When the balance cannot be determined, the window is shown without a shortfall judgment.
+A leading window covers the time between today and the next payday. It has no income, so shortfalls in that window are measured against your cash on hand (the sum of your visible depository accounts, excluding tax-advantaged accounts). When the balance cannot be determined, the window is shown without any cash-based judgment — neither the shortfall warning nor the covered-with-items note appears.
 
 To use the paycheck planner, create at least one recurring transaction with bill type `income` and the manual flag set.
 
@@ -405,7 +437,7 @@ For an open occurrence, `current_occurrence.state` is schedule-derived when the 
 
 Each section reports `items`, `count`, and `truncated` (capped at 20 items). The audit returns facts; the assistant narrates and prioritizes them.
 
-**`get_paycheck_plan`** — slices upcoming bills across pay periods defined by your declared income schedules. Returns up to 6 pay periods (default 3), each showing income, bills due, bills reserved for a later period, and safe-to-spend headroom. When confirmed series are excluded because they are still awaiting confirmation, the response notes how many were left out so the assistant can caveat the headroom figure.
+**`get_paycheck_plan`** — slices upcoming bills across pay periods defined by your declared income schedules. Returns up to 6 pay periods (default 3), each showing income, bills due, bills reserved for a later period, and safe-to-spend headroom. Each bill item includes both `due_on` (the original scheduled date) and `effective_due_on` (the later of the original due date and any snoozed date), so the assistant can show the date the user will actually see. When detected series are excluded because they are still awaiting confirmation, the response notes how many were left out so the assistant can caveat the headroom figure.
 
 Only manually declared income series (bill type `income`) define pay periods. Automatically detected bank inflows do not.
 
@@ -526,6 +558,7 @@ Identify recurring income like:
 - Last occurrence must be within 45 days for automatic detection
 - Transactions in Investment and Crypto accounts are excluded from bill and income detection
 - Amount variance for manual recurring entries is bounded to 2× the anchor amount; charges outside that range are treated as separate recurring entries
+- Bill amounts are stored to four decimal places; meaningful precision beyond that storage limit is rejected with a validation error
 - Projected transactions are hidden when filters are applied
 - Pattern detection is event-driven (runs after syncs or manual triggers), not continuous or real-time
 - Interval-based cadences (biweekly, quarterly, semiannual, and custom intervals) require an anchor date
