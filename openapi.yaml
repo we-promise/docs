@@ -3257,12 +3257,15 @@ components:
       description: Refunds net within each category. Parent direct amounts exclude
         child totals before partitioning by direction. Graph income/spending may differ
         from gross monthly totals; net savings agrees. Decimal strings retain FX precision.
-        Empty flow has empty nodes and links.
+        Empty flow has empty nodes and links. When group_by=account the basis is
+        net_by_account and nodes include account-kind nodes representing individual
+        accounts between income and expense categories.
       properties:
         basis:
           type: string
           enum:
           - net_by_category
+          - net_by_account
         income:
           type: string
         spending:
@@ -3295,6 +3298,7 @@ components:
                 - income
                 - expense
                 - cash_flow
+                - account
                 - surplus
                 - deficit
               value:
@@ -5508,6 +5512,17 @@ paths:
           format: date
         description: Inclusive ISO date at or after start_date. Explicit ranges preserve
           their bounds, including future dates.
+      - name: group_by
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - category
+          - account
+        description: How to group the Sankey graph. Requires view=sankey. "category"
+          (default) routes flows through a single Cash Flow node; "account" routes
+          them through each individual account.
       security:
       - apiKeyAuth: []
       responses:
