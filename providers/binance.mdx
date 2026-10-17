@@ -109,9 +109,13 @@ Trades are synced incrementally — only new trades are fetched on subsequent sy
 
 ### Currency handling
 
-- All values are stored internally in USD
-- Stablecoins (USDT, BUSD, FDUSD, TUSD, USDC, DAI) are treated as 1:1 with USD
-- Values are converted to your family's preferred currency for display
+- The account is created in your family's currency. Spot and futures trade entries are stored in USD after quote-currency conversion; P2P entries retain their fiat currency.
+- Stablecoins (USDT, BUSD, FDUSD, TUSD, USDC, DAI) are treated as 1:1 with USD.
+- The initial current balance is the provider balance converted into your family's currency, or zero if a conversion rate is unavailable. A subsequent sync updates the converted balance when rate data is available.
+
+### Opening balance
+
+New Binance exchange accounts have a zero historical opening anchor, separate from the current balance imported from the provider. After importing entries, Sure moves that zero anchor to the day before the earliest entry only if it is not already earlier. Existing nonzero opening anchors are preserved.
 
 ## Security
 
@@ -134,11 +138,10 @@ All Binance API requests include a 30-second timeout to prevent hanging connecti
 
 ### Manual sync
 
-To manually sync your Binance account:
+To manually sync your Binance account, an admin can use either of these options:
 
-1. Navigate to **Settings** > **Bank sync**
-2. Find your Binance connection
-3. Click **Sync now**
+- On the **Accounts** page, find your Binance connection card and click the refresh icon in the header row.
+- Go to **Settings** > **Providers**, find your Binance connection, and click **Sync**.
 
 ### Automatic sync
 
@@ -153,6 +156,10 @@ Sure automatically syncs your Binance account on a regular schedule along with y
 - Real-time price updates depend on Binance market data availability
 
 ## Troubleshooting
+
+### Credentials need updating
+
+If the Binance connection card shows "Credentials need updating", Sure could not read a configured API key and secret. This warning alone does not establish that the provider revoked a key. Click **Update credentials** in the connection card header to go to **Settings** > **Providers**, then enter your new API key and secret.
 
 ### Connection errors
 
