@@ -15,6 +15,7 @@ Sure has two separate AI systems that operate independently. Understanding this 
 
 - **Builtin** (default): uses the OpenAI-compatible provider configured via `OPENAI_ACCESS_TOKEN` / `OPENAI_URI_BASE` / `OPENAI_MODEL`. Calls Sure's function tools directly.
 - **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
+- **MCP only**: disables the in-app assistant entirely — no chat sidebar, no chat API, no bills AI shortcuts, no AI-written insight text. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
 
 **Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync:
 
@@ -27,8 +28,29 @@ Sure has two separate AI systems that operate independently. Understanding this 
 | --- | --- | --- | --- |
 | `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
 | `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
+| `ASSISTANT_TYPE=mcp_only` | Disabled (in-app chat off) | Bayes first, then LLM provider or Jev | Uses the configured LLM provider |
 
 If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (or `ANTHROPIC_ACCESS_TOKEN` for Anthropic) for those features, or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
+
+## Where AI jobs run (Sidekiq lanes)
+
+AI work runs in the Sidekiq `worker` in its own capsule ("lane"), so a slow model can't hold up syncs, balance recalculation, and scheduled jobs. Both lanes are defined in `config/sidekiq.yml`:
+
+| Lane | Queues | Threads | Jobs |
+| --- | --- | --- | --- |
+| default | `scheduled`, `high_priority`, `medium_priority`, `low_priority`, `default` | `RAILS_MAX_THREADS - RAILS_AI_MAX_THREADS` (3 - 1 = 2 by default) | syncs, balances, rules, imports, scheduled jobs |
+| ai | `ai_high_priority`, then `ai_low_priority` (strict order) | `RAILS_AI_MAX_THREADS` (default `1`) | chat (`ai_high_priority`); auto-categorization, merchant detection and enhancement, PDF processing, insights (`ai_low_priority`) |
+
+Key behaviors:
+
+- **`RAILS_MAX_THREADS`** is the worker's total thread count and also sizes its database pool. It must be greater than `RAILS_AI_MAX_THREADS` (at least `2` by default). A lane with 0 threads stops the worker from starting. Puma reads the same variable, so if you lower it for the web service to save memory, set the worker's value separately.
+- **Strict order:** a waiting chat runs next, but it doesn't interrupt the AI job already running. Auto-categorization, merchant-detection, and merchant-enhancement work is batched using `LLM_MAX_ITEMS_PER_CALL` (default `25`). An OpenAI-compatible provider can split a batch into several calls when it does not fit the context window. PDF import, insight, and chat jobs can make several calls. With one AI thread, a PDF import or other `ai_low_priority` job waits behind earlier ones, and continuous chat use pauses background AI work.
+- **Busy notice:** when a chat would wait behind another AI job (a chat has waited over 30 seconds, or, with one AI thread, a background AI job has waited over 30 seconds), its "Thinking" bubble says the system is busy until the chat's job starts. `AI_RESPONSE_TIMEOUT` includes that wait.
+- **One AI thread suits a model that serves one request at a time,** such as a local model on CPU. A chat turn's calls run back to back, keeping the model's prompt cache warm. If your provider serves requests in parallel (hosted APIs or a local server with several slots), raise `RAILS_AI_MAX_THREADS` and `RAILS_MAX_THREADS` by the same amount so the default lane keeps its threads.
+- **Load `config/sidekiq.yml` to use the configured AI capsule.** `bundle exec sidekiq` discovers this file by default. A `-q` option overrides the default capsule’s queues but does not remove the AI capsule from a loaded configuration. If a custom worker command loads a different configuration without the AI capsule, ensure that some worker polls `ai_high_priority` and `ai_low_priority`. Otherwise System health and the site-wide banner report "No worker is processing the AI queues", and the chat page warns that responses may not be delivered. Use `-C config/sidekiq.yml` to select Sure’s configuration explicitly.
+- **System health:** AI backlog doesn't count towards "queue backed up" (a large merchant-detection run can queue for hours), but "Oldest job age" still includes it. Check the queue table or `/sidekiq` to see which queue is waiting.
+- **Large batches:** Sure doesn't limit `LLM_MAX_ITEMS_PER_CALL`. OpenAI-compatible providers split a batch that doesn't fit the context window. With the native Anthropic provider, raise `ANTHROPIC_MAX_TOKENS` (default `4096`) along with `LLM_MAX_ITEMS_PER_CALL`, or replies are cut off.
+- **Upgrading:** AI jobs moved from `high_priority` (chat), `medium_priority`, and `scheduled` to the AI queues. Jobs already queued under the old names still run once, in the default lane.
 
 ## Quickstart
 
@@ -197,32 +219,41 @@ OPENAI_MODEL=your-model-name
 
 ### Google Gemini
 
-Gemini provides an OpenAI-compatible endpoint that works with a Gemini API key from Google AI Studio:
+You can connect to Gemini directly via Google AI Studio's OpenAI-compatible endpoint, or via OpenRouter.
+
+**Recommended Gemini models:**
+
+- `gemini-3.8-flash` - Best all-around choice; fast, strong reasoning, and reliable tool calling for chat and finance tools
+- `gemini-3.5-flash-lite` - Ultra-low cost and fast; ideal for background categorization and merchant detection
+- `gemini-3.1-pro-preview` - Best for complex financial analysis, portfolio queries, and multi-year trends
+- `gemini-2.5-flash` - Previous-generation option for users with existing access
+- `gemini-2.5-pro` - Previous-generation reasoning model for users with existing access
+
+Google limits direct Gemini 2.5 API access to users who actively used those models previously. For new projects, use `gemini-3.5-flash-lite` or `gemini-3.8-flash`; see [Google's model availability guidance](https://ai.google.dev/gemini-api/docs/models).
+
+#### Direct via Google AI Studio
+
+[Google AI Studio](https://aistudio.google.com/) provides direct API access to Gemini models with a free tier and an OpenAI-compatible endpoint:
 
 ```bash
-OPENAI_ACCESS_TOKEN=your-gemini-api-key
-OPENAI_URI_BASE=https://generativelanguage.googleapis.com/v1beta/openai/
-OPENAI_MODEL=gemini-2.5-flash
+OPENAI_ACCESS_TOKEN=your-google-ai-studio-api-key
+OPENAI_URI_BASE=https://generativelanguage.googleapis.com/v1beta/openai
+OPENAI_MODEL=gemini-3.8-flash
 ```
 
-Recommended models:
-
-- `gemini-2.5-flash` - Fast and capable
-- `gemini-2.5-pro` - Higher quality, more thorough responses
-
-### OpenRouter
+#### Via OpenRouter
 
 Access multiple providers through a single API:
 
 ```bash
 OPENAI_ACCESS_TOKEN=your-openrouter-api-key
 OPENAI_URI_BASE=https://openrouter.ai/api/v1
-OPENAI_MODEL=google/gemini-2.0-flash-exp
+OPENAI_MODEL=google/gemini-3.8-flash
 ```
 
-Recommended models:
+Recommended models via OpenRouter:
 
-- `google/gemini-2.5-flash` - Fast and capable
+- `google/gemini-3.8-flash` - Fast and capable
 - `anthropic/claude-sonnet-4.5` - Excellent reasoning
 - `anthropic/claude-haiku-4.5` - Fast and cost-effective
 
@@ -299,7 +330,7 @@ Environment variables take precedence over the settings UI.
 | `LLM_MAX_ITEMS_PER_CALL` | Upper bound on auto-categorize / merchant detection batch size | `25` |
 
 <Note>
-  Large batches of transactions are automatically sliced to fit the configured context window. You no longer need to worry about the previous 25-item hard limit — it is now a soft default that adapts to your model's capacity.
+  `LLM_MAX_ITEMS_PER_CALL` applies to all providers (both OpenAI-compatible and Anthropic). OpenAI-compatible providers split a batch that doesn't fit the context window; with the native Anthropic provider, raise `ANTHROPIC_MAX_TOKENS` alongside `LLM_MAX_ITEMS_PER_CALL` or replies may be cut off.
 </Note>
 
 ### Recommended values
