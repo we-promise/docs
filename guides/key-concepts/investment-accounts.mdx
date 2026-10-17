@@ -33,7 +33,7 @@ When a provider (such as SimpleFIN, SnapTrade, or CoinStats) imports your holdin
 
 If a provider reports prices for individual securities on different dates within the same import batch, Sure preserves those per-security price dates while still treating the entire batch as a single import day. This means your portfolio view reflects the most up-to-date information from each sync, without mixing in older snapshots.
 
-For accounts that have no provider connection, Sure shows the most recent holding per security from your manually entered or calculated data.
+For accounts that have no provider connection, Sure shows the most recent holding per security in the account's currency from your manually entered or calculated data. Holdings recorded in a different currency than the account's base currency are excluded from the current portfolio view.
 
 ### Chart history and inception dates
 
