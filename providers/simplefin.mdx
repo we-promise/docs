@@ -69,6 +69,17 @@ SIMPLEFIN_INCLUDE_PENDING=0
 
 Note that sending `pending=0` to the SimpleFIN API is not the same as omitting the parameter. The low-level client only adds `pending=1` when inclusion is enabled and omits the parameter otherwise, because some bridges treat the parameter's presence — regardless of value — as a request to include pending.
 
+### Error handling
+
+Sure supports both the legacy SimpleFIN `errors` field and the structured `errlist` field introduced in protocol v2. When `errlist` is nonempty, it takes precedence over legacy `errors`.
+
+Error responses are classified as either partial or fatal:
+
+- **Partial errors** (`act.*` error codes): affect one or more individual accounts but accounts data is still returned. Sure records these errors in sync stats for visibility and continues importing the remaining accounts.
+- **Fatal errors**: errors accompanied by no accounts, or a structured `gen.*` error even when accounts are present. Sure stops the import and raises an error. The connection requires an update for structured `gen.auth`, `auth_failure`, `token_expired`, or `authentication_error` errors, or for legacy text mentioning authentication or reauthentication. An account-scoped `act.auth` code alone does not invalidate the entire connection.
+
+`gen.*`-coded errors (general errors) always trigger the fatal path, even when some account data is present in the same response. The account data alongside a general error may be stale or incomplete and cannot be safely imported.
+
 ### Reliability features
 
 Sure's SimpleFIN integration includes automatic retry logic:
