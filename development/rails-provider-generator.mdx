@@ -86,15 +86,15 @@ The last item means the provider appears under **Your connections** on the Bank 
 
 The generated item partial renders the provider's logo with `ProviderLogo`. That reads the provider's `Provider::Metadata::REGISTRY` entry, which the generator does not create, so add one in `app/models/provider/metadata.rb`. See the [providers LLM guide](https://github.com/we-promise/sure/blob/main/docs/llm-guides/providers.md#provider-logos) for the fields it reads (`domain`, `logo_text`, `logo_color`, `logo_icon`) and which are used when Brandfetch has no icon or is not configured.
 
-The item partial declares `visible_accounts:` as a strict local. Callers must pass the accounts to display explicitly — the partial does not query the item's accounts itself. Pass only the accounts you want shown:
+The item partial declares `visible_accounts:` as a strict local. Callers must pass the accounts to display explicitly. The rendered account list uses that local; the partial can still query the item's accounts for summary counts. Pass only the accounts you want shown:
 
 ```erb
 <%= render "my_bank_items/my_bank_item",
            my_bank_item: item,
-           visible_accounts: item.accounts.to_a %>
+           visible_accounts: visible_card_accounts(item) %>
 ```
 
-Passing a filtered list (for example, only accounts belonging to the current family) means the partial never accidentally exposes accounts from another connection.
+The generated caller uses `visible_card_accounts(item)` to respect the current user's account visibility. A strict local requires an explicit argument; it does not enforce authorization, so callers must not replace the filtered list with all accounts indiscriminately.
 
 ### Key characteristics
 - **Credentials**: Stored in `my_bank_items` table (encrypted)
