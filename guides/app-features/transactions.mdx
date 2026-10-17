@@ -62,6 +62,8 @@ Edits through the API or AI assistant also lock the fields that changed, includi
 
 These protections last until they are explicitly removed. Re-enabling sync clears the entry's user-modified and import-lock flags and its field locks.
 
+Saving changes to **Name**, **Notes**, **Category**, **Merchant**, or **Tags** does not trigger a background account sync. Reports and budgets update immediately through the entries cache. Saving changes to **Amount**, **Date**, or **Account** does trigger an account sync to recalculate balances from the affected date forward.
+
 ### Create a merchant inline
 
 If the merchant you need does not exist yet, you can create it directly from the merchant selector in the transaction detail or new-transaction form. Type a name in the merchant field and select the option to create it. Sure saves the new merchant and immediately assigns it to the transaction. There is no need to navigate to **Settings → Merchants** first.

@@ -218,7 +218,7 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     Rules are **not** triggered in these scenarios:
     
     - **Manual transaction creation** - Only triggers an Account sync (not Family sync)
-    - **Manual transaction editing** - Same as above, only Account sync runs
+    - **Manual transaction editing (balance-affecting fields)** - Changing the amount, date, or account triggers an Account sync (not Family sync). Editing only descriptive fields — name, notes, category, merchant, or tags — does not trigger any account sync. Reports and budgets still pick up the change through the entries cache version bumped by the save.
     - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
   </Accordion>
 
