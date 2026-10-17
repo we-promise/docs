@@ -26,12 +26,11 @@ Enable Banking supports banks across the European Union and EEA countries. You c
 
 ## Setting up Enable Banking
 
-> [!WARNING]
-> The most common setup issue is `REDIRECT_URI_NOT_ALLOWED`.
-> Before connecting a bank, register Sure's callback URL in your Enable Banking application settings.
-> Copy the exact callback URL shown in **Settings > Bank sync > Enable Banking** in Sure.
->
-> In production this is usually `https://your-domain.example/enable_banking_items/callback`, but in development it may use a different URL. Use the exact value shown by Sure.
+<Warning>
+  The most common setup issue is `REDIRECT_URI_NOT_ALLOWED`. Before connecting a bank, register Sure's callback URL in your Enable Banking application settings. Copy the exact callback URL shown in **Settings > Bank sync > Enable Banking** in Sure.
+
+  In production this is usually `https://your-domain.example/enable_banking_items/callback`, but in development it may use a different URL. Use the exact value shown by Sure.
+</Warning>
 
 To connect your European bank accounts:
 
@@ -41,10 +40,15 @@ To connect your European bank accounts:
 4. In Sure, configure your Enable Banking credentials
 5. Select your country and bank from the available options
 6. Complete the authorization flow with your bank
-7. Sure will create a session and begin syncing your accounts
+7. Sure creates a session and begins syncing your accounts
 
-If you want to connect another bank, or connect the same bank with a different login, use **Add Connection** after your first Enable Banking connection is working. Sure stores each Enable Banking connection separately, so you can sync, reconnect, or remove them independently.
-Make sure to link the bank account first in the Enable Banking portal, and then create the bank connection in Sure.
+If you want to connect another bank, or connect the same bank with a different login, use **Add Connection** after your first Enable Banking connection is working. Sure stores each Enable Banking connection separately, so you can sync, reconnect, or remove them independently. Make sure to link the bank account first in the Enable Banking portal, and then create the bank connection in Sure.
+
+### Updating credentials
+
+When you update an existing Enable Banking connection, the **Application ID** and **Client Certificate** fields are empty. Leave either field blank to keep the stored value. Enter a new value only when you need to replace a credential.
+
+For existing provider configurations, both credential fields are disabled while any Enable Banking connection in your family has a stored session. This applies across configurations, rather than depending only on the status of the connection being edited. Remove the connections with stored sessions before changing credentials.
 
 ### Using one provider config across different countries
 
@@ -110,6 +114,18 @@ You can disable pending transaction imports in your sync settings by toggling "I
 <Note>
 Disable this option if your bank provides unreliable pending transaction data.
 </Note>
+
+### Card authorization holds
+
+Some banks (ASPSPs) return unfinalized card authorization holds with a `BOOK` status while omitting the `transaction_id`, `entry_reference`, and creditor information. The remittance field contains a masked card descriptor instead of a merchant name (for example `474836xxxxxx6879 003015315475`), and the credit/debit indicator may be set to `CRDT` even though the hold is an outgoing expense.
+
+Sure detects these holds by checking for a masked card descriptor in the remittance field when the transaction lacks identifying fields. Detected holds are:
+
+- Named **Card Authorization Hold**
+- Imported as pending expenses (no merchant is created)
+- Corrected to a positive outgoing amount when the bank erroneously reports them as credit
+
+When pending transactions are disabled, unidentified card holds are filtered out and not imported.
 
 ### Balance selection
 
@@ -220,6 +236,12 @@ N26 (and some other ASPSPs via Enable Banking) rejects out-of-range transaction 
 ### Bank rejects the session mid-sync
 
 Some banks reject an Enable Banking session with a 401 or 404 during a sync even though the session has not yet expired by its recorded expiry date. When this happens, Sure marks the connection as requiring re-authorization and finishes the sync cleanly — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. Click **Reconnect** and complete the bank authorization flow again to restore syncing.
+
+### Syncs keep failing without a reconnect prompt
+
+Enable Banking sometimes rejects individual account balance or transaction requests with a 401 “Invalid credentials or expired JWT” while the session-level check still reports the session as valid. Because only a session-level failure flips the connection to `requires_update`, the connection card stays green and no reconnect prompt appears automatically. Syncs can fail for the affected accounts without requesting reauthorization; these failures can still appear as sync errors.
+
+To reconnect manually, an admin can open the action menu on the connection card and choose **Reconnect**. This option is always available as long as the connection is not already showing a reconnect prompt. Clicking it routes through the same reauthorization flow as a normal reconnect, so you do not need to disconnect and re-add the bank.
 
 ## Limitations
 

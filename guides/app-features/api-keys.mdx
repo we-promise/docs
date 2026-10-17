@@ -77,12 +77,12 @@ Rate limiting only applies to hosted instances. Self-hosted deployments have no 
 
 ## Exporting to Google Sheets
 
-The Reports section lets you stream a live transaction breakdown into Google Sheets using the `=IMPORTDATA()` formula and your API key.
+The Reports section lets you fetch an updating transaction breakdown into Google Sheets using the `=IMPORTDATA()` formula and your API key.
 
 1. Go to **Reports** and set your desired date range.
 2. Click the **Google Sheets** button to open the export instructions modal.
 3. If you don't have an API key yet, click **Go to API keys** in the modal to create one with at least `read` scope.
-4. Return to Reports and open the modal again. It now shows a ready-to-use formula like:
+4. Return to Reports and open the modal again. Copy its CSV URL and append `&api_key=YOUR_KEY` using your API key. The modal does not automatically insert a key from Settings. Wrap the completed URL in `IMPORTDATA`, for example:
 
    ```
    =IMPORTDATA("https://your-sure-instance.com/reports/export_transactions.csv?api_key=YOUR_KEY&...")
