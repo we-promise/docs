@@ -53,7 +53,7 @@ bin/rails test
 
 The suite should report zero failures and zero errors. If you are using the devcontainer, the PostgreSQL connection is configured with `username:` (the Rails-documented key), so no authentication errors should appear.
 
-The devcontainer runs `pgvector/pgvector:pg16-trixie` as its database image rather than plain `postgres:16`. This is a drop-in replacement that ships the `vector` extension, so document and PDF statement import works out of the box without any extra setup.
+The devcontainer runs `pgvector/pgvector:pg16-trixie` as its database image rather than plain `postgres:16`. This is a drop-in replacement that ships the `vector` extension, which supplies the vector-storage prerequisite for document import. You still need to configure the chosen vector-store and embedding provider; PDF statement processing also requires a suitable AI provider.
 
 After running `bin/setup`, you can optionally load demo data with:
 
