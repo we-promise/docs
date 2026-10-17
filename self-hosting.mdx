@@ -263,6 +263,20 @@ BRAND_FETCH_HIGH_RES_LOGOS=false
 
 When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
 
+### Application name variables
+
+By default, Sure uses "Sure" as the product name and "FOSS" as the brand name throughout the UI, emails, and page titles. You can override both to white-label your instance:
+
+```txt
+# Display name for the application (default: Sure)
+PRODUCT_NAME=MySure
+
+# Brand prefix shown in the footer and email sender name (default: FOSS)
+BRAND_NAME=MyOrg
+```
+
+The combined value appears in the footer as `© <year>, <BRAND_NAME> <PRODUCT_NAME>`, and in the default email sender name. Other UI copy can use the product name or brand name separately.
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
@@ -343,7 +357,7 @@ See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing c
 
 ### Property valuation provider variables
 
-Sure supports two automated valuation model (AVM) providers for property accounts: RentCast and Realie. Both are US-only and price property values in USD. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
+Sure supports three automated valuation model (AVM) providers for property accounts: RentCast and Realie for US properties, and Chimnie for UK residential properties. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
 
 ```txt
 # RentCast — US property valuations (50 requests/month on the free tier)
@@ -352,13 +366,18 @@ RENTCAST_API_KEY="your-rentcast-api-key"
 # Realie — US property valuations (25 requests/month on the free tier)
 REALIE_API_KEY="your-realie-api-key"
 
-# Override monthly request caps for paid plans
+# Chimnie — UK residential property valuations by UPRN (free, 1,000 requests/month default cap)
+# Sign up at dashboard.chimnie.com
+CHIMNIE_API_KEY="your-chimnie-api-key"
+
+# Override monthly request caps for paid plans or to raise the Chimnie default
 RENTCAST_MAX_REQUESTS_PER_MONTH=500
 REALIE_MAX_REQUESTS_PER_MONTH=200
+CHIMNIE_MAX_REQUESTS_PER_MONTH=2000
 ```
 
 <Note>
-Property valuation providers only support US addresses and always return values in USD. A property account must be denominated in USD for automatic daily refreshes to run.
+RentCast and Realie only support US addresses and return values in USD. Chimnie only supports UK residential properties and returns values in GBP. A property account must be denominated in the provider's currency for automatic refreshes to run.
 </Note>
 
 ### On-chain wallet variables
@@ -888,7 +907,7 @@ A few things this does and does not prove:
 
 - **One check verifies one worker.** Sidekiq does not broadcast a job to every process, so a passing result confirms the named process is healthy, not your whole fleet. With multiple worker replicas, queue the check again to sample another. Only the 5 most recently checked-in distinct processes are kept. A 6th check-in can evict an older entry before its own 15-minute retention window expires. A result older than `WorkerAiHealth::STALE_AFTER` displays as **Stale** rather than pass or fail.
 - **Worker checks never reuse a web-cached result, or vice versa.** The web page's probes are cached briefly so repeat page loads do not re-hit providers. The worker job bypasses that shared cache so its result always reflects a live call from its own network context, and never leaves an entry the web process could read back as its own.
-- **In local development, web and worker results will not show up together.** `bin/dev` runs `web` and `worker` as separate OS processes, and `config/environments/development.rb` uses a process-local cache. A worker check queued locally writes to the worker's own in-memory cache, so the **Verify worker configuration** button can appear to do nothing. This is expected behavior; production's shared Redis store is unaffected.
+- **In local development, web and worker results will not show up together.** `bin/dev` runs `web` and `worker` as separate OS processes. The development environment uses Sidekiq, so jobs do reach the worker process, but `config/environments/development.rb` uses a process-local memory store when development caching is enabled, or a null store when it is disabled, rather than a shared Redis cache. With development caching enabled, a worker check result is written to the worker’s own memory cache; with caching disabled, the result is not retained, so the **Verify worker configuration** button can appear to do nothing from the web process. This is expected; production's shared Redis store is unaffected.
 - **Which settings need a restart depends on how they are set.** Provider, model, and API-key settings changed in **Settings → Self-Hosting** are stored in the database and take effect automatically on both `web` and `worker` without a restart. Embedding configuration and anything set only through an environment variable is fixed when each container starts. Changing those requires restarting or recreating both `web` and `worker`. The AI status tab labels this distinction next to the worker results.
 
 ### OpenAI request timeout
@@ -972,6 +991,16 @@ After you save a demo family and enable the toggle, Sure runs the refresh job on
 - Updates the stored family ID to point at the newly created family.
 
 If the selected family no longer meets the safety checks (for example, a super-admin was added to it), the job skips that run and logs a warning instead of destroying data.
+
+### Completion notification email
+
+After each successful refresh, Sure queues a summary email to every super admin on the instance. The email includes:
+
+- **Activity during this period** — the number of unique login sessions recorded for the previous demo family and the number of new family accounts created during the same window.
+- **Reporting period (UTC)** — the start and end timestamps of the 24-hour window the job reviewed.
+- **Previous demo family** — the name and ID of the previous family, whose deletion is queued separately. The email does not confirm that deletion has finished.
+
+The email is sent to the super admin's registered email address and uses a plain-text fallback for mail clients that do not render HTML.
 
 <Warning>
 The refresh permanently destroys all data in the selected demo family. Select only a disposable family that was created specifically for this purpose.
@@ -1132,6 +1161,10 @@ EXTERNAL_ASSISTANT_TOKEN=your-agent-api-token
    - **Per-family (UI):** Go to **Settings > Self-Hosting > AI Assistant**, select "External"
    - **Global (env):** Set `ASSISTANT_TYPE=external` to force all families to use external
 
+<Note>
+If you connect your own agent via MCP and want to remove the built-in chat UI entirely, set `ASSISTANT_TYPE=mcp_only` (or select "None in app (connect your own agent via MCP)" in the UI). This disables the in-app chat, chat API endpoints, bills AI shortcuts, and AI-written insight text. The `/mcp` endpoint and background auto-categorization stay active.
+</Note>
+
 4. Select an agent. After you save a valid URL and token, Sure calls `/v1/models` on the endpoint and populates an agent dropdown in the UI. Select the agent you want to use and save. The external service manages the model behind each agent; Sure only handles routing.
 
    To skip the UI and pin an agent via environment variable, set:
@@ -1169,6 +1202,8 @@ For full Pipelock configuration including signed receipts, see [Self-hosting wit
 
 For `bin/dev` on your own machine, the server defaults to `localhost` (`127.0.0.1` and `[::1]`), reachable only from the same machine. If you need external access (phone on the same Wi-Fi, devcontainer port forwarding, LAN testing), set the `BINDING` environment variable:
 
+`Procfile.dev` starts three processes: the Rails web server, the Tailwind CSS watcher, and a Sidekiq worker. The worker process receives background jobs via Redis, as in production. Tests use the separate Active Job test adapter. Auto-categorization, syncs, and other background work all route through this worker when developing locally.
+
 ```bash
 BINDING=0.0.0.0 bin/dev   # reachable from LAN
 BINDING=::       bin/dev  # IPv6 dual-stack
@@ -1179,6 +1214,8 @@ The bundled devcontainer at `.devcontainer/docker-compose.yml` already sets `BIN
 ### GitHub Codespaces
 
 When developing inside a GitHub Codespace, the app accepts login requests from the Codespaces preview URL without any extra configuration. The app detects the standard Codespaces environment variables (`CODESPACES`, `CODESPACE_NAME`, and `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN`) that GitHub sets automatically and narrows the allowed CSRF origin to the forwarded preview domain. The origin check applies only when `Rails.env.development?` and `CODESPACES=true` are both set, so it has no effect in staging or production.
+
+The Codespaces initializer also re-declares the cookie store with `SameSite=None; Secure` so the VS Code Preview iframe can read the session cookie. It uses the application-wide session cookie key (`_sure_session`, defined as `Sure::SESSION_COOKIE_KEY` in `config/application.rb`) rather than a hardcoded name, keeping the cookie name consistent whether the app boots with or without Codespaces.
 
 If you cannot log in through a Codespaces preview URL, confirm that the three environment variables above are present in your Codespace environment and that the app is running with `CODESPACES=true`.
 

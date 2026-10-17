@@ -71,12 +71,12 @@ Note that sending `pending=0` to the SimpleFIN API is not the same as omitting t
 
 ### Error handling
 
-Sure supports both the legacy SimpleFIN `errors` field and the structured `errlist` field introduced in protocol v2. When a response includes both, `errlist` takes precedence.
+Sure supports both the legacy SimpleFIN `errors` field and the structured `errlist` field introduced in protocol v2. When `errlist` is nonempty, it takes precedence over legacy `errors`.
 
 Error responses are classified as either partial or fatal:
 
 - **Partial errors** (`act.*` error codes): affect one or more individual accounts but accounts data is still returned. Sure records these errors in sync stats for visibility and continues importing the remaining accounts.
-- **Fatal errors**: the response returns no usable accounts. Sure stops the import and raises an error. If the error carries a `gen.auth` code or indicates an authentication failure, the connection is also marked as requiring an update.
+- **Fatal errors**: errors accompanied by no accounts, or a structured `gen.*` error even when accounts are present. Sure stops the import and raises an error. The connection requires an update for structured `gen.auth`, `auth_failure`, `token_expired`, or `authentication_error` errors, or for legacy text mentioning authentication or reauthentication. An account-scoped `act.auth` code alone does not invalidate the entire connection.
 
 `gen.*`-coded errors (general errors) always trigger the fatal path, even when some account data is present in the same response. The account data alongside a general error may be stale or incomplete and cannot be safely imported.
 
@@ -114,6 +114,16 @@ SimpleFIN reports one record per lot, so a single position can arrive as several
 Sure combines these lots into a single position per security before storing the holding. Quantity and market value are summed across all lots. Cost basis is stored per share, so lots are combined into a share-weighted average — but only when every lot reported a basis. If any lot omits its cost basis, the entire position's cost basis is left unknown rather than averaging over partial data, which would invent cost and produce incorrect gain/loss figures.
 
 If your investment account shows a total value that matches your institution's balance but individual holdings appear at less than their full value, a manual sync from **Settings → Providers → SimpleFIN** will re-import the combined positions correctly.
+
+### Holdings history
+
+Holdings are stored by date: a sync on a new day creates that day’s row, while another sync on the same day updates it instead of overwriting the previous day’s record. This means Sure accumulates a daily history of your positions so you can see how your portfolio has changed over time.
+
+### User corrections carried forward
+
+When you remap a holding to a different security or lock a cost basis, Sure preserves that correction when a new day's sync creates the next holding row. Sure uses the latest earlier row for the same account, provider, provider security, and currency, carrying its active security and cost-basis locks forward.
+
+If you have since undone a correction, the undone state is not revived — only the latest version is carried forward.
 
 ### Institution-specific cost basis corrections
 
