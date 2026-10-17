@@ -91,8 +91,8 @@ Trades support an optional **fee** field to track transaction costs:
 - Useful for tracking brokerage commissions, exchange fees, or other trading costs
 
 For example:
-- Buy 10 shares at $100/share with a $5 fee = $1,005 total
-- Sell 10 shares at $110/share with a $5 fee = $1,095 total (proceeds after fee)
+- Buy 10 shares at $100/share with a $5 fee = $1,005 total cost
+- Sell 10 shares at $110/share with a $5 fee = $1,095 proceeds (fee deducted before the gain is measured)
 
 To add a fee to a trade:
 1. Open the trade form (create or edit)
@@ -100,6 +100,10 @@ To add a fee to a trade:
 3. The total amount updates automatically to include the fee
 
 For acquisitions, the fee is folded into the per-share cost basis: a $5 fee on 10 shares adds $0.50 to the cost of each newly acquired share before that lot is combined with any existing position. Disposal fees do not affect the cost basis of shares you still hold.
+
+Fees are included in cost basis and gains calculations:
+- A purchase fee raises the cost of the lot, reducing unrealized gain while you hold the position.
+- A disposal fee is deducted from the sale proceeds before the realized gain is measured.
 
 ## Securities types
 
@@ -309,7 +313,8 @@ All trades support an optional fee field to track transaction costs:
 
 - Fees are included in the total amount calculation: `total = (qty × price) + fee`
 - Fees default to 0 if not specified
-- Acquisition fees are folded into the per-share cost basis; disposal fees do not affect the basis of remaining shares
+- A purchase fee is added to the lot cost, so it reduces your unrealized gain while you hold the position
+- A disposal fee is deducted from the sale proceeds before the realized gain is measured
 
 ## Investment Activity Labels
 
@@ -339,14 +344,14 @@ When creating a dividend or interest transaction:
 
 All trades support an optional **fee** field to track transaction costs like brokerage commissions, exchange fees, or other trading expenses.
 
-### How Fees Work
+### How fees work
 
 - Fees are included in the total transaction amount: `Total = (Quantity × Price) + Fee`
 - Fees default to 0 if not specified
-- Fees can be added when creating or editing trades
-- The fee field auto-submits like other trade fields
+- A purchase fee is added to the lot cost. This raises your cost basis per share, so unrealized gain is lower while you hold the position.
+- A disposal fee is deducted from the sale proceeds before the realized gain is calculated.
 
-### Adding Fees to Trades
+### Adding fees to trades
 
 When creating or editing a trade:
 
@@ -359,11 +364,11 @@ Example: Buying 10 shares at $50 with a $5 commission:
 - Quantity: 10
 - Price: $50
 - Fee: $5
-- **Total: $505** (10 × $50 + $5)
+- **Total cost: $505** (10 × $50 + $5), giving a cost basis of $50.50 per share
 
-Fees are particularly important for:
-- Accurate cost basis calculations (acquisition fees raise the per-share basis; disposal fees do not)
-- Understanding true investment returns
+Fees affect:
+- Cost basis and unrealized gain (purchase fees)
+- Realized gain and the investment sales report (disposal fees)
 - Tax reporting and record keeping
 
 ### Available Activity Labels
@@ -523,13 +528,19 @@ Trades labeled **Transfer**, **Sweep In**, or **Sweep Out** are not counted as s
 
 Trades labeled **Exchange** are included in the report. For cash this label means a currency exchange, which is internal. For a security it covers a security-for-security exchange, which can dispose of an appreciated asset. Because the two cases are not distinguishable by label alone, and because a missing realized gain is harder to spot than an extra line, exchange trades on securities remain visible so you can review them.
 
-### Multi-currency realized gains
+### Multi-currency gains and cost basis
 
-When a security is priced in a different currency from the one your account uses, Sure converts the sale proceeds into the basis currency before calculating the gain or loss. The conversion uses the exchange rate recorded for the disposal date and the direction the data holds (from the security's currency into the account's currency). There is no fallback to a nearby date and no default rate of 1.0 — if the rate for that day is missing, Sure shows no figure rather than an incorrect one.
+When a security is priced in a different currency from the one your account uses, Sure converts amounts into the account currency before calculating gains. There is no fallback to a nearby date and no default rate of 1.0 — if the rate for a given day is missing, Sure treats the figure as unknown rather than showing an incorrect one.
 
-The same applies to exchange rates that are zero or negative. Sure treats those as absent, so a bad rate in the database does not silently produce a wrong gain or loss.
+**Realized gains:** Sure converts sale proceeds at the exchange rate for the disposal date. If that rate is missing, no realized gain figure is shown for that trade.
 
-If a realized gain figure is absent for a foreign-currency disposal, check that an exchange rate exists for the security's currency against your account's currency on the disposal date. You can add missing rates at **Settings → Exchange rates**.
+**Cost basis and unrealized gains:** If a purchase was made in a foreign currency and neither a usable trade-level rate nor a rate for that purchase date is available, Sure marks the cost basis as unknown. The calculated basis remains unknown until the needed conversion is available and the holding is recalculated, or a usable provider or manual cost basis supplies it.
+
+Exchange rates that are zero or negative are treated the same as missing. A bad rate in the database does not silently produce a wrong figure.
+
+If a gain or cost basis figure is absent for a foreign-currency position, check that an exchange rate exists for the security's currency against your account's currency on the relevant date. You can add missing rates at **Settings → Exchange rates**.
+
+Some data providers (such as IBKR via Flex reports) supply a trade-level exchange rate alongside each transaction. When this rate is present, Sure uses it for cost basis calculations and falls back to the exchange-rate table only if no trade-level rate was provided.
 
 ### Automatic exchange rate import for foreign-currency securities
 
