@@ -11,7 +11,7 @@ See [Transaction history and import limits](/providers/transaction-history) for 
 
 Sure imports one combined Crypto exchange account per Kraken connection, containing:
 
-- Current crypto holdings and balances
+- Current crypto holdings and balances — staked and bonded wallet balances (such as ETH.B or DOT28.S) are combined with their spot balance into a single holding per asset, valued at their balance-weighted average price
 - Spot trade fills (buy/sell history)
 - Deposits and withdrawals — each imported as two entries: the principal and a separate fee entry, so the transfer can be matched to your receiving account
 - Staking rewards and Earn income
@@ -19,6 +19,12 @@ Sure imports one combined Crypto exchange account per Kraken connection, contain
 - Standalone fiat fees
 
 Crypto ledger entries (deposits, withdrawals, staking rewards, and so on) are recorded as trades that carry a unit quantity and the price on the day they moved, not as cash transactions. This keeps your crypto position history accurate and separate from your cash balance.
+
+Fiat balances held at the exchange (EUR, USD, and other supported currencies) are treated as cash, not as holdings. This prevents them from being valued twice alongside the cash your ledger already tracks.
+
+Staked and bonded asset variants — for example, ETH2.S or DOT28.S — are treated as the same position as their underlying asset. A staked ETH balance and a spot ETH balance appear together as one holding.
+
+For spot trades, Sure reads the filled quantity and cash movement from the Kraken ledger rather than from TradesHistory. The ledger nets each side of a trade against its fee — including fees charged in the base asset, which TradesHistory does not expose — so the recorded quantity and cash reflect what actually moved. Quantity and cash are resolved independently: if one ledger side is unavailable, that value falls back to TradesHistory. When the missing ledger side arrives, Sure can correct that value on an unprotected trade.
 
 ## Setting up Kraken
 
@@ -51,6 +57,27 @@ After the first sync, your Kraken exchange account appears in the setup queue. C
 
 If you have multiple Kraken accounts, add a separate named connection for each one. Each connection imports one combined crypto account.
 
+## Account currency
+
+When Sure creates your Kraken exchange account, it uses your family's currency, not Kraken's reporting currency (USD). All balances and holdings are displayed in your family's currency. Kraken trade entries retain their quote currency and are converted for display.
+
+## Opening balance
+
+New Kraken exchange accounts have a zero historical opening anchor, separate from the current balance imported from the provider. After importing entries, Sure moves that zero anchor to the day before the earliest entry only if it is not already earlier. Existing nonzero opening anchors are preserved.
+
+## Configuration
+
+The following environment variables are available for self-hosted deployments:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `KRAKEN_MIN_REQUEST_INTERVAL` | `1.0` | Seconds enforced between consecutive requests to Kraken's public and standard private endpoints |
+| `KRAKEN_HISTORY_MIN_REQUEST_INTERVAL` | `8.0` | Seconds enforced between consecutive requests to account-history endpoints (`Ledgers`, `TradesHistory`), paced separately from other calls |
+
+Sure uses separate pacing for repeated history requests during a paginated backfill. Kraken currently charges 2 counter points for ledger/trade history calls, with decay rates that depend on the account tier; see [Kraken's REST rate limits](https://docs.kraken.com/exchange/guides/rest/ratelimits). Sure's default history interval remains `8.0` seconds. Pacing is maintained per provider instance, so concurrent syncs or other applications using the same API key can still reach the limit. Consider that shared usage and your tier before reducing either interval.
+
+If either variable is set to an invalid value (non-numeric, zero, negative, or infinite), Sure raises a configuration error on the first request using that interval rather than silently disabling the throttle.
+
 ## Troubleshooting
 
 ### Credentials need updating
@@ -65,6 +92,34 @@ After adding a connection, wait for the first sync to complete. If no accounts a
 
 When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.
 
+### Historical account value looks wrong after a buy or sell
+
+If your Kraken account was connected before October 2026, trade entries may have been recorded with their cash flow direction inverted: a buy was recorded as money arriving and a sell as money leaving, rather than the reverse. This caused the historical balance series to show incorrect values, sometimes by a large amount on accounts with significant trading activity.
+
+The upgrade migration corrects eligible existing trade entries automatically. The balance series then rebuilds on the account's next sync; no re-import is needed. Entries marked as manually modified are left unchanged.
+
+### Setup screen shows USD balance instead of your currency
+
+The setup screen converts Kraken's reported balance into your family's currency before display. If no exchange rate is available for the conversion, the screen shows zero rather than an unconverted figure. The initial current account balance uses the same conversion. The zero historical opening anchor is separate from this current balance.
+
 ### Crypto holdings history looks wrong for older accounts
 
 If your Kraken account was connected before October 2026, crypto ledger entries may have been recorded as cash transactions rather than unit-carrying trades. Sure corrects these automatically on the next sync — no re-import or manual action is needed. Entries you have manually edited or matched into a transfer are left as-is.
+
+### Balance history looks wrong for accounts older than two years
+
+Older accounts may have an opening anchor dated after their earliest imported entry. After an import, Sure moves a zero opening anchor earlier when needed. It preserves nonzero opening anchors, so syncing does not automatically reset an existing nonzero opening balance.
+
+### The same asset appears as multiple holdings
+
+If you see separate holdings for what should be one position — for example, BTC split across different entries — older snapshots may use different security records for the same asset. Current imports resolve each asset to a canonical security and combine spot, staked, and bonded variants in the new snapshot. This does not guarantee that all older duplicate holding records are removed.
+
+### Fiat balance appears as a holding
+
+If a currency like EUR or USD appears in your holdings list, the balance was imported before Sure began excluding fiat from the holdings snapshot. Current imports skip fiat holdings. This does not guarantee removal of fiat holding records already stored by an older import.
+
+### Trade quantities or cash amounts look slightly off
+
+Kraken can charge a trade's fee in either the base asset (for example, BTC on a BTC/USD buy) or the quote currency. When the fee comes out of the base asset, TradesHistory reports the gross quantity with no indication that units were taken as a fee.
+
+Sure now reads trade quantity and cash from the Kraken ledger, which nets fees correctly on both sides. Trades imported before the "Query Ledger Entries" API permission was active — or before the ledger backfill reached them — held the uncorrected gross figures. Sure corrects those trades automatically on the next sync once the ledger rows are available. Trades you have manually edited or locked are left unchanged.
