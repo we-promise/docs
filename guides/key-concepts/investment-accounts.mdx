@@ -325,7 +325,7 @@ All trades support an optional fee field to track transaction costs:
 
 Activity labels help you classify investment transactions. They appear as badges in your transaction list and help you understand your investment activity at a glance.
 
-The trade detail header reflects the activity label recorded against the trade. If a label is present and Sure has a name for it, the header shows that label in your selected display language (for example, "Transfer" or "Reinvestment"). If the trade has no label, or carries a label Sure does not name, the header falls back to "Buy" or "Sell" based on the trade's quantity sign: a positive quantity is a buy, and a negative quantity is a sell.
+The quick-edit activity badge, its label picker, and the transaction detail select use the translated activity label, falling back to the stored label when no translation exists. The trade detail header uses its own translations: when it has wording for the recorded activity, it displays that translated name. When the label is absent or has no header wording, it falls back to "Buy" for a positive entry amount and "Sell" otherwise.
 
 ## Recording Dividends and Interest
 
