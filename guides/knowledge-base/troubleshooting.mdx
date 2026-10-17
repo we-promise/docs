@@ -530,6 +530,26 @@ When you merge categories or delete a category, dashboards and income statements
   </Accordion>
 </AccordionGroup>
 
+## Budget page shows a 500 error when expected income is not set
+
+If the budget page crashes with a server error after the AI assistant sets a spending budget without also setting an expected income, the page can fail when rendering the income-side calculations.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The budget model's `initialized?` check only looks at `budgeted_spending`, so a budget with spending set but a nil `expected_income` passes that check and the page attempts to render. Earlier versions of `expected_income_money`, `actual_income_percent`, `remaining_expected_income`, and `surplus_percent` did not guard against a nil value, causing a division-by-zero or nil error during render.
+
+    This could happen when the AI assistant's `update_budget` tool was asked to set only a spending amount — it did not automatically fill in `expected_income`.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The income-side budget methods now treat a nil `expected_income` as zero, matching how the spending side already behaved. `surplus_percent` no longer divides by zero.
+
+    In addition, when `update_budget` sets `budgeted_spending` without an `expected_income` and the budget’s existing income is nil, it fills in `expected_income = 0`. An existing income amount is preserved. This matches what the budget form saves when you leave the income field empty.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
