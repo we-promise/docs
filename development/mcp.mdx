@@ -76,6 +76,8 @@ New rules are saved inactive; renaming an existing active rule can leave it acti
 
 `create_transaction` and `delete_transaction` write to the ledger. `delete_transaction` is permanent and irreversible. `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
+`apply_rule` activates a rule and runs it against matching transactions, respecting rule order and attribute locks by default. Deactivating the rule does not undo earlier changes.
+
 ### Preview tools
 
 These tools appear only when the MCP user has opted into preview features under **Settings > Preferences**. Until then they are absent from `tools/list`, and calling one by name returns an "Unknown tool" error. The Statement Vault tools also require the user to be an admin or member, matching the permissions enforced in the web UI.
