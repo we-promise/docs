@@ -26,12 +26,11 @@ Enable Banking supports banks across the European Union and EEA countries. You c
 
 ## Setting up Enable Banking
 
-> [!WARNING]
-> The most common setup issue is `REDIRECT_URI_NOT_ALLOWED`.
-> Before connecting a bank, register Sure's callback URL in your Enable Banking application settings.
-> Copy the exact callback URL shown in **Settings > Bank sync > Enable Banking** in Sure.
->
-> In production this is usually `https://your-domain.example/enable_banking_items/callback`, but in development it may use a different URL. Use the exact value shown by Sure.
+<Warning>
+  The most common setup issue is `REDIRECT_URI_NOT_ALLOWED`. Before connecting a bank, register Sure's callback URL in your Enable Banking application settings. Copy the exact callback URL shown in **Settings > Bank sync > Enable Banking** in Sure.
+
+  In production this is usually `https://your-domain.example/enable_banking_items/callback`, but in development it may use a different URL. Use the exact value shown by Sure.
+</Warning>
 
 To connect your European bank accounts:
 
@@ -41,10 +40,15 @@ To connect your European bank accounts:
 4. In Sure, configure your Enable Banking credentials
 5. Select your country and bank from the available options
 6. Complete the authorization flow with your bank
-7. Sure will create a session and begin syncing your accounts
+7. Sure creates a session and begins syncing your accounts
 
-If you want to connect another bank, or connect the same bank with a different login, use **Add Connection** after your first Enable Banking connection is working. Sure stores each Enable Banking connection separately, so you can sync, reconnect, or remove them independently.
-Make sure to link the bank account first in the Enable Banking portal, and then create the bank connection in Sure.
+If you want to connect another bank, or connect the same bank with a different login, use **Add Connection** after your first Enable Banking connection is working. Sure stores each Enable Banking connection separately, so you can sync, reconnect, or remove them independently. Make sure to link the bank account first in the Enable Banking portal, and then create the bank connection in Sure.
+
+### Updating credentials
+
+When you update an existing Enable Banking connection, the **Application ID** and **Client Certificate** fields are empty. Leave either field blank to keep the stored value. Enter a new value only when you need to replace a credential.
+
+For existing provider configurations, both credential fields are disabled while any Enable Banking connection in your family has a stored session. This applies across configurations, rather than depending only on the status of the connection being edited. Remove the connections with stored sessions before changing credentials.
 
 ### Using one provider config across different countries
 
@@ -111,6 +115,18 @@ You can disable pending transaction imports in your sync settings by toggling "I
 Disable this option if your bank provides unreliable pending transaction data.
 </Note>
 
+### Card authorization holds
+
+Some banks (ASPSPs) return unfinalized card authorization holds with a `BOOK` status while omitting the `transaction_id`, `entry_reference`, and creditor information. The remittance field contains a masked card descriptor instead of a merchant name (for example `474836xxxxxx6879 003015315475`), and the credit/debit indicator may be set to `CRDT` even though the hold is an outgoing expense.
+
+Sure detects these holds by checking for a masked card descriptor in the remittance field when the transaction lacks identifying fields. Detected holds are:
+
+- Named **Card Authorization Hold**
+- Imported as pending expenses (no merchant is created)
+- Corrected to a positive outgoing amount when the bank erroneously reports them as credit
+
+When pending transactions are disabled, unidentified card holds are filtered out and not imported.
+
 ### Balance selection
 
 When Enable Banking returns multiple balance types for an account, Sure picks the most reliable figure using a fixed priority order that prefers reconciled booked balances over available or expected ones:
@@ -128,6 +144,18 @@ Available balances are last because some banks include an arranged overdraft fac
 OPBD and PRCD are period-boundary snapshots rather than live figures, so they may be up to a day old. To guard against this, Sure checks the optional `reference_date` field on each balance. If the same response contains a newer XPCD, CLAV, or ITAV balance with a strictly later `reference_date`, the fresher balance wins instead of the period-boundary one. When `reference_date` is absent on either side, the priority order applies unchanged.
 
 If none of the recognised types are present, Sure falls back to the first balance the API returns.
+
+### Multi-currency accounts
+
+Some wallets and payment services (such as PayPal) report multiple balances under the same balance type — one per currency — in a single response. Without special handling, the last entry would win, causing the account to display the wrong currency and an empty balance.
+
+When Sure detects a multi-currency response, it keeps only the balances in the account's reported currency:
+
+- Sure reads the currency from the raw account snapshot, not the stored column, to avoid using a value that a previous faulty sync may have set incorrectly.
+- If the snapshot currency is not present in the response (for example, PayPal reports `XXX` for its wallet), Sure falls back to the first recognized currency returned.
+- Balances in other currencies are not discarded silently. If any non-selected currency carries a non-zero amount, Sure logs the details to **Settings > Debug** under the `provider_sync` category so support can investigate if needed.
+
+Single-currency accounts are not affected by this logic.
 
 ### Account type mapping
 
@@ -169,6 +197,10 @@ This keeps your transaction history clean and accurate even when the API returns
 ### ID-less transaction handling
 
 Some banks (ASPSPs) omit both `transaction_id` and `entry_reference` from their responses, which are both optional under PSD2. For these transactions, Sure generates a deterministic ID based on date, amount, currency, direction, creditor, debtor, and remittance information.
+
+When the bank later assigns a real identifier to one of these transactions — for example, once a statement closes — Sure re-keys the stored row to the new identifier rather than importing a second entry. This preserves any category, merchant, or transfer link already attached to the original row.
+
+This re-keying only applies to booked (settled) transactions on both sides. Pending transactions are excluded from the re-keying pool and from the candidate set that receives claims, so Enable Banking's own pending-to-booked reconciliation handles the settlement transition independently without the two mechanisms conflicting.
 
 Transactions that already carry a provider ID are not affected by this logic.
 

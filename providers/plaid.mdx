@@ -379,6 +379,14 @@ The `raw_holdings_payload` column was previously named `raw_investments_payload`
 
 Update to the latest Sure version and trigger a manual sync from the account page. Holdings will decrypt and sync correctly after the update.
 
+### Link modal closes with no error message
+
+If the Plaid Link modal closes immediately when you try to open it — before any bank selection screen appears — and Sure shows no error message, a link-token creation error may be the cause. This can happen when your Plaid credentials are misconfigured, a required product is not enabled for your account, or your institution is not available in your region.
+
+Sure now shows the error as a page-level alert instead of silently closing the modal. If you see a message such as "Your account is not enabled for the following products" or a similar Plaid configuration error, follow the instructions in that message to resolve the issue in your [Plaid Dashboard](https://dashboard.plaid.com).
+
+If the alert is a generic connection error with no specific guidance, verify that your `PLAID_CLIENT_ID`, `PLAID_SECRET`, and `PLAID_ENV` values are correct and that your Sure instance is reachable over HTTPS. Check **Developers > Logs** in the Plaid Dashboard for more detail on what failed.
+
 ### Link popup closes after selecting a bank
 
 If the Plaid popup closes immediately after you select a bank, and Sure shows no useful app logs, the problem may be on Plaid's side rather than in your Sure configuration.
