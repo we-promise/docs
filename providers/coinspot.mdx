@@ -45,6 +45,14 @@ After the first sync, your CoinSpot exchange account appears in the setup queue.
 
 If you have multiple CoinSpot accounts, add a separate named connection for each one. Each connection imports one combined Crypto exchange account.
 
+## Account currency
+
+When Sure creates your CoinSpot exchange account, it uses your family's currency. CoinSpot order amounts and prices are converted from AUD into the account currency during import.
+
+## Opening balance
+
+New CoinSpot exchange accounts have a zero historical opening anchor, separate from the current balance imported from the provider. After importing entries, Sure moves that zero anchor to the day before the earliest entry only if it is not already earlier. Existing nonzero opening anchors are preserved.
+
 ## Sync history
 
 If no sync start date is set, Sure imports up to 365 days of order, transfer, deposit, and withdrawal history on the first sync. Order history is fetched in 30-day windows to work within CoinSpot's API limits. To import a different range, set a sync start date before adding the connection.
