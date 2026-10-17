@@ -15,7 +15,7 @@ When you add a new property account using a valuation provider:
 4. You review the result before anything is created
 5. Confirming creates the property account with the estimated value as the opening balance
 
-After setup, Sure refreshes the value automatically using the same provider. US properties (RentCast and Realie) refresh once per day; UK properties (Chimnie) refresh once per month. Properties are processed stalest-first so a tight monthly budget is spent where it matters most. A property is skipped on a given run if it has already been refreshed within the interval or if the provider has exhausted its monthly request budget.
+After setup, Sure queues automatic valuation refreshes on the first of each month. Each property keeps its selected provider. RentCast and Realie also require at least a day between automatic refreshes; Chimnie requires a month. Properties are processed stalest-first, subject to provider configuration, address and currency checks, and the remaining monthly request budget.
 
 ## Enabling a provider
 
@@ -37,7 +37,7 @@ Once a key is present, the provider appears as an option when you add a new prop
 | Free tier cap | 50 requests/month |
 | Coverage | United States |
 | Valuation currency | USD |
-| Refresh interval | Daily |
+| Minimum automatic refresh interval | One day (the default job runs monthly) |
 | API key variable | `RENTCAST_API_KEY` |
 | Monthly cap override | `RENTCAST_MAX_REQUESTS_PER_MONTH` |
 
@@ -50,7 +50,7 @@ Once a key is present, the provider appears as an option when you add a new prop
 | Free tier cap | 25 requests/month |
 | Coverage | United States |
 | Valuation currency | USD |
-| Refresh interval | Daily |
+| Minimum automatic refresh interval | One day (the default job runs monthly) |
 | API key variable | `REALIE_API_KEY` |
 | Monthly cap override | `REALIE_MAX_REQUESTS_PER_MONTH` |
 
@@ -68,7 +68,7 @@ Sure handles both shapes automatically. No configuration change is needed when y
 [Chimnie](https://chimnie.com) is a UK property valuation API. UPRN-based valuations are free and include an estimated value, value range, and confidence level. Sure caps requests at 1,000 per month by default.
 
 <Note>
-Chimnie requires a business or custom-domain email address to sign up. Gmail, Outlook, and similar personal addresses are not accepted. Create a free API key at [dashboard.chimnie.com](https://dashboard.chimnie.com).
+Create an account and API key at [dashboard.chimnie.com](https://dashboard.chimnie.com). Check Chimnie’s current sign-up requirements if registration is rejected.
 </Note>
 
 | Setting | Value |
@@ -76,7 +76,7 @@ Chimnie requires a business or custom-domain email address to sign up. Gmail, Ou
 | Default cap | 1,000 requests/month |
 | Coverage | United Kingdom (residential properties) |
 | Valuation currency | GBP |
-| Refresh interval | Monthly |
+| Minimum automatic refresh interval | One month |
 | API key variable | `CHIMNIE_API_KEY` |
 | Monthly cap override | `CHIMNIE_MAX_REQUESTS_PER_MONTH` |
 
@@ -90,7 +90,7 @@ Chimnie includes attribution in the property preview: valuation data from Chimni
 
 Each provider tracks requests in a durable database counter that resets at the start of each calendar month. This counter covers both user-initiated lookups (adding a property) and automatic refreshes. The refresh job checks the counter before spending a request and stops when the budget is exhausted.
 
-If a provider returns a rate-limit response (HTTP 429), Sure retries with exponential backoff. For Chimnie, Sure also enforces a minimum interval of 1.1 seconds between requests to stay within Chimnie's 1 request-per-second limit. Retries stop once the monthly cap is reached.
+For Chimnie, Sure retries HTTP 429 responses with exponential backoff, for up to three retries. Each provider instance spaces requests at least 1.1 seconds apart. Every attempt counts against the monthly cap, and requests stop when that cap is reached.
 
 The free tier caps are conservative. If you have a paid plan with a higher limit, set the override variable to match:
 
@@ -129,10 +129,7 @@ Nothing is created until you confirm. If the lookup fails (UPRN not found, rate 
 
 ## Automatic refresh
 
-A background job runs on a recurring schedule and refreshes the valuation for every property that has a provider linked:
-
-- US properties (RentCast, Realie): refreshed once per day
-- UK properties (Chimnie): refreshed once per month
+The default background job runs monthly, on the first day of the month at 01:30 in the scheduler’s configured timezone. It considers active property accounts with a linked valuation provider. A provider’s minimum interval also applies: one day for RentCast and Realie, and one month for Chimnie.
 
 Properties are processed in order of their last refresh date, oldest first.
 
@@ -145,15 +142,15 @@ A property is skipped if:
 - The provider's monthly request budget is exhausted
 - The provider's API key has been removed since the property was added
 
-Skipped properties are recorded in **Settings → Debug logs** under the provider key, so you can see why a specific property was not updated.
+Address, provider-configuration, and currency failures are recorded in **Settings → Debug logs** under the provider key. Routine interval and exhausted-budget skips may not create a log entry.
 
-A **Refresh valuation** button on the property account bypasses the normal interval and requests a fresh valuation immediately. The button is disabled if the provider is no longer configured.
+A **Refresh valuation** button on the property account bypasses the normal interval and queues a fresh valuation, still subject to the provider budget and validation checks. The button is disabled if the provider is no longer configured.
 
 ## Troubleshooting
 
 **The valuation option is not showing when I add a property**: the provider's API key is not configured. Add the relevant key (`RENTCAST_API_KEY`, `REALIE_API_KEY`, or `CHIMNIE_API_KEY`) to your environment, or enter it in **Settings → Self-Hosting**.
 
-**Chimnie sign-up was rejected**: Chimnie requires a business or custom-domain email address. Gmail, Outlook, and similar personal addresses are not accepted.
+**Chimnie sign-up was rejected**: check Chimnie’s current registration requirements or contact its support team.
 
 **The UPRN lookup returned no result**: the UPRN may be for a non-residential property, a newly built property not yet in Chimnie's database, or an invalid number. Double-check the UPRN on [findmyaddress.co.uk](https://www.findmyaddress.co.uk).
 
