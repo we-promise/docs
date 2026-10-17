@@ -113,17 +113,34 @@ Sure looks for transaction pairs that:
 | Pending transactions | 4 days |
 | Confirmed transactions | 30 days |
 
-### Suggested Matches
+### Suggested matches
 
 When Sure finds a potential transfer match, it creates a **pending** transfer suggestion. You can:
 
-1. **Confirm** - Accept the match and link the transactions
-2. **Reject** - Dismiss the match (transactions remain separate)
+1. **Confirm** - Accept the match and link the transactions as a transfer
+2. **Reject** - Dismiss the match (transactions remain separate and keep their existing kinds and categories)
 
 To review suggested transfers:
 1. Open a transaction that may be part of a transfer
 2. Look for transfer match suggestions
 3. Confirm or reject as appropriate
+
+**What changes at confirmation:**
+
+- Sure assigns the appropriate transfer kind (funds movement, CC payment, investment contribution, etc.) to both legs at the moment you confirm — not when the suggestion first appears.
+- If the outflow has no category, the destination is an investment or crypto account, and the source is neither an investment nor a crypto account, Sure assigns the Investment Contributions category automatically.
+- Any notes on the transfer are preserved when you confirm from the transaction list.
+
+**What stays the same while a match is pending:**
+
+- The suggestion itself leaves both transactions’ existing kinds, categories, and reporting treatment unchanged.
+- The pending suggestion does not remove category editing; existing permission and transaction-kind restrictions still apply.
+- The pending suggestion itself does not add a Transfer badge.
+- The pending suggestion does not itself exclude either transaction from budgets or income-statement totals.
+
+**When you reject a match:**
+
+- If a transaction already had a kind (for example, one you set manually), that kind is preserved — rejection does not reset it.
 
 ## Cross-Currency Transfers
 
@@ -214,6 +231,8 @@ Transfers are generally **excluded** from budget calculations because they don't
 <Note>
   Loan payments and investment contributions are both treated as expenses in budgets because they represent real cash outflows. For matched transfers, assign a category, merchant, and tags on the outflow transaction.
 </Note>
+
+A pending auto-match does not itself change budget or income-statement treatment. Confirmation assigns the transfer kinds; reporting then follows those kinds and any existing exclusions. Transactions that already had excluded kinds or were manually excluded remain subject to those rules while a suggestion is pending.
 
 ## Understanding Net Worth Impact
 
