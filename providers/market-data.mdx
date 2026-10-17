@@ -190,6 +190,19 @@ Because the free tier has no historical endpoint, NGX holdings sync with today's
 
 See the [Mansa API provider page](/providers/mansa) for full setup instructions.
 
+## Price sync scope
+
+Sure only fetches prices for the date range each account actually needs for a given security. The range starts with the earliest trade or positive holding for that security. For provider-synced holdings, it can extend back to the account start date. Its end depends on whether you still hold the position:
+
+- **Open positions** — prices are fetched through today.
+- **Closed positions** — prices are fetched through the later of the last quantity-changing trade and the last positive holding date. Once you sell or transfer out your full position, Sure stops requesting new prices for that security in that account.
+
+If you reopen a position (by buying again, or by editing a trade that affects the net quantity), Sure detects the change and resumes fetching prices through today.
+
+This scoping applies to both account-level syncs and the daily market data import. The daily importer merges the required windows across accounts before importing each security’s prices. Account-level syncs use their own account’s window.
+
+The daily importer also checks security details for all online securities, even when their positions are closed. Details already present are normally reused rather than fetched again.
+
 ## Price freshness
 
 When Sure cannot fetch a real price for a given date (for example, on weekends or market holidays when providers return no data), it carries the last known price forward to fill the gap. These gap-filled prices are marked as **provisional**.
