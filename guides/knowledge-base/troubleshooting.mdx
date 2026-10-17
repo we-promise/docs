@@ -39,6 +39,22 @@ In earlier versions, when an account finished syncing, Sure broadcast a rendered
   </Accordion>
 </AccordionGroup>
 
+## Settings link causes a 500 error when many accounts are filtered
+
+Opening the **Settings** link from a transactions list filtered by a large number of accounts could result in a 500 error (`CookieOverflow`). The transactions list passes the current page's full URL — including all selected account IDs — as a `?return_to=` query parameter so Sure can return you to the same filtered view after you leave settings. With enough accounts selected, that URL exceeds the 4 KB limit of the cookie-backed session.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Sure stores the `?return_to=` value in the session so it can redirect back to the page you came from after completing an action in settings. The session is stored entirely in an encrypted browser cookie. When the `return_to` URL contains dozens of account IDs as query parameters, the resulting cookie size exceeds 4 KB and Rails raises a `CookieOverflow` error, producing a 500 response.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When the `return_to` value exceeds 1 KB, Sure now stores only the path without its query string. If even the bare path is over 1 KB, the `return_to` value is discarded entirely and the previous stored value is also cleared so a stale redirect target is never used. When the shortened path fits, Sure retains it as the return destination without the filters. Only when the path is discarded does Sure fall back to the default destination.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Mixed-currency arithmetic produces wrong totals silently
 
 Earlier versions of Sure allowed arithmetic operations (`+`, `-`, `/`, `<=>`) between `Money` objects in different currencies. The result kept the left operand's currency and discarded the right operand's — so `200 USD - 180 EUR` returned `20 USD` with no error or log line. This affected syncs, transfer matching, insight generators, and some report pages for families that hold accounts in more than one currency.
