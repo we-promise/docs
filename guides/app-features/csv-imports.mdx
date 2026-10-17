@@ -148,6 +148,8 @@ This covers:
 
 If your access to an account has been downgraded to read-only since the import was configured, the publish or revert step will fail with a permissions error. Ask the account owner to grant you write access, or have them complete the action themselves.
 
+If a revert fails, the import's status changes to **Revert failed**. A **Try again** button appears on the import detail page — click it to retry the revert without needing to navigate back to the imports list.
+
 ## Import process
 
 The import wizard shows a step indicator at the top of the page. Step labels display in your configured language (set under **Settings → Preferences → Language**). On mobile, the indicator shows a "Step X of Y" progress count instead.
@@ -289,6 +291,14 @@ Tag coffee runs,transaction,true,,"[{""condition_type"":""transaction_name"",""o
 5. **Clean your data**: Remove any extra columns or formatting before importing
 
 ## Troubleshooting
+
+### File upload fails on iPhone or iPad
+
+On iOS (Safari and Chrome for iOS), tapping the file picker to upload a Sure export (NDJSON) or a bank statement (PDF) could fail silently or return an error page. The upload appeared to start but never reached the server.
+
+The affected Sure upload forms used native form submission. They now submit through Turbo using `requestSubmit()`, allowing Turbo to send the selected file in its fetch request.
+
+If you are on an older version and see a "We didn't receive your file. Please try uploading it again." alert on iOS, upgrade to the latest release and retry the upload.
 
 ### Import fails with date errors
 
