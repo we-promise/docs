@@ -138,6 +138,8 @@ Each account and account group in the sidebar displays a small 30-day sparkline 
 
 The sparkline and trend percentage only appear once there is enough balance history. For a brand-new account with no historical data, the sidebar shows a placeholder instead. Once balances accumulate over time, the chart and trend fill in automatically.
 
+Sparklines inside collapsed account groups are loaded lazily — Sure only fetches them when the group is expanded and the rows scroll into view. Until then, those rows keep their loading placeholder. This is expected behavior and does not indicate an error.
+
 For linked investment and crypto accounts, the sparkline only covers the period supported by your provider connection. Data from before the provider's first import is excluded, so the sparkline reflects your actual account history rather than estimated or zero-filled values from before the connection was established.
 
 ## Adding transactions
@@ -155,6 +157,19 @@ To add a transaction:
 You'll see the transaction in your transaction history and the net worth chart will update accordingly.
 
 <img width="500" height="512" alt="Filled-out expense form" src="https://github.com/user-attachments/assets/7c1d38d1-edb8-4d12-8b3e-bbef4836cc92" />
+
+## Uploading statements
+
+You can keep your bank's statements alongside an account and let Sure check balances against them. Open an account and upload PDF, CSV, or XLSX files in **Statements**, or go to **Settings → Statement Vault** to upload first and link later.
+
+Sure needs each statement's **period** to show which months are covered and to compare balances. It finds the period in this order:
+
+1. **Inside the PDF** — when the statement includes its period as a date range (e.g. `01 Apr 2026 - 30 Apr 2026`) or as the dates next to the opening and closing balance (e.g. "Saldo iniziale al 01.07.2025"). Sure also reads opening and closing balances from a summary table or next to labels such as "Opening balance" and "Closing balance". Month names and labels are recognized in English, Italian, German, French, Spanish, Dutch, and Portuguese.
+2. **Dates in the filename** — for everything else, e.g. `2026-04`, `2026-04-30`, or `Apr 2026`.
+3. **Dates inside a CSV** — if the filename did not supply the period, Sure samples up to 250 date values from a recognized date column to fill missing period boundaries. Review the result, since a sample may not cover the whole statement.
+4. **Manually** — open the statement and enter the period and balances yourself.
+
+If your bank names every file the same way, add the month to the filename before uploading, e.g. `Statement 2026-04.pdf`.
 
 ## Managing investment accounts
 
@@ -335,6 +350,18 @@ This feature eliminates the "black hole" effect where investment contributions w
 ## Dashboard
 
 The **Dashboard** gives you a live snapshot of your financial picture. Several widgets are available, and you can reorder and collapse them to suit your workflow.
+
+### Chart time periods
+
+The period picker on net worth and account charts includes presets such as 1 month, 90 days, 1 year, 5 years, and **All**. The **All** period starts one month before the earliest Transaction or Trade entry across your family, giving a small margin before your first real activity. A single old valuation or opening balance no longer stretches the All range back years with a flat, empty line.
+
+If your family has only valuations and no Transactions or Trades, the All period uses the family’s oldest entry date when it is before today; a missing, today, or future start falls back to five years ago.
+
+### Balance chart y-axis scaling
+
+Account balance charts scale the y-axis to keep real movements visible, whatever the size of your balance. The chart centres the view between the minimum and maximum balances for the period and adds padding around that range. Charts with value labels include extra space above and below the line. A 30-day view of a stable savings or pension account shows the real dips and gains rather than a near-flat line.
+
+Genuinely trivial movements — for example, a €50 change on a €100,000 balance — stay visually flat so the scale does not exaggerate noise. Zero is included when the series crosses zero or approaches it relative to its own scale; a small absolute balance alone does not force zero into view. Zooming in with drag-select reloads a narrower date range and applies the same scaling, so zoomed views reveal detail rather than flatten it further.
 
 ### Drag to select a date range on charts
 
