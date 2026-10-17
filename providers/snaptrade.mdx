@@ -111,6 +111,16 @@ Sure maps the full range of SnapTrade activity types to trades or cash entries:
 
 If a later sync determines an activity should be classified differently (for example, a CORP_ACTION that previously had units is re-fetched without units), Sure reclassifies the entry automatically. Entries that have been manually edited or locked by an import are protected and will not be reclassified; these cases are recorded in the debug log at **Settings > Debug**.
 
+### Option contract support
+
+Sure imports option trades from SnapTrade, including standard and mini-option contracts.
+
+When SnapTrade reports an `option_symbol` alongside a plain `symbol`, Sure uses the option symbol. This prevents brokerages such as Robinhood, which populate `symbol` with the underlying equity even on options activity, from importing option trades as common stock.
+
+Option contracts are displayed with a formatted name that includes the underlying ticker, strike price, option type, and expiration date. For example: `AAPL $150 CALL (2026-01-20)`.
+
+SnapTrade reports option quantity in contracts but quotes price per underlying share. Sure converts the per-share price to a per-contract price by applying the contract multiplier (100 for standard options, 10 for mini-options) so that `quantity × price` correctly represents total contract value.
+
 ### Trade amount and fee accuracy
 
 Sure uses SnapTrade's reported trade amount directly rather than computing it as quantity × price. Brokerage-reported prices are often rounded or estimated, so the computed value can drift by a few cents from the cash that actually moved — most visibly for reinvestments that should match their dividend exactly.
@@ -132,7 +142,7 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
 - **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
-- **Derivatives not imported**: Options and other derivative instruments are filtered out and will not appear in holdings
+- **Options in holdings**: Option positions are not shown in the holdings view; only options activity (trades) is imported
 
 ## Troubleshooting
 
