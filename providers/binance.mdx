@@ -138,11 +138,10 @@ All Binance API requests include a 30-second timeout to prevent hanging connecti
 
 ### Manual sync
 
-To manually sync your Binance account:
+To manually sync your Binance account, an admin can use either of these options:
 
-1. Navigate to **Settings** > **Bank sync**
-2. Find your Binance connection
-3. Click **Sync now**
+- On the **Accounts** page, find your Binance connection card and click the refresh icon in the header row.
+- Go to **Settings** > **Providers**, find your Binance connection, and click **Sync**.
 
 ### Automatic sync
 
@@ -157,6 +156,10 @@ Sure automatically syncs your Binance account on a regular schedule along with y
 - Real-time price updates depend on Binance market data availability
 
 ## Troubleshooting
+
+### Credentials need updating
+
+If the Binance connection card shows "Credentials need updating", Sure could not read a configured API key and secret. This warning alone does not establish that the provider revoked a key. Click **Update credentials** in the connection card header to go to **Settings** > **Providers**, then enter your new API key and secret.
 
 ### Connection errors
 
