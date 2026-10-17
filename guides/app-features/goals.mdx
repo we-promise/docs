@@ -32,7 +32,7 @@ For goals backed by **investment accounts**, Sure defaults to the **contribution
 3. Choose a kind (**One-off** or **Maintained**).
 4. Enter a name, target amount, currency, and optional deadline (one-off only).
 5. Pick one or more accounts to link. Accounts must be depository or investment type.
-6. Optionally add a color, icon, and notes.
+6. Optionally add a color, icon, and notes. If you skip the color, Sure assigns a default color automatically. The progress ring on the goal card and the goal's avatar both use the same color, so they always match.
 7. Save.
 
 ### Emergency fund targets
@@ -43,20 +43,20 @@ In months mode the target balance field is replaced by a derived display. If you
 
 ## Goals overview strip
 
-The top of the Goals page shows three summary tiles across all your active goals.
+When goals exist, the top of the Goals page shows three summary tiles. The pace tiles summarize active goals; the contribution tile measures flows through the family’s goal-linked accounts.
 
-**Contributed last 30d** shows the net amount deposited into goal-linked depository accounts over the last 30 days. A negative figure means more left those accounts than came in. Below the amount, a comparison line shows how this pace compares with the prior 30 days:
+**Contributed last 30d** shows the net amount deposited into goal-linked depository accounts during the current contribution window. A negative figure means more left those accounts than came in. Below the amount, a comparison line shows how this pace compares with the prior 30 days:
 
 - An up arrow with a percentage means your pace increased compared with the previous window.
 - A down arrow means your pace slowed.
 - "vs. prior 30d" with no arrow means the pace is flat.
-- "First 30d of activity" appears when there is no prior 30-day window to compare against.
+- "First 30d of activity" appears when the prior window’s net contribution is zero, including when both windows are zero; it does not necessarily mean there was no earlier activity.
 
-Only depository accounts linked to your goals count toward this figure. Investment accounts and pending transactions are excluded.
+The contribution figure uses goal-linked depository accounts in the family’s primary currency. Investment accounts, other currencies, pending transactions, and excluded entries do not count. The current window includes today and the preceding 30 days; the comparison uses the 30 days before that window.
 
 **Needs this month** shows the total monthly amount required across all goals that are behind pace. Zero means no goals are currently behind their target rate.
 
-**Goals on track** shows how many active, deadline-bearing goals are saving at or above their required monthly pace, out of the total being tracked. Goals without a deadline, paused goals, and goals already reached are not counted in either the numerator or denominator.
+**Goals on track** shows how many active, deadline-bearing goals are saving at or above their required monthly pace, out of the total being tracked. Maintained goals, goals without a deadline, paused goals, and goals already reached are not counted in either the numerator or denominator.
 
 ## Tracking progress
 
