@@ -41,6 +41,23 @@ When creating a maintained goal you can set the target balance as a **fixed amou
 
 In months mode the target balance field is replaced by a derived display. If your family has no spending history yet, the form shows "Worked out when you save" and keeps the field editable so you can enter an initial amount manually. Once a history exists, the form shows the calculated figure instead of a text input.
 
+## Goals overview strip
+
+When goals exist, the top of the Goals page shows three summary tiles. The pace tiles summarize active goals; the contribution tile measures flows through the family’s goal-linked accounts.
+
+**Contributed last 30d** shows the net amount deposited into goal-linked depository accounts during the current contribution window. A negative figure means more left those accounts than came in. Below the amount, a comparison line shows how this pace compares with the prior 30 days:
+
+- An up arrow with a percentage means your pace increased compared with the previous window.
+- A down arrow means your pace slowed.
+- "vs. prior 30d" with no arrow means the pace is flat.
+- "First 30d of activity" appears when the prior window’s net contribution is zero, including when both windows are zero; it does not necessarily mean there was no earlier activity.
+
+The contribution figure uses goal-linked depository accounts in the family’s primary currency. Investment accounts, other currencies, pending transactions, and excluded entries do not count. The current window includes today and the preceding 30 days; the comparison uses the 30 days before that window.
+
+**Needs this month** shows the total monthly amount required across all goals that are behind pace. Zero means no goals are currently behind their target rate.
+
+**Goals on track** shows how many active, deadline-bearing goals are saving at or above their required monthly pace, out of the total being tracked. Maintained goals, goals without a deadline, paused goals, and goals already reached are not counted in either the numerator or denominator.
+
 ## Tracking progress
 
 Each goal card shows:

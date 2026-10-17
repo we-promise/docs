@@ -21,6 +21,93 @@ When merchant detection identified a new merchant from a transaction's descripti
   </Accordion>
 </AccordionGroup>
 
+## Account name and balance visible to family members without access after a sync
+
+In earlier versions, when an account finished syncing, Sure broadcast a rendered account row — including the account name and balance — on the family's shared Turbo stream. Every signed-in family member subscribed to that stream, including members who did not have access to the account. The row reached their browser after every sync even though the accounts page did not show it to them.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any account that could sync independently — linked accounts (connected via a provider) and manual accounts that were synced — could expose their name and balance to all currently signed-in family members, regardless of whether those members had view or edit access to the account.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The broadcast that replaced the account row in the family stream is removed. Instead, when a sync completes, Sure sends a lightweight sync toast to each browser. The browser refreshes through its own authenticated request, so only members with access see the account data. Refresh can be deferred during interaction with forms or dialogs, and a manual refresh may be needed.
+
+    The fix also covers linked accounts that sync on their own with no follow-up provider event, which would previously have left the accounts page stale for members who do have access.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Settings link causes a 500 error when many accounts are filtered
+
+Opening the **Settings** link from a transactions list filtered by a large number of accounts could result in a 500 error (`CookieOverflow`). The transactions list passes the current page's full URL — including all selected account IDs — as a `?return_to=` query parameter so Sure can return you to the same filtered view after you leave settings. With enough accounts selected, that URL exceeds the 4 KB limit of the cookie-backed session.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Sure stores the `?return_to=` value in the session so it can redirect back to the page you came from after completing an action in settings. The session is stored entirely in an encrypted browser cookie. When the `return_to` URL contains dozens of account IDs as query parameters, the resulting cookie size exceeds 4 KB and Rails raises a `CookieOverflow` error, producing a 500 response.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When the `return_to` value exceeds 1 KB, Sure now stores only the path without its query string. If even the bare path is over 1 KB, the `return_to` value is discarded entirely and the previous stored value is also cleared so a stale redirect target is never used. When the shortened path fits, Sure retains it as the return destination without the filters. Only when the path is discarded does Sure fall back to the default destination.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## "All" chart period starts later than expected
+
+When you select the **All** period on a net worth or account chart, the chart now starts one month before the earliest Transaction or Trade entry across your family — not your earliest entry of any kind.
+
+In earlier versions, Sure used the oldest entry of any type to anchor the All period. A single valuation or opening balance dated years in the past stretched every All-range chart back to that date, leaving a long flat line with no activity before any real spending or trading began.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    The All period now anchors to one month before the first Transaction or Trade entry across your family. Valuations and opening balances no longer affect how far back the All range extends.
+
+    If your family has only valuations and no Transactions or Trades, the All period uses the family’s oldest entry date when it is before today; a missing, today, or future start falls back to five years ago.
+  </Accordion>
+
+  <Accordion title="Why does my chart look different after upgrading?">
+    If you had a valuation or opening balance dated further back than your first real transaction, the All chart will now start later. The data is unchanged — only the visible range has shifted to focus on the period where you have actual activity.
+
+    Budgets and the AI balance sheet are not affected. They still use the oldest entry date as before.
+  </Accordion>
+</AccordionGroup>
+
+## Mixed-currency arithmetic produces wrong totals silently
+
+Earlier versions of Sure allowed arithmetic operations (`+`, `-`, `/`, `<=>`) between `Money` objects in different currencies. The result kept the left operand's currency and discarded the right operand's — so `200 USD - 180 EUR` returned `20 USD` with no error or log line. This affected syncs, transfer matching, insight generators, and some report pages for families that hold accounts in more than one currency.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any calculation that combined two `Money` values from different currencies without an explicit `exchange_to` conversion first. Common surfaces include:
+
+    - Balance and net worth totals across multi-currency accounts
+    - Transfer matching when accounts are in different currencies
+    - Insight generators and assistant read functions
+    - Report and API responses for families mixing currencies such as EUR, GBP, and USD
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `Money` arithmetic now checks that both operands share the same currency before proceeding.
+
+    In development and test, a mismatch raises `Money::CurrencyMismatchError` immediately so the call site is easy to find.
+
+    In production, the mismatch is reported through `Rails.error` and logged at `warn` level (deduplicated by operation, currency pair, and call site within a bounded per-process cache) and the operation keeps its previous result so no page starts failing while the root cause is fixed. Equality comparisons between different currencies return false without raising.
+
+    Versions containing currency-mismatch detection enable it without an additional configuration change.
+  </Accordion>
+
+  <Accordion title="I see a currency mismatch warning in my logs — what do I do?">
+    A log line like `[Money] Can't apply + to USD and EUR amounts; convert one with exchange_to first` means Sure found a call site that combines amounts in two different currencies without converting first.
+
+    The log includes the call site location. In most cases the fix is to call `exchange_to` on one of the amounts before the operation, passing the target currency and the relevant date.
+
+    If you are self-hosting a customized version of Sure, search for the call site identified in the log and add the conversion. On an unmodified install, upgrade to the latest release — the known call sites are being fixed progressively.
+  </Accordion>
+</AccordionGroup>
+
 ## Confirmation dialogs could run script from bank-provided names
 
 In earlier versions, confirmation dialogs (such as those shown when deleting a provider merchant, resetting holdings, or replacing a SimpleFIN account) interpolated user-supplied names directly into the dialog body via `innerHTML`. Names sourced from bank feeds, brokerage providers, or other family members could contain HTML that the browser executed as script.
@@ -44,6 +131,22 @@ Because provider merchant rows are shared across families, a crafted merchant na
   </Accordion>
 </AccordionGroup>
 
+## MXN amounts show wrong number separators in Spanish
+
+When the interface language is set to Spanish, Mexican peso (MXN) amounts were formatted using European-style separators — a comma as the decimal separator and a dot as the thousands separator. This produced values like `1.234,56 MXN` instead of the correct `1,234.56 MXN`.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Sure formats currency amounts using the active locale's separator rules. Spanish uses European-style separators for most currencies, but MXN natively uses US-style separators (dot as decimal, comma as thousands). The formatter did not have a currency-specific override for MXN under the Spanish locale, so it applied the locale's default separators instead.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The number formatter now checks the currency code before applying locale-derived separators. When the currency is MXN and the active locale is Spanish, Sure retains MXN’s dot decimal separator and comma thousands separator. Other locales keep their existing formatting rules. All other currencies continue to follow the locale's own separator conventions.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Category avatar preview does not update when picking a color
 
 When editing or creating a category, changing the color using the color picker previously did not update the avatar preview — the icon and background appeared to stay at the original color until the form was saved.
@@ -57,6 +160,35 @@ When editing or creating a category, changing the color using the color picker p
     The color picker now updates the `--avatar-color` CSS variable on the avatar element when you select a new color. The avatar's CSS reads from the variable, so both the background tint and the icon color update immediately as you pick.
 
     Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Account balance or net worth drops to zero unexpectedly
+
+If an account balance or your net worth chart falls to zero for a day — without any transactions that explain it — a provider may have returned a zero or invalid exchange rate for that currency pair on that date. Storing a zero rate converts every balance in that currency to zero.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Exchange rate providers occasionally return a zero rate for a single-day lookup. Earlier versions of Sure stored whatever value the provider returned. Any conversion that used that rate multiplied the balance by zero, wiping the reported value for that day. The bulk importer was already protected, but single-rate lookups were not.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now validates every rate — whether from a single lookup or a series — before storing it. A finite, positive number is required. Rates that are zero, negative, `NaN`, or infinite are rejected:
+
+    - A single-rate lookup that returns an unusable value is treated as a failed response; that response supplies no replacement rate. Any fallback depends on the caller.
+    - Rates in a bulk series that are unusable are dropped. The importer can fill subsequent gaps from a usable prior rate. Without an earlier anchor it begins at the earliest usable provider date; if no usable rates are returned, it does not fill the series.
+    - A database check constraint rejects zero, negative, and non-finite values for any write that bypasses model validations, such as bulk upserts.
+    - Any provider rate rejected by this validation is recorded in **Settings → Debug** under the `exchange_rates` category so you can see which provider returned the bad value and on which date.
+
+    A rate of exactly `1` is valid and is stored normally (used for pegged currencies).
+
+    Existing invalid rates in the database are removed when you upgrade. The next sync refetches those dates from the provider.
+
+    Versions containing this validation need no configuration change to enable it.
+  </Accordion>
+
+  <Accordion title="How do I confirm the cause?">
+    Go to **Settings → Debug** and filter by the `exchange_rates` category. Entries naming the concrete exchange-rate provider class, with level `warn`, show the provider name, the currency pair, and the invalid rate that was rejected.
   </Accordion>
 </AccordionGroup>
 
@@ -155,8 +287,10 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     Rules are **not** triggered in these scenarios:
     
     - **Manual transaction creation** - Only triggers an Account sync (not Family sync)
-    - **Manual transaction editing** - Same as above, only Account sync runs
-    - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
+    - **Manual transaction editing (balance-affecting fields)** - Changing the amount, date, or account triggers an Account sync (not Family sync). Editing only descriptive fields — name, notes, category, merchant, or tags — does not trigger any account sync. Reports and budgets still pick up the change through the entries cache version bumped by the save.
+    - **Inactive rules (automatic syncs)** - Rules with `active: false` never run during automatic family syncs
+
+    **Apply All** is an exception: it runs all rules, active and inactive, so their transaction changes (category, merchant, tags, and so on) apply. Inactive rules skip the email notification action only. Matches seen while a rule is off stay unrecorded; they are handled when the rule is switched back on.
   </Accordion>
 
   <Accordion title="How do I see why a rule run failed?">
@@ -212,6 +346,7 @@ The prompt is gated by several conditions:
     - **Recently snoozed**: You clicked **Hide for today** — wait 24 hours for prompts to resume
     - **A matching rule already exists**: An active rule whose conditions match this transaction already sets this category. A rule that sets the same category but whose conditions do not match this transaction does not suppress the prompt.
     - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for your account (set via **Don't show this again**)
+    - **Prompt appeared behind an open drawer**: In older versions, the prompt could be rendered while the transaction drawer was still open. The browser renders native dialogs in a top layer above all other content, so the prompt sat behind the drawer unseen. A page refresh then removed it before the drawer closed. This is fixed in the current release — the prompt now waits until the drawer closes before appearing.
   </Accordion>
 </AccordionGroup>
 
@@ -325,6 +460,129 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Holdings list is slow with many securities
+
+When an investment account holds a large number of securities, opening the holdings list in the web app could be noticeably slow in earlier versions.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The holdings list loaded each holding's associated security in a separate database query — one query per row. With many holdings, this produced a large burst of queries, causing the page to load slowly.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The holdings controller now fetches all securities for the current account's holdings in a single query before rendering the list. This replaces the per-row security lookups with eager loading, reducing the number of database queries needed to render the list.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Rule prompt disappears after changing category from the transaction drawer
+
+In older versions, changing a transaction's category from the transaction detail drawer did not show the "create a rule?" prompt. The prompt was delivered while the drawer was still open, which placed it behind the drawer in the browser's rendering stack where it could not be seen or clicked. A sync completing shortly after then refreshed the page and removed it entirely.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The transaction drawer uses a native browser `<dialog>` element, which the browser places in a special top layer above all other page content. The rule prompt was streamed into the notification tray at the same time as the drawer was open. Because the notification tray sits below the top layer, the prompt was invisible and unclickable. When the next sync completed and morphed the page, the prompt was removed before the drawer ever closed.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The notification tray now defers streams targeting the prompt area and page-refresh streams while a dialog is open. Other streams continue normally. Once the last dialog closes, deferred prompts render first. A deferred refresh is skipped while a prompt is visible, preventing these background refreshes from erasing an unread prompt.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Account disappears after a failed delete
+
+If you delete an account and it vanishes from every list and the balance sheet but is never actually removed, one possible cause is that the background deletion job was not queued successfully. A job that fails during destruction is a separate case, described below.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Deleting an account marks it `pending_deletion` and queues a background job to remove it. In earlier versions, the status was committed to the database before the job was pushed to the queue. If the job push failed at that point — because the queue (Redis) was temporarily unreachable or the push was rejected — the account was left marked `pending_deletion` with no job coming to finish the deletion. Because `pending_deletion` accounts are excluded from every visible list, the account appeared to vanish. There was no AASM event to leave `pending_deletion`, so you could not retry from the UI.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now restores the account's previous status when the job push fails, so the account reappears in your list instead of staying hidden. The deletion attempt also runs under a row lock to prevent a double-submit from capturing a stale status. If the push was rejected, a failure alert is shown and you can try again once the queue is healthy.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if an account is already stuck?">
+    If an account is already stuck in `pending_deletion` on an older version, verify that your worker container and Redis are healthy:
+
+    ```bash
+    docker compose ps worker
+    docker compose logs worker --tail 50
+    ```
+
+    Once the worker is running and Redis is reachable, a server administrator can reset the account's status directly in the database, then attempt the deletion again from the UI.
+  </Accordion>
+</AccordionGroup>
+
+## Account reappears as disabled after a failed deletion
+
+When you delete an account, Sure marks it as pending deletion and then runs a background job to remove it. If the background job encounters an error during destruction, the account was previously left in the pending deletion state — hidden from every account list, ineligible for any further action, and impossible to re-delete. The only way out was a direct database fix.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The deletion request marks the account `pending_deletion` before queuing the background job that attempts destruction. If the destroy raises an error mid-run — for example, a database constraint violation or a provider API failure — the job's own error handler reset a `scheduled_for_deletion` flag that belongs to provider items, not to accounts. The account was left stuck in `pending_deletion` with no job queued to retry it.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `Account#destroy` now catches destruction errors and fires a `restore_after_failed_deletion` event, which transitions the account from `pending_deletion` back to `disabled`. The account reappears in your account list and can be deleted again once the underlying problem is resolved.
+
+    For accounts that were already disabled before deletion was attempted, the original `disabled_at` timestamp is preserved so the net worth chart cutoff is not moved forward to the failure date.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if an account is already stuck?">
+    If an account is already stuck in pending deletion on an older version, it requires a direct database update to restore it. Set the account's `status` column back to `disabled` so it becomes visible and can be re-deleted from the UI. After upgrading, an exception raised during destruction restores the account to disabled so you can retry.
+  </Accordion>
+</AccordionGroup>
+
+## Dashboard loads slowly with many accounts
+
+When a user has access to many accounts (through family sharing or account groups), earlier versions issued a separate database query to load accessible accounts on each access during a single request. This caused the dashboard to slow down noticeably as the account count grew.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    `Current.accessible_accounts` was computed fresh on every call within a request cycle. Controllers and views that accessed `Current.accessible_accounts` multiple times — common on the dashboard, which renders several widgets — each triggered a new database query. With a large number of shared accounts, this produced many redundant queries per page load.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `Current.accessible_accounts` is now memoized for the duration of each request. The query runs once and the result is reused across every controller and view that accesses it. The memoized value is cleared automatically when the request context resets.
+
+    `Current.finance_accounts` received the same fix.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Transactions disappear from income, spending, or budgets after a provider sync
+
+If one or more transactions vanish from your income, spending, or budget totals after a sync — without being deleted — one possible cause in older versions is a provider removing a transaction that was part of a confirmed transfer.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    A confirmed transfer links two transactions and assigns transfer-specific kinds such as `cc_payment` or `funds_movement`. A pending match leaves the existing kinds unchanged. When a provider removes a pending transaction that is one leg of a transfer, the transfer itself is destroyed. In older versions, deleting a transfer through that cascade path skipped the step that resets the surviving transaction's kind back to a standard value. The surviving transaction kept its transfer kind — `cc_payment` or `funds_movement` — with no transfer behind it, which caused it to be silently excluded from income, spending, and budget calculations.
+
+    One possible trigger involves pending transactions from provider feeds: a provider may post a pending charge, the transfer is confirmed in Sure, and then the provider cancels or replaces the pending entry before it settles.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The kind reset now runs as a `before_destroy` callback on the transfer, so every deletion path — including cascades triggered by deleting a transaction or its entry — resets the surviving leg's kind to the appropriate standard value. Pending transfers keep their existing behaviour and are not affected.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if transactions are already missing?">
+    The callback prevents this problem when a transfer is deleted; it does not repair transactions orphaned before the upgrade. A manual sync is not a general repair for those records. Ask your server administrator to investigate the affected transactions and correct their kinds only after confirming they are no longer transfers.
+
+    To find potentially affected transactions, look for transactions with no linked transfer that have a kind of `cc_payment` or `funds_movement` on accounts where those kinds are unexpected.
+  </Accordion>
+</AccordionGroup>
+
 ## Deleting an account with many transfers is slow
 
 When you delete an account, Sure removes all transfers linked to its transactions. In older versions, this process issued a separate database query for each transfer's associated transaction records, causing it to slow significantly when an account had hundreds of transfers.
@@ -361,6 +619,44 @@ If a provider connection shows "Deletion in progress" indefinitely and never dis
     ```
 
     Once the worker is running and Redis is reachable, attempt the deletion again.
+  </Accordion>
+</AccordionGroup>
+
+## Reports show stale data after merging or deleting a category
+
+When you merge categories or delete a category, dashboards and income statements could continue to display the deleted category until an unrelated transaction change occurred.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Category merges and category deletions reassign transactions in bulk using `update_all`, which skips Active Record callbacks. The cache key for family reports is driven by the `updated_at` timestamp of the most recently changed entry. Because `update_all` bypassed callbacks, the entry timestamps were never updated, so the report cache key did not change and the old category data remained visible.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now routes all bulk category reassignments through `Transaction.reassign_category!`, which updates the affected transactions and then touches the corresponding entries inside a single database transaction. Touching the entries bumps their `updated_at` values, which invalidates the report cache key immediately.
+
+    The entry touch is batched in groups of 5,000 to avoid building an unbounded `UPDATE` statement on large merges.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Budget page shows a 500 error when expected income is not set
+
+If the budget page crashes with a server error after the AI assistant sets a spending budget without also setting an expected income, the page can fail when rendering the income-side calculations.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The budget model's `initialized?` check only looks at `budgeted_spending`, so a budget with spending set but a nil `expected_income` passes that check and the page attempts to render. Earlier versions of `expected_income_money`, `actual_income_percent`, `remaining_expected_income`, and `surplus_percent` did not guard against a nil value, causing a division-by-zero or nil error during render.
+
+    This could happen when the AI assistant's `update_budget` tool was asked to set only a spending amount — it did not automatically fill in `expected_income`.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The income-side budget methods now treat a nil `expected_income` as zero, matching how the spending side already behaved. `surplus_percent` no longer divides by zero.
+
+    In addition, when `update_budget` sets `budgeted_spending` without an `expected_income` and the budget’s existing income is nil, it fills in `expected_income = 0`. An existing income amount is preserved. This matches what the budget form saves when you leave the income field empty.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -486,7 +782,7 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
       + tool execution time + queue wait
     ```
 
-    With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=5`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn can take up to 360 seconds of model time — far beyond the 90-second default.
+    With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=8`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn can take up to 540 seconds of model time — far beyond the 90-second default.
 
   </Accordion>
 
@@ -544,6 +840,28 @@ Split transaction grouping now applies consistently to both the Transactions pag
 ## Excluded transactions disappear from account activity
 
 Transactions marked as excluded were previously hidden from the account activity feed entirely. This made it impossible to re-include them because there was no row to click. Excluded transactions now appear greyed-out in the account activity list so you can still open them and toggle exclusion off if needed.
+
+## Rule rejected with an invalid field error
+
+If saving a rule or importing rules fails with an "invalid" validation error on a name, condition value, or action value, the field likely contains a null byte (`\0`) or a malformed UTF-8 sequence. PostgreSQL rejects strings with null bytes, and Sure now catches them before they reach the database.
+
+<AccordionGroup>
+  <Accordion title="What triggers this error?">
+    The error appears when:
+
+    - A rule name, condition value, or action value was copied from a source that embedded a null byte (for example, certain export tools or scripted database edits).
+    - A CSV or NDJSON import file contains rule rows with binary garbage or truncated multibyte characters in any text field.
+    - A condition type, action type, or resource type field in a submitted form contains a malformed encoding — in that case the form returns an error as plain text rather than re-rendering.
+  </Accordion>
+
+  <Accordion title="How do I fix it?">
+    - **Manually created rules**: Open the rule in **Settings → Rules**, clear and retype the affected field, then save.
+    - **Imported rules**: Open the import file in a text editor, find the row flagged in the error, remove or replace any non-printable characters in the name, condition value, or action value column, and re-run the import.
+    - **CSV files**: Ensure the file is saved as UTF-8 without BOM and without embedded null bytes. Most spreadsheet apps can re-export a clean UTF-8 file.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
 
 ## Rule category, merchant, or tag names missing in exports
 
