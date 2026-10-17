@@ -123,15 +123,15 @@ You can configure a **sync start date** to control how far back Sure fetches tra
 
 ### Incorrect balance sign on credit cards
 
-Sophtron reports credit card balances from the bank's perspective (positive = you owe money). Sure converts these into the correct sign for net worth calculations.
+Sophtron institutions do not all use the same balance sign. Sure stores credit-card debt as a positive amount owed and an overpayment as a negative credit.
 
-For **credit cards**, Sure negates the reported balance so that debt shows as a positive amount owed. If a card balance looks wrong after syncing, you can override this automatic behavior. Open the account's edit form and find the **Sophtron balance meaning** dropdown:
+For **credit cards**, Automatic mode negates the provider balance. This is suitable when that institution reports debt as negative; institutions that report debt as positive may need an override. If a card balance looks wrong after syncing, you can override this automatic behavior. Open the account's edit form and find the **Sophtron balance meaning** dropdown:
 
 - **Automatic** (default): Sure negates the credit card balance from the provider.
 - **Debt (you owe the bank)**: Forces the absolute value of the reported balance to be stored as debt.
 - **Credit (bank owes you)**: Forces the balance to be treated as a credit in your favor (for example, an overpayment).
 
-Use an override only when Sophtron consistently reports an ambiguous sign for a specific card. The automatic setting is correct for most accounts.
+Use an override only when Sophtron consistently reports an ambiguous sign for a specific card. Choose Debt or Credit according to what the balance means at your institution.
 
 When you change the setting, Sure applies the override to the stored balance immediately and schedules a sync so the account reflects the corrected value without delay. If applying the override fails, Sure rolls back the change so you can retry the selection.
 
