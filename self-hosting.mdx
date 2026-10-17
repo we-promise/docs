@@ -907,7 +907,7 @@ A few things this does and does not prove:
 
 - **One check verifies one worker.** Sidekiq does not broadcast a job to every process, so a passing result confirms the named process is healthy, not your whole fleet. With multiple worker replicas, queue the check again to sample another. Only the 5 most recently checked-in distinct processes are kept. A 6th check-in can evict an older entry before its own 15-minute retention window expires. A result older than `WorkerAiHealth::STALE_AFTER` displays as **Stale** rather than pass or fail.
 - **Worker checks never reuse a web-cached result, or vice versa.** The web page's probes are cached briefly so repeat page loads do not re-hit providers. The worker job bypasses that shared cache so its result always reflects a live call from its own network context, and never leaves an entry the web process could read back as its own.
-- **In local development, web and worker results will not show up together.** `bin/dev` runs `web` and `worker` as separate OS processes, and `config/environments/development.rb` uses a process-local cache. A worker check queued locally writes to the worker's own in-memory cache, so the **Verify worker configuration** button can appear to do nothing. This is expected behavior; production's shared Redis store is unaffected.
+- **In local development, web and worker results will not show up together.** `bin/dev` runs `web` and `worker` as separate OS processes. The development environment uses Sidekiq, so jobs do reach the worker process, but `config/environments/development.rb` uses a process-local memory store when development caching is enabled, or a null store when it is disabled, rather than a shared Redis cache. With development caching enabled, a worker check result is written to the worker’s own memory cache; with caching disabled, the result is not retained, so the **Verify worker configuration** button can appear to do nothing from the web process. This is expected; production's shared Redis store is unaffected.
 - **Which settings need a restart depends on how they are set.** Provider, model, and API-key settings changed in **Settings → Self-Hosting** are stored in the database and take effect automatically on both `web` and `worker` without a restart. Embedding configuration and anything set only through an environment variable is fixed when each container starts. Changing those requires restarting or recreating both `web` and `worker`. The AI status tab labels this distinction next to the worker results.
 
 ### OpenAI request timeout
@@ -1201,6 +1201,8 @@ For full Pipelock configuration including signed receipts, see [Self-hosting wit
 ## Local development bind
 
 For `bin/dev` on your own machine, the server defaults to `localhost` (`127.0.0.1` and `[::1]`), reachable only from the same machine. If you need external access (phone on the same Wi-Fi, devcontainer port forwarding, LAN testing), set the `BINDING` environment variable:
+
+`Procfile.dev` starts three processes: the Rails web server, the Tailwind CSS watcher, and a Sidekiq worker. The worker process receives background jobs via Redis, as in production. Tests use the separate Active Job test adapter. Auto-categorization, syncs, and other background work all route through this worker when developing locally.
 
 ```bash
 BINDING=0.0.0.0 bin/dev   # reachable from LAN
