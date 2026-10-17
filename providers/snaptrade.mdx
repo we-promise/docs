@@ -103,6 +103,8 @@ Sure maps the full range of SnapTrade activity types to trades or cash entries:
 
 **Trade activities** (always imported as investment trades): BUY, SELL, REI, REINVEST, OPTION_BUY, OPTION_SELL, OPTIONASSIGNMENT, ASSIGNED, OPTIONEXERCISE, EXERCISED, OPTIONEXPIRATION, EXPIRED, STOCK_DIVIDEND, SPLIT, REVERSE_SPLIT, SPINOFF, and asset transfer variants (EXTERNAL_ASSET_TRANSFER_IN/OUT, INTERNAL_ASSET_TRANSFER_IN/OUT).
 
+When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers that option ticker (for example, `TQQQ  260220C00051000`) over the regular symbol, which may identify the underlying equity. OPTION_BUY and OPTION_SELL are imported as trades, but the activity type alone does not supply an option ticker; without one, Sure falls back to the regular symbol data. Fees on option trades are stored separately and factored into realized gain/loss the same way as equity trades.
+
 **Unit-dependent activities** (ADJUSTMENT, STOCK_MERGER, MERGER, CORP_ACTION): imported as trades when SnapTrade reports a non-zero share quantity, and as cash entries when the quantity is absent or zero. This lets zero-cash corporate actions (splits, mergers with no cash consideration) record correctly as unit-only trades while still capturing any cash component when it is present.
 
 **Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.
@@ -110,6 +112,16 @@ Sure maps the full range of SnapTrade activity types to trades or cash entries:
 ### Resync reclassification
 
 If a later sync determines an activity should be classified differently (for example, a CORP_ACTION that previously had units is re-fetched without units), Sure reclassifies the entry automatically. Entries that have been manually edited or locked by an import are protected and will not be reclassified; these cases are recorded in the debug log at **Settings > Debug**.
+
+### Option contract support
+
+Sure imports option trades from SnapTrade, including standard and mini-option contracts.
+
+When SnapTrade reports an `option_symbol` alongside a plain `symbol`, Sure uses the option symbol. This prevents brokerages such as Robinhood, which populate `symbol` with the underlying equity even on options activity, from importing option trades as common stock.
+
+Option contracts are displayed with a formatted name that includes the underlying ticker, strike price, option type, and expiration date. For example: `AAPL $150 CALL (2026-01-20)`.
+
+SnapTrade reports option quantity in contracts but quotes price per underlying share. Sure converts the per-share price to a per-contract price by applying the contract multiplier (100 for standard options, 10 for mini-options) so that `quantity × price` correctly represents total contract value.
 
 ### Trade amount and fee accuracy
 
@@ -132,7 +144,7 @@ Fresh brokerage connections may take a little longer to finish importing activit
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
 - **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
-- **Derivatives not imported**: Options and other derivative instruments are filtered out and will not appear in holdings
+- **Options in holdings**: Option positions are not shown in the holdings view; only options activity (trades) is imported
 
 ## Troubleshooting
 
