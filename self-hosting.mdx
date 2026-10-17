@@ -263,6 +263,20 @@ BRAND_FETCH_HIGH_RES_LOGOS=false
 
 When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
 
+### Application name variables
+
+By default, Sure uses "Sure" as the product name and "FOSS" as the brand name throughout the UI, emails, and page titles. You can override both to white-label your instance:
+
+```txt
+# Display name for the application (default: Sure)
+PRODUCT_NAME=MySure
+
+# Brand prefix shown in the footer and email sender name (default: FOSS)
+BRAND_NAME=MyOrg
+```
+
+The combined value appears in the footer as `© <year>, <BRAND_NAME> <PRODUCT_NAME>`, and in the default email sender name. Other UI copy can use the product name or brand name separately.
+
 ### Market data provider variables
 
 Sure supports multiple securities pricing providers. You can configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [market data providers](/providers/market-data) for details on each provider.
@@ -343,7 +357,7 @@ See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing c
 
 ### Property valuation provider variables
 
-Sure supports two automated valuation model (AVM) providers for property accounts: RentCast and Realie. Both are US-only and price property values in USD. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
+Sure supports three automated valuation model (AVM) providers for property accounts: RentCast and Realie for US properties, and Chimnie for UK residential properties. Configure them through environment variables or in the UI under **Settings > Self-Hosting**. See [property valuations](/providers/property-valuations) for details on each provider.
 
 ```txt
 # RentCast — US property valuations (50 requests/month on the free tier)
@@ -352,13 +366,18 @@ RENTCAST_API_KEY="your-rentcast-api-key"
 # Realie — US property valuations (25 requests/month on the free tier)
 REALIE_API_KEY="your-realie-api-key"
 
-# Override monthly request caps for paid plans
+# Chimnie — UK residential property valuations by UPRN (free, 1,000 requests/month default cap)
+# Sign up at dashboard.chimnie.com
+CHIMNIE_API_KEY="your-chimnie-api-key"
+
+# Override monthly request caps for paid plans or to raise the Chimnie default
 RENTCAST_MAX_REQUESTS_PER_MONTH=500
 REALIE_MAX_REQUESTS_PER_MONTH=200
+CHIMNIE_MAX_REQUESTS_PER_MONTH=2000
 ```
 
 <Note>
-Property valuation providers only support US addresses and always return values in USD. A property account must be denominated in USD for automatic daily refreshes to run.
+RentCast and Realie only support US addresses and return values in USD. Chimnie only supports UK residential properties and returns values in GBP. A property account must be denominated in the provider's currency for automatic refreshes to run.
 </Note>
 
 ### On-chain wallet variables
@@ -875,6 +894,8 @@ You can tune the AI status checks with these environment variables:
 | --- | --- | --- |
 | `AI_HEALTH_PROBE_TIMEOUT` | Per-request timeout in seconds for each live check | `5` |
 | `AI_HEALTH_PROBE_CACHE_TTL` | Seconds to cache probe results. Also deduplicates failure log entries | `60` |
+
+`AI_HEALTH_PROBE_TIMEOUT` is also configurable from the Settings UI without a restart. Go to **Settings → Self-Hosting**, scroll to the **Timeouts** section under AI Provider, and enter a value in the **Health Check Timeout in Seconds** field. The environment variable takes precedence over the UI setting when set to a positive value. Raise this value if PDF text or vision probes time out with a cloud model like gpt-4.1 — the PDF probes do a full extraction round trip that can take longer than the 5-second default, even when real PDF imports succeed.
 
 ### Verifying worker configuration
 

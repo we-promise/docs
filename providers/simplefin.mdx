@@ -106,11 +106,11 @@ If your investment account shows a total value that matches your institution's b
 
 ### Holdings history
 
-Each sync creates a separate holding row for the current day rather than overwriting the previous day's record. This means Sure accumulates a daily history of your positions so you can see how your portfolio has changed over time.
+Holdings are stored by date: a sync on a new day creates that day’s row, while another sync on the same day updates it instead of overwriting the previous day’s record. This means Sure accumulates a daily history of your positions so you can see how your portfolio has changed over time.
 
 ### User corrections carried forward
 
-When you remap a holding to a different security or lock a cost basis, Sure preserves that correction when a new day's sync creates the next holding row. The most recent correction is always carried forward, so your adjustments do not revert after a sync.
+When you remap a holding to a different security or lock a cost basis, Sure preserves that correction when a new day's sync creates the next holding row. Sure uses the latest earlier row for the same account, provider, provider security, and currency, carrying its active security and cost-basis locks forward.
 
 If you have since undone a correction, the undone state is not revived — only the latest version is carried forward.
 
