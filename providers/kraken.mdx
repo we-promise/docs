@@ -24,6 +24,8 @@ Fiat balances held at the exchange (EUR, USD, and other supported currencies) ar
 
 Staked and bonded asset variants — for example, ETH2.S or DOT28.S — are treated as the same position as their underlying asset. A staked ETH balance and a spot ETH balance appear together as one holding.
 
+For spot trades, Sure reads the filled quantity and cash movement from the Kraken ledger rather than from TradesHistory. The ledger nets each side of a trade against its fee — including fees charged in the base asset, which TradesHistory does not expose — so the recorded quantity and cash reflect what actually moved. Quantity and cash are resolved independently: if one ledger side is unavailable, that value falls back to TradesHistory. When the missing ledger side arrives, Sure can correct that value on an unprotected trade.
+
 ## Setting up Kraken
 
 ### Step 1: Create a Kraken API key
@@ -115,3 +117,9 @@ If you see separate holdings for what should be one position — for example, BT
 ### Fiat balance appears as a holding
 
 If a currency like EUR or USD appears in your holdings list, the balance was imported before Sure began excluding fiat from the holdings snapshot. Current imports skip fiat holdings. This does not guarantee removal of fiat holding records already stored by an older import.
+
+### Trade quantities or cash amounts look slightly off
+
+Kraken can charge a trade's fee in either the base asset (for example, BTC on a BTC/USD buy) or the quote currency. When the fee comes out of the base asset, TradesHistory reports the gross quantity with no indication that units were taken as a fee.
+
+Sure now reads trade quantity and cash from the Kraken ledger, which nets fees correctly on both sides. Trades imported before the "Query Ledger Entries" API permission was active — or before the ledger backfill reached them — held the uncorrected gross figures. Sure corrects those trades automatically on the next sync once the ledger rows are available. Trades you have manually edited or locked are left unchanged.
