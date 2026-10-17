@@ -171,6 +171,36 @@ The task is idempotent, so it is safe to rerun if needed.
 
 Keep the same `SECRET_KEY_BASE` for an existing release unless you are restoring from a backup created with the new value. Sure derives encryption keys from `SECRET_KEY_BASE` when dedicated `ACTIVE_RECORD_ENCRYPTION_*` values are not set, so changing it can prevent lookup of encrypted fields such as user email addresses and make email/password login appear invalid. If that happens after an encryption change, restore the previous secret values first, then run the backfill task if you are intentionally moving to dedicated encryption keys.
 
+### Email delivery
+
+Configure SMTP delivery with the top-level `email` values. The chart renders them into the Rails workloads as `EMAIL_SENDER`, `APP_DOMAIN`, and `SMTP_*` environment variables that Action Mailer reads.
+
+```yaml
+email:
+  sender: do-not-reply@example.com
+  appDomain: app.example.com
+  smtpAddress: smtp.example.com
+  smtpPort: 465
+  smtpUsername: smtp-user
+  smtpTlsEnabled: true
+  smtpTlsSkipVerify: false
+```
+
+For the SMTP password, add `SMTP_PASSWORD` to your app secret. When the chart creates the app secret (`rails.secret.enabled` is true and `rails.existingSecret` is empty), a non-empty `rails.secret.values.SMTP_PASSWORD` is injected automatically unless `SMTP_PASSWORD` is explicitly supplied through `rails.settings` or `rails.extraEnv`. When you manage the secret yourself, pass it through `rails.extraEnvVars`:
+
+```yaml
+rails:
+  existingSecret: sure-secrets
+  extraEnvVars:
+    - name: SMTP_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: sure-secrets
+          key: SMTP_PASSWORD
+```
+
+Values set in `rails.settings` or `rails.extraEnv` take precedence over the `email.*` generated vars, so you can override individual variables without changing the `email` block.
+
 ### Deployment profiles
 
 #### Simple single-node

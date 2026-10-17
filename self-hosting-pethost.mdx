@@ -1,0 +1,51 @@
+---
+title: Self-hosting with Pethost
+description: Deploy Sure on Pethost with automatic HTTPS, persistent volumes, and nightly backups
+keywords: ['pethost', 'self-hosting', 'deployment', 'docker compose']
+---
+
+[Pethost](https://pethost.dev) is a hosting platform that runs Docker Compose projects with automatic HTTPS, persistent volumes, and nightly backups.
+
+## Deploy with the CLI
+
+To deploy Sure's own `compose.example.yml` from a terminal:
+
+1. Install the [`pethost` CLI](https://pethost.dev/docs/cli/).
+
+2. Download the sample Compose file into a folder of its own, as in the [Docker guide](/self-hosting):
+
+   ```bash
+   mkdir sure && cd sure
+   curl --fail --location --silent --show-error --output compose.yml https://raw.githubusercontent.com/we-promise/sure/main/compose.example.yml
+   ```
+
+3. Create a `.env` file beside it with your own secrets (`openssl rand -hex 64` generates the first):
+
+   ```txt
+   SECRET_KEY_BASE="replacemewiththegeneratedstring"
+   POSTGRES_PASSWORD="replacemewithyourdesireddatabasepassword"
+   ```
+
+4. The app is served over HTTPS, so set this in `compose.yml`:
+
+   ```txt
+   RAILS_ASSUME_SSL: "true"
+   ```
+
+5. Deploy the folder:
+
+   ```bash
+   pethost deploy
+   ```
+
+   Pethost starts the Rails web server, the Sidekiq worker, PostgreSQL, and Redis from the file and prints the address (`https://sure.<your-domain>`).
+
+6. Open the address and create your first account. To restrict future signups, see [Step 5a of the Docker guide](/self-hosting#step-5a-restrict-future-signups-optional).
+
+## Data and updates
+
+The three volumes in the Compose file (`app-storage`, `postgres-data`, `redis-data`) are kept across deploys and included in the nightly backups.
+
+To update, set the image tag in the project's Compose file to the new release and deploy again. Update the tag in `compose.yml` for both `web` and `worker`, then run `pethost deploy` again. The address and data are preserved.
+
+A full walkthrough with each screen is in the [Pethost guide for Sure](https://pethost.dev/blog/self-host-sure/).
