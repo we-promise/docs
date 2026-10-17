@@ -244,9 +244,21 @@ Rules can set:
 - Notes
 - Name
 
+### Rule order
+
+Rules run from top to bottom in the order shown on **Settings → Rules**. You can drag any rule by its handle to change its position in the list. The order matters when two rules target the same field on the same transaction: the higher rule wins and the lower rule leaves that field alone. Tags are an exception — every matching rule adds its tags rather than the first one winning.
+
+### Stop processing
+
+Each rule has a **Stop processing further rules** toggle. When a transaction matches a rule with this toggle enabled, no rules below it run against that transaction. Use this to prevent lower rules from overriding a deliberate assignment.
+
+When a rule with stop processing is enabled, a **Stop** badge appears next to it in the list as a visual reminder.
+
 ### Applying rules
 
 Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run every active rule against your existing transactions.
+
+When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 
 ## Bill allocations
 
