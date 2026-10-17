@@ -346,6 +346,7 @@ The prompt is gated by several conditions:
     - **Recently snoozed**: You clicked **Hide for today** — wait 24 hours for prompts to resume
     - **A matching rule already exists**: An active rule whose conditions match this transaction already sets this category. A rule that sets the same category but whose conditions do not match this transaction does not suppress the prompt.
     - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for your account (set via **Don't show this again**)
+    - **Prompt appeared behind an open drawer**: In older versions, the prompt could be rendered while the transaction drawer was still open. The browser renders native dialogs in a top layer above all other content, so the prompt sat behind the drawer unseen. A page refresh then removed it before the drawer closed. This is fixed in the current release — the prompt now waits until the drawer closes before appearing.
   </Accordion>
 </AccordionGroup>
 
@@ -470,6 +471,22 @@ When an investment account holds a large number of securities, opening the holdi
 
   <Accordion title="How was it fixed?">
     The holdings controller now fetches all securities for the current account's holdings in a single query before rendering the list. This replaces the per-row security lookups with eager loading, reducing the number of database queries needed to render the list.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Rule prompt disappears after changing category from the transaction drawer
+
+In older versions, changing a transaction's category from the transaction detail drawer did not show the "create a rule?" prompt. The prompt was delivered while the drawer was still open, which placed it behind the drawer in the browser's rendering stack where it could not be seen or clicked. A sync completing shortly after then refreshed the page and removed it entirely.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The transaction drawer uses a native browser `<dialog>` element, which the browser places in a special top layer above all other page content. The rule prompt was streamed into the notification tray at the same time as the drawer was open. Because the notification tray sits below the top layer, the prompt was invisible and unclickable. When the next sync completed and morphed the page, the prompt was removed before the drawer ever closed.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The notification tray now defers streams targeting the prompt area and page-refresh streams while a dialog is open. Other streams continue normally. Once the last dialog closes, deferred prompts render first. A deferred refresh is skipped while a prompt is visible, preventing these background refreshes from erasing an unread prompt.
 
     Upgrade to the latest release to get this fix. No configuration change is required.
   </Accordion>
