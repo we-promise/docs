@@ -58,7 +58,7 @@ You can connect Binance from the **Add Account** dialog or from **Settings** > *
 **From Add Account:**
 
 1. Open the **Add Account** dialog and select **Crypto** > **Binance**.
-2. Sure opens account setup for your Binance connection directly. If you have not yet added a Binance connection, go to **Settings** > **Providers** first to add one.
+2. Sure opens account setup for your Binance connection directly. This direct route requires one eligible connection or an explicitly selected connection. With multiple connections and no selection, Sure sends you to **Settings** > **Providers** to choose one; if none are configured, add one there first.
 
 **From Settings > Providers:**
 
@@ -73,7 +73,7 @@ You can connect Binance from the **Add Account** dialog or from **Settings** > *
 
 ## Account setup
 
-After Sure syncs your Binance connection for the first time, it discovers your Binance accounts and takes you directly into account setup:
+The first sync discovers Binance accounts and marks unlinked accounts as needing setup. Open setup from **Add Account** or **Import accounts** on the connection card:
 
 1. Review the discovered Binance accounts.
 2. Select the accounts you want to import.
@@ -153,11 +153,10 @@ All Binance API requests include a 30-second timeout to prevent hanging connecti
 
 ### Manual sync
 
-To manually sync your Binance account:
+To manually sync your Binance account, an admin can use either of these options:
 
-1. Navigate to **Settings** > **Bank sync**
-2. Find your Binance connection
-3. Click **Sync now**
+- On the **Accounts** page, find your Binance connection card and click the refresh icon in the header row.
+- Go to **Settings** > **Providers**, find your Binance connection, and click **Sync**.
 
 ### Automatic sync
 
@@ -172,6 +171,10 @@ Sure automatically syncs your Binance account on a regular schedule along with y
 - Real-time price updates depend on Binance market data availability
 
 ## Troubleshooting
+
+### Credentials need updating
+
+If the Binance connection card shows "Credentials need updating", Sure could not read a configured API key and secret. This warning alone does not establish that the provider revoked a key. Click **Update credentials** in the connection card header to go to **Settings** > **Providers**, then enter your new API key and secret.
 
 ### Connection errors
 
