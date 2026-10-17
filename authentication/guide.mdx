@@ -309,6 +309,7 @@ Behavior:
 - Email/password form hidden
 - `POST /sessions` with local credentials blocked
 - Password reset routes disabled
+- `/password/edit` (self-service password change) is blocked — users are redirected away and cannot set a local password while local login is disabled
 - Users must authenticate via SSO
 
 ### Emergency admin override
@@ -323,7 +324,8 @@ AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=true
 Behavior:
 - Login page shows email/password form with admin-only note
 - Super admins can log in with local passwords
-- Regular users are blocked
+- Super admins can still access `/password/edit` and set a local password
+- Regular users are blocked from the password change page and redirected away
 - Override logins are logged
 
 ## JIT user provisioning
@@ -615,6 +617,8 @@ Every endpoint that checks a password, TOTP code, or backup code is throttled by
 | `POST /register` — OAuth registration | IP | 10 req/min |
 | `POST /mfa/webauthn_options`, `/mfa/verify_webauthn`, `/sessions/passkey` — WebAuthn MFA | IP | 10 req/min |
 | `POST /sessions/passkey_options` — passkey challenge (conditional mediation) | IP | 30 req/min |
+| `POST /settings/webauthn_credentials/options` — passkey registration code check | User ID | 10 req/min |
+| `POST /settings/webauthn_credentials` — passkey registration code spend | User ID | 10 req/min |
 | Admin endpoints (`/admin/*`) | IP | 10 req/min |
 
 Requests that exceed a limit receive HTTP 429. The throttle also matches format-suffixed paths (e.g. `/sessions.json`) so scripted clients cannot bypass it by appending a file extension.

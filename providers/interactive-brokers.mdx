@@ -13,7 +13,7 @@ Sure imports the following data from an IBKR Flex report:
 
 - Holdings with current prices and quantities
 - Cost basis per position
-- Trades, dividends, commissions, and cash deposits or withdrawals
+- Trades (with commissions folded into the trade fee), dividends, and cash deposits or withdrawals
 
 Historical activity is limited to the date range configured in your Flex Query. Sure imports full current holdings plus up to the last 365 days of activity.
 
@@ -87,6 +87,19 @@ Sure anchors your IBKR account balance on the date of the Flex report, not the d
 If IBKR delivers a statement with a date older than the most recent balance already on record, Sure records that statement as a historical reconciliation entry on its own date and leaves the newer balance in place. This preserves balance history without walking the account's reported value backwards.
 
 A balance write failure is logged to **Settings → Debug** against the connection so you can identify and diagnose it.
+
+## How commissions work
+
+When Sure imports a trade from IBKR, it records the commission as the trade's fee rather than as a separate transaction. The fee flows into the trade's cost basis and realized gain calculations, and its amount is included in the cash the trade moved.
+
+A commission stays as a separate transaction in these cases:
+
+- The commission was charged in a different currency than the trade.
+- IBKR did not report which currency the commission was in.
+
+If a commission was imported as a separate transaction before this change, Sure removes the old transaction and moves it onto the trade as a fee during the next sync.
+
+**User edits are preserved.** If you edited a trade's fee directly, Sure keeps the fee you set and does not overwrite it on subsequent syncs. Likewise, a separate commission transaction that you have edited, locked, or attached a receipt to is treated as yours and left in place.
 
 ## Limitations
 
