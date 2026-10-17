@@ -1,15 +1,19 @@
 ---
 title: On-chain wallets
-description: Track self-custody Bitcoin, EVM, Solana, Cosmos Hub, and Polkadot wallets by public address — no keys required.
+description: Track self-custody Bitcoin, EVM, Solana, Polkadot, and Cosmos Hub wallets by public address — no keys required.
 ---
 
-Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, Solana, Cosmos Hub (ATOM), and Polkadot (DOT) — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
+Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, Solana, Polkadot, and Cosmos Hub — from their **public addresses only**. Nothing is signed, no key or seed phrase is ever entered, and no API key is required for any chain.
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
+<Note>
+Cosmos Hub (ATOM) tracks balance only — spendable plus staked plus unbonding. Sure’s Cosmos integration does not request transaction history, so no transfers are imported.
+</Note>
+
 ## What gets tracked
 
-One Sure account is created per **asset**, per **address**, per **network**. A wallet holding ETH and USDC on Ethereum becomes two accounts, both Crypto accounts with the "wallet" subtype.
+One Sure account is created per **asset**, per **address**, per **network**. A wallet holding ETH, USDC, and USDT on Ethereum becomes three accounts, all Crypto accounts with the "wallet" subtype.
 
 For each asset Sure records:
 
@@ -17,7 +21,7 @@ For each asset Sure records:
 - A **holding** valued at the current price, or at zero when no price is available
 - The **transfers** in and out, recorded as investment trades labeled "Transfer" when the price for that day is known. Each entry is named "Received" or "Sent" (or the equivalent in your family’s language) followed by the quantity and asset symbol. Transfer trades carry a cash amount of zero — the value lives in quantity and price for cost basis purposes, but no cash leg is recorded (a self-custody wallet has no cash side). When that day’s price is not known, the transfer still appears as an excluded, zero-amount entry — and it is upgraded to a trade on the first sync after the price becomes available.
 
-Balances are read-only and always derived from the chain. Editing them by hand is pointless: the next sync overwrites them.
+Balances are read-only and always derived from the chain. Editing them by hand is pointless: the next sync overwrites them. Every sync also revalues every linked asset at the latest stored price, so a wallet that has not moved on chain still reflects current market prices after each sync.
 
 Because a transfer is not an acquisition, Sure cannot know what the asset cost you before it arrived. A holding with any transfer in its history will show no cost basis and no gain/loss trend. To see those figures, set a manual cost basis on the holding.
 
@@ -37,6 +41,12 @@ Set `EXCHANGE_RATE_PROVIDER` (or **Settings → Self hosting**) to a provider yo
 
 When an asset ends up valued at zero for either reason, it is recorded in **Settings → Debug logs** under the `onchain_wallet` provider, with the reasons listed.
 
+### ETH as a currency
+
+ETH (Ethereum) is a supported currency denomination in Sure, alongside standard fiat currencies. You can denominate an account directly in ETH — balances display with the Ξ symbol and up to 8 decimal places. Wei is the currency’s minor unit (1 ETH = 10^18 Wei), but Sure stores account balances and transaction amounts as decimal ETH, not integer Wei. Those fields currently store four decimal places; the eight-place display setting does not imply eight-place storage.
+
+This is separate from tracking ETH as an investment holding. An account denominated in ETH records its cash balance and transactions in ETH, whereas an on-chain wallet account tracked by the provider holds ETH as a security with a quantity and a market value.
+
 ## Data sources
 
 | Network | Source | Key required | Override |
@@ -50,8 +60,8 @@ When an asset ends up valued at zero for either reason, it is recorded in **Sett
 | Gnosis | Blockscout (`gnosis.blockscout.com`) | No | `BLOCKSCOUT_GNOSIS_URL` |
 | Solana | Public JSON-RPC (`api.mainnet-beta.solana.com`) | No | `SOLANA_RPC_URL` |
 | Solana token names | Jupiter token search (`lite-api.jup.ag`) | No | `SOLANA_TOKEN_LIST_URL` |
-| Cosmos Hub (ATOM) | Public Cosmos SDK REST (`cosmos-rest.publicnode.com`) | No | `COSMOS_REST_URL` |
-| Polkadot (DOT) | Parity Asset Hub Sidecar | No | `POLKADOT_SIDECAR_URL` |
+| Polkadot | Parity Asset Hub Sidecar (`polkadot-asset-hub-public-sidecar.parity-chains.parity.io`) | No | `POLKADOT_SIDECAR_URL` |
+| Cosmos Hub | Public Cosmos SDK REST (`cosmos-rest.publicnode.com`) | No | `COSMOS_REST_URL` |
 
 Every override expects the base URL of a compatible instance, without a trailing slash — useful if you run your own indexer or node, or if a public endpoint rate limits you.
 
@@ -114,6 +124,7 @@ All the default endpoints are free and shared, so they throttle. Per sync, per a
 | Bitcoin | 1 + up to 10 history pages |
 | EVM | 1 summary + up to 10 pages of transfers + up to 10 pages of token transfers |
 | Solana | ~2 + up to 25 transaction reads |
+| Polkadot | 1 (balance only) |
 
 History is capped by default at 10 pages per source and at 25 transactions for Solana. Wallets with more history than that keep their **current balance correct** — balances come from an address summary, never from history — but their oldest transfers are not imported.
 
@@ -135,17 +146,21 @@ The native coin is never affected, and anything already tracked keeps syncing re
 
 **DeFi positions are not seen at all.** Staked ETH, liquidity-pool tokens, lending positions, and Solana stake accounts are invisible. A wallet holding most of its value in a staking or lending protocol will report a fraction of it.
 
+**Cosmos Hub records balance only, not transfers.** The balance includes spendable, delegated (staked), and unbonding ATOM. Sure’s Cosmos integration reads balance and staking endpoints without importing transfer history.
+
 **Bitcoin is one address at a time.** Extended keys (`xpub`, `ypub`, `zpub`) are not supported and are rejected as addresses. Most Bitcoin wallets are HD wallets where one extended key derives thousands of addresses — tracking a single address of such a wallet reports only that address's balance.
 
 **Solana token names depend on a token list.** RPC returns mints, not names, so names come from Jupiter's token search — and only for mints it reports as *verified*. Unverified or unknown mints keep a label built from their mint address and are tracked by quantity only. Names are cached for 24 hours per mint.
+
+**Polkadot tracks balance only.** Sure’s Polkadot integration reads the current DOT balance and does not import transfer history. The balance is free plus reserved, so staked DOT counts. Token assets on Polkadot Asset Hub (other than DOT itself) are not tracked.
+
+**Polkadot addresses use the SS58 format with the Polkadot network prefix.** A valid address starts with `1` and is 47–48 characters long. Extended public keys (derived from a mnemonic) are not supported — enter the public address of the specific account you want to track.
 
 **Fees are not itemised.** Network fees are included in the net effect of each transfer rather than recorded separately.
 
 **Bridged assets are normalised.** USDC.e, USDbC, USDT0, WETH, and similar 1:1-redeemable forms are tracked as their canonical asset.
 
 **NFTs are not tracked.** They are filtered out by token standard.
-
-**Cosmos Hub and Polkadot are balance-only.** The public endpoints for these networks do not index transaction history, so Sure tracks the ATOM or DOT balance (including staked and unbonding/reserved amounts) but imports no transfer history.
 
 ## Troubleshooting
 
@@ -171,4 +186,4 @@ The native coin is never affected, and anything already tracked keeps syncing re
 
 **Manage wallets says the history is incomplete.** The address has more transfers than one sync reads. Balances are unaffected. Raise `ONCHAIN_HISTORY_MAX_PAGES` if you need the full history and can afford the extra requests.
 
-**Balances are correct but nothing updates.** Syncs only rewrite an account when the chain actually changed — an idle wallet produces no writes at all. Check **Settings → Providers** for the last sync time, and **Settings → Debug logs** filtered to the `onchain_wallet` provider for recorded failures.
+**Balances are correct but nothing updates.** Every sync revalues all linked assets at the latest available price, even if the wallet did not move on chain. If the value still does not update, check **Settings → Providers** for the last sync time, and **Settings → Debug logs** filtered to the `onchain_wallet` provider for recorded failures.
