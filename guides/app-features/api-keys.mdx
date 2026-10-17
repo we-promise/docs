@@ -75,6 +75,27 @@ Every API response includes rate limit headers:
 Rate limiting only applies to hosted instances. Self-hosted deployments have no rate limit applied to API key requests.
 </Note>
 
+## Exporting to Google Sheets
+
+The Reports section lets you fetch an updating transaction breakdown into Google Sheets using the `=IMPORTDATA()` formula and your API key.
+
+1. Go to **Reports** and set your desired date range.
+2. Click the **Google Sheets** button to open the export instructions modal.
+3. If you don't have an API key yet, click **Go to API keys** in the modal to create one with at least `read` scope.
+4. Return to Reports and open the modal again. Copy its CSV URL and append `&api_key=YOUR_KEY` using your API key. The modal does not automatically insert a key from Settings. Wrap the completed URL in `IMPORTDATA`, for example:
+
+   ```
+   =IMPORTDATA("https://your-sure-instance.com/reports/export_transactions.csv?api_key=YOUR_KEY&...")
+   ```
+
+5. Paste the formula into any cell in Google Sheets.
+
+The export includes a monthly category breakdown for the selected period, with separate sections for income and expenses. The CSV URL contains your API key as a query parameter so Google Sheets can fetch it without a login session.
+
+<Warning>
+Anyone with the CSV URL can read your transaction data. Treat the URL like a secret — do not share it or commit it to version control. If the URL is exposed, revoke the API key immediately and create a new one.
+</Warning>
+
 ## Revoking a key
 
 To revoke a key, go to **Settings → API Keys**, find the key, and click **Revoke**. Revocation takes effect immediately. Any request using a revoked key receives an `unauthorized` response.
