@@ -421,6 +421,22 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Holdings list is slow with many securities
+
+When an investment account holds a large number of securities, opening the holdings list in the web app could be noticeably slow in earlier versions.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The holdings list loaded each holding's associated security in a separate database query — one query per row. With many holdings, this produced a large burst of queries, causing the page to load slowly.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The holdings controller now fetches all securities for the current account's holdings in a single query before rendering the list. This replaces the per-row security lookups with eager loading, reducing the number of database queries needed to render the list.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Deleting an account with many transfers is slow
 
 When you delete an account, Sure removes all transfers linked to its transactions. In older versions, this process issued a separate database query for each transfer's associated transaction records, causing it to slow significantly when an account had hundreds of transfers.
