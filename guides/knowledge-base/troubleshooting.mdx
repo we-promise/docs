@@ -3,6 +3,42 @@ title: "Troubleshooting"
 ---
 
 
+## AI-detected merchants were created as shared records
+
+When merchant detection identified a new merchant from a transaction's description, Sure previously created a globally-shared `ProviderMerchant` record (source: `ai`). Because those records are visible to every family on the deployment, a transaction description crafted to steer the LLM's output could create or match a shared merchant with an attacker-chosen name, website, or logo — affecting all other families.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    The `Family::AutoMerchantDetector` class, which runs as part of the background merchant detection job. When no existing merchant could be matched for a transaction, it fell back to creating a `ProviderMerchant` (source: `ai`) scoped globally rather than to the family.
+
+    Reusing an already-existing shared merchant by website or name was not affected — that path does not write new data into shared records.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When AI detection cannot find a shared merchant to reuse, it now creates a `FamilyMerchant` scoped to the requesting family instead of a global `ProviderMerchant`. AI-sourced merchants from before this fix are also limited to the family that already has them on its transactions — they are no longer matched by name or URL across families.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Account name and balance visible to family members without access after a sync
+
+In earlier versions, when an account finished syncing, Sure broadcast a rendered account row — including the account name and balance — on the family's shared Turbo stream. Every signed-in family member subscribed to that stream, including members who did not have access to the account. The row reached their browser after every sync even though the accounts page did not show it to them.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any account that could sync independently — linked accounts (connected via a provider) and manual accounts that were synced — could expose their name and balance to all currently signed-in family members, regardless of whether those members had view or edit access to the account.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The broadcast that replaced the account row in the family stream is removed. Instead, when a sync completes, Sure sends a lightweight sync toast to each browser. The browser refreshes through its own authenticated request, so only members with access see the account data. Refresh can be deferred during interaction with forms or dialogs, and a manual refresh may be needed.
+
+    The fix also covers linked accounts that sync on their own with no follow-up provider event, which would previously have left the accounts page stale for members who do have access.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Mixed-currency arithmetic produces wrong totals silently
 
 Earlier versions of Sure allowed arithmetic operations (`+`, `-`, `/`, `<=>`) between `Money` objects in different currencies. The result kept the left operand's currency and discarded the right operand's — so `200 USD - 180 EUR` returned `20 USD` with no error or log line. This affected syncs, transfer matching, insight generators, and some report pages for families that hold accounts in more than one currency.
@@ -22,9 +58,9 @@ Earlier versions of Sure allowed arithmetic operations (`+`, `-`, `/`, `<=>`) be
 
     In development and test, a mismatch raises `Money::CurrencyMismatchError` immediately so the call site is easy to find.
 
-    In production, the mismatch is reported through `Rails.error` and logged at `warn` level (once per unique call site per process) and the operation keeps its previous result so no page starts failing while the root cause is fixed. Amounts in different currencies are no longer considered equal without raising.
+    In production, the mismatch is reported through `Rails.error` and logged at `warn` level (deduplicated by operation, currency pair, and call site within a bounded per-process cache) and the operation keeps its previous result so no page starts failing while the root cause is fixed. Equality comparisons between different currencies return false without raising.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Versions containing currency-mismatch detection enable it without an additional configuration change.
   </Accordion>
 
   <Accordion title="I see a currency mismatch warning in my logs — what do I do?">
@@ -59,6 +95,22 @@ Because provider merchant rows are shared across families, a crafted merchant na
   </Accordion>
 </AccordionGroup>
 
+## MXN amounts show wrong number separators in Spanish
+
+When the interface language is set to Spanish, Mexican peso (MXN) amounts were formatted using European-style separators — a comma as the decimal separator and a dot as the thousands separator. This produced values like `1.234,56 MXN` instead of the correct `1,234.56 MXN`.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Sure formats currency amounts using the active locale's separator rules. Spanish uses European-style separators for most currencies, but MXN natively uses US-style separators (dot as decimal, comma as thousands). The formatter did not have a currency-specific override for MXN under the Spanish locale, so it applied the locale's default separators instead.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The number formatter now checks the currency code before applying locale-derived separators. When the currency is MXN and the active locale is Spanish, Sure retains MXN’s dot decimal separator and comma thousands separator. Other locales keep their existing formatting rules. All other currencies continue to follow the locale's own separator conventions.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Category avatar preview does not update when picking a color
 
 When editing or creating a category, changing the color using the color picker previously did not update the avatar preview — the icon and background appeared to stay at the original color until the form was saved.
@@ -72,6 +124,35 @@ When editing or creating a category, changing the color using the color picker p
     The color picker now updates the `--avatar-color` CSS variable on the avatar element when you select a new color. The avatar's CSS reads from the variable, so both the background tint and the icon color update immediately as you pick.
 
     Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Account balance or net worth drops to zero unexpectedly
+
+If an account balance or your net worth chart falls to zero for a day — without any transactions that explain it — a provider may have returned a zero or invalid exchange rate for that currency pair on that date. Storing a zero rate converts every balance in that currency to zero.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Exchange rate providers occasionally return a zero rate for a single-day lookup. Earlier versions of Sure stored whatever value the provider returned. Any conversion that used that rate multiplied the balance by zero, wiping the reported value for that day. The bulk importer was already protected, but single-rate lookups were not.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now validates every rate — whether from a single lookup or a series — before storing it. A finite, positive number is required. Rates that are zero, negative, `NaN`, or infinite are rejected:
+
+    - A single-rate lookup that returns an unusable value is treated as a failed response; that response supplies no replacement rate. Any fallback depends on the caller.
+    - Rates in a bulk series that are unusable are dropped. The importer can fill subsequent gaps from a usable prior rate. Without an earlier anchor it begins at the earliest usable provider date; if no usable rates are returned, it does not fill the series.
+    - A database check constraint rejects zero, negative, and non-finite values for any write that bypasses model validations, such as bulk upserts.
+    - Any provider rate rejected by this validation is recorded in **Settings → Debug** under the `exchange_rates` category so you can see which provider returned the bad value and on which date.
+
+    A rate of exactly `1` is valid and is stored normally (used for pegged currencies).
+
+    Existing invalid rates in the database are removed when you upgrade. The next sync refetches those dates from the provider.
+
+    Versions containing this validation need no configuration change to enable it.
+  </Accordion>
+
+  <Accordion title="How do I confirm the cause?">
+    Go to **Settings → Debug** and filter by the `exchange_rates` category. Entries naming the concrete exchange-rate provider class, with level `warn`, show the provider name, the currency pair, and the invalid rate that was rejected.
   </Accordion>
 </AccordionGroup>
 
@@ -99,17 +180,33 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 </AccordionGroup>
 
-## Every click on the reports page navigates to a transaction drill-down in Safari
+## Dragging a section on the reports page activates mid-scroll on mobile
 
-In Safari, clicking anywhere on the reports page — including the period picker or other controls — could unexpectedly navigate to a category's transactions drill-down instead of performing the intended action.
+On mobile, a brief pause while scrolling the reports page could accidentally activate drag mode on a reorderable section, visibly shifting the section and interrupting the scroll.
 
 <AccordionGroup>
   <Accordion title="What causes this issue?">
-    The category rows in the reports breakdown use a stretched link whose overlay was anchored to the parent `<tr>` element. CSS 2.1 §9.3.1 leaves `position: relative` on table rows undefined, and Safari does not implement it. The overlay therefore resolved against a much larger positioned ancestor, blanketing the entire reports page and intercepting every click. Chrome and Firefox establish the containing block on the row itself, so the issue was invisible in those browsers.
+    The reports page lets you reorder sections by deliberately holding a section and dragging. The previous hold delay was 150ms with no movement threshold, so a normal scroll gesture — a short pause followed by a swipe — was enough to trigger drag mode mid-scroll. Once drag mode activated, the section moved with the finger instead of the page scrolling.
   </Accordion>
 
   <Accordion title="How was it fixed?">
-    The stretched-link overlay is now anchored to the flex wrapper inside the category cell — a `<div>`, which is an unambiguous containing block in every browser engine. The clickable area narrows from the whole page to just the category cell (icon, name, and entry count), which is the intended behavior.
+    The hold delay is raised to 800ms and a 10-pixel movement threshold is added. If the touch moves more than 10px before the hold delay expires, the pending drag is cancelled and native scrolling continues uninterrupted. A `touchcancel` event (for example, from an interrupting system gesture) now also discards the pending reorder instead of committing it.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
+## Every click on the reports page navigates to a transaction drill-down in Safari
+
+In Safari, clicking anywhere on the reports page — including the period picker or other controls — could unexpectedly navigate to a category's transactions drill-down instead of performing the intended action. On iOS Safari, the same layout also caused scrolling to freeze for the entire page.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The earlier category-row implementation used an absolutely positioned stretched-link overlay. The fix addresses Safari reports of that overlay intercepting clicks outside the intended cells and iOS scrolling freezing. The current source also documents WebKit table-layout scroll-height problems with positioned overlays.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The stretched-link overlay is replaced with normal-flow `<a>` elements wrapping the icon, name, and entry count in the category cell, and separate `<a>` elements to the same destination in the amount and percentage cells. The clickable cells no longer rely on a positioned overlay anchored to a table row.
 
     Upgrade to the latest release to get this fix. No configuration change is required.
   </Accordion>
@@ -154,7 +251,7 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     Rules are **not** triggered in these scenarios:
     
     - **Manual transaction creation** - Only triggers an Account sync (not Family sync)
-    - **Manual transaction editing** - Same as above, only Account sync runs
+    - **Manual transaction editing (balance-affecting fields)** - Changing the amount, date, or account triggers an Account sync (not Family sync). Editing only descriptive fields — name, notes, category, merchant, or tags — does not trigger any account sync. Reports and budgets still pick up the change through the entries cache version bumped by the save.
     - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
   </Accordion>
 
@@ -201,7 +298,7 @@ The prompt is gated by several conditions:
     1. You have not disabled rule prompts (`rule_prompts_disabled` is false)
     2. You have not clicked **Hide for today** in the last **24 hours**
     3. The transaction category actually changed
-    4. No existing rule already sets this category for similar transactions
+    4. No active transaction rule that sets this category already matches this specific transaction
     5. The transaction has a category assigned
   </Accordion>
 
@@ -209,7 +306,7 @@ The prompt is gated by several conditions:
     Check these common reasons:
 
     - **Recently snoozed**: You clicked **Hide for today** — wait 24 hours for prompts to resume
-    - **Rule already exists**: A matching rule may already be in place
+    - **A matching rule already exists**: An active rule whose conditions match this transaction already sets this category. A rule that sets the same category but whose conditions do not match this transaction does not suppress the prompt.
     - **Prompts disabled**: Check if `rule_prompts_disabled` is enabled for your account (set via **Don't show this again**)
   </Accordion>
 </AccordionGroup>
@@ -363,6 +460,24 @@ If a provider connection shows "Deletion in progress" indefinitely and never dis
   </Accordion>
 </AccordionGroup>
 
+## Reports show stale data after merging or deleting a category
+
+When you merge categories or delete a category, dashboards and income statements could continue to display the deleted category until an unrelated transaction change occurred.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Category merges and category deletions reassign transactions in bulk using `update_all`, which skips Active Record callbacks. The cache key for family reports is driven by the `updated_at` timestamp of the most recently changed entry. Because `update_all` bypassed callbacks, the entry timestamps were never updated, so the report cache key did not change and the old category data remained visible.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now routes all bulk category reassignments through `Transaction.reassign_category!`, which updates the affected transactions and then touches the corresponding entries inside a single database transaction. Touching the entries bumps their `updated_at` values, which invalidates the report cache key immediately.
+
+    The entry touch is batched in groups of 5,000 to avoid building an unbounded `UPDATE` statement on large merges.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
@@ -485,7 +600,7 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
       + tool execution time + queue wait
     ```
 
-    With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=5`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn can take up to 360 seconds of model time — far beyond the 90-second default.
+    With the defaults (`ASSISTANT_MAX_TOOL_CALL_ITERATIONS=8`, `OPENAI_REQUEST_TIMEOUT=60`), a worst-case turn can take up to 540 seconds of model time — far beyond the 90-second default.
 
   </Accordion>
 
@@ -509,6 +624,27 @@ Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the ch
 
 </AccordionGroup>
 
+## Account creation form clears all fields when a loan is saved
+
+When you clicked **Create Account** on a loan (or any account with nested fields such as an interest rate), the form could come back completely blank if the save failed after account-level validation passed. The failure happened inside the opening balance entry or during attribute locking, so the rescued exception held an Entry record rather than the account the form rendered. Sure rebuilt a blank account instead of the one you submitted, discarding every field you had typed — including the account name and the loan rate.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    Any manual account creation that failed after the account model itself was valid. This was most likely to surface when:
+
+    - A loan with nested fields (interest rate, term, etc.) was submitted with values that caused the opening balance entry to raise an error.
+    - The attribute lock step failed during `create_and_sync`.
+
+    On failure, the form came back empty, forcing users to re-enter every field.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now rebuilds the account from the submitted parameters on a failed save, applying the same default for nested accountable attributes that `create_and_sync` uses. The form comes back filled in with everything you typed so you can correct the specific error and resubmit without losing your work.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## "Add transaction" button does nothing when no account is selected
 
 If you click **Add transaction** on the new transaction form without selecting an account, the button previously appeared to do nothing (the request returned a 404 error). The form now re-renders with a validation error so you can see what is missing and correct it.
@@ -522,6 +658,28 @@ Split transaction grouping now applies consistently to both the Transactions pag
 ## Excluded transactions disappear from account activity
 
 Transactions marked as excluded were previously hidden from the account activity feed entirely. This made it impossible to re-include them because there was no row to click. Excluded transactions now appear greyed-out in the account activity list so you can still open them and toggle exclusion off if needed.
+
+## Rule rejected with an invalid field error
+
+If saving a rule or importing rules fails with an "invalid" validation error on a name, condition value, or action value, the field likely contains a null byte (`\0`) or a malformed UTF-8 sequence. PostgreSQL rejects strings with null bytes, and Sure now catches them before they reach the database.
+
+<AccordionGroup>
+  <Accordion title="What triggers this error?">
+    The error appears when:
+
+    - A rule name, condition value, or action value was copied from a source that embedded a null byte (for example, certain export tools or scripted database edits).
+    - A CSV or NDJSON import file contains rule rows with binary garbage or truncated multibyte characters in any text field.
+    - A condition type, action type, or resource type field in a submitted form contains a malformed encoding — in that case the form returns an error as plain text rather than re-rendering.
+  </Accordion>
+
+  <Accordion title="How do I fix it?">
+    - **Manually created rules**: Open the rule in **Settings → Rules**, clear and retype the affected field, then save.
+    - **Imported rules**: Open the import file in a text editor, find the row flagged in the error, remove or replace any non-printable characters in the name, condition value, or action value column, and re-run the import.
+    - **CSV files**: Ensure the file is saved as UTF-8 without BOM and without embedded null bytes. Most spreadsheet apps can re-export a clean UTF-8 file.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
 
 ## Rule category, merchant, or tag names missing in exports
 
@@ -579,6 +737,22 @@ Exports produced before provider-merchant support was added did not include `Pro
   </Accordion>
 </AccordionGroup>
 
+## Editing a provider merchant's website had no effect in older versions
+
+In versions before the fix in [#3824](https://github.com/we-promise/sure/pull/3824), submitting a website-only edit on a provider-assigned merchant (one created automatically by bank sync or AI enrichment) updated the shared merchant record for every family on the instance. If you had a same-name family merchant already, the edit form reported success but silently kept the old URL because the existing family merchant was not updated.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    Changing the name or website of a provider-assigned merchant now converts it to a family-owned merchant scoped to your family only. Other families on the instance are unaffected. If your family already has a merchant with the same name, Sure reuses that record and applies the submitted website (including a blank value to clear it). A submitted color is also applied to the reused merchant.
+
+    Saving the edit form without making any changes still keeps the shared provider merchant as-is.
+  </Accordion>
+
+  <Accordion title="What if I see the old website after upgrading?">
+    Open **Settings → Merchants**, find the merchant, and submit the edit form with the correct website. The current version will apply your change to a family-owned copy of the merchant.
+  </Accordion>
+</AccordionGroup>
+
 ## Sure import fails because categories or tags already exist on the destination family
 
 When a fresh family is created, Sure seeds it with a default set of categories. Importing a Sure export from another instance into that family previously failed preflight if any exported Category, Tag, or Merchant names matched the existing defaults.
@@ -590,6 +764,44 @@ When a fresh family is created, Sure seeds it with a default set of categories. 
 
   <Accordion title="Will my data be correct after the import?">
     Yes. Transactions and rules that referenced the imported category or tag are remapped to the surviving (reused) record. The imported data updates that record's fields. No manual cleanup is needed.
+  </Accordion>
+</AccordionGroup>
+
+## Balance anchor dated away from provider holdings
+
+When Sure syncs an investment or crypto account, it compares the date of the balance anchor (the recorded current balance) with the date of the newest holding that the provider reported. If the two dates differ, Sure writes a warning to the debug log so you can investigate possible date-related cash artifacts in balance calculations.
+
+<AccordionGroup>
+  <Accordion title="What causes this warning?">
+    Some providers date their holdings to the day the data was produced (for example, the previous trading day's close), while the balance anchor is set to the day of the sync. A gap between the anchor date and the holdings date can cause the reverse balance calculator to interpret differences in valuation as cash.
+
+    Interactive Brokers and Plaid are known examples of providers that can produce this gap.
+
+    Manual accounts, accounts without a current balance anchor, and accounts whose holdings carry no provider attribution are not checked and will never produce this warning.
+  </Accordion>
+
+  <Accordion title="Where do I see the warning?">
+    Go to **Settings → Debug** and filter by the `provider_sync` category. Look for `warn`-level entries with a message like:
+
+    ```
+    Balance anchor dated 1 day(s) after the newest provider holding
+    ```
+
+    Each entry includes the provider, the account, both dates, and the gap in days as structured metadata. A steady gap does not add a new entry on each sync — only a change in the gap (including the gap closing) is recorded.
+
+    When the gap closes, Sure logs an `info`-level entry:
+
+    ```
+    Balance anchor and newest provider holding are dated alike again
+    ```
+  </Accordion>
+
+  <Accordion title="What should I do about it?">
+    This warning is informational for self-hosted operators. The warning itself does not change account data. Investigate it if the account balance or cash history looks wrong.
+
+    If you see cash appearing and disappearing in an investment account's balance chart on a one-day cycle, check **Settings → Debug** for a `provider_sync` warning on that account. The gap days value confirms a date mismatch, which may help explain the anomaly; it does not by itself prove the cause.
+
+    The warning does not indicate a sync failure. The sync completes normally; only the debug entry is written.
   </Accordion>
 </AccordionGroup>
 

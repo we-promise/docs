@@ -104,6 +104,16 @@ Sure combines these lots into a single position per security before storing the 
 
 If your investment account shows a total value that matches your institution's balance but individual holdings appear at less than their full value, a manual sync from **Settings → Providers → SimpleFIN** will re-import the combined positions correctly.
 
+### Holdings history
+
+Holdings are stored by date: a sync on a new day creates that day’s row, while another sync on the same day updates it instead of overwriting the previous day’s record. This means Sure accumulates a daily history of your positions so you can see how your portfolio has changed over time.
+
+### User corrections carried forward
+
+When you remap a holding to a different security or lock a cost basis, Sure preserves that correction when a new day's sync creates the next holding row. Sure uses the latest earlier row for the same account, provider, provider security, and currency, carrying its active security and cost-basis locks forward.
+
+If you have since undone a correction, the undone state is not revived — only the latest version is carried forward.
+
 ### Institution-specific cost basis corrections
 
 The SimpleFIN specification says the `cost_basis` field is a per-share value, but some brokerages populate it with the total position cost instead. Sure detects these cases by institution name or domain and divides by quantity automatically, so the stored per-share figure stays correct.
