@@ -58,7 +58,9 @@ components:
                     description: Defaults to the parent name when omitted
                   amount:
                     type: string
-                    description: Same sign convention as the transaction amount
+                    description: Positive for expenses and negative for income, matching the stored
+                      transaction amount. Inputs are rounded to four decimal places
+                      before the sum is checked.
                   category_id:
                     type: string
                     nullable: true
@@ -3331,15 +3333,15 @@ components:
       description: Refunds net within each category. Parent direct amounts exclude
         child totals before partitioning by direction. Graph income/spending may differ
         from gross monthly totals; net savings agrees. Decimal strings retain FX precision.
-        Empty flow has empty nodes and links.
+        Empty flow has empty nodes and links. When group_by=account the basis is
+        net_by_account and nodes include account-kind nodes representing individual
+        accounts between income and expense categories.
       properties:
         basis:
           type: string
           enum:
           - net_by_category
           - net_by_account
-          description: net_by_account (group_by=account) replaces the Cash Flow node
-            with one account node per account, each balanced by Surplus or Deficit
         income:
           type: string
         spending:
@@ -5570,18 +5572,6 @@ paths:
           - sankey
         description: Graph-only envelope; omits daily comparison. Accepts month or
           an explicit date range; cannot combine with include.
-      - name: group_by
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - category
-          - account
-          default: category
-        description: 'Requires view=sankey. category: flows through one Cash Flow
-          node; account: income categories flow through each account to expense categories
-          (basis net_by_account).'
       - name: start_date
         in: query
         required: false
@@ -5598,6 +5588,17 @@ paths:
           format: date
         description: Inclusive ISO date at or after start_date. Explicit ranges preserve
           their bounds, including future dates.
+      - name: group_by
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - category
+          - account
+        description: How to group the Sankey graph. Requires view=sankey. "category"
+          (default) routes flows through a single Cash Flow node; "account" routes
+          them through each individual account.
       security:
       - apiKeyAuth: []
       responses:
@@ -9180,7 +9181,9 @@ paths:
       - apiKeyAuth: []
       description: Splits a transaction into child transactions. The child amounts
         must sum exactly to the parent amount, using the same sign convention the
-        transaction endpoints return. The parent becomes excluded from totals.
+        transaction endpoints return (positive expenses, negative income). Write
+        operations require read_write scope and owner or full-control account access.
+        The parent becomes excluded from totals.
       parameters: []
       responses:
         '201':
@@ -9558,11 +9561,14 @@ paths:
       parameters: []
       responses:
         '201':
-          description: trade created
+          description: trade created. Returns a Trade for most trade types. Returns a Transaction when the type results in a cash-only entry (e.g. dividend recorded as a transaction). Returns a Transfer when type is deposit or withdrawal.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/TransactionResponse"
+                oneOf:
+                - "$ref": "#/components/schemas/Trade"
+                - "$ref": "#/components/schemas/TransactionResponse"
+                - "$ref": "#/components/schemas/Transfer"
         '403':
           description: forbidden - api key missing read_write scope
           content:
