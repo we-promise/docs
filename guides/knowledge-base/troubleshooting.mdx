@@ -288,7 +288,9 @@ Rules run automatically during family syncs or can be triggered manually. Unders
     
     - **Manual transaction creation** - Only triggers an Account sync (not Family sync)
     - **Manual transaction editing (balance-affecting fields)** - Changing the amount, date, or account triggers an Account sync (not Family sync). Editing only descriptive fields — name, notes, category, merchant, or tags — does not trigger any account sync. Reports and budgets still pick up the change through the entries cache version bumped by the save.
-    - **Inactive rules** - Rules with `active: false` never run automatically, only via manual "Re-apply"
+    - **Inactive rules (automatic syncs)** - Rules with `active: false` never run during automatic family syncs
+
+    **Apply All** is an exception: it runs all rules, active and inactive, so their transaction changes (category, merchant, tags, and so on) apply. Inactive rules skip the email notification action only. Matches seen while a rule is off stay unrecorded; they are handled when the rule is switched back on.
   </Accordion>
 
   <Accordion title="How do I see why a rule run failed?">

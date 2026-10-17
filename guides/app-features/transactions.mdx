@@ -277,7 +277,9 @@ When a rule with stop processing is enabled, a **Stop** badge appears next to it
 
 ### Applying rules
 
-Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run every active rule against your existing transactions.
+Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run all rules against your existing transactions.
+
+**Apply All** runs every rule in the family — including inactive ones — so their transaction changes (category, merchant, tags, and so on) take effect. Inactive rules skip the email notification action only: matches seen while a rule is off are not recorded and no digest email is sent. When you switch a rule back on, those unrecorded matches are picked up on the next run.
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 
