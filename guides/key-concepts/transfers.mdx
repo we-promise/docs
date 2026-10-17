@@ -171,6 +171,8 @@ Exact same-currency matches (where amounts are equal and no FX math is involved)
 
 During a sync, Sure uses a tolerance band around the exchange rate to find cross-currency transfer pairs automatically. This automatic path only considers accounts that have a live provider connection (Plaid, SimpleFIN, or another connected provider). Manual accounts — those with no institution behind them — are excluded from automatic cross-currency matching because a coincidental pair of round-number transactions in different currencies could fall inside the tolerance band and be silently linked as a transfer.
 
+There is one exception: if those two accounts already have a confirmed transfer in the same direction, including when one or both accounts are manual, Sure treats that as a known route and will auto-match future transfers along it. The prior confirmed route need not itself have used different currencies. Future cross-currency candidates must still meet the normal matching checks and are created as pending suggestions; an unconfirmed suggestion cannot establish a route.
+
 Manual accounts still participate in same-currency matching, where amounts must be exactly equal and no FX approximation is involved.
 
 If you have a real cross-currency transfer that involves a manual account, you can still confirm it yourself. Open either transaction, choose **Match as transfer**, and select the counterpart from the dialog. The manual match dialog uses a wider tolerance (up to 10%) and shows manual account candidates so you can find and confirm the match by hand.
