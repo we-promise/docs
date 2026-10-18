@@ -256,7 +256,7 @@ The log table has an **expand** button in the card header (the same pattern used
 
 Sure allows you to export your financial data for backup or analysis purposes. When you create an export, the page automatically refreshes to show the latest status.
 
-Only family admins can create and download exports. Members and guests do not have access to the export feature. If you try to download an export file without admin access to the owning family, Sure returns a 404.
+Only family admins can create and download exports. The web export feature redirects non-admins, while the API returns 403. Direct export-attachment requests without admin access to the owning family return 404.
 
 ### Export status tracking
 
