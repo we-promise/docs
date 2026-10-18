@@ -157,6 +157,7 @@ Share investment accounts with a financial advisor or trusted family member for 
 - **Access control**: Permissions are enforced at the database level
 - **Audit trail**: All changes to shared accounts are logged
 - **Revocable access**: Sharing can be revoked instantly by the account owner
+- **File attachment access**: Sure checks access before serving protected financial attachments; public logos and avatars are exempt. Export files require the requester to be an admin of the owning family. Import files (PDF and NDJSON) and family document attachments require membership in the same family; statement-linked imports also require visibility of the linked statement. Direct attachment requests that fail these checks return a 404.
 
 ## Best Practices
 
