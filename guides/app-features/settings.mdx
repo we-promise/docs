@@ -58,6 +58,16 @@ See [Passkeys and security keys](/guides/app-features/passkeys) for setup steps 
 
 Configure third-party bank, brokerage, crypto, and data sync integrations from Settings → Bank sync. See the [providers documentation](/providers/overview) for detailed setup instructions.
 
+### Syncing from the Accounts page
+
+The **Accounts** page has a sync control in the header that lets you trigger and manage a family-wide sync without leaving the page.
+
+- When no sync is running, a refresh icon button is shown. Click it to start a sync of all connected accounts.
+- When a sync is in progress, the refresh icon becomes a spinning indicator and is disabled. A **Cancel sync** button also appears next to it.
+- Clicking **Cancel sync** requests that the running sync stop. A confirmation notice appears once the cancellation is processed.
+
+Sure triggers a family-wide sync automatically on login when `auto_sync_on_login` is enabled and the family has not synced yet today. When this auto-sync is in progress as you navigate to the Accounts page, the sync controls reflect the in-progress state immediately.
+
 ## AI settings
 
 Configure AI features like chat and transaction rules from Settings → Self-Hosting. See the [LLM support documentation](/llm-support) for more details.
