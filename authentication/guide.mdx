@@ -312,6 +312,16 @@ Behavior:
 - `/password/edit` (self-service password change) is blocked — users are redirected away and cannot set a local password while local login is disabled
 - Users must authenticate via SSO
 
+### Mobile API enforcement
+
+The mobile API enforces the same login restrictions as the web interface:
+
+- `POST /api/v1/auth/login` returns HTTP 403 when `AUTH_LOCAL_LOGIN_ENABLED=false` and the account is not a super admin using the emergency override.
+- `POST /api/v1/auth/signup` returns HTTP 403 when the instance is closed to new registrations.
+- Both endpoints return HTTP 401 when the account is deactivated.
+
+Previously these checks applied only to web sessions; the mobile API now honours them as well.
+
 ### Emergency admin override
 
 Allow super admins to log in locally during IdP outages:
@@ -449,7 +459,7 @@ Users can manage their own connected accounts at `/settings/security` under **Co
 
 ### User actions
 
-**Deactivate user**: Immediately cut off all access without removing data. All web sessions are destroyed, all OAuth tokens and API keys are revoked, and every subsequent login attempt is rejected with HTTP 401.
+**Deactivate user**: Immediately cut off all access without removing data. All web sessions are destroyed, all OAuth tokens and API keys are revoked, and every subsequent login attempt is rejected with HTTP 401. This applies to all entry points: web login, mobile API login (`POST /api/v1/auth/login`), token refresh (`POST /api/v1/auth/refresh`), and OIDC callback sessions.
 ```
 /admin/users → Actions popover → Deactivate User
 ```
@@ -565,6 +575,14 @@ This is a generic message that does not expose internal database index names or 
 - For additional security, set custom encryption keys via `ACTIVE_RECORD_ENCRYPTION_*` variables
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 - If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
+
+### MFA password re-authentication
+
+Enabling or disabling two-factor authentication requires the user's current password before the change is applied. This prevents anyone who reaches an unlocked browser from stripping or adding a second factor without knowing the password.
+
+A wrong password during MFA setup does not discard the setup in progress — the user can correct their password and retry without starting over.
+
+Users who signed in through an identity provider have no local password. The MFA setup and teardown pages are not accessible to them; the Settings page tells them where to manage two-factor authentication in their IdP instead.
 
 ### TOTP one-time use
 
