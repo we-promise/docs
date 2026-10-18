@@ -827,6 +827,22 @@ When you clicked **Create Account** on a loan (or any account with nested fields
   </Accordion>
 </AccordionGroup>
 
+## "Record payment" button does nothing in the manual payment form
+
+If you clicked **Record payment** in the manual payment panel of the bill occurrence drawer, the button previously did nothing. Only pressing Enter while focused inside the amount or date field submitted the form. The button now submits the form correctly when clicked.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The `DS::Button` component defaults to `type="button"` to avoid accidentally stealing Enter-key form submission from other buttons on the page. The **Record payment** button was not overriding that default, so clicking it fired no action. Only pressing Enter in one of the form fields triggered the submission.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The **Record payment** button is now rendered with `type="submit"`, which makes it behave as a standard form submit button.
+
+    Upgrade to a version containing this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## "Add transaction" button does nothing when no account is selected
 
 If you click **Add transaction** on the new transaction form without selecting an account, the button previously appeared to do nothing (the request returned a 404 error). The form now re-renders with a validation error so you can see what is missing and correct it.
