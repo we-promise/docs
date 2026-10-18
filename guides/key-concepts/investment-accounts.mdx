@@ -35,6 +35,10 @@ If a provider reports prices for individual securities on different dates within
 
 For accounts that have no provider connection, Sure shows the most recent holding per security in the account's currency from your manually entered or calculated data. Holdings recorded in a different currency than the account's base currency are excluded from the current portfolio view.
 
+#### How locks carry forward across syncs
+
+When a provider creates a new daily snapshot row for a holding you have previously locked — either a security remap lock or a cost basis lock — Sure copies those locks onto the new row automatically. This applies to all providers, including those that do not supply a per-holding unique identifier (such as Plaid, Indexa Capital, and SnapTrade securities). Without this carry-forward, a new sync would silently drop your manual corrections and replace them with the provider's values.
+
 ### Chart history and inception dates
 
 For linked investment and crypto accounts, the balance chart only displays data from the point where Sure has reliable provider history. The chart start date is determined by the earliest date your provider supplied activity or holdings data — data from before that point is excluded so the chart never shows misleading zero or estimated values.
@@ -244,7 +248,7 @@ You can set cost basis in two ways:
 
 When you manually set a cost basis, Sure automatically **locks** it to prevent automatic updates from overwriting your value. You'll see a lock icon indicating the value is protected.
 
-This ensures your manual entries remain intact during account syncs.
+This ensures your manual entries remain intact during account syncs. When a provider sync creates a new daily holding row, Sure carries the lock forward onto that row, including for providers that do not supply a per-holding unique identifier (Plaid, Indexa Capital, and SnapTrade securities).
 
 ### Unlocking Cost Basis
 
