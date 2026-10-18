@@ -153,7 +153,7 @@ When a credit card account has the **Balance is available credit** setting enabl
 2. **ITAV / interimAvailable** — interim available balance
 3. Then the same booked order as above (CLBD, ITBD, OPBD, PRCD, XPCD)
 
-This is needed because some banks (for example mBank PL) report the credit limit as the booked balance (ITBD) and the actual available credit as ITAV. Without this adjustment, Sure would read the credit limit as the outstanding debt and show no debt on the card.
+This is needed because some banks (for example mBank PL) report the credit limit as the booked balance (ITBD) and the actual available credit as ITAV. Without this adjustment, Sure would treat the credit limit as available credit, producing zero calculated debt.
 
 XPCD (expected) stays after the booked types in this order because it is a projected booked balance, not an available credit figure.
 
