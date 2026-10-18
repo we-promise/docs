@@ -395,12 +395,10 @@ end
 
 **File:** `app/controllers/my_bank_items_controller.rb`
 
-The generated controller includes `StreamExtensions` to get access to `frame_redirect_to`. The account-linking flow actions (`preload_accounts`, `select_accounts`, `select_existing_account`) call `frame_redirect_to` when a required credential check fails. A plain `redirect_to` inside a Turbo frame follows the redirect inside the frame, so the resulting page renders inside the modal and the flash message is never shown. `frame_redirect_to` detects whether the request came from a Turbo frame and, when it did, renders a frame containing a `turbo-stream` redirect action, which causes a full-page visit instead of a frame navigation.
+The generated controller inherits `StreamExtensions` through `ApplicationController` and uses `frame_redirect_to` for missing-credential exits. The account-linking flow actions (`preload_accounts`, `select_accounts`, `select_existing_account`) call `frame_redirect_to` when a required credential check fails. A plain `redirect_to` inside a Turbo frame follows the redirect inside the frame, so the resulting page renders inside the modal and the flash message is never shown. `frame_redirect_to` detects whether the request came from a Turbo frame and, when it did, renders a frame containing a `turbo-stream` redirect action, which causes a full-page visit instead of a frame navigation.
 
 ```ruby
 class MyBankItemsController < ApplicationController
-  include StreamExtensions
-
   before_action :set_my_bank_item, only: [:show, :edit, :update, :destroy, :sync, :setup_accounts, :complete_account_setup]
 
   def create
