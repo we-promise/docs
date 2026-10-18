@@ -391,6 +391,110 @@ class Provider::MyBankAdapter < Provider::Base
 end
 ```
 
+### 4. Controller
+
+**File:** `app/controllers/my_bank_items_controller.rb`
+
+The generated controller includes `StreamExtensions` to get access to `frame_redirect_to`. The account-linking flow actions (`preload_accounts`, `select_accounts`, `select_existing_account`) call `frame_redirect_to` when a required credential check fails. A plain `redirect_to` inside a Turbo frame follows the redirect inside the frame, so the resulting page renders inside the modal and the flash message is never shown. `frame_redirect_to` detects whether the request came from a Turbo frame and, when it did, renders a frame containing a `turbo-stream` redirect action, which causes a full-page visit instead of a frame navigation.
+
+```ruby
+class MyBankItemsController < ApplicationController
+  include StreamExtensions
+
+  before_action :set_my_bank_item, only: [:show, :edit, :update, :destroy, :sync, :setup_accounts, :complete_account_setup]
+
+  def create
+    @my_bank_item = Current.family.my_bank_items.build(my_bank_item_params)
+    @my_bank_item.name ||= "My Bank Connection"
+
+    if @my_bank_item.save
+      redirect_to settings_providers_path, notice: t(".success"), status: :see_other
+    else
+      render_provider_panel("my_bank", alert: @my_bank_item.errors.full_messages.join(", "))
+    end
+  end
+
+  def update
+    if @my_bank_item.update(my_bank_item_params)
+      render_provider_panel("my_bank", notice: t(".success"))
+    else
+      render_provider_panel("my_bank", alert: @my_bank_item.errors.full_messages.join(", "))
+    end
+  end
+
+  def destroy
+    @my_bank_item.destroy_later
+    redirect_to settings_providers_path, notice: t(".success", default: "Scheduled My Bank connection for deletion.")
+  end
+
+  def sync
+    unless @my_bank_item.syncing?
+      @my_bank_item.sync_later
+    end
+
+    respond_to do |format|
+      format.html { redirect_back_or_to accounts_path }
+      format.json { head :ok }
+    end
+  end
+
+  # Account-linking flow actions
+
+  def preload_accounts
+    my_bank_item = Current.family.my_bank_items.first
+    unless my_bank_item&.credentials_configured?
+      frame_redirect_to settings_providers_path, alert: t(".no_credentials_configured")
+      return
+    end
+
+    my_bank_item.sync_later unless my_bank_item.syncing?
+    redirect_to select_accounts_my_bank_items_path(accountable_type: params[:accountable_type], return_to: params[:return_to])
+  end
+
+  def select_accounts
+    my_bank_item = Current.family.my_bank_items.first
+    unless my_bank_item&.credentials_configured?
+      frame_redirect_to settings_providers_path, alert: t(".no_credentials_configured")
+      return
+    end
+
+    @my_bank_accounts = my_bank_item.my_bank_accounts
+                                    .left_joins(:account_provider)
+                                    .where(account_providers: { id: nil })
+                                    .order(:name)
+  end
+
+  def select_existing_account
+    @account = Current.family.accounts.find(params[:account_id])
+    @my_bank_item = Current.family.my_bank_items.first
+
+    unless @my_bank_item&.credentials_configured?
+      frame_redirect_to settings_providers_path, alert: t(".no_credentials_configured")
+      return
+    end
+
+    @my_bank_accounts = @my_bank_item.my_bank_accounts
+                                     .left_joins(:account_provider)
+                                     .where(account_providers: { id: nil })
+                                     .order(:name)
+  end
+
+  # ... (link_accounts, link_existing_account, setup_accounts, complete_account_setup)
+
+  private
+
+    def set_my_bank_item
+      @my_bank_item = Current.family.my_bank_items.find(params[:id])
+    end
+
+    def my_bank_item_params
+      params.require(:my_bank_item).permit(:name, :sync_start_date, :api_key, :base_url, :refresh_token)
+    end
+end
+```
+
+The key difference from a plain `redirect_to` in those credential-check guards is that `frame_redirect_to` uses `turbo_frame_request?` to detect whether the request originated inside a Turbo frame. When it did, it renders a frame that carries a `turbo-stream` redirect action, which exits the frame and performs a full-page visit to the target path with the alert flash intact. For requests outside a frame it falls back to a normal `redirect_to`.
+
 ## Customization
 
 After generation, you'll typically want to customize three files:
