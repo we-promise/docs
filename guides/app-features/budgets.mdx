@@ -167,6 +167,22 @@ When you edit a subcategory's budget, the parent category's budget automatically
 - You increase Groceries from \$150 to \$200
 - Food & Dining automatically updates to \$550, preserving the \$250 reserve
 
+## Bills and budget reservations
+
+When you have recurring bills due within a budget period, Sure shows how much of a category's budget is already committed to those upcoming bills. Each category card displays a line like **"$X reserved by bills"** beneath the budgeted amount when any recurring bill falls within the month.
+
+This figure is read-only information — it does not reduce the available amount shown for the category. It tells you how much of your remaining budget is already spoken for, so you can plan accordingly rather than spending money that is already committed.
+
+If a bill is in a foreign currency and no exchange rate is available, Sure cannot convert it to your budget currency and will instead show a warning like **"1 bill is not reserved, no exchange rate available"**. The unconvertible bill is counted and reported rather than silently excluded, so you always know when a reservation could not be calculated.
+
+### What counts as a reservation
+
+Sure counts recurring transactions that are:
+
+- Categorized (bills with no category do not appear here)
+- Active and not a transfer (debt-payment transfer series are excluded)
+- Due within the current budget period
+
 ## Status Indicators
 
 Sure uses color-coded badges to show your budget status at a glance:
