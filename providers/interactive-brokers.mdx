@@ -123,3 +123,9 @@ When linking a discovered IBKR account to an existing account, the existing acco
 ### Balance shows unexpected cash or looks incorrect after sync
 
 If your account balance or cash position looks wrong after a sync, the most likely cause is a mismatch between the NAV date in your Flex report and the date Sure recorded it on. This was a known issue that has been fixed: Sure now anchors the balance on the Flex report's own date rather than the sync date. Run a manual sync from **Settings → Providers** to pull a fresh report and recalculate the balance.
+
+### Portfolio value or cash appears incorrect on historical dates
+
+IBKR reports each position in the security's own currency, while Sure's internal calculations use the account's base currency. A previous version of Sure's duplicate-removal step only matched calculated and provider rows when they shared the same currency, so on historical snapshot dates (not the most recent one) both rows survived. The same position was counted twice, and cash was correspondingly understated.
+
+This has been fixed: Sure now drops calculated holdings whenever a provider snapshot exists for the same security and date, regardless of currency. Run a manual sync from **Settings → Providers** to trigger a recalculation. If the balance still looks wrong after syncing, check **Settings → Debug** for any errors logged against the IBKR connection.
