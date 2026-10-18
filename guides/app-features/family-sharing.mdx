@@ -123,7 +123,15 @@ Members can connect and manage their own Plaid bank connections. This is the onl
 
 ### Guest Role
 
-Guests have read-only access. They can view categories, tags, merchants, and rules, but cannot create, edit, or delete them. They also cannot create or manage any provider connections. The option to connect a provider is not shown to guests; the server also refuses connection creation for that role.
+Guests have read-only access to family configuration. They can view categories, tags, merchants, and rules, but cannot create, edit, or delete them. They also cannot create or manage any provider connections. The option to connect a provider is not shown to guests; the server also refuses connection creation for that role.
+
+These restrictions are enforced consistently across every access path:
+
+- **Web UI**: Write controls for categories, tags, merchants, and rules are hidden or disabled. The rule toggle is shown but disabled. The "create a rule?" prompt after categorizing a transaction is not shown.
+- **API**: Guest API credentials receive a `403 Forbidden` response on any write endpoint for categories, tags, merchants, and family-configuration import types (category, merchant, rule, and Sure imports). Read endpoints remain available.
+- **Imports**: Guests cannot create, publish, revert, or delete category, merchant, rule, or Sure imports. Guests also cannot publish any import — including transaction, Mint, QIF, or PDF imports — if publishing would create new categories or tags. Mapping an unmapped value to an existing category or tag, or leaving it empty, still works. For guests, reverting or deleting non-family-configuration imports requires write access to all affected accounts, including accounts created by the import; linked-statement permissions also apply.
+- **Import wizard**: Guests can edit pending or failed imports that are not category, merchant, rule, or Sure imports, subject to linked-statement access requirements.
+- **Assistant and MCP**: The `create_tag`, `update_tag`, `create_category`, and `update_category` tools are not available in a guest's tool registry for either the chat assistant or MCP.
 
 ## Use Cases
 
