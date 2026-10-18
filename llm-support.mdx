@@ -112,7 +112,7 @@ The form contains the following fields, grouped by function:
 | **Access Token** | API key for the provider (maps to `OPENAI_ACCESS_TOKEN`) |
 | **URI Base** | Custom endpoint URL — leave blank for OpenAI (maps to `OPENAI_URI_BASE`) |
 | **Model** | Model name — required for custom endpoints (maps to `OPENAI_MODEL`) |
-| **JSON Mode** | Output mode for all structured LLM calls — auto-categorization, merchant detection, and PDF/bank statement extraction: Auto, Strict, JSON Object, or None (maps to `LLM_JSON_MODE`) |
+| **JSON Mode** | JSON output mode for OpenAI-compatible categorization and merchant-detection calls, plus text-based PDF and bank-statement extraction: Auto, Strict, JSON Object, or None (maps to `LLM_JSON_MODE`) |
 | **Context Window** | Total tokens the model accepts (maps to `LLM_CONTEXT_WINDOW`, default `2048`) |
 | **Max Response Tokens** | Tokens reserved for the model's reply (maps to `LLM_MAX_RESPONSE_TOKENS`, default `512`) |
 | **Max Items Per Batch** | Upper bound for auto-categorize / merchant detection batches (maps to `LLM_MAX_ITEMS_PER_CALL`, default `25`) |
@@ -536,7 +536,9 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `8` |
 | `OPENAI_SUPPORTS_PDF_PROCESSING` | Set to `false` for endpoints without vision support | `true` |
 | `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` | Override Responses API vs Chat Completions routing | Auto-detected |
-| `LLM_JSON_MODE` | JSON output mode for all structured LLM calls (auto-categorization, merchant detection, PDF and bank statement extraction): `auto`, `strict`, `json_object`, or `none` | — |
+| `LLM_JSON_MODE` | JSON output mode for OpenAI-compatible categorization and merchant-detection calls, plus text-based PDF and bank-statement extraction: `auto`, `strict`, `json_object`, or `none` | — |
+
+Native OpenAI Responses calls and PDF vision processing do not use `LLM_JSON_MODE`. For text extraction without a JSON schema, `strict` falls back to `json_object`.
 
 See [Token budget](#token-budget) for `LLM_CONTEXT_WINDOW`, `LLM_MAX_RESPONSE_TOKENS`, and related variables.
 
