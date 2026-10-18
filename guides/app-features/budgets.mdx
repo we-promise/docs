@@ -169,7 +169,7 @@ When you edit a subcategory's budget, the parent category's budget automatically
 
 ## Bills and budget reservations
 
-When you have recurring bills due within a budget period, Sure shows how much of a category's budget is already committed to those upcoming bills. Each category card displays a line like **"$X reserved by bills"** beneath the budgeted amount when any recurring bill falls within the month.
+On initialized category cards showing budget details, Sure displays a reservation when qualifying unpaid bill occurrences have a positive remaining amount within the budget period. The card displays a line like **"$X reserved by bills"**.
 
 This figure is read-only information — it does not reduce the available amount shown for the category. It tells you how much of your remaining budget is already spoken for, so you can plan accordingly rather than spending money that is already committed.
 
@@ -177,11 +177,13 @@ If a bill is in a foreign currency and no exchange rate is available, Sure canno
 
 ### What counts as a reservation
 
-Sure counts recurring transactions that are:
+Sure reserves the remaining unpaid amounts of open occurrences that are:
 
-- Categorized (bills with no category do not appear here)
-- Active and not a transfer (debt-payment transfer series are excluded)
-- Due within the current budget period
+- Part of an active, categorized expense series
+- From a series with no destination account
+- Due within the budget period
+
+Confirmed payment allocations reduce the reserved amount. Paid, skipped, missed, income, and transfer occurrences are excluded.
 
 ## Status Indicators
 
