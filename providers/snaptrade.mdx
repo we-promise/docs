@@ -111,13 +111,13 @@ When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers th
 
 ### Security row disambiguation
 
-A ticker can have more than one security row in Sure's database when it trades on multiple exchanges. Sure now resolves the correct row in a fixed, deterministic order so a holding never moves between rows across syncs:
+A ticker can have more than one security row in Sure's database when it trades on multiple exchanges. Sure selects a security row in a fixed, deterministic order:
 
-1. The row the account's existing holding already sits on (preserves any user remap or locked cost basis).
+1. The row from a matching SnapTrade or providerless holding in the account, preserving user remaps and locked cost basis. Holdings from another provider are excluded.
 2. The row matching the exchange SnapTrade reports for the ticker.
 3. Online rows first, then rows with a price provider, then the oldest row.
 
-If the fallback (step 3) applies and more than one candidate exists, Sure records a warning entry in the debug log at **Settings > Debug** with the ticker, the reported exchange, the chosen row, and each candidate. A single candidate at step 3 does not generate a log entry.
+If the fallback (step 3) applies and more than one candidate exists, Sure records a warning entry in the debug log at **Settings > Debug** with the ticker, the reported exchange, the chosen row, and each candidate. A single candidate at step 3 does not generate a log entry. This fallback does not establish the correct exchange: it can consistently retain a wrong match that requires manual correction.
 
 ### Resync reclassification
 
