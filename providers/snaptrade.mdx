@@ -109,6 +109,16 @@ When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers th
 
 **Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.
 
+### Security row disambiguation
+
+A ticker can have more than one security row in Sure's database when it trades on multiple exchanges. Sure now resolves the correct row in a fixed, deterministic order so a holding never moves between rows across syncs:
+
+1. The row the account's existing holding already sits on (preserves any user remap or locked cost basis).
+2. The row matching the exchange SnapTrade reports for the ticker.
+3. Online rows first, then rows with a price provider, then the oldest row.
+
+If the fallback (step 3) applies and more than one candidate exists, Sure records a warning entry in the debug log at **Settings > Debug** with the ticker, the reported exchange, the chosen row, and each candidate. A single candidate at step 3 does not generate a log entry.
+
 ### Resync reclassification
 
 If a later sync determines an activity should be classified differently (for example, a CORP_ACTION that previously had units is re-fetched without units), Sure reclassifies the entry automatically. Entries that have been manually edited or locked by an import are protected and will not be reclassified; these cases are recorded in the debug log at **Settings > Debug**.
