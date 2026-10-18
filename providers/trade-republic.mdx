@@ -32,7 +32,7 @@ Sure supports two login methods:
 
 1. Click **QR login** in the Trade Republic panel
 2. Sure fetches a QR code from Trade Republic
-3. Open the Trade Republic mobile app and scan the QR code
+3. Scan the QR code with your phone camera, then approve the login in the Trade Republic app
 4. Sure detects the approved session automatically
 
 Use the QR login if you prefer not to enter your PIN or password in Sure, or if you do not have the Trade Republic authenticator set up.
@@ -152,7 +152,17 @@ Private market positions are valued using quotes from Trade Republic's private m
 
 Sure syncs Trade Republic accounts on the same schedule as other connected providers. You can also trigger a manual sync from the Trade Republic panel in **Settings > Providers**.
 
-Session tokens are refreshed automatically during each sync when Trade Republic returns a renewed token. If the session expires, the status changes to **Re-authentication required** and you will need to log in again.
+Session tokens are refreshed automatically during each sync when Trade Republic returns a renewed token.
+
+### Session expiry
+
+A Trade Republic login session is valid for 24 hours. When a session ends, Sure stops syncing that connection until you log in again.
+
+- The Accounts page and the Trade Republic settings card both show when the current login expires.
+- The providers list shows a warning two hours before the session is due to end.
+- Sure schedules a sync approximately one hour before the session ends so the day's activity is still imported.
+- Once the session has expired, the status changes to **Re-authentication required**. The Accounts page and the Settings card both offer the QR login so you can log in again without going to **Settings > Providers**.
+- The Sync button is disabled while a session has ended. Triggering a sync from the panel or the API requires a valid session.
 
 ### Categories and labels on cash deposits
 
@@ -162,7 +172,7 @@ Categories and activity labels assigned to cash deposits by a Rule are preserved
 
 ### Re-authentication required
 
-Your Trade Republic session expired. Go to **Settings > Providers > Trade Republic** and log in again using your phone number and PIN or password, or the QR code method.
+Your Trade Republic session expired. Log in again using your phone number and PIN or password, or the QR code method. You can start the QR login directly from the Accounts page or from **Settings > Providers > Trade Republic**.
 
 ### Accounts need setup
 
@@ -229,6 +239,6 @@ If the panel shows a rate-limit or outage alert, wait a moment and then click **
 ## Limitations
 
 - **European accounts only**: Trade Republic operates in Europe. Accounts in unsupported regions cannot be connected.
-- **Session expiry**: Long periods without a sync can cause the session to expire, requiring re-authentication.
+- **Session expiry**: Trade Republic login sessions are valid for 24 hours. A new login is required once the session ends.
 - **Unpriced positions**: Some securities (particularly private market instruments) may not have a current price available from Trade Republic.
 - **No options or derivatives**: Derivative instruments are not imported.
