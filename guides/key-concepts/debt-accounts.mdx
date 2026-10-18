@@ -89,7 +89,7 @@ Loan accounts support additional fields:
 | Interest Rate | Annual interest rate |
 | Rate Type | Fixed, variable, or adjustable |
 | Term | Loan duration (months) |
-| Start date | Date the loan was drawn down (optional — defaults to the account's opening balance date) |
+| Start date | Date the loan was drawn down (optional). When you enter an original principal, a start date within the supported range overrides the form's opening balance date. A date on or before the cutoff 30 years ago keeps the form's opening balance date instead; the start date still drives the amortization schedule. |
 | Down payment | What you paid upfront. Not part of the amortization, but used to calculate your leverage ratio on the overview. |
 | Insurance rate | Annual insurance premium rate, charged monthly alongside the repayment. |
 | Insurance type | How the premium is calculated: **Level term** charges the rate on the original balance each month (constant premium); **Decreasing** charges it on the outstanding balance (falls as you repay). |
@@ -146,7 +146,7 @@ To add a debt account:
 
 When you add a loan, you can enter both the original principal (opening balance) and your current remaining balance. These two figures are often different — for example, a mortgage you took out years ago has a much lower remaining balance today than when it started.
 
-Sure preserves both values: the original principal is recorded as the opening balance on the loan's start date, and your current remaining balance is anchored to today. The first sync uses your current balance as the baseline and calculates forward from there, so the balance you entered is never overwritten.
+When you enter an original principal, Sure dates its opening anchor on the loan's start date if that date is strictly newer than the cutoff 30 years ago; otherwise it uses the form's opening balance date. If this opening anchor is before today and the current remaining balance differs, Sure also records today's balance so the first sync preserves both. If the opening anchor is today, its opening balance takes precedence and a separate current-balance anchor is not created. Dating a supported opening anchor on the start date lets the chart begin at origination.
 
 ## Understanding Loan Payments
 

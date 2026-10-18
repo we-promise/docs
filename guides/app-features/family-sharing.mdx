@@ -23,6 +23,8 @@ When sharing an account you assign one of three permission levels to each family
 
 The account owner always retains full control and cannot be removed through the sharing settings.
 
+In bulk edit and the categorize flow, **Full control** (`full_control`) allows changes to all supported fields. **Can annotate** (`read_write`) allows category, merchant, tags, and notes, while **View only** (`read_only`) accounts are skipped. Can annotate does not permit name, date, or amount changes.
+
 ## Sharing an Account
 
 To share an account with family members:
@@ -53,6 +55,7 @@ Family sharing respects privacy boundaries:
 - **Reports**: Financial reports are scoped to only include accounts the user has access to
 - **Budgets**: The household budget includes shared accounts. Personal budgets (when enabled) are scoped to each member's own accounts independently.
 - **Totals**: Net worth and other totals reflect only accessible accounts
+- **Sparklines**: Sidebar group sparklines aggregate only the accounts accessible to the current user, so each member sees balance history for their own accounts rather than the full family
 - **Providers**: Third-party provider connections are scoped per family. When a sync completes, the browser refreshes through its own authenticated request, so account visibility is checked for that member. Automatic refresh can be deferred while a form or dialog is in use; provider-card HTML is not broadcast to the whole family.
 - **Provider cards**: Connection cards on the accounts page show a member only accounts they own or that have been shared with them. If a connection has three accounts and a member has access to only one, that card displays only the one shared account. Admins see all accounts on every connection.
 - **Provider sync summary**: When a member can see only some accounts on a connection, the sync summary shows counts rather than account names and details for the other accounts on that connection.

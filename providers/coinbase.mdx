@@ -54,13 +54,18 @@ Your API secret is only shown once. Store it securely - you'll need both the API
 
 ## Account linking
 
-After connecting, Sure will discover all your Coinbase accounts. You'll need to link each Coinbase account to a Sure account:
+After connecting, Sure discovers your Coinbase wallets through the initial sync. You can link them in two ways:
 
-1. Review the list of discovered Coinbase accounts
-2. For each account you want to track:
-   - Select an existing Sure account, or
-   - Create a new account to link it to
-3. Click **Save** to complete the linking
+- **From Add Account**: Open the Add Account dialog, choose **Crypto** > **Coinbase**, and Sure opens wallet setup directly when there is exactly one active connection with configured credentials, or when a specific connection was selected. After you finish, Sure returns you to where you started.
+- **From Settings**: Navigate to **Settings** > **Providers**, find your Coinbase connection, and open the wallet setup from there.
+
+In the wallet setup screen:
+
+1. Review the list of unlinked Coinbase wallets
+2. Select the wallets you want to import
+3. Click **Import selected** to create Sure accounts for each wallet
+
+If more than one eligible Coinbase connection exists and none was explicitly selected, Sure returns to Provider Settings with an alert asking you to choose a connection. An unavailable selected connection or missing credentials also returns you there with an alert.
 
 ## Supported features
 
@@ -148,11 +153,12 @@ If transactions are missing:
 
 ### Account linking issues
 
-If you have trouble linking accounts:
+If you have trouble linking wallets:
 
-1. Ensure you've selected accounts to link during setup
-2. Try unlinking and relinking the account
-3. Check that the account is active in Coinbase
+1. Ensure you've selected wallets to import during setup
+2. If Sure shows a "connection unavailable" alert from Add Account, the connection may have been removed or its credentials are no longer configured — go to **Settings** > **Providers** to check
+3. Try syncing the connection first so Sure can discover new wallets before opening setup
+4. Check that the wallet is active in your Coinbase account
 
 ## Limitations
 

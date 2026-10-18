@@ -53,22 +53,37 @@ For security, restrict your API key to read-only access. Sure does not execute t
 
 ## Connecting Binance to Sure
 
-1. Navigate to **Settings** > **Bank sync** in Sure
-2. Click **Connect** on the **Binance** card
+You can connect Binance from the **Add Account** dialog or from **Settings** > **Providers**.
+
+**From Add Account:**
+
+1. Open the **Add Account** dialog and select **Crypto** > **Binance**.
+2. Sure opens account setup for your Binance connection directly. This direct route requires one eligible connection or an explicitly selected connection. With multiple connections and no selection, Sure sends you to **Settings** > **Providers** to choose one; if none are configured, add one there first.
+
+**From Settings > Providers:**
+
+1. Navigate to **Settings** > **Providers** in Sure.
+2. Click **Connect** on the **Binance** card.
 3. Enter your API credentials:
    - **Name**: A label for this connection (e.g., "My Binance")
    - **API Key**: Your Binance API key
    - **API Secret**: Your Binance API secret
 4. Optionally set a **Sync start date** to limit how far back trade history is fetched. The date must be in the past.
-5. Click **Connect**
+5. Click **Connect**.
 
 ## Account setup
 
-After connecting, Sure discovers your Binance account data during the first sync. You then need to link the account:
+The first sync discovers Binance accounts and marks unlinked accounts as needing setup. Open setup from **Add Account** or **Import accounts** on the connection card:
 
-1. Review the discovered Binance account
-2. Link it to an existing Sure account, or create a new one
-3. Click **Save** to complete the setup
+1. Review the discovered Binance accounts.
+2. Select the accounts you want to import.
+3. Click **Save** to complete the setup.
+
+After saving, Sure syncs the newly imported accounts and returns you to where you started.
+
+<Note>
+If you open **Add Account** > **Crypto** > **Binance** and no credentials are configured, or the selected connection is unavailable, Sure redirects you to **Settings** > **Providers** with an alert so you can add or fix the connection first.
+</Note>
 
 <Note>
 Spot, margin, and earn balances are combined into a single account. They are not tracked separately.

@@ -13,24 +13,24 @@ Sure has two separate AI systems that operate independently. Understanding this 
 
 **Chat assistant (conversational)** — the interactive chat where users ask questions about their finances. It routes through one of two backends:
 
-- **Builtin** (default): uses the OpenAI-compatible provider configured via `OPENAI_ACCESS_TOKEN` / `OPENAI_URI_BASE` / `OPENAI_MODEL`. Calls Sure's function tools directly.
+- **Builtin** (default): uses the LLM provider selected by `LLM_PROVIDER` (OpenAI-compatible or native Anthropic). Calls Sure's function tools directly.
 - **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
 - **MCP only**: disables the in-app assistant entirely — no chat sidebar, no chat API, no bills AI shortcuts, no AI-written insight text. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
 
 **Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync:
 
 1. **Naive Bayes pass** — trains a multinomial Bayes model on the family's existing categorized transactions and classifies new ones locally. No provider or API key is needed. Only transactions that clear a 70% confidence threshold are categorized; the rest fall through to step 2. The Bayes pass requires at least 20 categorized transactions across at least 2 categories before it activates. If Bayes categorizes every transaction in a batch, the LLM step is skipped entirely.
-2. **LLM pass** — sends the remaining uncategorized transactions to the configured LLM provider (`OPENAI_ACCESS_TOKEN`). This step is skipped when Bayes covers the full batch.
+2. **LLM pass** — sends the remaining uncategorized transactions to the provider selected by `LLM_PROVIDER`. This step is skipped when Bayes covers the full batch.
 
-**Merchant detection (background)** — always uses the OpenAI-compatible provider (`OPENAI_ACCESS_TOKEN`).
+**Merchant detection (background)** — uses the preferred configured LLM provider (OpenAI-compatible or native Anthropic). Selecting Jev for categorization does not route merchant detection to Jev.
 
 | Setting | Chat assistant | Auto-categorization | Merchant detection |
 | --- | --- | --- | --- |
-| `ASSISTANT_TYPE=builtin` (default) | Uses OpenAI provider | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
-| `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then LLM provider or Jev | Uses OpenAI provider |
+| `ASSISTANT_TYPE=builtin` (default) | Uses the LLM provider | Bayes first, then LLM provider or Jev | Uses the LLM provider |
+| `ASSISTANT_TYPE=external` | Uses external agent | Bayes first, then LLM provider or Jev | Uses the LLM provider |
 | `ASSISTANT_TYPE=mcp_only` | Disabled (in-app chat off) | Bayes first, then LLM provider or Jev | Uses the configured LLM provider |
 
-If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (or `ANTHROPIC_ACCESS_TOKEN` for Anthropic) for those features, or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
+If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (for the OpenAI-compatible provider) or `ANTHROPIC_ACCESS_TOKEN` / `ANTHROPIC_API_KEY` (for the native Anthropic provider), or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
 
 ## Where AI jobs run (Sidekiq lanes)
 
@@ -69,14 +69,14 @@ Sure supports two first-class LLM providers:
 - **OpenAI** (or any OpenAI-compatible endpoint, including Ollama, LM Studio, OpenRouter, Groq, Together AI, etc.)
 - **Anthropic** (native Claude support, including custom Anthropic-compatible endpoints such as Amazon Bedrock or Google Vertex)
 
-Set the active provider with the `LLM_PROVIDER` environment variable (or the `LLM Provider` setting in the UI). It defaults to `openai`. The matching access token must be configured for the selected provider.
+Set the active provider with the `LLM_PROVIDER` environment variable (or the `LLM Provider` setting in the UI). It defaults to `openai`. The matching access token must be configured for the selected provider. When set, `LLM_PROVIDER` takes precedence over any provider choice saved in the UI.
 
 | `LLM_PROVIDER` | Required credential |
 | --- | --- |
 | `openai` *(default)* | `OPENAI_ACCESS_TOKEN` |
 | `anthropic` | `ANTHROPIC_ACCESS_TOKEN` (or `ANTHROPIC_API_KEY`) |
 
-Chat routing also honors the model name: requests with `claude-*` models are routed to the Anthropic provider, and other models to the OpenAI provider, when both are configured.
+Chat routing honors `LLM_PROVIDER` first: the provider selected by that setting is tried before any fallback. If the selected provider does not support the model in use, the other configured provider is tried as a fallback. This means setting `LLM_PROVIDER=anthropic` reliably routes chat to Anthropic even when a custom OpenAI-compatible endpoint (`OPENAI_URI_BASE`) is also configured.
 
 ## Configuration via settings
 
@@ -139,7 +139,11 @@ Select the active provider with the `LLM_PROVIDER` environment variable:
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `LLM_PROVIDER` | Active provider. Set to `openai` or `anthropic` | `openai` |
+| `LLM_PROVIDER` | Active provider. Set to `openai` or `anthropic`. When set, this value takes precedence over any provider choice saved in the UI. | `openai` |
+
+<Note>
+  Chat tries the provider selected by `LLM_PROVIDER` first when it supports the chat model, then tries the other configured provider. A custom OpenAI-compatible endpoint does not automatically override a compatible Anthropic selection. Check the chat model and provider credentials if a request uses the fallback provider.
+</Note>
 
 ## OpenAI compatible API
 
@@ -277,6 +281,12 @@ Recommended models:
 - `claude-sonnet-4-6` - Default, best balance of speed and quality
 - `claude-haiku-4-5` - Fast and cost-effective
 
+<Note>
+  [Issue #4125](https://github.com/we-promise/sure/issues/4125) reports that Claude Opus 5.5, Sonnet 5.5, and Fable 5.1 reject the forced tool choices used by categorization, merchant detection and enhancement, PDF processing, bank-statement extraction, and bill setup suggestions. The report says chat is unaffected. Until compatibility is resolved, use a model known to support forced tool choice for those features.
+</Note>
+
+Set `LLM_CONTEXT_WINDOW` to your model’s context size; the setting also applies to native Anthropic chat, even though its UI field is in the OpenAI panel. Values below 4096 collapse account and category rosters to counts. Larger values allow lists, but families with more than 25 visible accessible accounts or more than 60 categories still receive counts and use tools to retrieve the full lists.
+
 ### Custom Anthropic-compatible endpoints
 
 Set `ANTHROPIC_BASE_URL` to route requests through Amazon Bedrock, Google Vertex, or any other Anthropic-compatible proxy. `ANTHROPIC_MODEL` is required when a custom base URL is set, because proxy providers use their own model-ID conventions (for example, Bedrock IDs like `anthropic.claude-sonnet-4-5-20250929-v1:0`).
@@ -302,7 +312,7 @@ ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
 
 Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via **forced tool calls**: a single output tool whose `input_schema` mirrors the desired result, invoked with `tool_choice: { type: "tool", disable_parallel_tool_use: true }`. This guarantees schema-valid output without JSON-mode fallbacks.
 
-Each batch operation caps the number of items at **25 per request**, matching the OpenAI provider. Requests above this limit are rejected with a clear error before they are sent.
+Batch size is controlled by `LLM_MAX_ITEMS_PER_CALL` (default `25`), the same variable used by the OpenAI-compatible provider. Raise `ANTHROPIC_MAX_TOKENS` alongside it — the Messages API requires a reply-token limit and a large batch can exceed the default `4096` — or replies will be cut off.
 
 ## Token budget
 
@@ -513,7 +523,7 @@ These optional variables fine-tune provider selection and the behavior of the Op
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `LLM_PROVIDER` | Active LLM provider: `openai` or `anthropic` | `openai` |
+| `LLM_PROVIDER` | Active LLM provider: `openai` or `anthropic`. Takes precedence over any provider choice saved in the UI. | `openai` |
 | `OPENAI_ACCESS_TOKEN` | API key for the provider | — |
 | `OPENAI_URI_BASE` | Custom endpoint URL (leave blank for OpenAI) | — |
 | `OPENAI_MODEL` | Model name (required for custom endpoints). A blank value is treated as unset and falls through to the UI setting, then `gpt-4.1` | `gpt-4.1` |

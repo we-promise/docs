@@ -33,6 +33,8 @@ Self-hosted admins should configure the WebAuthn relying party settings before u
 
 Sure checks the code before asking your browser to create the passkey. This prevents a stolen session cookie from registering a new passkey. If the code is wrong or has already been used, Sure rejects the request before the browser prompt runs, so no authenticator slot is used up.
 
+A backup code is consumed only when the passkey is successfully saved. Cancelling the browser prompt does not spend it.
+
 After registration succeeds, the key appears in the **Passkeys and security keys** list with its creation date.
 
 ## Sign in with a passkey

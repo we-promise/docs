@@ -112,7 +112,7 @@ If you added a property manually (without using a valuation provider at creation
 A property is eligible to link when all of these are true:
 
 - No provider is already linked
-- The property has a country set in its address
+- The property has a complete address in the provider’s supported country. For RentCast and Realie, provide a US street address, city, state, ZIP code, and country
 - The property's account currency matches the provider's valuation currency (USD for RentCast and Realie; GBP for Chimnie)
 - The provider does not require an external identifier (Chimnie requires a UPRN, so it can only be linked at creation time, not after)
 - The provider's API key is configured
@@ -122,7 +122,7 @@ When you click the link button, Sure runs the first valuation immediately. The l
 To link a provider:
 
 1. Open the property account and go to the **Overview** tab
-2. If the property is eligible, a **Link to [provider name]** button appears for each configured, eligible provider
+2. If the property is eligible, an **Update value automatically with [provider name]** button appears for each configured, eligible provider. You need write access to link it
 3. Click the button for the provider you want to use
 4. Sure runs the first valuation and confirms whether the link succeeded
 
@@ -183,6 +183,6 @@ A **Refresh valuation** button on the property account bypasses the normal inter
 
 **The property account's currency does not match the provider**: RentCast and Realie return values in USD; Chimnie returns values in GBP. If your property account was created or later changed to a different currency, the refresh job skips it to avoid writing the wrong currency. Change the account currency to match or manage the value manually.
 
-**No link button appears on the Overview tab for an existing property**: check that the provider's API key is configured, the property has a country set in its address, and the account currency matches the provider's valuation currency. Chimnie cannot be linked after creation because it requires a UPRN that can only be supplied when the property is first added.
+**No link button appears on the Overview tab for an existing property**: check that the provider's API key is configured, the address includes every required field and a supported country, and the account currency matches the provider’s valuation currency. Chimnie cannot be linked after creation because it requires a UPRN that can only be supplied when the property is first added.
 
 **The link failed with an alert**: the first valuation did not succeed, so the link was not saved. The address may not be in the provider's database or the monthly budget may be exhausted. Correct the address or wait for the budget to reset, then try again.
