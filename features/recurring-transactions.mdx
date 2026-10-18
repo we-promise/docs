@@ -263,7 +263,7 @@ The Bills page offers four views, switchable from the view switcher at the top o
 
 Throughout the Overview and Paycheck planner, bills use the later of their original due date and any snoozed date. A bill snoozed to a future month moves out of the current month's totals and into the month it will actually be due.
 
-Clicking a bill row in the Overview or a Next up item opens the bill in the right-hand drawer. Navigating directly to a bill URL (for example, `/bills/:id`) opens the same drawer over the Bills overview.
+Clicking anywhere on a bill row in the Overview, or on a Next up item, opens the bill in the right-hand drawer. Modifier clicks (Cmd/Ctrl) open the bill in a new tab. Navigating directly to a bill URL (for example, `/bills/:id`) opens the same drawer over the Bills overview.
 
 When a current occurrence is available, the bill summary drawer leads with its remaining balance or paid amount. A smaller line shows the amount paid, the expected total, and the due label. If the amount is estimated and the series has a known range, that range appears below the figure at all widths, including on phones. Without a current occurrence, the summary shows the series amount and, when known, the next expected date. A cancellation notice appears above the figure when a cancellation date is recorded but the series is still active.
 
@@ -299,7 +299,7 @@ On wider screens, each bill row in the Overview reserves a fixed slot at the tra
 - **Find payment** — no payment portal URL is set and the occurrence is within its payment window.
 - **No action** — the occurrence is outside the payment window.
 
-On narrow screens (phones, or a desktop with both sidebars open) rows carry no action. The row's subline describes why the bill needs attention, and tapping opens the drawer.
+On narrow screens (phones, or a desktop with both sidebars open) rows carry no action. The row's subline describes why the bill needs attention, and tapping anywhere on the row opens the drawer.
 
 The occurrence drawer always shows an action, regardless of screen size.
 
