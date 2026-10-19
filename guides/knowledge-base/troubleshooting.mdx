@@ -622,6 +622,22 @@ If a provider connection shows "Deletion in progress" indefinitely and never dis
   </Accordion>
 </AccordionGroup>
 
+## Cash flow and income reports show stale data after deleting an account
+
+After you delete an account, cash flow charts, income statements, and category spending totals could continue to include that account's transactions until an unrelated change triggered a cache refresh.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Income statement caches are keyed on a freshness token that reflects your entries, exchange rates, and family currency. The token did not previously include anything about your accounts themselves, so deleting an account — which removes it from the family's account list — did not change the cache key. Reports continued to serve the previously cached totals until the cache expired naturally or another entry-level change occurred.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The income statement cache key now includes a version token derived from the count and most recent update timestamp of your family's accounts. Deleting an account changes the count, which changes the token and immediately invalidates the cached report data. Cash flow charts, category stats, and income totals all reflect the deletion on the next page load.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Reports show stale data after merging or deleting a category
 
 When you merge categories or delete a category, dashboards and income statements could continue to display the deleted category until an unrelated transaction change occurred.
