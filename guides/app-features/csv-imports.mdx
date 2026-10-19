@@ -260,6 +260,8 @@ Each entry in the `conditions` array is a JSON object with `condition_type`, `op
 | `notes` | Matches on transaction notes | Plain text |
 | `account` | Matches on the account | Account name |
 
+The `operator` field must be one of the values supported by the condition type. Text-type conditions (`transaction_name`, `notes`, `transaction_details`) accept: `like` (contains), `not_like` (does not contain), `starts_with`, `ends_with`, `matches_regex`, `=` (equal to), `!=` (not equal to), `is_null` (is empty), `is_not_null` (is not empty). Number-type conditions (`transaction_amount`) accept: `>`, `>=`, `<`, `<=`, `=`, `!=`. Select-type conditions (`transaction_merchant`, `transaction_category`, `transaction_tag`, `account`) accept: `=`, `!=`, `is_null`, `is_not_null`. The `matches_regex` operator runs a case-insensitive PostgreSQL regular expression against the stored field value; patterns are capped at 200 characters and back-references (`\1` through `\9`) are not allowed.
+
 When a `transaction_category`, `transaction_merchant`, or `transaction_tag` condition references a name that does not exist yet, Sure creates the category, merchant, or tag automatically. The same name used in multiple rows in the same file reuses the record created for the first row.
 
 ### Action types
