@@ -371,6 +371,14 @@ Entries imported before the `ProviderImportAdapter` was introduced were stored w
 
 This is now fixed. Sure looks up retracted transactions by `external_id` and source first, then falls back to `plaid_id` for older entries that predate the adapter. If you have transactions that should have been removed by a Plaid retraction, trigger a manual sync from the account page — Sure will process any pending removals during that sync.
 
+### Investment holdings not showing for accounts with no investment transactions
+
+If a Plaid investment account has holdings but you have never made any trades or investment transactions through that institution, the holdings may not have appeared even though the sync completed without errors.
+
+The account-scoped investments data previously only passed securities to the holdings processor when the account had both holdings and investment transactions. Accounts with holdings but no transaction history had their securities list dropped, so each holding could not resolve its security and was silently skipped.
+
+This is now fixed. Securities are included whenever the account has either holdings or investment transactions. To import the missing holdings, trigger a manual sync from the account page.
+
 ### Investment holdings not syncing with encryption enabled
 
 If your Sure instance has Active Record encryption configured and Plaid investment account syncs are failing with a `NoMethodError`, you were affected by a bug that is now fixed.
