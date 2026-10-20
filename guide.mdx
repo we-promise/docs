@@ -215,26 +215,26 @@ You can set cost basis in two ways:
 1. Navigate to your investment account
 2. Find the holding in your portfolio
 3. Click the average cost value (a pencil icon appears on hover)
-4. Enter either:
-   - **Total cost basis**: The total amount you paid for all shares
-   - **Per-share cost**: The average price per share
-5. The form automatically converts between total and per-share values
+4. The editor shows an invoice-style line: a **Per share** field, your share quantity, and a **Total cost basis** field
+5. Enter either the per-share price or the total — the other field updates automatically
 6. Click **Save**
 
-The system will show a confirmation if you're overwriting an existing cost basis.
-
-<img width="531" height="597" alt="Cost basis editor" src="https://github.com/user-attachments/assets/b5a6aafe-de9e-447e-95a6-6000e68fb695" />
+Sure asks for confirmation if you are overwriting an existing cost basis.
 
 **From the holding drawer:**
 
 1. Click on a holding to open its detail drawer
 2. In the overview section, click the pencil icon next to "Average Cost"
-3. Enter the cost basis (total or per-share)
+3. Enter the per-share price or the total cost basis
 4. Click **Save**
 
 After saving, you'll see:
 - A lock icon indicating the value is protected
 - A source label showing "(manual)"
+
+The editor stores and submits the per-share cost. The total field helps you calculate it but does not get saved directly. Both fields keep two decimal places for display, and values you paste are preserved at up to four decimal places so sub-cent prices (such as 0.0049 per share) round correctly.
+
+A stored cost basis of zero — for example, shares received for free — shows as 0.00 in both fields rather than appearing empty.
 
 #### Unlocking cost basis
 
@@ -251,15 +251,6 @@ After unlocking:
 - Calculated values (from trades) will replace the manual value
 
 <img width="529" height="231" alt="Cost basis lock settings" src="https://github.com/user-attachments/assets/89d4c64f-7151-4702-b79f-1e22d47a2bee" />
-
-#### Bidirectional conversion
-
-The cost basis editor provides real-time conversion between total and per-share values:
-
-- Enter total cost → automatically calculates per-share cost
-- Enter per-share cost → automatically calculates total cost
-
-This makes it easy to enter cost basis in whichever format you have available.
 
 ### Investment activity labels
 
