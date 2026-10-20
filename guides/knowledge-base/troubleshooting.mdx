@@ -628,13 +628,13 @@ After you delete an account, cash flow charts, income statements, and category s
 
 <AccordionGroup>
   <Accordion title="What causes this issue?">
-    Income statement caches are keyed on a freshness token that reflects your entries, exchange rates, and family currency. The token did not previously include anything about your accounts themselves, so deleting an account — which removes it from the family's account list — did not change the cache key. Reports continued to serve the previously cached totals until the cache expired naturally or another entry-level change occurred.
+    The shared income statement freshness key already included the most recent account update timestamp, along with entry changes, exchange rates, and family currency. However, an account timestamp alone can return to an earlier value after an account is marked for deletion and then destroyed, allowing an older cached result to be reused. The family and category statistics caches also used only the entry version rather than the shared freshness key.
   </Accordion>
 
   <Accordion title="How was it fixed?">
-    The income statement cache key now includes a version token derived from the count and most recent update timestamp of your family's accounts. Deleting an account changes the count, which changes the token and immediately invalidates the cached report data. Cash flow charts, category stats, and income totals all reflect the deletion on the next page load.
+    On `main`, the shared freshness key uses an account version containing both the account count and the full-precision latest update timestamp. The count changes when an account is destroyed, preventing the key from reverting to its pre-deletion value. Family and category statistics now use the shared freshness key too, so a new report request refreshes those results when account status or family currency changes.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    This fix was merged in [Sure PR #4235](https://github.com/we-promise/sure/pull/4235). As of October 20, 2026, it is on `main` but is not included in the latest stable release, `v0.7.5-hotfix.2`. Use a build containing that fix, or wait for a stable release that includes it. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
