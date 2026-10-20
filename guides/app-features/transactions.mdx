@@ -208,6 +208,19 @@ When you edit a provider-assigned merchant and change its **name** or **website*
 
 If you submit a blank website during the edit, Sure clears the website on your family's copy. Leaving the form unchanged keeps the shared merchant as-is.
 
+## Lock category creation
+
+Admins can prevent new categories from being created by locking the category structure. To toggle the lock, open **Edit categories** and select **Lock category creation** or **Unlock category creation** from the menu. The option is only visible to admins.
+
+When category creation is locked:
+
+- The **New category** button is hidden for all users.
+- Attempts to create a category through the web UI or API return an error.
+- Existing categories can still be edited, merged, and deleted.
+- Bank syncs and imports can still add categories automatically.
+
+An info banner appears on the Categories page while the lock is active so all users know why they cannot add new categories.
+
 ## Delete a category
 
 To delete a category, open **Edit categories**, select the category, and choose **Delete**. Sure removes the category and clears it from every transaction that had it assigned. Transactions eligible for the Uncategorized filter then appear there, and the count badge follows the same filtering rules after the category is cleared.
