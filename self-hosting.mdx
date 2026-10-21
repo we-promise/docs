@@ -899,7 +899,7 @@ You can tune the AI status checks with these environment variables:
 
 ### Configuration tab
 
-The system health page has a **Configuration** tab at `/admin/system_health?tab=configuration`. It gives a read-only snapshot of how optional services are configured — it never tests credentials, initializes a client, or fetches live data.
+The system health page has a **Configuration** tab at `/admin/system_health?tab=configuration`. It gives a read-only snapshot of how optional services are configured — it does not test credentials or fetch live data. Resolving securities and exchange-rate providers constructs their clients; the optional-service checks do not initialize clients.
 
 The tab has two sections.
 
