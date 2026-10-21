@@ -10,7 +10,7 @@ Sure uses market data providers to fetch security prices, search for securities,
 | Provider | API key required | Free tier | Coverage |
 | --- | --- | --- | --- |
 | **Yahoo Finance** | No | Unlimited | Global stocks, ETFs, crypto |
-| **Twelve Data** | Yes | 800 requests/day, 7 per minute | Global stocks, ETFs, forex |
+| **Twelve Data** | Yes | 800 requests/day | Global stocks, ETFs, forex |
 | **Tiingo** | Yes | 500 requests/hour | US and international equities |
 | **EODHD** | Yes | 20 requests/day | 70+ global exchanges |
 | **Alpha Vantage** | Yes | 25 requests/day | Global stocks, ETFs |
@@ -113,11 +113,12 @@ If you experience connection issues with Yahoo Finance, some IPv6 networks may h
 
 Twelve Data provides real-time and historical market data for global equities and forex. It also serves as the default exchange rate provider.
 
-- **Rate limits**: 800 API requests per day (free tier), 7 per minute (default)
+- **Provider free tier**: 800 API requests per day
+- **Sure throttle default**: 7 API credits per minute; this is Sure's pacing setting, not the provider's advertised plan limit
 - **Coverage**: Global stocks, ETFs, forex, crypto
 - **API key**: Required — get one at [twelvedata.com](https://twelvedata.com)
 
-Sure paces requests to stay within Twelve Data's per-minute limit using a two-layer throttle: a per-instance minimum interval between calls, and a global per-minute credit counter stored in the cache. The per-minute counter requires Redis in production — on the default `null_store` cache the counter is always zero and the limit has no effect.
+Sure paces requests to stay within Twelve Data's per-minute limit using a two-layer throttle: a per-instance minimum interval between calls, and a global per-minute credit counter stored in the cache. The per-minute counter requires Redis in production — with `null_store`, usage is not retained between requests, so the per-minute limit is not enforced.
 
 You can tune the throttle with these environment variables:
 
