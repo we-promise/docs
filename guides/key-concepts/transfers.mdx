@@ -37,7 +37,7 @@ Sure recognizes different types of transfers based on the destination account:
 | **Funds Movement** | Between asset accounts, including investment/crypto accounts | Excluded |
 | **CC Payment** | Payment to a credit card | Excluded |
 | **Loan Payment** | Payment to a loan account | Treated as expense |
-| **Investment Contribution** | From a non-investment, non-crypto account to an investment or crypto account | Treated as expense (can be overridden) |
+| **Investment Contribution** | From a non-investment, non-crypto account to an investment or crypto account | Treated as expense by default (can be overridden) |
 
 ### Funds Movement
 
@@ -75,11 +75,11 @@ Transfers from a non-investment, non-crypto account to an investment or crypto a
 - Adding funds to a brokerage account
 - Moving money to a crypto exchange
 
-Investment contributions from a non-investment, non-crypto account are tracked as expenses in budgets because they represent a cash outflow from that account. Transfers between investment or crypto accounts remain funds movements and are excluded. For a matched contribution, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
+By default, investment contributions from a non-investment, non-crypto account are tracked as expenses in budgets. An admin can turn off **Count investing as spending** in **Settings → Preferences** to exclude investment contributions from spending across the family. Existing account and transaction exclusions still apply. Transfers between investment or crypto accounts remain funds movements and are excluded. For a matched contribution, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
 
 #### Counting a transfer as a plain transfer instead
 
-If you use a brokerage or crypto account purely to convert currency — moving money in and straight back out — the round trip would otherwise appear as spending in budgets and reports. You can override this on a confirmed transfer from a non-investment, non-crypto account to an investment or crypto account, provided you have write access to both accounts.
+If you use a brokerage or crypto account purely to convert currency — moving money in and straight back out — the contribution would normally count as spending when **Count investing as spending** is enabled. You can override this on a confirmed transfer from a non-investment, non-crypto account to an investment or crypto account, provided you have write access to both accounts.
 
 Open the transfer's outflow transaction and look for the **Investment contribution** toggle in the Details section, next to the category field. Turning the toggle off reclassifies the outflow as a funds movement, removes the auto-assigned Investment Contributions category, and excludes it from budget spending. The choice is saved and persists through provider syncs; unlinking the transfer resets it.
 
@@ -235,7 +235,7 @@ Transfers are generally **excluded** from budget calculations because they don't
 | --- | --- |
 | Funds Movement | Excluded |
 | CC Payment | Excluded |
-| Investment Contribution | Treated as expense (can be overridden — see [Counting a transfer as a plain transfer instead](#counting-a-transfer-as-a-plain-transfer-instead)) |
+| Investment Contribution | Treated as expense by default (can be overridden — see [Counting a transfer as a plain transfer instead](#counting-a-transfer-as-a-plain-transfer-instead)) |
 | Loan Payment | Treated as expense |
 
 <Note>
