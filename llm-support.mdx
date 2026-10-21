@@ -286,10 +286,10 @@ Recommended models:
 
 - `claude-sonnet-4-6` - Default, best balance of speed and quality
 - `claude-haiku-4-5` - Fast and cost-effective
-
-<Note>
-  [Issue #4125](https://github.com/we-promise/sure/issues/4125) reports that Claude Opus 5.5, Sonnet 5.5, and Fable 5.1 reject the forced tool choices used by categorization, merchant detection and enhancement, PDF processing, bank-statement extraction, and bill setup suggestions. The report says chat is unaffected. Until compatibility is resolved, use a model known to support forced tool choice for those features.
-</Note>
+- `claude-sonnet-5-5` - Claude 5 Sonnet, higher capability
+- `claude-opus-5-5` - Claude 5 Opus, highest quality
+- `claude-fable-5-1` - Claude Fable 5.1
+- `claude-mythos-5-1` - Claude Mythos 5.1
 
 Set `LLM_CONTEXT_WINDOW` to your model’s context size; the setting also applies to native Anthropic chat, even though its UI field is in the OpenAI panel. Values below 4096 collapse account and category rosters to counts. Larger values allow lists, but families with more than 25 visible accessible accounts or more than 60 categories still receive counts and use tools to retrieve the full lists.
 
@@ -316,7 +316,12 @@ ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
 
 ### Batch operations
 
-Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via **forced tool calls**: a single output tool whose `input_schema` mirrors the desired result, invoked with `tool_choice: { type: "tool", disable_parallel_tool_use: true }`. This guarantees schema-valid output without JSON-mode fallbacks.
+Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via a single output tool whose `input_schema` mirrors the desired result. The `tool_choice` strategy depends on the model:
+
+- **Claude 3.x, 4.x, and Haiku 5.5** — uses `tool_choice: { type: "tool", disable_parallel_tool_use: true }` to force the model to call the tool.
+- **Claude 5 families (Opus 5.5, Sonnet 5.5, Fable 5.1, Mythos 5.1) and any model not in the forced list** — uses `tool_choice: { type: "auto", disable_parallel_tool_use: true }` and appends a fixed system prompt instruction telling the model to call the tool. This is required because those models return a 400 error when a forced tool choice is set.
+
+Both strategies guarantee schema-valid output without JSON-mode fallbacks.
 
 Batch size is controlled by `LLM_MAX_ITEMS_PER_CALL` (default `25`), the same variable used by the OpenAI-compatible provider. Raise `ANTHROPIC_MAX_TOKENS` alongside it — the Messages API requires a reply-token limit and a large batch can exceed the default `4096` — or replies will be cut off.
 
