@@ -74,11 +74,11 @@ Configure AI features like chat and transaction rules from Settings → Self-Hos
 
 ## Preferences
 
-### Count investment contributions as spending
+### Count investing as spending
 
-By default, money moved into an investment or crypto account is counted as spending in budgets, reports, the savings rate, and the cash flow Sankey. This is the right view for "can we afford this month?" analysis — the cash has left your spending accounts.
+By default, investment contributions from a non-investment, non-crypto account into an investment or crypto account count as spending in budgets, reports, the savings rate, and the cash flow Sankey. Transfers between investment or crypto accounts remain funds movements. Existing account and transaction exclusions still apply.
 
-If your household treats ISA contributions, pension payments, or brokerage deposits as saving rather than spending, you can turn this off. Go to **Settings → Preferences** and disable **Count investment contributions as spending**.
+If your household treats ISA contributions, pension payments, or brokerage deposits as saving rather than spending, you can turn this off. An admin can go to **Settings → Preferences** and disable **Count investing as spending**.
 
 When the setting is off:
 - Investment contributions are excluded from budget actuals and expense totals in reports.
@@ -86,7 +86,7 @@ When the setting is off:
 - The savings rate and family/category stats no longer count them as expenses.
 - Loan payments are unaffected and remain counted as expenses.
 
-Toggling the setting never serves stale data — income statement cache keys include it, so your reports update immediately.
+The preference is part of the income statement cache key, so a new report request uses the updated setting.
 
 ## Preview features
 

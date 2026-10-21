@@ -75,13 +75,13 @@ Transfers from a non-investment, non-crypto account to an investment or crypto a
 - Adding funds to a brokerage account
 - Moving money to a crypto exchange
 
-Investment contributions from a non-investment, non-crypto account are tracked as expenses in budgets because they represent a cash outflow from that account. Transfers between investment or crypto accounts remain funds movements and are excluded. For a matched contribution, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
+By default, investment contributions from a non-investment, non-crypto account are tracked as expenses in budgets. An admin can turn off **Count investing as spending** in **Settings → Preferences** to exclude those contributions from spending across the family. Existing account and transaction exclusions still apply. Transfers between investment or crypto accounts remain funds movements and are excluded. For a matched contribution, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
 
 #### Marking a transfer as a plain transfer instead
 
-Sometimes a brokerage or crypto account is used only to convert currency — money flows in and straight back out, so counting the inflow as spending overstates your expenses. You can turn off the investment contribution classification for any matched transfer into an investment or crypto account.
+Sometimes a brokerage or crypto account is used only to convert currency. When **Count investing as spending** is enabled, the contribution would normally count as spending. You can turn off that classification for a confirmed transfer from a non-investment, non-crypto account into an investment or crypto account, provided you have write access to both accounts.
 
-To do this, open either transaction in the transfer pair and find the **Investment contribution** switch in the Details section of the drawer. Turning it off reclassifies the outflow leg as a funds movement (excluded from budgets and reports) and removes the auto-assigned Investment Contributions category. Sure locks the choice so that future provider syncs do not override it.
+To do this, open the transfer's outflow transaction and find the **Investment contribution** switch in the Details section of the drawer. Turning it off reclassifies the outflow leg as a funds movement (excluded from budgets and reports) and removes the auto-assigned Investment Contributions category. Sure locks the choice so that future provider syncs do not override it.
 
 You can also toggle this from the AI assistant or via the `update_transfer` MCP tool.
 
