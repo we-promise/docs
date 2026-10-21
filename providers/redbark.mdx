@@ -1,9 +1,14 @@
 ---
 title: Redbark
-description: Connect Australian bank accounts via CDR open banking
+description: Connect bank accounts via Redbark's open banking aggregator
 ---
 
-Redbark connects Australian bank accounts to Sure through the [Consumer Data Right](https://www.cdr.gov.au/) (CDR) open banking framework. Data flows one way, from your banks into Sure, using read-only consented access. Your bank credentials are never shared with Redbark or Sure.
+Redbark is a banking aggregator that connects bank accounts to Sure through multiple upstream data providers. Data flows one way, from your banks into Sure, using read-only consented access. Your bank credentials are never shared with Redbark or Sure.
+
+Redbark routes your accounts through one of two upstream providers depending on your region:
+
+- **Fiskil** — Australian institutions, via the [Consumer Data Right](https://www.cdr.gov.au/) (CDR) open banking framework
+- **Plaid** — US and Canadian institutions
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
@@ -31,8 +36,33 @@ API access requires a Redbark Developer or Professional plan. It is not availabl
 
 - **Account listing**: All connected bank accounts with institution names and logos
 - **Balances**: Current balances fetched from your bank on every sync
-- **Transaction history**: The first sync pulls 90 days of history (or from a start date you choose); later syncs are incremental with a 7 day lookback
+- **Transaction history**: The first sync pulls 90 days of history by default, or from a start date you choose (up to 2,550 days back). Later syncs are incremental with a 7-day lookback.
 - **Deduplication**: Transactions are deduplicated by their Redbark transaction id, so re-syncing never creates duplicates
+
+### Choosing a sync start date
+
+During account setup, each account has an optional **Sync start date** field. Set this before the account's first transaction fetch to request older history.
+
+The maximum lookback is 2,550 days (about 7 years). Redbark rejects requests further back than that. If you leave the field blank, Sure defaults to 90 days.
+
+The start date applies only to the initial backfill. Once an account has stored transactions, later syncs use last sync minus 7 days rather than replaying the configured date.
+
+### Variable loan rates
+
+For eligible linked loan accounts, Sure calls Redbark’s `GET /v1/account-details` endpoint during sync. For a variable-rate loan with a usable reported rate, Sure can record changes in its variable rate schedule.
+
+What Sure does with the reported rate:
+
+- For a variable-rate loan with no recorded rate, Sure sets the reported rate as its base rate unless that field is locked. A blank rate type can be adopted as variable when the bank identifies the product as variable.
+- If the rate has moved since the last sync, Sure adds a dated row to the variable rate schedule, updating the loan's projection and repayment schedule going forward.
+- If the loan is marked fixed and the bank reports a different rate, Sure logs the discrepancy and records nothing.
+- If the loan's rate or schedule is locked, the locked value is preserved.
+
+The date recorded is the day Sure detected the change. Redbark's API does not carry an effective date for rate changes, so the recorded date reflects when the change was seen rather than when the bank applied it.
+
+Sure reads the batch limit of 100 account IDs per API call. If a multi-account batch is rejected with a bad-request or not-found error, each account is retried individually so a single stale account does not block the others.
+
+A failed `account-details` fetch does not replace the stored details snapshot. Non-authentication failures are logged and allow the sync to continue; authentication failures propagate and require reconnecting the connection.
 
 ### Pending transactions
 
@@ -46,9 +76,9 @@ When a pending transaction settles, the posted version replaces it automatically
 
 ## Limitations
 
-- Australian institutions only (banks under the CDR regime)
 - Banking accounts only; brokerage accounts connected to Redbark are not imported
 - Data is read-only; Sure never writes anything back to your banks
+- Fiskil covers Australian institutions under the CDR regime; Plaid covers US and Canadian institutions
 
 ## Troubleshooting
 
@@ -57,5 +87,7 @@ When a pending transaction settles, the posted version replaces it automatically
 **An account is missing**: check the account's consent is still active in Redbark under **Settings > Consents**, and note that brokerage accounts are not synced.
 
 **Sync errors**: Provider sync failures are captured in Sure's debug log. Super admins can find them at **Settings > Debug**, including counts of skipped and failed rows.
+
+**Credit card or loan balance was incorrect before**: earlier versions of Sure negated all Redbark credit card and loan balances regardless of the upstream provider. Fiskil (AU/CDR) reports those balances as negative, so negating them is correct. Plaid (US/CA) reports them as positive, so negating them produced the wrong sign and overstated net worth by twice the amount owed. Sure now applies the correct sign for each provider. If your net worth figure changed after updating, this correction is the cause. Trigger a manual sync from the account page to confirm the balance is current.
 
 For more detail, see the [Redbark documentation](https://docs.redbark.com/sure).
