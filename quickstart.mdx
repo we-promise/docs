@@ -83,6 +83,26 @@ Sure uses [Lookbook](https://lookbook.build/) to render component previews. Afte
 
 The preview routes are only available outside of production. If a preview returns an error, confirm you are running in development mode.
 
+### Form action buttons
+
+Use these conventions when adding action buttons to forms:
+
+- A form with one action ends in `f.submit`, which renders a full-width primary `DS::Button`. Do not pass `class:` to `f.submit` — it is ignored.
+- A form with Cancel and a primary action ends in a right-aligned pair of natural-width buttons: Cancel (`variant: :secondary` or `:ghost`), then the primary (`type: :submit`). The variant carries the hierarchy, not the width.
+
+```erb
+<div class="flex justify-end gap-2">
+  <%= render DS::Button.new(text: t(".cancel"), variant: :secondary, data: { action: "DS--dialog#close" }) %>
+  <%= render DS::Button.new(text: t(".save"), type: :submit) %>
+</div>
+```
+
+- Do not use `f.submit` in a pair — it is always full-width and ignores `class:`. Render the primary button explicitly with `type: :submit` instead.
+- A destructive single action uses `DS::Button` with `full_width: true`, `type: :submit`, and `variant: :destructive` — `f.submit` always renders primary and cannot be used here.
+- Keep the default button size. `size: :sm` text buttons are 28 px tall and the 44 px coarse-pointer target only applies to icon-only buttons.
+- When a `DS::Dialog`'s buttons do not submit a form, use `dialog.with_action`. Pass `cancel_action: true` to make a button close the dialog.
+- Amount inputs stay left-aligned. Right-align figures with `numeric: true`, not inputs.
+
 ### Setup guides
 
 <CardGroup cols={2}>
