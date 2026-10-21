@@ -44,15 +44,15 @@ If a visible account has matching Chase metadata and the same currency, Sure wil
 
 ## Reviewing suggestions
 
-From Settings -> Statement Vault, unmatched statements show:
+From Settings -> Statement Vault, the inbox shows statements that are unmatched or rejected:
 
 - The original filename
 - Detected statement period, when available
-- Suggested account, when Sure finds one
-- Confidence score
+- Suggested account and confidence score, when Sure finds one
+- A **Rejected** badge for statements whose suggestion was previously rejected
 - Actions to link or reject the suggestion
 
-Selecting the link action files the statement against that account. Rejecting the suggestion clears it and marks the statement as rejected so it is not re-suggested by routine metadata edits.
+Selecting the link action files the statement against that account. Rejecting the suggestion clears it and marks the statement as rejected. Rejected statements stay in the inbox so you can find and delete them — they are not re-suggested by routine metadata edits and their file hash still counts against duplicate detection until the statement is deleted.
 
 ## PDF imports and AI extraction
 
