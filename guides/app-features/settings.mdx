@@ -72,6 +72,23 @@ Sure triggers a family-wide sync automatically on login when `auto_sync_on_login
 
 Configure AI features like chat and transaction rules from Settings → Self-Hosting. See the [LLM support documentation](/llm-support) for more details.
 
+## Preferences
+
+### Count investing as spending
+
+By default, investment contributions from a non-investment, non-crypto account into an investment or crypto account count as spending in budgets, reports, the savings rate, and the cash flow Sankey. Transfers between investment or crypto accounts remain funds movements. Existing account and transaction exclusions still apply, including accounts excluded from reports and tax-advantaged accounts.
+
+If your household treats contributions to an ISA, pension, or brokerage as saving rather than spending, you can turn this off. Go to **Settings → Preferences** and toggle **Count investing as spending** to off (requires admin role). When the setting is off:
+
+- Investment contributions no longer appear in spending totals or budget actuals.
+- The cash flow Sankey draws a separate **Invested** outflow node next to Surplus or Deficit.
+- The AI assistant's income statement reports an `invested` total alongside income and expenses.
+- Budget drilldowns and report breakdowns exclude those transactions.
+- Loan payments are unaffected and remain counted as expenses.
+
+
+The preference is part of the income statement cache key, so a new report request uses the updated setting.
+
 ## Preview features
 
 Some newer areas of the app are gated behind preview features while they are still rolling out.
@@ -185,6 +202,8 @@ You can customize how your dashboard is displayed:
 **Hide and show widgets**: Enter Customize mode by clicking the layout icon in the dashboard header. In Customize mode, each widget shows a hide button. Clicking it removes the widget from your dashboard. A panel at the bottom of the page lists all hidden widgets so you can add them back at any time. Click **Done** to exit Customize mode. Hidden widgets and their date ranges, account filters, and other settings are preserved while hidden.
 
 If you hide all widgets, the dashboard shows an empty state with a link back to Customize mode.
+
+**Reorder widgets**: Drag widgets into any order. Hover over a widget to reveal the drag handle (grip icon) in its header, then drag to reposition. On touch devices, press and hold a widget for about 800 ms before dragging. With a keyboard, press **Enter** or **Space** to grab a focused widget, use **Up** and **Down** to move it, and press **Enter**, **Space**, or **Escape** to release. The new order is per-user and saves on drop or keyboard release.
 
 **2-column layout**: On wide screens, display dashboard cards in a 2-column grid for better space utilization. This setting is available in Settings → Appearance.
 
