@@ -318,7 +318,7 @@ The mobile API enforces the same login restrictions as the web interface:
 
 - `POST /api/v1/auth/login` returns HTTP 403 when `AUTH_LOCAL_LOGIN_ENABLED=false` and the account is not a super admin using the emergency override.
 - `POST /api/v1/auth/signup` returns HTTP 403 when the instance is closed to new registrations.
-- Login (`POST /api/v1/auth/login`) and token refresh (`POST /api/v1/auth/refresh`) return HTTP 401 when the account is deactivated.
+- When local login is permitted, login (`POST /api/v1/auth/login`) returns HTTP 401 for a deactivated account. The local-login restriction is checked first and can instead return HTTP 403. Token refresh (`POST /api/v1/auth/refresh`) returns HTTP 401 for a deactivated account.
 
 Previously these checks applied only to web sessions; the mobile API now honours them as well.
 
