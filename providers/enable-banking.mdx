@@ -263,7 +263,7 @@ Some banks (such as HypoVereinsbank) reject syncs with a `FORMAT_ERROR: PSU IP A
 
 This can happen on self-hosted instances accessed over a LAN, VPN, or tunnel (for example Tailscale). The browser's address is stored at the time of connection. If that address is private, loopback, link-local, CGNAT (`100.64.0.0/10`), or another IANA special-purpose range that is not globally reachable, Sure omits the `Psu-Ip-Address` header rather than forwarding an invalid address to the bank.
 
-No configuration is needed. If your instance is already deployed and connections were created before this fix, the next sync will automatically omit the invalid IP. If syncs still fail, disconnect and reconnect the affected bank so a fresh session is created.
+After upgrading to a build that includes [Sure PR #4304](https://github.com/we-promise/sure/pull/4304), no additional configuration is needed: the next sync omits a stored non-public IP automatically. This fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`, as of October 21, 2026. If the bank session needs reauthorization, an admin can use **Reconnect** from the connection card menu.
 
 ## Limitations
 
