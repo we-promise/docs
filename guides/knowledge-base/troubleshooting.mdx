@@ -17,7 +17,7 @@ When merchant detection identified a new merchant from a transaction's descripti
   <Accordion title="How was it fixed?">
     When AI detection cannot find a shared merchant to reuse, it now creates a `FamilyMerchant` scoped to the requesting family instead of a global `ProviderMerchant`. AI-sourced merchants from before this fix are also limited to the family that already has them on its transactions — they are no longer matched by name or URL across families.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -35,7 +35,7 @@ In earlier versions, when an account finished syncing, Sure broadcast a rendered
 
     The fix also covers linked accounts that sync on their own with no follow-up provider event, which would previously have left the accounts page stale for members who do have access.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -51,7 +51,7 @@ Opening the **Settings** link from a transactions list filtered by a large numbe
   <Accordion title="How was it fixed?">
     When the `return_to` value exceeds 1 KB, Sure now stores only the path without its query string. If even the bare path is over 1 KB, the `return_to` value is discarded entirely and the previous stored value is also cleared so a stale redirect target is never used. When the shortened path fits, Sure retains it as the return destination without the filters. Only when the path is discarded does Sure fall back to the default destination.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -127,7 +127,7 @@ Because provider merchant rows are shared across families, a crafted merchant na
   <Accordion title="How was it fixed?">
     The confirmation dialog now sets its body using `textContent` instead of `innerHTML`. Record names are rendered as plain text regardless of how the confirmation was constructed, so HTML in a name is never parsed or executed.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -143,7 +143,7 @@ When the interface language is set to Spanish, Mexican peso (MXN) amounts were f
   <Accordion title="How was it fixed?">
     The number formatter now checks the currency code before applying locale-derived separators. When the currency is MXN and the active locale is Spanish, Sure retains MXN’s dot decimal separator and comma thousands separator. Other locales keep their existing formatting rules. All other currencies continue to follow the locale's own separator conventions.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -159,7 +159,7 @@ When editing or creating a category, changing the color using the color picker p
   <Accordion title="How was it fixed?">
     The color picker now updates the `--avatar-color` CSS variable on the avatar element when you select a new color. The avatar's CSS reads from the variable, so both the background tint and the icon color update immediately as you pick.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -208,7 +208,7 @@ If an account holds transactions in a currency that has no exchange rate availab
 
     To see which rate was absent, go to **Settings → Debug** and filter by the `sync` category. Look for entries from `Balance::SyncCache` with level `warn`.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 
   <Accordion title="How do I resolve the missing exchange rate?">
@@ -228,7 +228,7 @@ On mobile, a brief pause while scrolling the reports page could accidentally act
   <Accordion title="How was it fixed?">
     The hold delay is raised to 800ms and a 10-pixel movement threshold is added. If the touch moves more than 10px before the hold delay expires, the pending drag is cancelled and native scrolling continues uninterrupted. A `touchcancel` event (for example, from an interrupting system gesture) now also discards the pending reorder instead of committing it.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -244,7 +244,7 @@ In Safari, clicking anywhere on the reports page — including the period picker
   <Accordion title="How was it fixed?">
     The stretched-link overlay is replaced with normal-flow `<a>` elements wrapping the icon, name, and entry count in the category cell, and separate `<a>` elements to the same destination in the amount and percentage cells. The clickable cells no longer rely on a positioned overlay anchored to a table row.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -441,7 +441,7 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
     When a family has accounts excluded from reports or tax-advantaged accounts (so the eligible set differs from the accessible set), the IDs remain explicit to preserve the correct scope.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
 
   </Accordion>
 
@@ -472,7 +472,7 @@ When an investment account holds a large number of securities, opening the holdi
   <Accordion title="How was it fixed?">
     The holdings controller now fetches all securities for the current account's holdings in a single query before rendering the list. This replaces the per-row security lookups with eager loading, reducing the number of database queries needed to render the list.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -488,7 +488,7 @@ In older versions, changing a transaction's category from the transaction detail
   <Accordion title="How was it fixed?">
     The notification tray now defers streams targeting the prompt area and page-refresh streams while a dialog is open. Other streams continue normally. Once the last dialog closes, deferred prompts render first. A deferred refresh is skipped while a prompt is visible, preventing these background refreshes from erasing an unread prompt.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -504,7 +504,7 @@ If you delete an account and it vanishes from every list and the balance sheet b
   <Accordion title="How was it fixed?">
     Sure now restores the account's previous status when the job push fails, so the account reappears in your list instead of staying hidden. The deletion attempt also runs under a row lock to prevent a double-submit from capturing a stale status. If the push was rejected, a failure alert is shown and you can try again once the queue is healthy.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 
   <Accordion title="What should I do if an account is already stuck?">
@@ -533,7 +533,7 @@ When you delete an account, Sure marks it as pending deletion and then runs a ba
 
     For accounts that were already disabled before deletion was attempted, the original `disabled_at` timestamp is preserved so the net worth chart cutoff is not moved forward to the failure date.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 
   <Accordion title="What should I do if an account is already stuck?">
@@ -555,7 +555,7 @@ When a user has access to many accounts (through family sharing or account group
 
     `Current.finance_accounts` received the same fix.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -573,7 +573,7 @@ If one or more transactions vanish from your income, spending, or budget totals 
   <Accordion title="How was it fixed?">
     The kind reset now runs as a `before_destroy` callback on the transfer, so every deletion path — including cascades triggered by deleting a transaction or its entry — resets the surviving leg's kind to the appropriate standard value. Pending transfers keep their existing behaviour and are not affected.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 
   <Accordion title="What should I do if transactions are already missing?">
@@ -591,7 +591,7 @@ When you delete an account, Sure removes all transfers linked to its transaction
   <Accordion title="How was it fixed?">
     Sure now loads all transfer transaction associations in a single query before starting the deletion loop. Deleting an account with a large transfer history completes in roughly constant time regardless of the number of transfers involved.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -607,7 +607,7 @@ If a provider connection shows "Deletion in progress" indefinitely and never dis
   <Accordion title="How was it fixed?">
     Sure now restores the deletion flag when the enqueue fails, so the connection returns to its normal state rather than staying stuck. If the job queue is temporarily unavailable, you can retry the deletion once the queue is healthy again.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 
   <Accordion title="What should I do if a connection is already stuck?">
@@ -652,7 +652,7 @@ When you merge categories or delete a category, dashboards and income statements
 
     The entry touch is batched in groups of 5,000 to avoid building an unbounded `UPDATE` statement on large merges.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -672,7 +672,7 @@ If the budget page crashes with a server error after the AI assistant sets a spe
 
     In addition, when `update_budget` sets `budgeted_spending` without an `expected_income` and the budget’s existing income is nil, it fills in `expected_income = 0`. An existing income amount is preserved. This matches what the budget form saves when you leave the income field empty.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -839,7 +839,7 @@ When you clicked **Create Account** on a loan (or any account with nested fields
   <Accordion title="How was it fixed?">
     Sure now rebuilds the account from the submitted parameters on a failed save, applying the same default for nested accountable attributes that `create_and_sync` uses. The form comes back filled in with everything you typed so you can correct the specific error and resubmit without losing your work.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -891,7 +891,7 @@ If saving a rule or importing rules fails with an "invalid" validation error on 
     - **Imported rules**: Open the import file in a text editor, find the row flagged in the error, remove or replace any non-printable characters in the name, condition value, or action value column, and re-run the import.
     - **CSV files**: Ensure the file is saved as UTF-8 without BOM and without embedded null bytes. Most spreadsheet apps can re-export a clean UTF-8 file.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -920,7 +920,7 @@ When creating a rule from the rule creation modal, saving the form could fail wi
   <Accordion title="How was it fixed?">
     The key generator now produces numeric-only keys by combining the current timestamp with a per-session sequence counter (`Date.now() * 1000 + seq`). This avoids collisions with the numeric indexes Rails assigns to already-persisted rows on edit forms, and ensures all dynamically added rows pass Rails' nested-attribute check.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -1115,13 +1115,13 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
-On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the button was marked `hidden lg:flex` — it hid at every width. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
+On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
 
 <AccordionGroup>
   <Accordion title="What caused these issues?">
     The design system's button component (`DS::Buttonish`) applied `inline-flex` through its icon-only container classes. Because `inline-flex` wins over `hidden` in the generated CSS, a button marked `hidden lg:inline-flex` for responsive hiding remained visible at every width rather than hiding on smaller screens.
 
-    For drawer close buttons, `DS::Dialog#close_button` was configured as `hidden lg:flex` under the responsive option. This combination never applied correctly, so the close button was invisible on phones — the only control available to dismiss those drawers on mobile.
+    For drawer close buttons, `DS::Dialog#close_button` was configured as `hidden lg:flex` under the responsive option. The close button was therefore unavailable on phones.
   </Accordion>
 
   <Accordion title="How was it fixed?">
@@ -1129,6 +1129,6 @@ On mobile, certain drawers (transactions, trades, transfers, holdings, and valua
 
     `DS::Dialog#close_button` now shows at every width so drawers always have a close control on mobile.
 
-    Upgrade to the latest release to get this fix. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
