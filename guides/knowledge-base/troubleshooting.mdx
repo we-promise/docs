@@ -3,6 +3,24 @@ title: "Troubleshooting"
 ---
 
 
+## Sparklines not visible in the account sidebar
+
+Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The chart controller that draws sparklines included a dimension guard that skipped rendering any container smaller than 50×50 pixels. Sidebar sparkline containers are 32×12 pixels (account group totals) and 32×20 pixels (individual account rows), so they fell below the threshold and were never drawn.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The dimension guard now only skips containers that measure exactly zero in either dimension — which indicates a collapsed or not-yet-laid-out container. Small but real containers like the sidebar sparklines are drawn normally. A ResizeObserver watches collapsed containers and draws the chart once the container gains real dimensions.
+
+    Full-size charts (larger than 50 pixels) are unaffected by this change.
+
+    Upgrade to a build containing [Sure PR #4361](https://github.com/we-promise/sure/pull/4361). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## AI-detected merchants were created as shared records
 
 When merchant detection identified a new merchant from a transaction's description, Sure previously created a globally-shared `ProviderMerchant` record (source: `ai`). Because those records are visible to every family on the deployment, a transaction description crafted to steer the LLM's output could create or match a shared merchant with an attacker-chosen name, website, or logo — affecting all other families.
@@ -1111,4 +1129,24 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
   </Accordion>
 
+</AccordionGroup>
+
+## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
+
+On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
+
+<AccordionGroup>
+  <Accordion title="What caused these issues?">
+    The design system's button component (`DS::Buttonish`) applied `inline-flex` through its icon-only container classes. Because `inline-flex` wins over `hidden` in the generated CSS, a button marked `hidden lg:inline-flex` for responsive hiding remained visible at every width rather than hiding on smaller screens.
+
+    For drawer close buttons, `DS::Dialog#close_button` was configured as `hidden lg:flex` under the responsive option. The close button was therefore unavailable on phones.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The button component now lets a `hidden` class override only the display utility. Alignment and gap classes are preserved so buttons continue to lay out correctly once they become visible. Icon-only sizes no longer add `inline-flex` back through their container classes.
+
+    `DS::Dialog#close_button` now shows at every width so drawers always have a close control on mobile.
+
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
+  </Accordion>
 </AccordionGroup>
