@@ -1181,6 +1181,8 @@ To use the bundled OpenClaw service instead of a separately hosted agent, start 
 docker compose -f compose.ai.yml --profile external-assistant up -d
 ```
 
+**Connection resilience:** When Sure cannot reach the external agent before any response has started streaming, it retries the request up to 2 times with exponential backoff (1 second, then 2 seconds) on transient network errors: connection timeouts, read timeouts, refused connections, reset connections, unreachable hosts, and DNS failures. If the agent starts streaming a response and then the connection drops, Sure does not retry — it raises an interruption error immediately so the partial response is not silently discarded.
+
 See the `docs/hosting/ai.md` file in the Sure repository for full configuration details including agent model selection, session keys, and email allowlisting.
 
 ### Pipelock security proxy

@@ -208,6 +208,19 @@ When you edit a provider-assigned merchant and change its **name** or **website*
 
 If you submit a blank website during the edit, Sure clears the website on your family's copy. Leaving the form unchanged keeps the shared merchant as-is.
 
+## Lock category creation
+
+Admins can prevent new categories from being created by locking the category structure. To toggle the lock, open **Edit categories** and select **Lock category creation** or **Unlock category creation** from the menu. The option is only visible to admins.
+
+When category creation is locked:
+
+- The **New category** button is hidden for all users.
+- Attempts to create a category through the web UI or API return an error.
+- Existing categories can still be edited, merged, and deleted.
+- Bank syncs and imports can still add categories automatically.
+
+An info banner appears on the Categories page while the lock is active so all users know why they cannot add new categories.
+
 ## Delete a category
 
 To delete a category, open **Edit categories**, select the category, and choose **Delete**. Sure removes the category and clears it from every transaction that had it assigned. Transactions eligible for the Uncategorized filter then appear there, and the count badge follows the same filtering rules after the category is cleared.
@@ -269,7 +282,7 @@ Rules support the following condition types:
 
 Each condition type supports a set of operators based on how the field stores its data:
 
-- **Text fields** (Transaction name, Notes): Contains, Does not contain, Equal to, Not equal to, Is empty, Is not empty
+- **Text fields** (Transaction name, Notes): Contains, Does not contain, Starts with, Ends with, Matches regex, Equal to, Not equal to, Is empty, Is not empty
 - **Number fields** (Amount): Greater than, Greater than or equal to, Less than, Less than or equal to, Equal to, Not equal to
 - **Select fields** (Merchant, Category, Tag, Account): Equal to, Not equal to, Is empty, Is not empty
 - **Transaction type**: its own fixed set of type-matching operators
@@ -279,7 +292,9 @@ The **Not equal to** operator also matches transactions where the field has no v
 
 The **Is empty** and **Is not empty** operators do not require a value. The condition form hides the value input automatically when you select one of these operators.
 
-The tag condition uses **Equal to** and **Is empty** operators, matching the same pattern as the category and merchant conditions. When you combine multiple tag conditions with AND, each condition is evaluated independently, so a transaction with both tags will match correctly.
+**Starts with** and **Ends with** perform case-insensitive prefix and suffix matches. **Matches regex** runs your pattern as a case-insensitive PostgreSQL regular expression (`~*`) against the stored field value. Patterns are capped at 200 characters. Back-references (`\1` through `\9`) are not allowed and are rejected at save. A pattern that PostgreSQL cannot compile is also rejected at save so the rule never enters a broken state. A pattern that takes too long to run causes that rule's run to be recorded as failed without blocking other rules.
+
+The tag condition supports all four select operators: **Equal to**, **Not equal to**, **Is empty**, and **Is not empty**. When you combine multiple tag conditions with AND, each condition is evaluated independently, so a transaction with both tags will match correctly.
 
 ### Rule actions
 
