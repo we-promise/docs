@@ -59,6 +59,7 @@ Family sharing respects privacy boundaries:
 - **Providers**: Third-party provider connections are scoped per family. When a sync completes, the browser refreshes through its own authenticated request, so account visibility is checked for that member. Automatic refresh can be deferred while a form or dialog is in use; provider-card HTML is not broadcast to the whole family.
 - **Provider cards**: Connection cards on the accounts page show a member only accounts they own or that have been shared with them. If a connection has three accounts and a member has access to only one, that card displays only the one shared account. Admins see all accounts on every connection.
 - **Provider sync summary**: When a member can see only some accounts on a connection, the sync summary shows counts rather than account names and details for the other accounts on that connection.
+- **Manual accounts after provider setup**: When provider setup or linking refreshes the Accounts page, its manual-account list includes only accounts the current user owns or that have been shared with them. This also applies to admins.
 - **Merchants**: Merchant data is shared across the family for consistency
 - **Personal budgets**: When personal budgets are enabled, each member's actual spending is scoped to their own accounts only
 - **Insights**: The shared insights feed only shows insights about accounts every active family member can access. Access is checked again when the feed is read, so revoking a required share hides the related insight on the next read.
@@ -122,7 +123,15 @@ Members can connect and manage their own Plaid bank connections. This is the onl
 
 ### Guest Role
 
-Guests have read-only access. They can view categories, tags, merchants, and rules, but cannot create, edit, or delete them. They also cannot create or manage any provider connections. The option to connect a provider is not shown to guests; the server also refuses connection creation for that role.
+Guests have read-only access to family configuration. They can view categories, tags, merchants, and rules, but cannot create, edit, or delete them. They also cannot create or manage any provider connections. The option to connect a provider is not shown to guests; the server also refuses connection creation for that role.
+
+These restrictions are enforced consistently across every access path:
+
+- **Web UI**: Write controls for categories, tags, merchants, and rules are hidden or disabled. The rule toggle is shown but disabled. The "create a rule?" prompt after categorizing a transaction is not shown.
+- **API**: Guest API credentials receive a `403 Forbidden` response on any write endpoint for categories, tags, merchants, and family-configuration import types (category, merchant, rule, and Sure imports). Read endpoints remain available.
+- **Imports**: Guests cannot create, publish, revert, or delete category, merchant, rule, or Sure imports. Guests also cannot publish any import — including transaction, Mint, QIF, or PDF imports — if publishing would create new categories or tags. Mapping an unmapped value to an existing category or tag, or leaving it empty, still works. For guests, reverting or deleting non-family-configuration imports requires write access to all affected accounts, including accounts created by the import; linked-statement permissions also apply.
+- **Import wizard**: Guests can edit pending or failed imports that are not category, merchant, rule, or Sure imports, subject to linked-statement access requirements.
+- **Assistant and MCP**: The `create_tag`, `update_tag`, `create_category`, and `update_category` tools are not available in a guest's tool registry for either the chat assistant or MCP.
 
 ## Use Cases
 
@@ -148,6 +157,7 @@ Share investment accounts with a financial advisor or trusted family member for 
 - **Access control**: Permissions are enforced at the database level
 - **Audit trail**: All changes to shared accounts are logged
 - **Revocable access**: Sharing can be revoked instantly by the account owner
+- **File attachment access**: Sure checks access before serving protected financial attachments; public logos and avatars are exempt. Export files require the requester to be an admin of the owning family. Import files (PDF and NDJSON) and family document attachments require membership in the same family; statement-linked imports also require visibility of the linked statement. Direct attachment requests that fail these checks return a 404.
 
 ## Best Practices
 

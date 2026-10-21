@@ -58,6 +58,16 @@ See [Passkeys and security keys](/guides/app-features/passkeys) for setup steps 
 
 Configure third-party bank, brokerage, crypto, and data sync integrations from Settings → Bank sync. See the [providers documentation](/providers/overview) for detailed setup instructions.
 
+### Syncing from the Accounts page
+
+The **Accounts** page has a sync control in the header that lets you trigger and manage a family-wide sync without leaving the page.
+
+- When no sync is running, a refresh icon button is shown. Click it to start a sync of all connected accounts.
+- When a sync is in progress, the refresh icon becomes a spinning indicator and is disabled. A **Cancel sync** button also appears next to it.
+- Clicking **Cancel sync** requests cancellation and shows a confirmation notice. Work already running may finish before the sync stops.
+
+Sure triggers a family-wide sync automatically on login when `auto_sync_on_login` is enabled and the family has not synced yet today. When this auto-sync is in progress as you navigate to the Accounts page, the sync controls reflect the in-progress state immediately.
+
 ## AI settings
 
 Configure AI features like chat and transaction rules from Settings → Self-Hosting. See the [LLM support documentation](/llm-support) for more details.
@@ -144,7 +154,7 @@ When preview features are enabled, the new chart appears below the existing cash
 
 The preview panel includes a feedback prompt so you can compare the new chart against the original and report any differences. If Sure detects that the two charts produce different financial totals, the "Something looks wrong" button highlights automatically. Submitting feedback opens a short form — describe the issue without including account numbers or balances, as responses are sent to PostHog.
 
-**Label display:** The chart labels nodes in order of size — larger categories claim their labels first when space is limited. A small node positioned above a large one no longer causes the larger category's label to be hidden. If two nodes are the same size, the one higher in the chart takes priority.
+**Label display:** The chart labels nodes in order of size — larger categories claim their labels first when space is limited. A small node positioned above a large one no longer causes the larger category's label to be hidden. If two nodes are the same size, the one higher in the chart takes priority. On narrow screens, a label that would extend across into a neighboring column's bar is hidden so it does not cover other categories. Hidden labels remain visible on hover.
 
 **Sort flows:** A "Sort flows" control lets you change the vertical ordering of nodes in each column of the chart. Three options are available:
 
@@ -255,6 +265,8 @@ The log table has an **expand** button in the card header (the same pattern used
 ## Data exports
 
 Sure allows you to export your financial data for backup or analysis purposes. When you create an export, the page automatically refreshes to show the latest status.
+
+Only family admins can create and download exports. The web export feature redirects non-admins, while the API returns 403. Direct export-attachment requests without admin access to the owning family return 404.
 
 ### Export status tracking
 
