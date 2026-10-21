@@ -257,8 +257,22 @@ Each entry in the `conditions` array is a JSON object with `condition_type`, `op
 | `transaction_category` | Matches on category | Category name — resolved to an ID automatically |
 | `transaction_tag` | Matches on tag | Tag name — resolved to an ID automatically |
 | `transaction_details` | Matches on provider metadata fields | Plain text |
-| `notes` | Matches on transaction notes | Plain text |
-| `account` | Matches on the account | Account name |
+| `transaction_notes` | Matches on transaction notes | Plain text |
+| `transaction_account` | Matches on the account | Account UUID — account names are not resolved |
+
+The `operator` field must be supported by the condition type:
+
+| Condition types | Supported operators |
+|---|---|
+| `transaction_name`, `transaction_notes` | `like`, `not_like`, `starts_with`, `ends_with`, `matches_regex`, `=`, `!=`, `is_null`, `is_not_null` |
+| `transaction_amount` | `>`, `>=`, `<`, `<=`, `=`, `!=` |
+| `transaction_merchant`, `transaction_category`, `transaction_tag`, `transaction_account` | `=`, `!=`, `is_null`, `is_not_null` |
+| `transaction_type` | `=` (with `income`, `expense`, or `transfer`) |
+| `transaction_details` | `like`, `=`, `is_null` |
+
+For text conditions, `like` means contains, `not_like` means does not contain, and `starts_with` and `ends_with` match a prefix or suffix. The `matches_regex` operator runs a case-insensitive PostgreSQL regular expression against the stored field value; patterns are capped at 200 characters and back-references (`\\1` through `\\9`) are not allowed. `is_null` and `is_not_null` do not require a value.
+
+`transaction_details` searches string and number values in provider metadata. Both `like` and `=` use contains matching there: `like` is case-insensitive and `=` is case-sensitive. It does not support the extended text operators.
 
 When a `transaction_category`, `transaction_merchant`, or `transaction_tag` condition references a name that does not exist yet, Sure creates the category, merchant, or tag automatically. The same name used in multiple rows in the same file reuses the record created for the first row.
 
