@@ -241,11 +241,20 @@ The item model stores per-family connection credentials:
 
 ```ruby
 class MyBankItem < ApplicationRecord
-  include Syncable, Provided, Unlinking, Encryptable, DestroyableLater
+  include Syncable, Provided, Unlinking, DestroyableLater
 
   enum :status, { good: "good", requires_update: "requires_update" }, default: :good
 
-  # Encryption for secret fields (optional — active when ACTIVE_RECORD_ENCRYPTION_* keys are set)
+  # The generator defines this helper directly.
+  def self.encryption_ready?
+    creds_ready = Rails.application.credentials.active_record_encryption.present?
+    env_ready = ENV["ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"].present? &&
+                ENV["ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY"].present? &&
+                ENV["ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT"].present?
+    creds_ready || env_ready
+  end
+
+  # Encryption for secret fields (optional — active with explicit environment keys or Rails credentials)
   if encryption_ready?
     encrypts :api_key, :refresh_token, deterministic: true
   end
@@ -676,7 +685,7 @@ provider = Provider::MyBankAdapter.build_provider(family: family)
 
 ### 3. Use proper encryption
 
-Sure uses the `Encryptable` concern and `encryption_ready?` to make encryption optional — sensitive fields are encrypted when the three `ACTIVE_RECORD_ENCRYPTION_*` keys are configured and stored in plaintext otherwise. Use this pattern in generated models:
+Sure uses the `Encryptable` concern and `encryption_ready?` to make encryption optional — sensitive fields using this guard are encrypted when all three `ACTIVE_RECORD_ENCRYPTION_*` keys are configured or Active Record encryption is configured through Rails credentials. Auto-derived runtime keys alone do not enable this opt-in guard. Use this pattern in generated models:
 
 ```ruby
 # In your model
@@ -783,10 +792,10 @@ If the generator raises `Thor::Error: '<field>' is a reserved field name`, remov
 
 ### Encryption not working
 
-1. Check that the model includes `Encryptable` and calls `encryption_ready?` before `encrypts`.
-2. Set the three environment variables to enable encryption: `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`. Generate values with `openssl rand -hex 32` for each.
+1. Check that the model defines `encryption_ready?` (as the generator does) or includes `Encryptable`, and calls the helper before `encrypts`.
+2. Configure encryption through Rails credentials or set all three environment variables: `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`. Generate values with `openssl rand -hex 32` for each.
 3. Restart the app after setting the variables.
-4. If data was written before encryption was enabled, run the backfill task: `bin/rails security:backfill_encryption`. See [Turning on Active Record encryption after first boot](/self-hosting#turning-on-active-record-encryption-after-first-boot).
+4. If data was written before encryption was enabled, check whether the model and its fields are listed in `lib/tasks/security_backfill.rake`; newly generated providers are not discovered automatically. For covered models, `bin/rails security:backfill_encryption` defaults to a dry run. Review its output before applying the backfill with `DRY_RUN=false bin/rails security:backfill_encryption`. See [Turning on Active Record encryption after first boot](/self-hosting#turning-on-active-record-encryption-after-first-boot).
 
 ### Reserved field name error
 
