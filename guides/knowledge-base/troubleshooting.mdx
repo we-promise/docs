@@ -1112,3 +1112,23 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
   </Accordion>
 
 </AccordionGroup>
+
+## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
+
+On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the button was marked `hidden lg:flex` — it hid at every width. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
+
+<AccordionGroup>
+  <Accordion title="What caused these issues?">
+    The design system's button component (`DS::Buttonish`) applied `inline-flex` through its icon-only container classes. Because `inline-flex` wins over `hidden` in the generated CSS, a button marked `hidden lg:inline-flex` for responsive hiding remained visible at every width rather than hiding on smaller screens.
+
+    For drawer close buttons, `DS::Dialog#close_button` was configured as `hidden lg:flex` under the responsive option. This combination never applied correctly, so the close button was invisible on phones — the only control available to dismiss those drawers on mobile.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The button component now lets a `hidden` class override only the display utility. Alignment and gap classes are preserved so buttons continue to lay out correctly once they become visible. Icon-only sizes no longer add `inline-flex` back through their container classes.
+
+    `DS::Dialog#close_button` now shows at every width so drawers always have a close control on mobile.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
