@@ -58,7 +58,9 @@ components:
                     description: Defaults to the parent name when omitted
                   amount:
                     type: string
-                    description: Same sign convention as the transaction amount
+                    description: Positive for expenses and negative for income, matching the stored
+                      transaction amount. Inputs are rounded to four decimal places
+                      before the sum is checked.
                   category_id:
                     type: string
                     nullable: true
@@ -9222,7 +9224,9 @@ paths:
       - apiKeyAuth: []
       description: Splits a transaction into child transactions. The child amounts
         must sum exactly to the parent amount, using the same sign convention the
-        transaction endpoints return. The parent becomes excluded from totals.
+        transaction endpoints return (positive expenses, negative income). Write
+        operations require read_write scope and owner or full-control account access.
+        The parent becomes excluded from totals.
       parameters: []
       responses:
         '201':
@@ -9606,11 +9610,14 @@ paths:
       parameters: []
       responses:
         '201':
-          description: trade created
+          description: trade created. Returns a Trade for most trade types. Returns a Transaction when the type results in a cash-only entry (e.g. dividend recorded as a transaction). Returns a Transfer when type is deposit or withdrawal.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/TransactionResponse"
+                oneOf:
+                - "$ref": "#/components/schemas/Trade"
+                - "$ref": "#/components/schemas/TransactionResponse"
+                - "$ref": "#/components/schemas/Transfer"
         '403':
           description: forbidden - api key missing read_write scope
           content:
