@@ -21,6 +21,12 @@ On mobile, tap **Assistant** in the bottom navigation bar to open the AI chat in
 
 If AI has not been enabled for your account yet, tapping Assistant shows the consent screen rather than the chat composer. This lets you review and accept the AI terms before starting a conversation. Once you accept, the full chat interface becomes available.
 
+## Chat history on mobile
+
+The mobile app loads the full message history when you open a conversation. The chat API paginates messages in batches of 50, oldest first. The app fetches every page in sequence so long conversations render completely, with messages in chronological order and no duplicates.
+
+If one of the intermediate pages fails to load — for example due to a network interruption — the app keeps the pages it already fetched and shows a partial-history notice instead of discarding the chat. You can reopen the conversation to retry loading the missing messages.
+
 ## When the sidebar is hidden by default
 
 Sure can also hide the AI sidebar by default for some people:
