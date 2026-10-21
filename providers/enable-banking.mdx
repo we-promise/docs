@@ -257,6 +257,14 @@ Enable Banking sometimes rejects individual account balance or transaction reque
 
 To reconnect manually, an admin can open the action menu on the connection card and choose **Reconnect**. This option is always available as long as the connection is not already showing a reconnect prompt. Clicking it routes through the same reauthorization flow as a normal reconnect, so you do not need to disconnect and re-add the bank.
 
+### FORMAT_ERROR: PSU IP Address field not valid (self-hosted)
+
+Some banks (such as HypoVereinsbank) reject syncs with a `FORMAT_ERROR: PSU IP Address field not valid` response when the `Psu-Ip-Address` header contains a non-public IP address.
+
+This can happen on self-hosted instances accessed over a LAN, VPN, or tunnel (for example Tailscale). The browser's address is stored at the time of connection. If that address is private, loopback, link-local, CGNAT (`100.64.0.0/10`), or another IANA special-purpose range that is not globally reachable, Sure omits the `Psu-Ip-Address` header rather than forwarding an invalid address to the bank.
+
+After upgrading to a build that includes [Sure PR #4304](https://github.com/we-promise/sure/pull/4304), no additional configuration is needed: the next sync omits a stored non-public IP automatically. This fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`, as of October 21, 2026. If the bank session needs reauthorization, an admin can use **Reconnect** from the connection card menu.
+
 ## Limitations
 
 - Only supports banks in EU/EEA countries
