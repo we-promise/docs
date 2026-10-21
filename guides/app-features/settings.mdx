@@ -76,15 +76,16 @@ Configure AI features like chat and transaction rules from Settings → Self-Hos
 
 ### Count investing as spending
 
-By default, investment contributions from a non-investment, non-crypto account into an investment or crypto account count as spending in budgets, reports, the savings rate, and the cash flow Sankey. Transfers between investment or crypto accounts remain funds movements. Existing account and transaction exclusions still apply.
+By default, investment contributions from a non-investment, non-crypto account into an investment or crypto account count as spending in budgets, reports, the savings rate, and the cash flow Sankey. Transfers between investment or crypto accounts remain funds movements. Existing account and transaction exclusions still apply, including accounts excluded from reports and tax-advantaged accounts.
 
-If your household treats ISA contributions, pension payments, or brokerage deposits as saving rather than spending, you can turn this off. An admin can go to **Settings → Preferences** and disable **Count investing as spending**.
+If your household treats contributions to an ISA, pension, or brokerage as saving rather than spending, you can turn this off. Go to **Settings → Preferences** and toggle **Count investing as spending** to off (requires admin role). When the setting is off:
 
-When the setting is off:
-- Investment contributions are excluded from budget actuals and expense totals in reports.
-- The cash flow Sankey shows them as a separate **Invested** outflow node instead of folding them into your expense categories.
-- The savings rate and family/category stats no longer count them as expenses.
+- Investment contributions no longer appear in spending totals or budget actuals.
+- The cash flow Sankey draws a separate **Invested** outflow node next to Surplus or Deficit.
+- The AI assistant's income statement reports an `invested` total alongside income and expenses.
+- Budget drilldowns and report breakdowns exclude those transactions.
 - Loan payments are unaffected and remain counted as expenses.
+
 
 The preference is part of the income statement cache key, so a new report request uses the updated setting.
 
