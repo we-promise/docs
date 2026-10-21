@@ -1,9 +1,14 @@
 ---
 title: Redbark
-description: Connect Australian bank accounts via CDR open banking
+description: Connect bank accounts via Redbark's open banking aggregator
 ---
 
-Redbark connects Australian bank accounts to Sure through the [Consumer Data Right](https://www.cdr.gov.au/) (CDR) open banking framework. Data flows one way, from your banks into Sure, using read-only consented access. Your bank credentials are never shared with Redbark or Sure.
+Redbark is a banking aggregator that connects bank accounts to Sure through multiple upstream data providers. Data flows one way, from your banks into Sure, using read-only consented access. Your bank credentials are never shared with Redbark or Sure.
+
+Redbark routes your accounts through one of two upstream providers depending on your region:
+
+- **Fiskil** — Australian institutions, via the [Consumer Data Right](https://www.cdr.gov.au/) (CDR) open banking framework
+- **Plaid** — US and Canadian institutions
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
@@ -71,9 +76,9 @@ When a pending transaction settles, the posted version replaces it automatically
 
 ## Limitations
 
-- Australian institutions only (banks under the CDR regime)
 - Banking accounts only; brokerage accounts connected to Redbark are not imported
 - Data is read-only; Sure never writes anything back to your banks
+- Fiskil covers Australian institutions under the CDR regime; Plaid covers US and Canadian institutions
 
 ## Troubleshooting
 
@@ -82,5 +87,7 @@ When a pending transaction settles, the posted version replaces it automatically
 **An account is missing**: check the account's consent is still active in Redbark under **Settings > Consents**, and note that brokerage accounts are not synced.
 
 **Sync errors**: Provider sync failures are captured in Sure's debug log. Super admins can find them at **Settings > Debug**, including counts of skipped and failed rows.
+
+**Credit card or loan balance was incorrect before**: earlier versions of Sure negated all Redbark credit card and loan balances regardless of the upstream provider. Fiskil (AU/CDR) reports those balances as negative, so negating them is correct. Plaid (US/CA) reports them as positive, so negating them produced the wrong sign and overstated net worth by twice the amount owed. Sure now applies the correct sign for each provider. If your net worth figure changed after updating, this correction is the cause. Trigger a manual sync from the account page to confirm the balance is current.
 
 For more detail, see the [Redbark documentation](https://docs.redbark.com/sure).
