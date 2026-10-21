@@ -36,20 +36,20 @@ API access requires a Redbark Developer or Professional plan. It is not availabl
 
 ### Variable loan rates
 
-For linked loan accounts, Sure calls Redbark's `GET /v1/account-details` endpoint on every sync and automatically records any rate change in the loan's variable rate schedule.
+For eligible linked loan accounts, Sure calls Redbark’s `GET /v1/account-details` endpoint during sync. For a variable-rate loan with a usable reported rate, Sure can record changes in its variable rate schedule.
 
 What Sure does with the reported rate:
 
-- If the loan has no rate recorded yet, Sure sets it as the base rate.
+- For a variable-rate loan with no recorded rate, Sure sets the reported rate as its base rate unless that field is locked. A blank rate type can be adopted as variable when the bank identifies the product as variable.
 - If the rate has moved since the last sync, Sure adds a dated row to the variable rate schedule, updating the loan's projection and repayment schedule going forward.
 - If the loan is marked fixed and the bank reports a different rate, Sure logs the discrepancy and records nothing.
 - If the loan's rate or schedule is locked, the locked value is preserved.
 
 The date recorded is the day Sure detected the change. Redbark's API does not carry an effective date for rate changes, so the recorded date reflects when the change was seen rather than when the bank applied it.
 
-Sure reads the batch limit of 100 account IDs per API call. If a batch call is rejected, each account is retried individually so a single stale account does not block the others.
+Sure reads the batch limit of 100 account IDs per API call. If a multi-account batch is rejected with a bad-request or not-found error, each account is retried individually so a single stale account does not block the others.
 
-A failed `account-details` fetch leaves the stored rate and schedule untouched and does not fail the sync.
+A failed `account-details` fetch does not replace the stored details snapshot. Non-authentication failures are logged and allow the sync to continue; authentication failures propagate and require reconnecting the connection.
 
 ### Pending transactions
 
