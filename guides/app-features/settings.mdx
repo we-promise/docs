@@ -72,6 +72,22 @@ Sure triggers a family-wide sync automatically on login when `auto_sync_on_login
 
 Configure AI features like chat and transaction rules from Settings → Self-Hosting. See the [LLM support documentation](/llm-support) for more details.
 
+## Preferences
+
+### Count investment contributions as spending
+
+By default, money moved into an investment or crypto account is counted as spending in budgets, reports, the savings rate, and the cash flow Sankey. This is the right view for "can we afford this month?" analysis — the cash has left your spending accounts.
+
+If your household treats ISA contributions, pension payments, or brokerage deposits as saving rather than spending, you can turn this off. Go to **Settings → Preferences** and disable **Count investment contributions as spending**.
+
+When the setting is off:
+- Investment contributions are excluded from budget actuals and expense totals in reports.
+- The cash flow Sankey shows them as a separate **Invested** outflow node instead of folding them into your expense categories.
+- The savings rate and family/category stats no longer count them as expenses.
+- Loan payments are unaffected and remain counted as expenses.
+
+Toggling the setting never serves stale data — income statement cache keys include it, so your reports update immediately.
+
 ## Preview features
 
 Some newer areas of the app are gated behind preview features while they are still rolling out.

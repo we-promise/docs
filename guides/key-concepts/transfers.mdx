@@ -77,6 +77,16 @@ Transfers from a non-investment, non-crypto account to an investment or crypto a
 
 Investment contributions from a non-investment, non-crypto account are tracked as expenses in budgets because they represent a cash outflow from that account. Transfers between investment or crypto accounts remain funds movements and are excluded. For a matched contribution, assign a category, merchant, and tags on the outflow transaction; the inflow shows the outflow category read-only.
 
+#### Marking a transfer as a plain transfer instead
+
+Sometimes a brokerage or crypto account is used only to convert currency — money flows in and straight back out, so counting the inflow as spending overstates your expenses. You can turn off the investment contribution classification for any matched transfer into an investment or crypto account.
+
+To do this, open either transaction in the transfer pair and find the **Investment contribution** switch in the Details section of the drawer. Turning it off reclassifies the outflow leg as a funds movement (excluded from budgets and reports) and removes the auto-assigned Investment Contributions category. Sure locks the choice so that future provider syncs do not override it.
+
+You can also toggle this from the AI assistant or via the `update_transfer` MCP tool.
+
+Unlinking the transfer clears the lock.
+
 ## Creating Transfers Manually
 
 To create a transfer:
