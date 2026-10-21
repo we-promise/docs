@@ -76,7 +76,7 @@ Configure AI features like chat and transaction rules from Settings → Self-Hos
 
 ### Count investing as spending
 
-By default, money moved into an investment account (an `investment_contribution` transaction) counts as spending in budgets, reports, the savings rate, and the cash flow Sankey chart. Existing account and transaction exclusions still apply, including accounts excluded from reports and tax-advantaged accounts.
+By default, investment contributions from a non-investment, non-crypto account into an investment or crypto account count as spending in budgets, reports, the savings rate, and the cash flow Sankey. Transfers between investment or crypto accounts remain funds movements. Existing account and transaction exclusions still apply, including accounts excluded from reports and tax-advantaged accounts.
 
 If your household treats contributions to an ISA, pension, or brokerage as saving rather than spending, you can turn this off. Go to **Settings → Preferences** and toggle **Count investing as spending** to off (requires admin role). When the setting is off:
 
@@ -84,6 +84,8 @@ If your household treats contributions to an ISA, pension, or brokerage as savin
 - The cash flow Sankey draws a separate **Invested** outflow node next to Surplus or Deficit.
 - The AI assistant's income statement reports an `invested` total alongside income and expenses.
 - Budget drilldowns and report breakdowns exclude those transactions.
+- Loan payments are unaffected and remain counted as expenses.
+
 
 The preference is part of the income statement cache key, so a new report request uses the updated setting.
 
