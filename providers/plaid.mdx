@@ -377,7 +377,7 @@ If a Plaid investment account has holdings but you have never made any trades or
 
 The account-scoped investments data previously only passed securities to the holdings processor when the account had both holdings and investment transactions. Accounts with holdings but no transaction history had their securities list dropped, so each holding could not resolve its security and was silently skipped.
 
-This is now fixed. Securities are included whenever the account has either holdings or investment transactions. To import the missing holdings, trigger a manual sync from the account page.
+This is fixed in builds containing [Sure PR #4256](https://github.com/we-promise/sure/pull/4256): securities are included whenever the account has either holdings or investment transactions. As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. After upgrading to a build containing the fix, trigger a manual sync from the account page to import the missing holdings.
 
 ### Investment holdings not syncing with encryption enabled
 
