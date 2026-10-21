@@ -15,7 +15,7 @@ Sure has two separate AI systems that operate independently. Understanding this 
 
 - **Builtin** (default): uses the LLM provider selected by `LLM_PROVIDER` (OpenAI-compatible or native Anthropic). Calls Sure's function tools directly.
 - **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
-- **MCP only**: disables the in-app assistant entirely — no chat sidebar, no chat API, no bills AI shortcuts, no AI-written insight text. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
+- **MCP only**: disables the in-app assistant entirely — no chat sidebar, no chat API, no bills AI shortcuts, no Dig in with AI on insight cards. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
 
 **Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync:
 
@@ -39,12 +39,12 @@ AI work runs in the Sidekiq `worker` in its own capsule ("lane"), so a slow mode
 | Lane | Queues | Threads | Jobs |
 | --- | --- | --- | --- |
 | default | `scheduled`, `high_priority`, `medium_priority`, `low_priority`, `default` | `RAILS_MAX_THREADS - RAILS_AI_MAX_THREADS` (3 - 1 = 2 by default) | syncs, balances, rules, imports, scheduled jobs |
-| ai | `ai_high_priority`, then `ai_low_priority` (strict order) | `RAILS_AI_MAX_THREADS` (default `1`) | chat (`ai_high_priority`); auto-categorization, merchant detection and enhancement, PDF processing, insights (`ai_low_priority`) |
+| ai | `ai_high_priority`, then `ai_low_priority` (strict order) | `RAILS_AI_MAX_THREADS` (default `1`) | chat (`ai_high_priority`); auto-categorization, merchant detection and enhancement, PDF processing (`ai_low_priority`) |
 
 Key behaviors:
 
 - **`RAILS_MAX_THREADS`** is the worker's total thread count and also sizes its database pool. It must be greater than `RAILS_AI_MAX_THREADS` (at least `2` by default). A lane with 0 threads stops the worker from starting. Puma reads the same variable, so if you lower it for the web service to save memory, set the worker's value separately.
-- **Strict order:** a waiting chat runs next, but it doesn't interrupt the AI job already running. Auto-categorization, merchant-detection, and merchant-enhancement work is batched using `LLM_MAX_ITEMS_PER_CALL` (default `25`). An OpenAI-compatible provider can split a batch into several calls when it does not fit the context window. PDF import, insight, and chat jobs can make several calls. With one AI thread, a PDF import or other `ai_low_priority` job waits behind earlier ones, and continuous chat use pauses background AI work.
+- **Strict order:** a waiting chat runs next, but it doesn't interrupt the AI job already running. Auto-categorization, merchant-detection, and merchant-enhancement work is batched using `LLM_MAX_ITEMS_PER_CALL` (default `25`). An OpenAI-compatible provider can split a batch into several calls when it does not fit the context window. PDF import and chat jobs can make several calls. With one AI thread, a PDF import or other `ai_low_priority` job waits behind earlier ones, and continuous chat use pauses background AI work.
 - **Busy notice:** when a chat would wait behind another AI job (a chat has waited over 30 seconds, or, with one AI thread, a background AI job has waited over 30 seconds), its "Thinking" bubble says the system is busy until the chat's job starts. `AI_RESPONSE_TIMEOUT` includes that wait.
 - **One AI thread suits a model that serves one request at a time,** such as a local model on CPU. A chat turn's calls run back to back, keeping the model's prompt cache warm. If your provider serves requests in parallel (hosted APIs or a local server with several slots), raise `RAILS_AI_MAX_THREADS` and `RAILS_MAX_THREADS` by the same amount so the default lane keeps its threads.
 - **Load `config/sidekiq.yml` to use the configured AI capsule.** `bundle exec sidekiq` discovers this file by default. A `-q` option overrides the default capsule’s queues but does not remove the AI capsule from a loaded configuration. If a custom worker command loads a different configuration without the AI capsule, ensure that some worker polls `ai_high_priority` and `ai_low_priority`. Otherwise System health and the site-wide banner report "No worker is processing the AI queues", and the chat page warns that responses may not be delivered. Use `-C config/sidekiq.yml` to select Sure’s configuration explicitly.
@@ -704,7 +704,7 @@ The `local-ai` profile includes:
 
 Family admins can override the built-in prompts from **Settings → AI Prompts** — no fork or redeploy required. Overrides are stored per family, so one family's edits never affect another on the same deployment.
 
-Five prompts are editable:
+Six prompts are editable:
 
 | Prompt | What it controls |
 | --- | --- |
@@ -713,6 +713,7 @@ Five prompts are editable:
 | Categorizer (Anthropic) | Same, when using an Anthropic provider |
 | Merchant detector (OpenAI) | Instructions for the background merchant detection job |
 | Merchant detector (Anthropic) | Same, when using an Anthropic provider |
+| Insight Dig In | The first message pre-filled in the assistant when a user clicks **Dig in with AI** on an insight card |
 
 Each field opens with the current default text for your deployment, or the saved override if one exists. Clearing a field resets it to the default. The **Reset to default** button asks for confirmation before restoring the original text. A live character counter and status label sit below each field. The limit is 20,000 characters per prompt.
 
