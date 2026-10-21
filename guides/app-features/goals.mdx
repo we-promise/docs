@@ -137,7 +137,7 @@ A goal can link accounts in different currencies. The goal itself has a single c
 **Exchange rate rules:**
 
 - Backing (current balance), pace, and market value all use today's rate. Pace is an estimate, and converting per entry date would require a rate lookup for every transaction on every page load.
-- Recording a spend or matching a pledge uses the exchange rate for the entry's date, not today's rate.
+- Recording a spend linked to a transaction or matching a pledge uses the entry’s date. A manual spend without a linked transaction uses today’s rate.
 - If a rate is unavailable, Sure never substitutes a 1:1 conversion. Instead, accounts whose balances cannot be converted are left out of the total and a warning is shown.
 
 **Missing rate warnings:**
