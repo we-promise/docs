@@ -34,6 +34,23 @@ API access requires a Redbark Developer or Professional plan. It is not availabl
 - **Transaction history**: The first sync pulls 90 days of history (or from a start date you choose); later syncs are incremental with a 7 day lookback
 - **Deduplication**: Transactions are deduplicated by their Redbark transaction id, so re-syncing never creates duplicates
 
+### Variable loan rates
+
+For linked loan accounts, Sure calls Redbark's `GET /v1/account-details` endpoint on every sync and automatically records any rate change in the loan's variable rate schedule.
+
+What Sure does with the reported rate:
+
+- If the loan has no rate recorded yet, Sure sets it as the base rate.
+- If the rate has moved since the last sync, Sure adds a dated row to the variable rate schedule, updating the loan's projection and repayment schedule going forward.
+- If the loan is marked fixed and the bank reports a different rate, Sure logs the discrepancy and records nothing.
+- If the loan's rate or schedule is locked, the locked value is preserved.
+
+The date recorded is the day Sure detected the change. Redbark's API does not carry an effective date for rate changes, so the recorded date reflects when the change was seen rather than when the bank applied it.
+
+Sure reads the batch limit of 100 account IDs per API call. If a batch call is rejected, each account is retried individually so a single stale account does not block the others.
+
+A failed `account-details` fetch leaves the stored rate and schedule untouched and does not fail the sync.
+
 ### Pending transactions
 
 Only posted transactions are imported by default. To also import pending transactions, set this in your Sure environment:
