@@ -329,8 +329,9 @@ From the bill drawer you can apply a payment to the current occurrence in severa
 When the app cannot record a payment it shows an error message. Common reasons:
 
 - **Over-allocation** — the amount you entered would exceed the total of the linked transaction.
+- **Transaction used up** — the transaction's full amount is already applied to other payments. Choose a different transaction or enter a partial amount on one that still has remaining balance.
+- **Already applied** — the transaction is already applied to this bill. This can happen with a double submit or a stale browser tab.
 - **Missing exchange rate** — the transaction is in a different currency and no exchange rate is available for that date. Enter the amount explicitly to work around this.
-- **Already applied** — the transaction has already been applied to this bill.
 
 To remove a payment, use the unlink action in the payment history section of the drawer.
 
