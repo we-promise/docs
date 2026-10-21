@@ -119,6 +119,15 @@ A registration request may include a mix of the above (for example, Cursor's def
 
 The following URI schemes are always rejected: `javascript`, `data`, `file`, `about`, `blob`, `ws`, `wss`, `ftp`, `mailto`, `tel`, `sms`, and `intent`. Plain HTTP to a non-loopback host is also rejected. URIs with a userinfo component or a fragment are rejected regardless of scheme.
 
+### Dynamic client registration client names
+
+The `client_name` field in a `POST /register` request is optional; Sure defaults to `"MCP Client"` when it is absent. Two additional restrictions apply:
+
+- **Reserved names** — Names that contain the word "Sure" as a whole word, or that start with "SureMobile", are reserved for first-party apps and are rejected with `invalid_client_metadata`. The check is case-insensitive, strips punctuation, invisible characters, and combining marks, and maps look-alike Cyrillic, Greek, and Armenian letters to their Latin equivalents before matching. Names such as "Measure Mobile" or "Surefire" are not affected.
+- **Bidirectional control characters** — Names that contain any Unicode bidirectional control character (for example U+202E RIGHT-TO-LEFT OVERRIDE) are rejected with `invalid_client_metadata`. These characters can make the consent screen render a different name than the one stored, so Sure rejects them instead of silently stripping them.
+
+Both rules return HTTP 400 with `error: "invalid_client_metadata"`.
+
 ### Protocol version and transport
 
 Sure supports protocol versions `2025-03-26` and `2025-06-18`. The current default is `2025-06-18`, which introduces the Streamable HTTP transport used by clients such as Bifrost v1.6.3 and later.

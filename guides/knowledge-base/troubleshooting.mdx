@@ -622,6 +622,22 @@ If a provider connection shows "Deletion in progress" indefinitely and never dis
   </Accordion>
 </AccordionGroup>
 
+## Cash flow and income reports show stale data after deleting an account
+
+After you delete an account, cash flow charts, income statements, and category spending totals could continue to include that account's transactions until an unrelated change triggered a cache refresh.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The shared income statement freshness key already included the most recent account update timestamp, along with entry changes, exchange rates, and family currency. However, an account timestamp alone can return to an earlier value after an account is marked for deletion and then destroyed, allowing an older cached result to be reused. The family and category statistics caches also used only the entry version rather than the shared freshness key.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    On `main`, the shared freshness key uses an account version containing both the account count and the full-precision latest update timestamp. The count changes when an account is destroyed, preventing the key from reverting to its pre-deletion value. Family and category statistics now use the shared freshness key too, so a new report request refreshes those results when account status or family currency changes.
+
+    This fix was merged in [Sure PR #4235](https://github.com/we-promise/sure/pull/4235). As of October 20, 2026, it is on `main` but is not included in the latest stable release, `v0.7.5-hotfix.2`. Use a build containing that fix, or wait for a stable release that includes it. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Reports show stale data after merging or deleting a category
 
 When you merge categories or delete a category, dashboards and income statements could continue to display the deleted category until an unrelated transaction change occurred.
