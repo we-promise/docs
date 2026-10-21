@@ -70,6 +70,7 @@ New rules are saved inactive; renaming an existing active rule can leave it acti
 | `create_transaction` | Create a new transaction on a writable account. Negative amount = income (money in), positive = expense (money out). Pass `type` (`income` or `expense`) to derive the sign from a positive magnitude instead. Pass `external_id` (and optionally `source`, defaulting to `"mcp"`) to make the call idempotent: a repeat call with the same account + source + external_id returns the existing transaction instead of creating a duplicate. |
 | `delete_transaction` | Permanently delete a transaction and its ledger entry, recalculating the account balance. Pass the transaction `id` returned by `get_transactions` or `create_transaction`. Optionally pass `account_id` as a guard so a mismatched id cannot delete the wrong record. Split child transactions cannot be deleted individually; delete the split parent instead. |
 | `unmatch_transfer` | Unlink a confirmed or pending transfer between two accounts, keeping both transactions. A confirmed transfer’s legs return to standard kinds; a pending match’s existing kinds are preserved. Pass the `transaction_id` of either side or the `transfer_id`. By default the pairing is rejected so auto-match won't suggest it again; pass `reject: false` to only unlink. Fee transactions attached to the transfer are deleted with it and listed in the result. Pass `dry_run: true` to preview the effect first. |
+| `update_transfer` | Switch a confirmed transfer from a non-investment, non-crypto account into an investment or crypto account between an investment contribution and a plain transfer. Both accounts must be writable. Contributions count as spending by default, unless the family turns off **Count investing as spending**. Use this when a brokerage or crypto account only converts currency and the round trip should not appear as an expense. Pass `dry_run: true` to preview the change first. |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
 | `update_budget` | Update budget allocations for a month |
 | `set_opening_balance` | Set a manual account's opening balance and, optionally, the date it applies from. Returns whether the current balance will change as a result. Pass `dry_run: true` to preview the effect without writing. Accounts synced from a provider are refused. |
@@ -118,6 +119,15 @@ Sure registers MCP clients dynamically via `POST /register`. The `redirect_uris`
 A registration request may include a mix of the above (for example, Cursor's default payload includes a `cursor://` scheme, a loopback HTTP URI, and an `https` URI in the same list). Sure validates every URI in the list; if any URI fails validation the entire registration is rejected.
 
 The following URI schemes are always rejected: `javascript`, `data`, `file`, `about`, `blob`, `ws`, `wss`, `ftp`, `mailto`, `tel`, `sms`, and `intent`. Plain HTTP to a non-loopback host is also rejected. URIs with a userinfo component or a fragment are rejected regardless of scheme.
+
+### Dynamic client registration client names
+
+The `client_name` field in a `POST /register` request is optional; Sure defaults to `"MCP Client"` when it is absent. Two additional restrictions apply:
+
+- **Reserved names** — Names that contain the word "Sure" as a whole word, or that start with "SureMobile", are reserved for first-party apps and are rejected with `invalid_client_metadata`. The check is case-insensitive, strips punctuation, invisible characters, and combining marks, and maps look-alike Cyrillic, Greek, and Armenian letters to their Latin equivalents before matching. Names such as "Measure Mobile" or "Surefire" are not affected.
+- **Bidirectional control characters** — Names that contain any Unicode bidirectional control character (for example U+202E RIGHT-TO-LEFT OVERRIDE) are rejected with `invalid_client_metadata`. These characters can make the consent screen render a different name than the one stored, so Sure rejects them instead of silently stripping them.
+
+Both rules return HTTP 400 with `error: "invalid_client_metadata"`.
 
 ### Protocol version and transport
 

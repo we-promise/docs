@@ -145,6 +145,36 @@ OPBD and PRCD are period-boundary snapshots rather than live figures, so they ma
 
 If none of the recognised types are present, Sure falls back to the first balance the API returns.
 
+#### Duplicate same-type balances
+
+Some banks report the same balance type more than once with different amounts — for example, two CLBD entries where one includes an arranged overdraft. When this happens, Sure resolves the conflict in stages, using the strongest available evidence first:
+
+1. **Credit limit gap** (depository accounts) — if the difference between the two amounts equals the account's known credit limit, the lower amount is the real balance and the higher one includes the overdraft facility.
+2. **Last committed transaction** — each candidate balance may reference a `last_committed_transaction` field pointing to a specific booking. If every candidate points to a distinct booking with an unambiguous date, the uniquely most recent booking wins. Tied or ambiguous dates do not decide the result.
+3. **Previous verified anchor** (depository accounts) — Sure computes the expected balance by subtracting booked transaction flows from the last verified anchor. A unique candidate that matches this expectation wins. If multiple candidates match, a uniquely newest `last_change_date_time` can choose one, but that timestamp-based pick is not marked verified. If the anchor date is ambiguous (some transactions may or may not be included), Sure checks both possibilities and only uses the result when both agree.
+4. **Lowest balance** (depository accounts) — an included overdraft facility only ever raises the reported figure, so the lower amount is more likely to be real.
+5. **First in response order** (other account types) — no evidence is available; Sure uses the first entry the bank returned.
+
+Sure logs each resolved tiebreak to **Settings > Debug** under the `provider_sync_warning` category. To avoid log spam, it only records a new entry when the candidates or the outcome change between syncs.
+
+**Balance verification:** a balance chosen by one of the evidence-backed stages (credit limit gap, last committed transaction, or previous verified anchor) is marked as verified. This verified flag is then used by the anchor stage on subsequent syncs — Sure only trusts a previous anchor to inform the next tiebreak when that anchor itself was written from a verified pick. This prevents a wrong balance from confirming itself across syncs.
+
+If any booked transaction lacks a usable date, Sure skips the anchor stage entirely because it cannot tell whether that transaction falls before or after the anchor.
+
+#### Credit cards with "Balance is available credit"
+
+When a credit card account has the **Balance is available credit** setting enabled, Sure uses a different priority order that prefers available balance types first:
+
+1. **CLAV / closingAvailable** — closing available balance
+2. **ITAV / interimAvailable** — interim available balance
+3. Then the same booked order as above (CLBD, ITBD, OPBD, PRCD, XPCD)
+
+This is needed because some banks (for example mBank PL) report the credit limit as the booked balance (ITBD) and the actual available credit as ITAV. Without this adjustment, Sure would treat the credit limit as available credit, producing zero calculated debt.
+
+XPCD (expected) stays after the booked types in this order because it is a projected booked balance, not an available credit figure.
+
+This available-first priority only applies when the provider account is linked to a credit card account in Sure. If the account is later relinked to a different account type, Sure falls back to the standard booked-first order even if the "Balance is available credit" flag is still set.
+
 ### Multi-currency accounts
 
 Some wallets and payment services (such as PayPal) report multiple balances under the same balance type — one per currency — in a single response. Without special handling, the last entry would win, causing the account to display the wrong currency and an empty balance.
@@ -242,6 +272,14 @@ Some banks reject an Enable Banking session with a 401 or 404 during a sync even
 Enable Banking sometimes rejects individual account balance or transaction requests with a 401 “Invalid credentials or expired JWT” while the session-level check still reports the session as valid. Because only a session-level failure flips the connection to `requires_update`, the connection card stays green and no reconnect prompt appears automatically. Syncs can fail for the affected accounts without requesting reauthorization; these failures can still appear as sync errors.
 
 To reconnect manually, an admin can open the action menu on the connection card and choose **Reconnect**. This option is always available as long as the connection is not already showing a reconnect prompt. Clicking it routes through the same reauthorization flow as a normal reconnect, so you do not need to disconnect and re-add the bank.
+
+### FORMAT_ERROR: PSU IP Address field not valid (self-hosted)
+
+Some banks (such as HypoVereinsbank) reject syncs with a `FORMAT_ERROR: PSU IP Address field not valid` response when the `Psu-Ip-Address` header contains a non-public IP address.
+
+This can happen on self-hosted instances accessed over a LAN, VPN, or tunnel (for example Tailscale). The browser's address is stored at the time of connection. If that address is private, loopback, link-local, CGNAT (`100.64.0.0/10`), or another IANA special-purpose range that is not globally reachable, Sure omits the `Psu-Ip-Address` header rather than forwarding an invalid address to the bank.
+
+After upgrading to a build that includes [Sure PR #4304](https://github.com/we-promise/sure/pull/4304), no additional configuration is needed: the next sync omits a stored non-public IP automatically. This fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`, as of October 21, 2026. If the bank session needs reauthorization, an admin can use **Reconnect** from the connection card menu.
 
 ## Limitations
 

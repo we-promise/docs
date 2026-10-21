@@ -245,8 +245,17 @@ class MyBankItem < ApplicationRecord
 
   enum :status, { good: "good", requires_update: "requires_update" }, default: :good
 
-  # Encryption for secret fields
-  if Rails.application.credentials.active_record_encryption.present?
+  # The generator defines this helper directly.
+  def self.encryption_ready?
+    creds_ready = Rails.application.credentials.active_record_encryption.present?
+    env_ready = ENV["ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"].present? &&
+                ENV["ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY"].present? &&
+                ENV["ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT"].present?
+    creds_ready || env_ready
+  end
+
+  # Encryption for secret fields (optional — active with explicit environment keys or Rails credentials)
+  if encryption_ready?
     encrypts :api_key, :refresh_token, deterministic: true
   end
 
@@ -390,6 +399,108 @@ class Provider::MyBankAdapter < Provider::Base
   end
 end
 ```
+
+### 4. Controller
+
+**File:** `app/controllers/my_bank_items_controller.rb`
+
+The generated controller inherits `StreamExtensions` through `ApplicationController` and uses `frame_redirect_to` for missing-credential exits. The account-linking flow actions (`preload_accounts`, `select_accounts`, `select_existing_account`) call `frame_redirect_to` when a required credential check fails. A plain `redirect_to` inside a Turbo frame follows the redirect inside the frame, so the resulting page renders inside the modal and the flash message is never shown. `frame_redirect_to` detects whether the request came from a Turbo frame and, when it did, renders a frame containing a `turbo-stream` redirect action, which causes a full-page visit instead of a frame navigation.
+
+```ruby
+class MyBankItemsController < ApplicationController
+  before_action :set_my_bank_item, only: [:show, :edit, :update, :destroy, :sync, :setup_accounts, :complete_account_setup]
+
+  def create
+    @my_bank_item = Current.family.my_bank_items.build(my_bank_item_params)
+    @my_bank_item.name ||= "My Bank Connection"
+
+    if @my_bank_item.save
+      redirect_to settings_providers_path, notice: t(".success"), status: :see_other
+    else
+      render_provider_panel("my_bank", alert: @my_bank_item.errors.full_messages.join(", "))
+    end
+  end
+
+  def update
+    if @my_bank_item.update(my_bank_item_params)
+      render_provider_panel("my_bank", notice: t(".success"))
+    else
+      render_provider_panel("my_bank", alert: @my_bank_item.errors.full_messages.join(", "))
+    end
+  end
+
+  def destroy
+    @my_bank_item.destroy_later
+    redirect_to settings_providers_path, notice: t(".success", default: "Scheduled My Bank connection for deletion.")
+  end
+
+  def sync
+    unless @my_bank_item.syncing?
+      @my_bank_item.sync_later
+    end
+
+    respond_to do |format|
+      format.html { redirect_back_or_to accounts_path }
+      format.json { head :ok }
+    end
+  end
+
+  # Account-linking flow actions
+
+  def preload_accounts
+    my_bank_item = Current.family.my_bank_items.first
+    unless my_bank_item&.credentials_configured?
+      frame_redirect_to settings_providers_path, alert: t(".no_credentials_configured")
+      return
+    end
+
+    my_bank_item.sync_later unless my_bank_item.syncing?
+    redirect_to select_accounts_my_bank_items_path(accountable_type: params[:accountable_type], return_to: params[:return_to])
+  end
+
+  def select_accounts
+    my_bank_item = Current.family.my_bank_items.first
+    unless my_bank_item&.credentials_configured?
+      frame_redirect_to settings_providers_path, alert: t(".no_credentials_configured")
+      return
+    end
+
+    @my_bank_accounts = my_bank_item.my_bank_accounts
+                                    .left_joins(:account_provider)
+                                    .where(account_providers: { id: nil })
+                                    .order(:name)
+  end
+
+  def select_existing_account
+    @account = Current.family.accounts.find(params[:account_id])
+    @my_bank_item = Current.family.my_bank_items.first
+
+    unless @my_bank_item&.credentials_configured?
+      frame_redirect_to settings_providers_path, alert: t(".no_credentials_configured")
+      return
+    end
+
+    @my_bank_accounts = @my_bank_item.my_bank_accounts
+                                     .left_joins(:account_provider)
+                                     .where(account_providers: { id: nil })
+                                     .order(:name)
+  end
+
+  # ... (link_accounts, link_existing_account, setup_accounts, complete_account_setup)
+
+  private
+
+    def set_my_bank_item
+      @my_bank_item = Current.family.my_bank_items.find(params[:id])
+    end
+
+    def my_bank_item_params
+      params.require(:my_bank_item).permit(:name, :sync_start_date, :api_key, :base_url, :refresh_token)
+    end
+end
+```
+
+The key difference from a plain `redirect_to` in those credential-check guards is that `frame_redirect_to` uses `turbo_frame_request?` to detect whether the request originated inside a Turbo frame. When it did, it renders a frame that carries a `turbo-stream` redirect action, which exits the frame and performs a full-page visit to the target path with the alert flash intact. For requests outside a frame it falls back to a normal `redirect_to`.
 
 ## Customization
 
@@ -574,14 +685,23 @@ provider = Provider::MyBankAdapter.build_provider(family: family)
 
 ### 3. Use proper encryption
 
-Always check that encryption is set up:
+Sure uses the `Encryptable` concern and `encryption_ready?` to make encryption optional — sensitive fields using this guard are encrypted when all three `ACTIVE_RECORD_ENCRYPTION_*` keys are configured or Active Record encryption is configured through Rails credentials. Auto-derived runtime keys alone do not enable this opt-in guard. Use this pattern in generated models:
 
 ```ruby
 # In your model
-if Rails.application.credentials.active_record_encryption.present?
+include Encryptable
+
+if encryption_ready?
   encrypts :api_key, :refresh_token, deterministic: true
-else
-  Rails.logger.warn "ActiveRecord encryption not configured for #{self.name}"
+end
+```
+
+CI automatically runs tests that call `encryption_ready?` with throwaway keys, so encryption paths are exercised on every pull request without any manual configuration. Guard your own encryption tests the same way to get that coverage for free:
+
+```ruby
+test "stores api_key encrypted" do
+  skip "Encryption not configured" unless MyBankItem.encryption_ready?
+  # ...
 end
 ```
 
@@ -672,9 +792,10 @@ If the generator raises `Thor::Error: '<field>' is a reserved field name`, remov
 
 ### Encryption not working
 
-1. Check credentials are configured: `rails credentials:edit`
-2. Add encryption keys if missing
-3. Or use environment variables
+1. Check that the model defines `encryption_ready?` (as the generator does) or includes `Encryptable`, and calls the helper before `encrypts`.
+2. Configure encryption through Rails credentials or set all three environment variables: `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`. Generate values with `openssl rand -hex 32` for each.
+3. Restart the app after setting the variables.
+4. If data was written before encryption was enabled, check whether the model and its fields are listed in `lib/tasks/security_backfill.rake`; newly generated providers are not discovered automatically. For covered models, `bin/rails security:backfill_encryption` defaults to a dry run. Review its output before applying the backfill with `DRY_RUN=false bin/rails security:backfill_encryption`. See [Turning on Active Record encryption after first boot](/self-hosting#turning-on-active-record-encryption-after-first-boot).
 
 ### Reserved field name error
 

@@ -109,6 +109,16 @@ When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers th
 
 **Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.
 
+### Security row disambiguation
+
+A ticker can have more than one security row in Sure's database when it trades on multiple exchanges. Sure selects a security row in a fixed, deterministic order:
+
+1. The row from a matching SnapTrade or providerless holding in the account, preserving user remaps and locked cost basis. Holdings from another provider are excluded.
+2. The row matching the exchange SnapTrade reports for the ticker.
+3. Online rows first, then rows with a price provider, then the oldest row.
+
+If the fallback (step 3) applies and more than one candidate exists, Sure records a warning entry in the debug log at **Settings > Debug** with the ticker, the reported exchange, the chosen row, and each candidate. A single candidate at step 3 does not generate a log entry. This fallback does not establish the correct exchange: it can consistently retain a wrong match that requires manual correction.
+
 ### Resync reclassification
 
 If a later sync determines an activity should be classified differently (for example, a CORP_ACTION that previously had units is re-fetched without units), Sure reclassifies the entry automatically. Entries that have been manually edited or locked by an import are protected and will not be reclassified; these cases are recorded in the debug log at **Settings > Debug**.
@@ -136,6 +146,35 @@ When a trade cannot be imported — for example because SnapTrade omitted both q
 ### Background activity import
 
 Fresh brokerage connections may take a little longer to finish importing activity history. Sure continues fetching account activity in the background after the initial connection when needed.
+
+## Security
+
+Sure encrypts sensitive SnapTrade data at rest using ActiveRecord Encryption when encryption keys are configured in your deployment. Configure `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`, or the corresponding Rails encryption credentials, before connecting a SnapTrade integration in a production environment. Without encryption configuration, the fields below are stored in plaintext.
+
+The following fields on each SnapTrade account record are encrypted:
+
+- **Account number** — encrypted with non-deterministic encryption; never looked up by value, so it does not need to be deterministic
+- **Raw API payloads** — the raw account, transaction, holdings, activities, and balance payloads returned by SnapTrade
+
+The SnapTrade item credentials (Client ID, Consumer Key, OAuth access token, and OAuth refresh token) are encrypted on the item record separately.
+
+### Encrypting existing records
+
+If you configured encryption keys after your initial setup, use the `security:backfill_encryption` rake task to backfill the supported fields:
+
+The backfill covers `account_number` and raw account, transaction, holdings, and activities payloads. It currently does not backfill `raw_balances_payload` or SnapTrade item credentials; it is not a complete migration of all existing SnapTrade data.
+
+```bash
+bin/rails security:backfill_encryption
+```
+
+The task is idempotent and defaults to a dry run. Pass `dry_run=false` to apply changes:
+
+```bash
+bin/rails security:backfill_encryption[100,false]
+```
+
+The task processes records in batches and prints a JSON summary of results when it finishes. See the task description for full argument details.
 
 ## Limitations
 

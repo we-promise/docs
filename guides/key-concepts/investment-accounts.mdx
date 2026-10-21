@@ -35,6 +35,10 @@ If a provider reports prices for individual securities on different dates within
 
 For accounts that have no provider connection, Sure shows the most recent holding per security in the account's currency from your manually entered or calculated data. Holdings recorded in a different currency than the account's base currency are excluded from the current portfolio view.
 
+#### How locks carry forward across syncs
+
+When a provider creates a new daily snapshot row for a holding you have previously locked — either a security remap lock or a cost basis lock — Sure copies those locks onto the new row automatically. This applies to all providers, including those that do not supply a per-holding unique identifier (such as Plaid, Indexa Capital, and SnapTrade securities). Without this carry-forward, a new sync would silently drop your manual corrections and replace them with the provider's values.
+
 ### Chart history and inception dates
 
 For linked investment and crypto accounts, the balance chart only displays data from the point where Sure has reliable provider history. The chart start date is determined by the earliest date your provider supplied activity or holdings data — data from before that point is excluded so the chart never shows misleading zero or estimated values.
@@ -216,35 +220,37 @@ Once you sell all of the transferred shares and the position reaches zero, Sure 
 > [!NOTE]
 > Only a calculated cost basis is cleared on an inbound transfer. If you have set a manual cost basis, or your institution provided one, Sure keeps that value — it represents an explicit assertion about what the position cost, which the app respects.
 
-### Setting Cost Basis Manually
+### Setting cost basis manually
 
-You can set cost basis in two ways:
+You can set cost basis from the holdings list or the holding drawer.
 
-**From the Holdings List:**
+**From the holdings list:**
 
-1. Navigate to your investment account
-2. Find the holding in your portfolio
-3. Click the pencil icon next to the average cost
-4. Enter either:
-   - **Total cost basis**: The total amount you paid for all shares
-   - **Per-share cost**: The average price per share
-5. Click **Save**
+1. Navigate to your investment account.
+2. Find the holding in your portfolio.
+3. Click the pencil icon next to the average cost.
+4. The editor shows two input fields with the quantity between them: **Per share** × quantity = **Total cost basis**. Enter a value in either the per-share field or the total field — Sure fills in the other automatically. The quantity is shown as plain text between them.
+5. Click **Save**. If a cost basis is already set, Sure shows an "Overwrite cost basis?" confirmation — click **Confirm** to replace it.
 
-**From the Holding Drawer:**
+**From the holding drawer:**
 
-1. Click on a holding to open its detail drawer
-2. In the Overview section, click the pencil icon next to "Average Cost"
-3. Enter the cost basis (total or per-share)
-4. Click **Save**
+1. Click on a holding to open its detail drawer.
+2. In the Overview section, click the pencil icon next to "Average Cost".
+3. Edit the per-share or total value.
+4. Click **Save**.
+
+Sure asks for confirmation if you are overwriting an existing cost basis. The total field helps calculate the per-share cost but is not saved directly. The editor stores a per-share cost with up to four decimal places, so sub-cent prices (such as 0.0049 per share) are preserved exactly. Pasting a value into either field keeps sub-cent precision without rounding to two decimal places.
+
+A stored cost basis of zero is shown as 0.00 in the editor so you can review it. If Sure does not know the cost basis (for example, for shares received from an inbound transfer), both fields are left empty — the per-share field is required, and submitting an empty value does not change the holding.
 
 > [!TIP]
-> The cost basis editor provides real-time conversion between total and per-share values. Enter whichever format you have available, and Sure calculates the other automatically.
+> Enter either the per-share cost or the total — Sure calculates the other in real time.
 
 ### Lock Protection
 
 When you manually set a cost basis, Sure automatically **locks** it to prevent automatic updates from overwriting your value. You'll see a lock icon indicating the value is protected.
 
-This ensures your manual entries remain intact during account syncs.
+This ensures your manual entries remain intact during account syncs. When a provider sync creates a new daily holding row, Sure carries the lock forward onto that row, including for providers that do not supply a per-holding unique identifier (Plaid, Indexa Capital, and SnapTrade securities).
 
 ### Unlocking Cost Basis
 
@@ -254,11 +260,24 @@ If you want Sure to recalculate cost basis from your trades:
 2. Scroll to the **Settings** section
 3. Find "Cost basis locked"
 4. Click **Unlock**
+5. Confirm the action in the dialog that appears
 
 After unlocking:
 - The lock icon disappears
 - Future syncs can update the cost basis
 - Calculated values (from trades) will replace the manual value
+
+### Resetting a remapped security
+
+If you have remapped a holding to a different security and want to restore the provider's original security:
+
+1. Open the holding drawer
+2. Scroll to the **Settings** section
+3. Find the remapped security notice
+4. Click **Reset to provider**
+5. Confirm the action in the dialog that appears
+
+After resetting, the holding returns to the security your provider originally sent. The security lock is removed and future syncs will use the provider's value.
 
 ## Recording Trades
 
