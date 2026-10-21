@@ -3,6 +3,24 @@ title: "Troubleshooting"
 ---
 
 
+## Sparklines not visible in the account sidebar
+
+Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The chart controller that draws sparklines included a dimension guard that skipped rendering any container smaller than 50×50 pixels. Sidebar sparkline containers are 32×12 pixels (account group totals) and 32×20 pixels (individual account rows), so they fell below the threshold and were never drawn.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The dimension guard now only skips containers that measure exactly zero in either dimension — which indicates a collapsed or not-yet-laid-out container. Small but real containers like the sidebar sparklines are drawn normally. A ResizeObserver watches collapsed containers and draws the chart once the container gains real dimensions.
+
+    Full-size charts (larger than 50 pixels) are unaffected by this change.
+
+    Upgrade to a build containing [Sure PR #4361](https://github.com/we-promise/sure/pull/4361). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## AI-detected merchants were created as shared records
 
 When merchant detection identified a new merchant from a transaction's description, Sure previously created a globally-shared `ProviderMerchant` record (source: `ai`). Because those records are visible to every family on the deployment, a transaction description crafted to steer the LLM's output could create or match a shared merchant with an attacker-chosen name, website, or logo — affecting all other families.
