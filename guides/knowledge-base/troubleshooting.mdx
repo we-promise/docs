@@ -1037,6 +1037,26 @@ When Sure syncs an investment or crypto account, it compares the date of the bal
   </Accordion>
 </AccordionGroup>
 
+## Auto mode does not retry with a simpler format after a malformed response
+
+In older builds, `LLM_JSON_MODE=auto` only fell back to `none` mode when the provider rejected the request outright (HTTP 400) or returned more than 50% null results. A response that came back with HTTP 200 but contained unparseable or wrongly-shaped JSON escaped the fallback entirely, so `auto` behaved the same as `strict` for those models.
+
+<AccordionGroup>
+  <Accordion title="What caused this?">
+    The auto-mode fallback caught `Faraday::BadRequestError` (HTTP 400) and the null-result threshold. JSON parse failures and shape mismatches raised a different error class that was not caught inside the auto-mode wrapper, so they propagated out and prevented the `none`-mode retry.
+
+    For merchant detection specifically, the retry heuristic only counted a missing `business_name` as a failure. A result that had a name but no URL was treated as successful and suppressed the retry, even though Sure ignores detections without both fields.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    A dedicated `ResponseFormatError` is now raised for JSON parse failures and shape mismatches in the generic extractors. The auto-mode wrappers for both categorization and merchant detection catch this error and retry once with `none` mode, the same as they already did for the >50% failure heuristic.
+
+    The merchant-detection heuristic was also corrected: an item missing either `business_name` or `business_url` now counts as a failure for the retry threshold.
+
+    Upgrade to a build containing [Sure PR #3602](https://github.com/we-promise/sure/pull/3602). No configuration change is required. If you were using `LLM_JSON_MODE=strict` as a workaround, switch to `auto`.
+  </Accordion>
+</AccordionGroup>
+
 ## Reading auto-categorization debug logs
 
 When auto-categorization runs, Sure writes structured entries to the debug log under the `auto_categorization` category. Go to **Settings → Debug** and filter by `auto_categorization` to see them.

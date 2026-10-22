@@ -542,7 +542,7 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `8` |
 | `OPENAI_SUPPORTS_PDF_PROCESSING` | Set to `false` for endpoints without vision support | `true` |
 | `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` | Override Responses API vs Chat Completions routing | Auto-detected |
-| `LLM_JSON_MODE` | JSON output mode for OpenAI-compatible categorization and merchant-detection calls, plus text-based PDF and bank-statement extraction: `auto`, `strict`, `json_object`, or `none` | — |
+| `LLM_JSON_MODE` | JSON output mode for OpenAI-compatible categorization and merchant-detection calls, plus text-based PDF and bank-statement extraction: `auto`, `strict`, `json_object`, or `none`. For OpenAI-compatible categorization and merchant detection, `auto` tries strict JSON first and retries once with `none` if strict is rejected with HTTP 400, the response is malformed, or more than 50% of requested results fail or are missing. Text-based PDF and bank-statement extraction do not use this retry wrapper. | — |
 
 Native OpenAI Responses calls and PDF vision processing do not use `LLM_JSON_MODE`. For text extraction without a JSON schema, `strict` falls back to `json_object`.
 
