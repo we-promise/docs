@@ -9,13 +9,13 @@ Account trend sparklines — the small charts next to account groups and individ
 
 <AccordionGroup>
   <Accordion title="What caused this issue?">
-    The chart controller that draws sparklines included a dimension guard that skipped rendering any container smaller than 50×50 pixels. Sidebar sparkline containers are 32×12 pixels (account group totals) and 32×20 pixels (individual account rows), so they fell below the threshold and were never drawn.
+    The chart controller that draws sparklines included a dimension guard that skipped rendering when the drawable width or height, after subtracting chart margins, was less than 50 pixels. Sidebar sparkline containers are 32×12 pixels (account group totals) and 32×20 pixels (individual account rows), so they fell below the threshold and were never drawn.
   </Accordion>
 
   <Accordion title="How was it fixed?">
-    The dimension guard now only skips containers that measure exactly zero in either dimension — which indicates a collapsed or not-yet-laid-out container. Small but real containers like the sidebar sparklines are drawn normally. A ResizeObserver watches collapsed containers and draws the chart once the container gains real dimensions.
+    The dimension guard skips rendering when the drawable width or height is zero or negative after chart margins are subtracted. Small containers with positive drawable dimensions, including sidebar sparklines, render normally. A ResizeObserver redraws when layout changes give the chart usable dimensions.
 
-    Full-size charts (larger than 50 pixels) are unaffected by this change.
+    Charts whose drawable width and height were already at least 50 pixels are unaffected by this guard change.
 
     Upgrade to a build containing [Sure PR #4361](https://github.com/we-promise/sure/pull/4361). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
@@ -1034,6 +1034,26 @@ When Sure syncs an investment or crypto account, it compares the date of the bal
     If you see cash appearing and disappearing in an investment account's balance chart on a one-day cycle, check **Settings → Debug** for a `provider_sync` warning on that account. The gap days value confirms a date mismatch, which may help explain the anomaly; it does not by itself prove the cause.
 
     The warning does not indicate a sync failure. The sync completes normally; only the debug entry is written.
+  </Accordion>
+</AccordionGroup>
+
+## Auto mode does not retry with a simpler format after a malformed response
+
+In older builds, `LLM_JSON_MODE=auto` only fell back to `none` mode when the provider rejected the request outright (HTTP 400) or returned more than 50% null results. A response that came back with HTTP 200 but contained unparseable or wrongly-shaped JSON escaped the fallback entirely, so `auto` behaved the same as `strict` for those models.
+
+<AccordionGroup>
+  <Accordion title="What caused this?">
+    The auto-mode fallback caught `Faraday::BadRequestError` (HTTP 400) and the null-result threshold. JSON parse failures and shape mismatches raised a different error class that was not caught inside the auto-mode wrapper, so they propagated out and prevented the `none`-mode retry.
+
+    For merchant detection specifically, the retry heuristic only counted a missing `business_name` as a failure. A result that had a name but no URL was treated as successful and suppressed the retry, even though Sure ignores detections without both fields.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    A dedicated `ResponseFormatError` is now raised for JSON parse failures and shape mismatches in the generic extractors. The auto-mode wrappers for both categorization and merchant detection catch this error and retry once with `none` mode, the same as they already did for the >50% failure heuristic.
+
+    The merchant-detection heuristic was also corrected: an item missing either `business_name` or `business_url` now counts as a failure for the retry threshold.
+
+    Upgrade to a build containing [Sure PR #3602](https://github.com/we-promise/sure/pull/3602). No configuration change is required. If you were using `LLM_JSON_MODE=strict` as a workaround, switch to `auto`.
   </Accordion>
 </AccordionGroup>
 
