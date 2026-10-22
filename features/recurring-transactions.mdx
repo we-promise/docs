@@ -107,6 +107,10 @@ Use the play/pause icon to manually activate or deactivate a recurring transacti
 
 Use the trash icon to permanently remove a recurring transaction record.
 
+#### Renaming a bill
+
+You can rename a bill from the bill drawer (Edit → name field). Renaming updates its display name without changing its matching identity. For bills matched by transaction name, Sure preserves the original detected name separately. Bills linked to a merchant continue to match by merchant ID. Renaming alone does not cause a bill to be suggested again.
+
 #### Mark as recurring
 
 You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills).
@@ -257,7 +261,7 @@ The Bills page offers four views, switchable from the view switcher at the top o
   Below the bill list, the overview shows up to three action sections in this order, each with a labeled heading and item count:
 
   - **Needs review** — suggested payment matches. Each row shows the suggested transaction and the bill it was matched to, with Link payment and Not this one actions. On narrow layouts, the review action buttons stack below the text.
-  - **Possible new bills** — recurring outflow patterns the detector found but you haven't confirmed yet. This section is collapsible and remembers whether you left it open or closed on each device. On narrow layouts, the Add bill and Not a bill actions stack below the bill name.
+  - **Possible new bills** — recurring outflow patterns the detector found but you haven't confirmed yet. This section is collapsible and remembers whether you left it open or closed on each device. On narrow layouts, the Add bill and Not a bill actions stack below the bill name. Renaming a bill you have already confirmed does not by itself cause it to reappear here: detection retains the original transaction-name or merchant-ID matching identity.
   - **Changes** — notices about upcoming trials converting to paid plans, upcoming renewals, and price changes. Urgent notices appear first. When urgent and routine notices are both present, routine notices collapse under a disclosure; when only routine notices are present, they remain visible.
 - **All** — the complete list of active bill series, filterable by status, type, and sort order. The filters and the list share one card, the same way the Transactions page groups its filters and list. Each row shows the merchant logo or initials, the bill name over a schedule subline (type and cadence), the amount, and the next due date. For paused or dismissed bills, the status replaces the due date. Income bills display the amount in green. Clicking anywhere on a row opens the bill drawer. On wider screens the list is a scrollable table with four columns (name, next due, amount, actions); on narrower screens it switches to a compact list.
 - **Calendar** — upcoming bills laid out on a monthly calendar. The month navigation controls sit on the page background. The month totals, the calendar grid (or agenda list on mobile), and the iCal subscription links all sit on a shared card surface. The card heading shows the total bill count for the month.
