@@ -329,6 +329,17 @@ Each rule has a **Stop processing further rules** toggle. When a transaction mat
 
 When a rule with stop processing is enabled, a **Stop** badge appears next to it in the list as a visual reminder.
 
+### Built-in classifier rules
+
+Two built-in rules appear at the top of your rules list and run the Classifier without an AI provider:
+
+- **Merchant matcher** — copies a missing merchant from near-duplicate transactions. For example, a transaction named "NETFLIX.COM 8812" gets the merchant from similar transactions like "Netflix com". Transfers are excluded.
+- **Category classifier** — categorizes uncategorized transactions using the Bayes classifier trained on your history. Transactions the classifier is not confident about are left uncategorized for a downstream AI rule to handle.
+
+Both rules are free and do not require an AI provider. You can reorder them within your rules list to control when they run relative to your other rules. Toggling either rule on or off on **Settings → Classifier** also toggles it here, and vice versa. Their conditions and actions cannot be edited, but you can delete a built-in rule and add it back from **Settings → Classifier** if needed.
+
+You can tune how these rules behave from **Settings → Classifier**: adjust the confidence threshold, similarity cutoffs, and other options for the category classifier and merchant matcher.
+
 ### Applying rules
 
 Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run all rules against your existing transactions.
