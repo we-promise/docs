@@ -354,7 +354,7 @@ CATEGORIZATION_SHADOW_RATE=0.0
 </Note>
 
 <Note>
-When you configure the endpoint through the settings panel instead of an environment variable, the field shows a redacted form of the stored URL with any credentials stripped. The field auto-submits on blur. Submitting the redacted value back keeps the stored endpoint intact — Sure recognizes it as unchanged and does not overwrite the stored credentials with the stripped version.
+When `JEV_ENDPOINT` is not set, you can edit the endpoint in the settings panel. On initial display, the field redacts userinfo, query string, and fragment from the effective URL; after a validation error, it can redisplay your submitted value. The field auto-submits on blur. Submitting the redacted form of the stored endpoint preserves the original stored URL, including its credentials.
 </Note>
 
 See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing considerations, and how to choose between Jev and the LLM path.
