@@ -263,6 +263,12 @@ BRAND_FETCH_HIGH_RES_LOGOS=false
 
 When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
 
+Merchant logo discovery works as follows:
+
+- When Brandfetch is configured, Sure generates a logo from the website domain when a provider merchant is saved with a website but no logo. This includes Akahu or Plaid merchants when a website is supplied, and merchants whose website comes from the AI detector.
+- A logo that the provider already supplies (for example, from Plaid or CoinStats) is never replaced by a Brandfetch logo.
+- After a family sync, Sure attempts to fill missing logos for provider merchants linked to that family’s transactions that already have a website. This also runs before AI merchant enhancement and does not require an LLM. It does not backfill every merchant record in the instance.
+
 ### Application name variables
 
 By default, Sure uses "Sure" as the product name and "FOSS" as the brand name throughout the UI, emails, and page titles. You can override both to white-label your instance:
@@ -351,6 +357,10 @@ CATEGORIZATION_SHADOW_RATE=0.0
 
 <Note>
 `JEV_ENDPOINT` must use HTTPS. An HTTP endpoint (other than loopback addresses such as `localhost` or `127.0.0.1`) is rejected because it would transmit the API key and transaction descriptions in cleartext. If a mis-typed or invalid endpoint is configured, Sure falls back to the LLM provider rather than stopping categorization entirely.
+</Note>
+
+<Note>
+When `JEV_ENDPOINT` is not set, you can edit the endpoint in the settings panel. On initial display, the field redacts userinfo, query string, and fragment from the effective URL; after a validation error, it can redisplay your submitted value. The field auto-submits on blur. Submitting the redacted form of the stored endpoint preserves the original stored URL, including its credentials.
 </Note>
 
 See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing considerations, and how to choose between Jev and the LLM path.
@@ -897,9 +907,9 @@ You can tune the AI status checks with these environment variables:
 
 `AI_HEALTH_PROBE_TIMEOUT` is also configurable from the Settings UI without a restart. Go to **Settings → Self-Hosting**, scroll to the **Timeouts** section under AI Provider, and enter a value in the **Health Check Timeout in Seconds** field. The environment variable takes precedence over the UI setting when set to a positive value. Raise this value if PDF text or vision probes time out with a cloud model like gpt-4.1 — the PDF probes do a full extraction round trip that can take longer than the 5-second default, even when real PDF imports succeed.
 
-### Configuration tab
+### Config tab
 
-The system health page has a **Configuration** tab at `/admin/system_health?tab=configuration`. It gives a read-only snapshot of how optional services are configured — it does not test credentials or fetch live data. Resolving securities and exchange-rate providers constructs their clients; the optional-service checks do not initialize clients.
+The system health page has a **Config** tab at `/admin/system_health?tab=configuration`. It gives a read-only snapshot of how optional services are configured — it does not test credentials or fetch live data. Resolving securities and exchange-rate providers constructs their clients; the optional-service checks do not initialize clients.
 
 The tab has two sections.
 
@@ -910,17 +920,17 @@ The tab has two sections.
 | SMTP | Address, port, sender address, app domain, and whether any credential pair is only half-configured. Disabled delivery and non-SMTP transports report their own status. |
 | Securities pricing | Whether each enabled provider in `SECURITIES_PROVIDERS` has its required credentials. |
 | Exchange rates | Whether the selected provider has its required credentials. An unrecognized provider name reports as not configured. |
-| File storage | The active Active Storage backend (disk, S3, GCS) and whether required settings such as bucket, region, and credentials are present. SDK credential chains (instance role, Application Default Credentials) report as not checked rather than not configured. |
+| File storage | The active Active Storage backend (disk, S3, GCS) and whether required settings such as bucket, region, and credentials are present. SDK credential chains (instance role, Application Default Credentials) report as **Not verified** rather than **Not configured** when the remaining checked settings are complete. |
 
 Each check shows one of these statuses:
 
 - **Configured** — all required settings are present.
 - **Not configured** — the service has not been set up.
-- **Incomplete** — some required settings are present but others are missing. The tab lists the specific settings that need attention.
+- **Incomplete configuration** — the check found missing or invalid settings, or a mixed provider configuration. The tab lists what needs attention.
 - **Disabled** — the service is explicitly turned off (for example, `ActionMailer.perform_deliveries = false`).
-- **Not checked** — the service appears partially configured or uses an ambient credential source that Sure cannot verify without a live call.
+- **Not verified** — the service uses a non-SMTP transport, a custom storage configuration, or an ambient storage credential source that this configuration check does not verify. This status does not simply mean that settings are partially filled in.
 
-For securities and exchange-rate providers, the tab links super-admins to **Settings → Self-Hosting** to manage provider selection.
+On self-hosted instances, the securities and exchange-rate checks link super-admins to **Settings → Self-Hosting** to manage provider selection.
 
 **Optional services** — reports configuration-only status for operator integrations. These services are not required for the app to run:
 
@@ -930,10 +940,10 @@ For securities and exchange-rate providers, the tab links super-admins to **Sett
 | Sentry | Whether a DSN is configured and whether Sentry is enabled in the current environment. |
 | Skylight | Whether `SKYLIGHT_AUTHENTICATION` is present and whether `SKYLIGHT_ENABLED=false` has explicitly disabled it. |
 | Stripe | Whether `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are set. On managed instances, `STRIPE_MONTHLY_PRICE_ID` and `STRIPE_ANNUAL_PRICE_ID` are also required. On self-hosted instances those price IDs are noted as not required because the hosted checkout UI is disabled. |
-| PostHog | Whether `POSTHOG_KEY` and `POSTHOG_HOST` are set, and whether the browser analytics and shared feedback widgets are enabled. |
+| PostHog | The effective key and host loaded at boot, plus browser analytics status and, on self-hosted instances, shared feedback status. An unset `POSTHOG_HOST` defaults to `https://us.i.posthog.com`; an explicitly blank host with a key reports incomplete configuration. |
 | Logtail | Whether `LOGTAIL_API_KEY` and `LOGTAIL_INGESTING_HOST` are set. Reports as disabled outside the `production` environment even when both keys are present. |
 
-An **Incomplete** status on an optional service means some but not all required keys are present. The tab lists the specific environment variable names that are missing — no values are displayed.
+An optional service can report **Incomplete configuration** when required settings are missing and either some settings are present or configuration signals an intent to enable it. For example, a nonblank `SKYLIGHT_ENABLED` other than `false` can trigger this status even with no authentication key; Stripe price IDs can also signal intent. The tab lists missing setting names without displaying their values.
 
 ### Verifying worker configuration
 
