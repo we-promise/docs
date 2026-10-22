@@ -311,6 +311,55 @@ Rules can set:
 - Name
 - **Send email notification** – sends a digest email listing new matching transactions each time the rule runs
 
+#### Split transaction action
+
+The **Split transaction** action automatically splits every matching transaction into two or more child entries each time the rule runs. Use it to break up recurring shared charges — such as a bundled subscription or a shared expense — without splitting each transaction manually.
+
+A rule with a split transaction action must have that as its only action. No other actions (category, merchant, tags, etc.) can be combined with a split on the same rule.
+
+**When a transaction is eligible to be split:**
+
+- It is not a transfer.
+- It has not already been split.
+- It is not a split child of another transaction.
+- It is not pending.
+- It is not excluded.
+
+**Configuring split rows:**
+
+Each row in the split builder defines one child entry. You can add between 2 and 20 rows.
+
+Every row requires:
+- **Name** — the display name for the child transaction (up to 255 characters).
+- **Type** — either **Fixed** or **Percentage**.
+- **Amount** — the fixed dollar amount or percentage share.
+
+Optionally, each row can also set:
+- **Category** — the category assigned to that child entry. If set, later rules cannot overwrite it.
+- **Merchant** — the merchant assigned to that child entry. If set, later rules cannot overwrite it.
+- **Tags** — one or more tags applied to that child entry.
+
+A child entry without a merchant inherits the parent transaction's merchant.
+
+**Fixed vs. percentage splits:**
+
+You can mix fixed and percentage rows in the same split action. Fixed rows are resolved first; percentage rows divide whatever amount remains after the fixed amounts are subtracted.
+
+- **Fixed**: takes a literal amount from the transaction total. All fixed rows together must not exceed the transaction's total.
+- **Percentage**: takes a share of the remainder after all fixed rows are resolved. Percentage rows must sum to exactly 100%.
+
+Because fixed splits leave no room to absorb amount differences, a rule whose split rows are all fixed requires an **Amount = [exact value]** condition. This guarantees that only transactions with the matching total are split, preventing the rule from silently producing children that do not add up to the parent. A rule with at least one percentage row does not need this condition, because the percentage row(s) always adapt to whatever amount is left.
+
+**What happens when a split rule runs:**
+
+- Transactions already split, excluded, or flagged as transfer are skipped.
+- If a fixed-only split's shares do not equal the matching transaction's amount at run time (for example, the rule was saved before the amount changed), that transaction is skipped and noted in the debug log at **Settings → Debug**.
+- If two rules (or a rule run and a manual split) try to split the same transaction at the same time, the second attempt is skipped rather than creating duplicate children.
+
+**Import and export:**
+
+Split rule configurations are included in family exports and imports. Each row's category, merchant, and tags are exported by name so the configuration transfers correctly when imported into another family.
+
 #### Email notification action
 
 When a rule has a send email notification action, Sure records the set of transactions that already matched at the time the rule was created or activated. Later digests include matching transactions not already recorded as delivered; the initial matching set is not re-sent.
