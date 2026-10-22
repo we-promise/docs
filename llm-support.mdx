@@ -447,11 +447,11 @@ In Docker deployments, add these variables to `compose.yml` and the `.env` file.
 | `openai.auto_detect_merchants` / `anthropic.auto_detect_merchants` | Background merchant detection |
 | `openai.process_pdf` / `anthropic.process_pdf` | PDF bank statement processing |
 
-The prefix matches the active provider. Each trace records the prompt, model, response, and token usage when available. Child spans are created for each individual model call (generations) and tool executions within a turn.
+The prefix identifies the provider. Traces and their child generations record inputs, outputs, the model, and token usage where available. Chat provider calls create separate traces grouped by session; tool executions do not currently have their own trace spans.
 
 ### Viewing traces
 
-After starting Sure with the variables set, open your Langfuse dashboard to see traces. Traces appear with their full name (for example, `openai.chat_response`) and include nested generations and spans for each model call within the turn.
+After starting Sure with the variables set, open your Langfuse dashboard to see traces and their nested generations. Traces appear with their full name (for example, `openai.chat_response`); a chat turn that makes multiple provider calls can produce multiple traces.
 
 ## Evaluation system
 
