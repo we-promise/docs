@@ -236,7 +236,7 @@ The output matches the standard dataset format and can be imported with `rake ev
 Control how the LLM outputs structured data. Configure via environment variable or Settings UI.
 
 **Modes:**
-- `auto` - Tries strict first, falls back to none if the response can't be parsed or if >50% of results are null or missing (recommended)
+- `auto` - For OpenAI-compatible categorization and merchant detection, tries strict first and retries once with none on HTTP 400, a malformed response, or >50% failed or missing results (recommended)
 - `strict` - Best for thinking models (qwen-thinking, deepseek-reasoner)
 - `none` - Best for standard models (llama, mistral, gpt-oss)
 - `json_object` - Middle ground, broader compatibility
