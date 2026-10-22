@@ -122,3 +122,5 @@ Routing through a gateway means your families' transaction descriptions transit 
 | `JEV_CONCURRENCY` | `8` | Maximum number of concurrent requests per categorization run. |
 
 `JEV_REQUEST_TIMEOUT` and `JEV_CONCURRENCY` are environment-only controls. Jev credentials, endpoint, and model can be configured in **Settings > Self-Hosting** when preview features are enabled; those are instance settings. Categorization provider, confidence threshold, and shadow rate have family preferences. Their corresponding environment variables take precedence when set.
+
+On initial display, the endpoint field shows the effective URL with userinfo, query string, and fragment removed. `JEV_ENDPOINT` takes precedence and disables this field when set. After a validation error, the form can redisplay the value you submitted. The field auto-submits on blur. When a submitted value matches the redacted form of the stored endpoint, Sure preserves the original stored URL. A different valid URL replaces the stored value; a blank clears it.

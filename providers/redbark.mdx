@@ -41,11 +41,13 @@ API access requires a Redbark Developer or Professional plan. It is not availabl
 
 ### Choosing a sync start date
 
-During account setup, each account has an optional **Sync start date** field. Set this before the account's first transaction fetch to request older history.
+During account setup, each account has an optional **Start syncing transactions from:** field. Set this before the account’s first transaction fetch to request older history.
 
-The maximum lookback is 2,550 days (about 7 years). Redbark rejects requests further back than that. If you leave the field blank, Sure defaults to 90 days.
+Sure caps the lookback at 2,550 days, leaving a safety margin inside Redbark’s boundary. The source records that Redbark rejected dates 2,555 or more days back; 2,550 is Sure’s cap, not that upstream boundary. If you leave the field blank, Sure defaults to 90 days.
 
-The start date applies only to the initial backfill. Once an account has stored transactions, later syncs use last sync minus 7 days rather than replaying the configured date.
+Incremental fetching requires both stored transactions for the account and a recorded last-sync time on its Redbark connection. With both present, Sure fetches from last sync minus 7 days. Otherwise, it uses the configured start date, clamped to the rolling 2,550-day window, or the 90-day default.
+
+As of October 22, 2026, this setup field and lookback-cap behavior are on `main` in [Sure PR #4306](https://github.com/we-promise/sure/pull/4306), but are not in the latest stable release, `v0.7.5-hotfix.2`.
 
 ### Variable loan rates
 
