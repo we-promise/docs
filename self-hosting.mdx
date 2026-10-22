@@ -263,6 +263,12 @@ BRAND_FETCH_HIGH_RES_LOGOS=false
 
 When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
 
+Merchant logo discovery works as follows:
+
+- When Brandfetch is configured, Sure generates a logo from the website domain when a provider merchant is saved with a website but no logo. This includes Akahu or Plaid merchants when a website is supplied, and merchants whose website comes from the AI detector.
+- A logo that the provider already supplies (for example, from Plaid or CoinStats) is never replaced by a Brandfetch logo.
+- After a family sync, Sure attempts to fill missing logos for provider merchants linked to that family’s transactions that already have a website. This also runs before AI merchant enhancement and does not require an LLM. It does not backfill every merchant record in the instance.
+
 ### Application name variables
 
 By default, Sure uses "Sure" as the product name and "FOSS" as the brand name throughout the UI, emails, and page titles. You can override both to white-label your instance:
