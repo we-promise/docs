@@ -263,6 +263,12 @@ BRAND_FETCH_HIGH_RES_LOGOS=false
 
 When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
 
+Merchant logo discovery works as follows:
+
+- When Brandfetch is configured, Sure generates a logo from the website domain when a provider merchant is saved with a website but no logo. This includes Akahu or Plaid merchants when a website is supplied, and merchants whose website comes from the AI detector.
+- A logo that the provider already supplies (for example, from Plaid or CoinStats) is never replaced by a Brandfetch logo.
+- After a family sync, Sure attempts to fill missing logos for provider merchants linked to that family’s transactions that already have a website. This also runs before AI merchant enhancement and does not require an LLM. It does not backfill every merchant record in the instance.
+
 ### Application name variables
 
 By default, Sure uses "Sure" as the product name and "FOSS" as the brand name throughout the UI, emails, and page titles. You can override both to white-label your instance:
@@ -351,6 +357,10 @@ CATEGORIZATION_SHADOW_RATE=0.0
 
 <Note>
 `JEV_ENDPOINT` must use HTTPS. An HTTP endpoint (other than loopback addresses such as `localhost` or `127.0.0.1`) is rejected because it would transmit the API key and transaction descriptions in cleartext. If a mis-typed or invalid endpoint is configured, Sure falls back to the LLM provider rather than stopping categorization entirely.
+</Note>
+
+<Note>
+When `JEV_ENDPOINT` is not set, you can edit the endpoint in the settings panel. On initial display, the field redacts userinfo, query string, and fragment from the effective URL; after a validation error, it can redisplay your submitted value. The field auto-submits on blur. Submitting the redacted form of the stored endpoint preserves the original stored URL, including its credentials.
 </Note>
 
 See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing considerations, and how to choose between Jev and the LLM path.
@@ -553,58 +563,80 @@ docker compose build
 docker compose up --no-deps -d web worker
 ```
 
-## Backup service
+## Backups, upgrades, and rollbacks
 
-The Docker Compose configuration includes an optional backup service that automatically backs up your PostgreSQL database and uploads it to any cloud storage provider supported by [rclone](https://rclone.org/) — including S3, Cloudflare R2, Google Drive, SFTP, and 70+ others.
+Current `main` includes a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. As of October 22, 2026, this service is not included in the latest stable release, `v0.7.5-hotfix.2`. The Compose service requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
 
-<Warning>
-  The backup service only creates PostgreSQL backups. It does not back up local files stored in Sure's `storage` directory.
-  If your deployment uses local file storage, back up that directory separately. If you use external object storage such as S3 or R2, make sure that storage is protected with its own backup and retention policy.
-</Warning>
+Run all commands from the directory that holds `compose.yml`.
 
-### What to back up
+### Taking backups
 
-For a complete recovery plan, make sure you know which of these apply to your deployment:
-
-- **PostgreSQL database**: accounts, transactions, settings, users, and metadata
-- **Local file storage**: uploaded files stored on disk by the app
-- **External object storage**: uploaded files stored in S3, R2, or another object store
-- **Environment and deployment config**: your `.env`, `compose.yml`, secrets, and any reverse proxy or DNS setup needed to bring the app back online
-
-### Enabling backups
-
-The backup service uses Docker Compose profiles and is disabled by default. To enable it:
+Take a backup now (recommended before every upgrade):
 
 ```bash
-docker compose --profile backup up -d
+docker compose run --rm backup create
 ```
 
-### Configure backup settings
+Take a backup every day at 02:00 UTC, keeping the last 7 days:
 
-Add the following variables to your `.env` file to configure the backup destination and schedule. `BACKUP_DESTINATION` is required; all other variables are optional.
+```bash
+docker compose --profile backup up -d backup
+```
+
+See all backups:
+
+```bash
+docker compose run --rm backup list
+```
+
+### What a backup contains
+
+With the default backup directory, each bundle is stored under `backups/<version>/<date>-<manual|scheduled>/`. Check the backup log: missing storage mounts, `.env`, or compose files produce warnings and those files are omitted.
+
+| File | Contents |
+| --- | --- |
+| `manifest.json` | App version, commit when known, database schema, image references, and dump-client version |
+| `db.dump` | PostgreSQL custom-format dump |
+| `storage.tar.gz` | Uploaded files from the `app-storage` volume |
+| `config/` | `.env`, `compose.yml`, and `bin/sure-backup` |
+| `restore.sh` | Restores the backup into a new folder (see below) |
+| `SHA256SUMS` | Checksums verified before every restore |
+
+The dump-client version is recorded in `manifest.json`. Restore with `sure-backup` (`restore`, `recover`, or `restore.sh`), which checks client compatibility and handles newer-client settings when restoring to an older server.
+
+If you store uploaded files in S3, Cloudflare R2, or another bucket (`ACTIVE_STORAGE_SERVICE`), those files are not in the backup. Use your provider's versioning or replication for them.
+
+<Warning>
+When present, `config/.env` can contain `SECRET_KEY_BASE`, API keys, and encryption settings. Preserve the encryption keys your installation actually uses: self-hosted defaults derive them from `SECRET_KEY_BASE`, while explicit Active Record encryption keys or Rails credentials take precedence. Separately preserve any secrets or credentials files supplied outside the backed-up configuration. Keep backups private and encrypt off-site copies (for example with [rclone crypt](https://rclone.org/crypt/)).
+</Warning>
+
+### Backup configuration
+
+Add these variables to your `.env` to control where and how often backups run:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `BACKUP_DIR` | `./backups` | Host folder for backups |
+| `BACKUP_SCHEDULE` | `0 2 * * *` | Daily time for scheduled backups (`minute hour * * *`, UTC) |
+| `BACKUP_KEEP_DAYS` | `7` | Scheduled backups older than this many days are deleted; manual `create` backups are kept |
+| `INSTANCE_ID` | `default` | Scopes backups under `<BACKUP_DESTINATION>/<INSTANCE_ID>/` when using off-site copies |
+
+### Off-site copies
+
+The optional `backup-offsite` service copies the backup folder to any [rclone](https://rclone.org/) remote (S3, Cloudflare R2, Backblaze B2, SFTP, Google Drive, and 70+ others) every hour and removes scheduled backups there after `BACKUP_KEEP_DAYS` days.
+
+Set `BACKUP_DESTINATION` and the `RCLONE_CONFIG_*` variables in your `.env` file (see `.env.example`), then:
+
+```bash
+docker compose --profile backup-offsite up -d backup-offsite
+```
+
+Example `.env` for an S3-compatible provider such as Cloudflare R2:
 
 ```txt
-# Required: rclone remote format — remote:bucket/path (e.g. "s3:my-bucket" or "r2:my-bucket/backups")
+# Required: rclone remote format — remote:bucket/path
 BACKUP_DESTINATION="s3:my-bucket"
 
-# Cron schedule for backups (default: every day at 2 AM)
-BACKUP_SCHEDULE="0 2 * * *"
-
-# true  → always write backup_latest.sql.gz (overwrites previous file)
-# false → write backup_YYYY-MM-DD_HH-MM-SS.sql.gz and keep rolling files (default)
-BACKUP_OVERWRITE="false"
-
-# Number of days to keep timestamped backup files (default: 7, only used when BACKUP_OVERWRITE=false)
-BACKUP_KEEP_DAYS="7"
-
-# Scopes backups under BACKUP_DESTINATION/<INSTANCE_ID> — useful when multiple
-# deployments share the same bucket so retention operations do not overlap (default: "default")
-INSTANCE_ID="default"
-```
-
-Then configure your rclone storage provider. The example below uses an S3-compatible provider (such as Cloudflare R2):
-
-```txt
 RCLONE_CONFIG_S3_TYPE=s3
 RCLONE_CONFIG_S3_PROVIDER=Cloudflare
 RCLONE_CONFIG_S3_ACCESS_KEY_ID=your-access-key-id
@@ -612,81 +644,96 @@ RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=your-secret-access-key
 RCLONE_CONFIG_S3_ENDPOINT=https://your-account.r2.cloudflarestorage.com
 ```
 
-For providers other than S3 (Google Drive, SFTP, Backblaze B2, etc.), replace the `RCLONE_CONFIG_S3_*` variables with the equivalent variables for your provider. See the [rclone documentation](https://rclone.org/docs/) for the full list of supported providers and their configuration variables.
+For other providers (Google Drive, SFTP, Backblaze B2, etc.), add the equivalent variables to both `.env` and the `backup-offsite` service’s `environment` block; the example Compose file only maps S3 variables. See the [rclone documentation](https://rclone.org/docs/) for the full list.
 
-The `compose.yml` maps the S3 variables by default. If you use a different provider, add the corresponding variables to both your `.env` file and the `backup` service's `environment` block in `compose.yml`.
+### Restoring in place
 
-### Backup schedule options
-
-`BACKUP_SCHEDULE` accepts standard cron syntax. Some examples:
-
-- `0 2 * * *` — every day at 2 AM (default)
-- `0 * * * *` — every hour
-- `0 2 * * 0` — once per week (Sunday at 2 AM)
-- `0 2 1 * *` — once per month (1st of the month at 2 AM)
-
-### Restore from a PostgreSQL backup
-
-Use this process when you have a SQL dump created by the backup service or with `pg_dump`.
-
-> [!NOTE]
-> If you customized the PostgreSQL username, password, or database name in your `.env` or `compose.yml`, replace `sure_user` and `sure_production` in the commands below.
-
-1. Stop the application containers so they do not write to the database during the restore:
+Use this to roll back the current install to an earlier backup:
 
 ```bash
 docker compose stop web worker
+docker compose run --rm backup restore 0.7.4/2026-10-01_080524-manual   # or "latest"
 ```
 
-2. Start or keep the database container running:
+`restore` replaces the database and, when `storage.tar.gz` is present, replaces the mounted local file storage. Without that archive, it leaves local files unchanged and warns. It refuses while other database clients are connected unless explicitly forced, and asks for confirmation. Pass `--yes` to skip the prompt in scripts. It does not restore configuration automatically; restore the matching encryption settings before starting the app.
+
+After restoring a release backup, set `SURE_IMAGE_TAG` in `.env` to the backed-up version and restart. If `compose.restore.yml` overrides the image, edit that override instead. For a non-release build, use the matching commit image recorded in `manifest.json` when available.
 
 ```bash
-docker compose up -d db
+# In .env:
+SURE_IMAGE_TAG=0.7.4
 ```
-
-3. Locate the backup file in your backup directory, for example `/opt/sure-data/backups`.
-
-4. Restore the SQL backup into PostgreSQL:
 
 ```bash
-docker compose exec -T db psql -U sure_user -d sure_production < /path/to/backup.sql
+docker compose up --no-deps -d web worker
 ```
 
-5. If your deployment uses local uploaded files, restore them before restarting the app. If you use external object storage, verify that provider's backup or versioning recovery has completed.
+### Restoring to a new folder
 
-### Restore local uploaded files
-
-If your Sure instance stores uploaded files on the local filesystem, restoring the database alone is not enough. You must also restore the app's storage directory from the matching file backup.
-
-The exact host path depends on how you mapped volumes in `compose.yml`. Restore the same directory that Sure uses for local storage before starting the app containers.
-
-If you are using external object storage instead of local disk, restore those files using that provider's backup or versioning workflow instead.
-
-When the database and any uploaded files are restored, restart the app:
+Every backup bundle contains a `restore.sh` script. Run it on any machine that has Docker to bring up a fresh instance from the backup:
 
 ```bash
-docker compose up -d web worker
+sh backups/0.7.4/2026-10-01_080524-manual/restore.sh
 ```
 
-### Verify the restore
+The script verifies the bundle and asks for a folder for the new instance (the folder name becomes the Compose project name). It then:
 
-After restoring, check the following:
+- warns if other Sure instances are running on the machine, and offers to start the restored one without `worker`;
+- picks the next free port if the backup's port is already in use;
+- stops with a list of files to copy over if your compose files mount local files not included in the backup (custom certificates, for example);
+- copies configuration and data in, pins `web` and `worker` to the backed-up version, and starts the app.
 
-- You can sign in successfully
-- Your accounts and transactions appear as expected
-- Uploaded files open correctly, if you use uploads
-- The web and worker containers start cleanly without repeated errors
+For scripts, pass options directly: `sh restore.sh --target ~/sure-restored --port 3001 --without-worker --yes`. Add `--no-start` to prepare the folder without starting the app.
+
+<Warning>
+Do not run a restored copy alongside the original instance with both `worker` processes active. Both would sync the same bank connections and run scheduled jobs twice.
+</Warning>
 
 ### Verifying backups
-
-Check that backups are running correctly:
 
 ```bash
 # View backup service logs
 docker compose logs backup
 
-# List backup files
-ls -lh /opt/sure-data/backups
+# List all backups
+docker compose run --rm backup list
+```
+
+### Without the backup service (any version, including 0.7.5 and older)
+
+You can run backups with the script on its own, without the `backup` service. Download it once next to `compose.yml`:
+
+```bash
+curl --fail --location --silent --show-error --output sure-backup \
+  https://raw.githubusercontent.com/we-promise/sure/main/bin/sure-backup
+chmod +x sure-backup
+```
+
+Then use it from your compose directory:
+
+```bash
+sh sure-backup create        # Take a backup now
+sh sure-backup list          # List backups
+sh sure-backup restore latest   # Roll back in place (stop web and worker first)
+sh sure-backup recover backups/<version>/<backup>   # Restore into a new folder
+```
+
+For create and restore, the script finds an existing `web` container and runs itself from that exact image with its volumes and database settings. The app must have been started at least once. Automatic version detection requires a valid runtime stamp or matching embedded version and schema metadata; otherwise it asks for `--version`.
+
+### Upgrading from the database-only backup service (v0.7.5)
+
+Sure v0.7.5 shipped a `backup` service that ran `bin/db-backup.sh` and uploaded database-only dumps via rclone. To upgrade to the full-instance backup service:
+
+1. Replace the `backup` service in your `compose.yml` with the `backup` and `backup-offsite` services from the current [`compose.example.yml`](https://github.com/we-promise/sure/blob/main/compose.example.yml).
+2. In `.env`, remove `BACKUP_OVERWRITE`. `BACKUP_SCHEDULE` must be a daily time (`minute hour * * *`). Move `BACKUP_DESTINATION`, `INSTANCE_ID`, and all `RCLONE_CONFIG_*` variables to the `backup-offsite` service.
+3. Use an image containing `bin/sure-backup`, then start both services: `docker compose --profile backup --profile backup-offsite up -d backup backup-offsite`. Keep using the host-script method if your app image predates the new service.
+
+Off-site backups now go to `<BACKUP_DESTINATION>/<INSTANCE_ID>/<version>/<date>-<trigger>/` and include `.env`. Earlier `backup_*.sql.gz` files are left in place and are no longer pruned automatically; delete them once you no longer need them.
+
+To restore an older `backup_*.sql.gz` file, stop `web` and `worker`, then load it with:
+
+```bash
+gunzip -c backup_<timestamp>.sql.gz | docker compose exec -T db psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 ```
 
 ## SSL certificate configuration
@@ -897,9 +944,9 @@ You can tune the AI status checks with these environment variables:
 
 `AI_HEALTH_PROBE_TIMEOUT` is also configurable from the Settings UI without a restart. Go to **Settings → Self-Hosting**, scroll to the **Timeouts** section under AI Provider, and enter a value in the **Health Check Timeout in Seconds** field. The environment variable takes precedence over the UI setting when set to a positive value. Raise this value if PDF text or vision probes time out with a cloud model like gpt-4.1 — the PDF probes do a full extraction round trip that can take longer than the 5-second default, even when real PDF imports succeed.
 
-### Configuration tab
+### Config tab
 
-The system health page has a **Configuration** tab at `/admin/system_health?tab=configuration`. It gives a read-only snapshot of how optional services are configured — it does not test credentials or fetch live data. Resolving securities and exchange-rate providers constructs their clients; the optional-service checks do not initialize clients.
+The system health page has a **Config** tab at `/admin/system_health?tab=configuration`. It gives a read-only snapshot of how optional services are configured — it does not test credentials or fetch live data. Resolving securities and exchange-rate providers constructs their clients; the optional-service checks do not initialize clients.
 
 The tab has two sections.
 
@@ -910,17 +957,17 @@ The tab has two sections.
 | SMTP | Address, port, sender address, app domain, and whether any credential pair is only half-configured. Disabled delivery and non-SMTP transports report their own status. |
 | Securities pricing | Whether each enabled provider in `SECURITIES_PROVIDERS` has its required credentials. |
 | Exchange rates | Whether the selected provider has its required credentials. An unrecognized provider name reports as not configured. |
-| File storage | The active Active Storage backend (disk, S3, GCS) and whether required settings such as bucket, region, and credentials are present. SDK credential chains (instance role, Application Default Credentials) report as not checked rather than not configured. |
+| File storage | The active Active Storage backend (disk, S3, GCS) and whether required settings such as bucket, region, and credentials are present. SDK credential chains (instance role, Application Default Credentials) report as **Not verified** rather than **Not configured** when the remaining checked settings are complete. |
 
 Each check shows one of these statuses:
 
 - **Configured** — all required settings are present.
 - **Not configured** — the service has not been set up.
-- **Incomplete** — some required settings are present but others are missing. The tab lists the specific settings that need attention.
+- **Incomplete configuration** — the check found missing or invalid settings, or a mixed provider configuration. The tab lists what needs attention.
 - **Disabled** — the service is explicitly turned off (for example, `ActionMailer.perform_deliveries = false`).
-- **Not checked** — the service appears partially configured or uses an ambient credential source that Sure cannot verify without a live call.
+- **Not verified** — the service uses a non-SMTP transport, a custom storage configuration, or an ambient storage credential source that this configuration check does not verify. This status does not simply mean that settings are partially filled in.
 
-For securities and exchange-rate providers, the tab links super-admins to **Settings → Self-Hosting** to manage provider selection.
+On self-hosted instances, the securities and exchange-rate checks link super-admins to **Settings → Self-Hosting** to manage provider selection.
 
 **Optional services** — reports configuration-only status for operator integrations. These services are not required for the app to run:
 
@@ -930,10 +977,10 @@ For securities and exchange-rate providers, the tab links super-admins to **Sett
 | Sentry | Whether a DSN is configured and whether Sentry is enabled in the current environment. |
 | Skylight | Whether `SKYLIGHT_AUTHENTICATION` is present and whether `SKYLIGHT_ENABLED=false` has explicitly disabled it. |
 | Stripe | Whether `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are set. On managed instances, `STRIPE_MONTHLY_PRICE_ID` and `STRIPE_ANNUAL_PRICE_ID` are also required. On self-hosted instances those price IDs are noted as not required because the hosted checkout UI is disabled. |
-| PostHog | Whether `POSTHOG_KEY` and `POSTHOG_HOST` are set, and whether the browser analytics and shared feedback widgets are enabled. |
+| PostHog | The effective key and host loaded at boot, plus browser analytics status and, on self-hosted instances, shared feedback status. An unset `POSTHOG_HOST` defaults to `https://us.i.posthog.com`; an explicitly blank host with a key reports incomplete configuration. |
 | Logtail | Whether `LOGTAIL_API_KEY` and `LOGTAIL_INGESTING_HOST` are set. Reports as disabled outside the `production` environment even when both keys are present. |
 
-An **Incomplete** status on an optional service means some but not all required keys are present. The tab lists the specific environment variable names that are missing — no values are displayed.
+An optional service can report **Incomplete configuration** when required settings are missing and either some settings are present or configuration signals an intent to enable it. For example, a nonblank `SKYLIGHT_ENABLED` other than `false` can trigger this status even with no authentication key; Stripe price IDs can also signal intent. The tab lists missing setting names without displaying their values.
 
 ### Verifying worker configuration
 
