@@ -478,6 +478,28 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Investment card not showing on the Reports page when the only brokerage account is closed
+
+If you sold securities during a period but the investment card on the Reports page does not appear, the most likely cause is that your only brokerage account is closed (disabled). Earlier versions gated the investment card on having an active (draft or active) investment account, so families whose only brokerage account was closed saw no investment card at all — even when the selected period contained a disposal that would have been listed there.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The Reports investment card was controlled by `investment_accounts`, a relation that returns only visible (draft and active) accounts. The realised-gains half of the same card reads every account included in reports, including disabled ones. When a family's only brokerage account was closed, `investment_accounts` returned nothing and the card never appeared, even though the period held a disposal the card would have listed.
+
+    A separate scoping issue also meant the realised-gains list could show disposals from another family member's unshared account whenever the current user had an open investment account of their own.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The card gate now also opens when the selected period contains a disposal. The sell-trade query used by the gate and the one used to populate the realised-gains list share the same relation (`period_sell_trades`), so the two always agree on what counts as a disposal. Transfer-labeled trades are excluded from both, matching the existing behaviour.
+
+    The realised-gains list is now scoped to accounts the current user includes in their finances, so another member's unshared disposal neither opens the card nor appears in the list.
+
+    Excluded trades are filtered out of both the gate check and the list, consistent with how `InvestmentStatement::Totals` handles them.
+
+    This is fixed in builds containing [Sure PR #4409](https://github.com/we-promise/sure/pull/4409). As of October 22, 2026, the fix is on `main`. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Holdings list is slow with many securities
 
 When an investment account holds a large number of securities, opening the holdings list in the web app could be noticeably slow in earlier versions.
