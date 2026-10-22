@@ -68,6 +68,61 @@ The **Accounts** page has a sync control in the header that lets you trigger and
 
 Sure triggers a family-wide sync automatically on login when `auto_sync_on_login` is enabled and the family has not synced yet today. When this auto-sync is in progress as you navigate to the Accounts page, the sync controls reflect the in-progress state immediately.
 
+## Classifier
+
+Sure includes a built-in Bayes category classifier that learns from your categorized transactions and automatically categorizes new ones. It runs before any AI provider, so it handles common patterns quickly without an LLM call. Go to **Settings → Classifier** to configure it.
+
+### Category classifier and merchant matcher rules
+
+The classifier and the merchant matcher each run as a rule in your rule order. Every family gets two rules created automatically:
+
+- **Category classifier** — categorizes uncategorized, unlocked transactions after each sync.
+- **Merchant matcher** — fills in missing merchants by copying from near-duplicate descriptions (for example, matching "NETFLIX.COM 8812" to "Netflix com").
+
+You can move, disable, or delete these rules on the Rules page. The switches on Settings → Classifier turn the corresponding rule on and off. If you delete a rule and want it back, the toggle will prompt you to add it again.
+
+### Classifier settings
+
+**Threshold** — the minimum confidence score (0.05–0.99) Bayes must reach before applying a category. Lower values categorize more transactions but produce more mistakes. Higher values leave more transactions for your AI provider.
+
+**Lock the categories the classifier sets** — when enabled, the classifier locks categories it writes, so other rules and syncs cannot change them. AI never changes Bayes-locked categories regardless of this setting. You can still override a lock by clicking Apply on a rule manually.
+
+### Merchant matcher settings
+
+**Similarity** — the minimum description similarity (0.5–0.99) required before the matcher copies a merchant. Lower values fill in more merchants but introduce more mistakes.
+
+**Lock the merchants the matcher sets** — when enabled, the matcher locks merchants it writes, so subsequent rules, AI, and syncs cannot change them.
+
+**Advanced tuning** — under Merchant matcher tuning you can adjust the cutoff (how common a word must be across source transactions before it is ignored as a signal), the number of near-duplicates that must agree, and whether the matcher skips its own recent unconfirmed results to avoid feedback loops.
+
+### Training settings
+
+**Categories** — choose which categories the classifier learns from and can assign. Unchecked categories (and their subcategories) are excluded from training entirely. Use this to prevent the classifier from guessing rarely-used or internal categories.
+
+**Training transactions** — how many of your newest transactions (100–20,000) to use as training data for both the classifier and the matcher.
+
+**Exclude transfers** — transfers and inter-account payments are left out of training by default so they do not distort category patterns.
+
+**Don't learn from Bayes' own guesses until confirmed** — prevents the classifier from training on its own unconfirmed output. A transaction is treated as confirmed when you change or lock its category. One left alone for the configured number of days counts as accepted.
+
+### Auto-tune
+
+The auto-tune panel scores your current settings against your transaction history and can search for better ones.
+
+**Test my settings** — classifies each of the last several months as if they were new, using only the history before each month. Produces a table comparing your settings, the best found, and the defaults across accuracy metrics for the category classifier and the merchant matcher.
+
+**Find best settings** — searches the older months by ROC-AUC to find higher-scoring settings, then shows results on the months it did not use for the search. A change is kept only when it improves the overall score and holds up in all but one individual month. Requires enough transaction history (roughly the number of months shown in the hint); if there is too little history, Apply leaves those settings unchanged.
+
+**A mistake costs** — adjusts which threshold the bold cells highlight and which settings Apply will use. Higher values trade fewer wrong categorizations for more left uncategorized.
+
+**Apply these settings** — saves the best-found settings to your classifier. Disabled when the test results are stale (settings changed since the last run) or when nothing scored better than your current settings.
+
+**Reset to defaults** — reverts every classifier setting to the original multinomial naive Bayes defaults and immediately tests them.
+
+### Clearing Bayes locks
+
+Use **Clear Bayes locks** (on the Classifier page) to unlock all categories the classifier locked and all merchants the matcher locked that are still set to what they wrote. The categories and merchants themselves are kept; only the lock is removed, allowing rules, AI, and syncs to change them again.
+
 ## AI settings
 
 Configure AI features like chat and transaction rules from Settings → Self-Hosting. See the [LLM support documentation](/llm-support) for more details.
