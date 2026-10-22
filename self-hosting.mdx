@@ -265,9 +265,9 @@ When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back 
 
 Merchant logo discovery works as follows:
 
-- A logo is generated from the merchant's website domain whenever a merchant is saved with a website but no logo. This covers merchants from Akahu (which always supplies a website), Plaid when it sends no logo, and the AI merchant detector.
+- When Brandfetch is configured, Sure generates a logo from the website domain when a provider merchant is saved with a website but no logo. This includes Akahu or Plaid merchants when a website is supplied, and merchants whose website comes from the AI detector.
 - A logo that the provider already supplies (for example, from Plaid or CoinStats) is never replaced by a Brandfetch logo.
-- Merchants that already have a website but no logo — for example because they were synced before `BRAND_FETCH_CLIENT_ID` was configured — get their logo on the next sync. No manual backfill is required.
+- After a family sync, Sure attempts to fill missing logos for provider merchants linked to that family’s transactions that already have a website. This also runs before AI merchant enhancement and does not require an LLM. It does not backfill every merchant record in the instance.
 
 ### Application name variables
 
