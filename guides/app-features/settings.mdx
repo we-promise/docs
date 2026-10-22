@@ -242,18 +242,18 @@ You can select a custom date range directly on the net worth chart or on any acc
 
 ### Spending widget
 
-The dashboard includes a **Spending** widget that shows your cumulative daily spending for the selected month plotted against the previous month's full curve. This lets you see at a glance whether your current month's spending is tracking ahead of or behind last month.
+The dashboard includes a **Spending** widget that shows your cumulative daily spending for the selected month plotted against an average month from the dashboard's time period. This lets you see at a glance whether your current month's spending is tracking ahead of or behind your typical period.
 
 The widget displays:
 - Your current month's running total (in green) with a marker at today's date
-- The previous month's spending curve (in gray) labeled with the actual month name (for example, "August 2026"). The x-axis spans the selected month's days; if the previous month was longer, its extra days are folded into the final visible point so the endpoint still equals the full previous-month total
-- The total spent so far this month and the signed delta versus the previous month, both calculated over the same number of elapsed days so the comparison is always apples-to-apples. While the selected month is still in progress, the previous-month label names the day range being compared (for example, "Aug 1–8"). Once the selected month is complete, both months are compared in full.
+- An average month comparison curve (in gray) derived from the dashboard's top-level time period. For each day of the month, Sure averages the spending on the period's dates that fall on that day and accumulates those averages. The label names the period (for example, "Avg. Last 90 Days"). Days the period never reaches are left blank, so a month-to-date period retraces the current month, last month gives last month's full curve, and longer periods give a smoothed average month.
+- The total spent so far this month and the signed delta versus the comparison period, both calculated over the same number of elapsed days so the comparison is always apples-to-apples. While the selected month is still in progress, the comparison label shows the day range being compared (for example, "(1–8)"). Once the selected month is complete, the full average is used.
 - Gridlines with compact currency labels and a shared tooltip
 - On narrow viewports, a compact date range (for example, "Sep 01 - 6, 2026") instead of the full date range, and x-axis tick labels for the selected month only so the chart stays uncluttered
 
 **Selecting a month:** Use the month picker in the widget header to review any of the past 12 months. The widget's selected month is independent of the dashboard's global time period at the top of the page.
 
-**Filtering by category:** A filter beside the month picker lists complete category groups with spending in the selected or previous month, plus groups containing a selected category. Uncategorized appears when it has spending or is selected. Selecting a parent includes its subcategories. Selecting every displayed option becomes unfiltered when every option belongs to a group with spending; a selected category with no spending keeps the filter active across months. Both chart lines and header totals use the selection. The button count reflects selected categories, counting children instead of also counting their parent. The selection is stored in the URL and carried through month changes and Customize mode.
+**Filtering by category:** A filter beside the month picker lists complete category groups with spending in the selected period, plus groups containing a selected category. Uncategorized appears when it has spending or is selected. Selecting a parent includes its subcategories. Selecting every displayed option becomes unfiltered when every option belongs to a group with spending; a selected category with no spending keeps the filter active across months. Both chart lines and header totals use the selection. The button count reflects selected categories, counting children instead of also counting their parent. The selection is stored in the URL and carried through month changes and Customize mode.
 
 The widget is hidden when there is no spending data for the selected month.
 
