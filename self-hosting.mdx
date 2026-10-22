@@ -359,6 +359,10 @@ CATEGORIZATION_SHADOW_RATE=0.0
 `JEV_ENDPOINT` must use HTTPS. An HTTP endpoint (other than loopback addresses such as `localhost` or `127.0.0.1`) is rejected because it would transmit the API key and transaction descriptions in cleartext. If a mis-typed or invalid endpoint is configured, Sure falls back to the LLM provider rather than stopping categorization entirely.
 </Note>
 
+<Note>
+When `JEV_ENDPOINT` is not set, you can edit the endpoint in the settings panel. On initial display, the field redacts userinfo, query string, and fragment from the effective URL; after a validation error, it can redisplay your submitted value. The field auto-submits on blur. Submitting the redacted form of the stored endpoint preserves the original stored URL, including its credentials.
+</Note>
+
 See [Jev (TypeSafe)](/providers/jev) for details on the provider, data-sharing considerations, and how to choose between Jev and the LLM path.
 
 ### Property valuation provider variables
