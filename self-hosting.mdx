@@ -416,6 +416,26 @@ ONCHAIN_MAX_TOKENS_PER_ADDRESS="200"
 
 To enable crypto pricing for on-chain wallets, include `binance_public` in `SECURITIES_PROVIDERS`. If your family currency is not USD, also set `EXCHANGE_RATE_PROVIDER` to a provider that needs no API key (e.g. `frankfurter`). See [on-chain wallets](/providers/onchain-wallets) for details.
 
+### Scheduled account sync
+
+Sure can automatically sync all families' bank connections on a recurring schedule. The schedule is configured in **Settings → Self-Hosting** or through environment variables.
+
+```txt
+# Enable or disable the nightly scheduled sync (default: 1)
+AUTO_SYNC_ENABLED="1"
+
+# Wall-clock time to run the sync, in HH:MM 24-hour format (default: 02:22)
+AUTO_SYNC_TIME="02:22"
+
+# IANA timezone for the scheduled sync time (default: UTC)
+# Example: "America/New_York", "Europe/London", "Asia/Tokyo"
+AUTO_SYNC_TIMEZONE="UTC"
+```
+
+The sync job runs at the configured local wall-clock time in the specified IANA timezone, so the schedule shifts correctly across daylight saving transitions. For example, a sync set to `02:22 America/New_York` runs at 07:22 UTC in winter and 06:22 UTC in summer.
+
+When you change the sync time in the UI, Sure saves your family's current timezone alongside it. You can override both with the environment variables above. Set `AUTO_SYNC_ENABLED="0"` to disable the scheduled sync entirely without removing the time setting.
+
 ### Redis Sentinel (high availability)
 
 By default Sure connects to Redis using `REDIS_URL`. For high-availability deployments that use Redis Sentinel, set `REDIS_SENTINEL_HOSTS` instead. When that variable is present it takes precedence over `REDIS_URL`.
