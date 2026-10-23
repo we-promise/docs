@@ -115,6 +115,8 @@ You can rename a bill from the bill drawer (Edit → name field). Renaming updat
 
 You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills).
 
+The **Mark as recurring** button is disabled, and the corresponding POST is refused, when a recurring transaction already covers the selected transaction — whether that series was created manually or detected automatically. The button label explains that the transaction already matches a recurring transaction. If you previously dismissed a suggested match for that series ("Not this one"), the dismissal is respected and the series no longer blocks the button.
+
 Two manual recurring entries for the same payee are allowed as long as their amounts differ (for example, a $3.00 fee and a $19.68 charge from the same merchant). An exact duplicate — same account, payee, currency, and amount — is still blocked.
 
 #### Create a bill from a transaction
@@ -122,6 +124,16 @@ Two manual recurring entries for the same payee are allowed as long as their amo
 With preview features enabled, **Create a bill** appears alongside **Mark as Recurring** in the detail view for a transaction that is not a split child. It opens the declaration dialog with the merchant name (or transaction name when there is no merchant name), absolute amount, account, currency, and a projected next due date filled in. These fields can be adjusted before saving. An income transaction opens an income declaration instead of a bill.
 
 This is the fastest path for declaring a bill you can already see in your transaction history. The dialog requires preview features to be enabled under **Settings → Preferences**.
+
+**Duplicate bill prevention** — when you open "Create a bill" from a transaction that is already covered by an existing bill or recurring income series, the dialog shows that series rather than the blank form. A warning names the covering series with a link to open it, and the form is hidden behind a "Create a separate bill anyway" disclosure. This prevents accidentally creating a second bill for the same payment.
+
+If the covering series is still a suggestion (detected but not yet confirmed), the dialog says so and offers a "Confirm bill" button (for users with write access to that bill). Confirming links past payments and starts tracking the bill going forward. Creating a separate bill while a suggestion is still unconfirmed would become a duplicate once the suggestion was confirmed.
+
+If the covering series is a recurring income (an inflow), the dialog uses income terminology throughout so the context is clear.
+
+Choosing "Create a separate bill anyway" is valid when you genuinely need a second bill — for example, a new price tier from the same service. The form submits with an `allow_duplicate` flag; if you fix a validation error and resubmit, that flag is preserved so the covering-bill check does not reappear on a corrected submission.
+
+If you previously dismissed the covering series as "Not this one", the dismissal is respected and that series will not block the creation dialog or the Mark as recurring button for this transaction. The series continues to cover future payments of the same bill normally.
 
 ## Schedules and cadences
 
