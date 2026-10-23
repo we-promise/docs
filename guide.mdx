@@ -402,13 +402,13 @@ The new order is per-user. Mouse and touch moves save when dropped; keyboard mov
 
 ### Spending trend chart
 
-The spending trend chart shows cumulative daily expenses for a selected month plotted against the previous month's curve, so you can see whether you are spending faster or slower than last month at the same point in the month.
+The spending trend chart shows cumulative daily expenses for a selected month plotted against an average month drawn from the dashboard's time period, so you can see whether you are spending faster or slower than your typical period.
 
 - Use the month picker to review any of the last 12 months.
-- The x-axis always spans the selected month's days. If the previous month was longer, its curve's extra days are folded into the final visible point, so the endpoint matches the full-month total shown in the header.
+- The gray comparison line is an average month computed from the dashboard's top-level time period. For each day of the month, Sure averages the spending on the period's dates that fall on that day and accumulates those averages. The label names the period (for example, "Avg. Last 90 Days").
+- The x-axis always spans the selected month's days. Days the comparison period never reaches are left blank, so a month-to-date period retraces the current month's own curve, last month gives last month's curve, and longer periods give a smoothed average.
 - The current month's curve stops at today while the month is in progress.
-- The header totals and the signed delta compare the same number of elapsed days in both months, so the figure is always apples-to-apples. While the selected month is still in progress, the previous-month label names the day range being compared (for example, "Aug 1–8") rather than implying a full month. Once the selected month is complete, both months are compared in full.
-- The previous month's chart curve still draws the full month so you can see the complete reference shape.
+- The header totals and the signed delta compare the same number of elapsed days, so the figure is always apples-to-apples. While the selected month is still in progress, the comparison label shows the day range being compared (for example, "(1–8)"). Once the selected month is complete, the full average is used.
 - On mobile, the x-axis shows tick labels for the selected month only and the header shows a compact date range (for example, "Sep 01 - 6, 2026") so the chart stays readable on narrow screens.
 - The chart uses the same transaction scoping as the Reports page: pending transactions, manually excluded transactions, tax-advantaged account activity, and investment portfolio movements (Transfers, Sweeps, Exchanges) are all excluded, so the totals always agree with what you see in Reports.
 
