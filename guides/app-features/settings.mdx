@@ -342,6 +342,14 @@ When the interface language is set to Spanish, Mexican peso (MXN) amounts now di
 
 Dates that span multiple years — such as those shown in bills, the period picker, and transaction date pickers — now display in the correct format for your locale. Previously, only 7 of the 118 supported locales defined their own short-with-year date format. The other 111 fell back to the English format (`Jan 05, 2027`), so a German user, for example, would see `Jan 05, 2027` instead of `05. Jan 2027`. All 118 locales now have an explicit short-with-year format derived from their own long date format.
 
+### Chart date labels follow your date format
+
+Account and net worth chart date labels are formatted using your family's configured date format. If you have set a custom date format in **Settings → Preferences**, the dates shown on chart axes and in chart tooltips reflect that format rather than a fixed locale default.
+
+### Localized valuation names
+
+Valuation entry names — such as opening balance, manual value update, and current account value — are now displayed in your interface language. The stored entry name remains in English for data consistency; Sure translates it for display at render time. For account types where the standard localization keys are not yet available for a given language, Sure falls back to a general opening balance translation before using the stored English name.
+
 ## Release highlights
 
 When a new version of Sure is deployed, a "What's new" dialog appears the first time you interact with the app after the update. It shows the release notes for the deployed version so you can see what changed without leaving the app.
