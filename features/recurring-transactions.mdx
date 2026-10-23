@@ -113,13 +113,13 @@ You can rename a bill from the bill drawer (Edit → name field). Renaming updat
 
 #### Mark as recurring
 
-You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills).
+You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills). For expense transactions, the transaction's category is copied to the new series. Income transactions do not carry a category.
 
 Two manual recurring entries for the same payee are allowed as long as their amounts differ (for example, a $3.00 fee and a $19.68 charge from the same merchant). An exact duplicate — same account, payee, currency, and amount — is still blocked.
 
 #### Create a bill from a transaction
 
-With preview features enabled, **Create a bill** appears alongside **Mark as Recurring** in the detail view for a transaction that is not a split child. It opens the declaration dialog with the merchant name (or transaction name when there is no merchant name), absolute amount, account, currency, and a projected next due date filled in. These fields can be adjusted before saving. An income transaction opens an income declaration instead of a bill.
+With preview features enabled, **Create a bill** appears alongside **Mark as Recurring** in the detail view for a transaction that is not a split child. It opens the declaration dialog with the merchant name (or transaction name when there is no merchant name), absolute amount, account, currency, category (for expense transactions), and a projected next due date filled in. These fields can be adjusted before saving. An income transaction opens an income declaration instead of a bill, and income declarations do not prefill a category.
 
 This is the fastest path for declaring a bill you can already see in your transaction history. The dialog requires preview features to be enabled under **Settings → Preferences**.
 
@@ -211,6 +211,22 @@ You can store a payment link on a bill. When set, you can open the link directly
 Mark a bill as autopay to indicate that the payment is handled automatically. Autopay bills still appear in your bill list but are not flagged as requiring action. On the overview, autopay rows are visually de-emphasized: the name and amount are shown in a secondary color rather than full contrast, making it easy to focus on bills that still need attention.
 
 When a new bill series is detected automatically, Sure checks the transaction descriptor for explicit autopay wording — such as AUTOPAY, AUTODRAFT, AUTO-DRAFT, AUTO-DEBIT, AUTO DRAFT, AUTO DEBIT, AUTODEBIT, or AUTOPMT — and sets autopay to on if any of those markers are found. This signal comes directly from the biller or bank and takes precedence over the bill-type default. Subscriptions and installment plans are always set to autopay because they are auto-charged. Bills without autopay wording default to needing action. The autopay flag remains user-editable and detection never reclassifies it after the series is created.
+
+### Category
+
+You can assign a spending category to a bill the same way you categorize transactions. The category field appears on the new-bill dialog and on the edit form.
+
+Sure fills a blank category automatically so you do not have to set it manually in most cases:
+
+- **Automatic detection** — when detection claims a series or recovers from a provider-replaced entry, it sets the category to the most common category across the bill's matched transactions, if the bill does not already have one. The fill is a guarded write: if you have already set a category (even between when the series was loaded and when it is saved), your choice is kept and the transaction-derived one is discarded.
+- **Manual variance pass** — when you confirm or update a detected series, the same most-common-category logic runs across the matched entries.
+- **Mark as Recurring** — when you mark an expense transaction as recurring from the transaction detail view, the transaction's own category is copied to the new series.
+- **Create a bill from a transaction** — when you open the declaration dialog from an expense transaction, the transaction's category is prefilled. You can change it before saving.
+- **Smart fill** — when you use smart fill to auto-populate a new bill's fields from a transaction's charge history, the category is included in the proposal.
+
+Income series are never auto-categorized through these paths; categories on income bills must be set manually.
+
+If your family has categories locked, the category select on the new-bill dialog and edit form respects that lock and disables inline category creation, the same way the transaction form does.
 
 ### Notes
 
