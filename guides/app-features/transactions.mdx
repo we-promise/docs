@@ -313,7 +313,7 @@ Rules can set:
 
 #### Email notification action
 
-When a rule has a send email notification action, Sure records the set of transactions that already matched at the time the rule was created or activated. Later digests include matching transactions not already recorded as delivered; the initial matching set is not re-sent.
+When a rule has a send email notification action, Sure records the set of transactions that already matched at the time the email action was added to the rule (including when the rule is first created with one) or when the rule is activated. Later digests include only matching transactions that arrived after that baseline was recorded; the initial set is not re-sent.
 
 If you edit the rule and change its match criteria — adding or removing a condition, changing a condition's type, operator, or value, or updating the rule's effective date — Sure re-records that baseline using the new conditions. Transactions that match the new criteria when the edit is saved are recorded as already delivered and are not included in the next digest. This prevents older transactions from appearing in the email as if they were new after a rule is widened.
 
