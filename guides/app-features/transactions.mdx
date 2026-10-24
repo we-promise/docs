@@ -319,6 +319,12 @@ If you edit the rule and change its match criteria — adding or removing a cond
 
 Editing any other part of the rule (name, action values, stop-processing toggle) does not reset the baseline.
 
+### Rule list layout
+
+The rules list adapts to your screen size. On phones, each rule row uses a two-column grid: the rule name and its active toggle with the action menu appear on the first row, and the condition and action chips appear on a second row below, truncated to one line each. On wider screens the layout is unchanged, showing the name, chips, toggle, and menu side by side.
+
+The page header (which contains the **New rule** button and other page actions) wraps on narrow screens so those actions stay accessible and are not clipped.
+
 ### Rule order
 
 Rules run from top to bottom in the order shown on **Settings → Rules**. You can drag any rule by its handle to change its position in the list. The order matters when two rules target the same field on the same transaction: the higher rule wins and the lower rule leaves that field alone. Tags are an exception — every matching rule adds its tags rather than the first one winning.
