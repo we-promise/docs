@@ -105,7 +105,7 @@ The **From** and **To** selectors support search — type part of an account nam
 
 ## Automatic Transfer Matching
 
-When you sync accounts with a provider (Plaid, SimpleFIN, etc.), Sure attempts to automatically match transfers between accounts.
+When you sync accounts with a provider (Plaid, SimpleFIN, etc.), Sure attempts to automatically match transfers between accounts. A family admin can disable this behavior from **Settings → Auto Matches** using the **Enable Auto Match** toggle. Turning it off removes all pending suggestions and stops new ones from being created on future syncs. Re-enabling it immediately queues a fresh match scan across the family's accounts.
 
 ### How Matching Works
 
@@ -128,7 +128,12 @@ When Sure finds a potential transfer match, it creates a **pending** transfer su
 1. **Confirm** - Accept the match and link the transactions as a transfer
 2. **Reject** - Dismiss the match (transactions remain separate and keep their existing kinds and categories)
 
-To review suggested transfers:
+**Reviewing suggestions from the Auto Matches page:**
+
+Go to **Settings → Auto Matches** to see all pending suggestions in one place. The page lists each suggestion with the source account, destination account, and date. You can confirm or reject suggestions individually, or select multiple rows and use **Confirm selected** or **Reject selected** to handle them in bulk.
+
+**Reviewing suggestions from a transaction:**
+
 1. Open a transaction that may be part of a transfer
 2. Look for transfer match suggestions
 3. Confirm or reject as appropriate
