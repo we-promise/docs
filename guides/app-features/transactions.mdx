@@ -124,9 +124,19 @@ Checking both options together is the same as leaving both unchecked: no attachm
 
 For split transactions, Sure checks the parent transaction for attachments. A split child counts as attached when its parent has a file, so the filter behaves consistently whether you view splits individually or grouped.
 
-### Filter by uncategorized on an account page
+### Filter the account activity feed
 
-The Filter popover on each account's activity list includes an **Uncategorized only** option under a **Category** section. Checking it narrows the activity list to transactions that meet the same uncategorized definition used by the Transactions page filter, the uncategorized badge, and Quick Categorize. The filter combines with the status filters (Confirmed, Pending) and the search field, so you can work through what still needs a category within a single account without switching to the global Transactions page.
+The activity feed on each account's detail page supports the same filter dimensions as the global Transactions page, scoped to that account. Open the **Filter** popover next to the search field to filter by:
+
+- **Category** — including an **Uncategorized only** option that matches the same uncategorized definition used by the Transactions page, the uncategorized badge, and Quick Categorize
+- **Tag** — including **Untagged** to show transactions with no tags assigned
+- **Merchant** — including **No merchant** to show transactions without an assigned merchant
+- **Type** — income, expense, or transfer
+- **Status** — Confirmed or Pending
+
+When a type filter is active, Sure excludes non-transaction entries (valuations and trades) from the activity list because those entry types do not have transaction types. The account filter and AI-categorization filter from the global Transactions page are not shown here because the feed is already scoped to one account.
+
+Active filters appear as removable badges below the search field. Removing a badge clears only that filter and leaves all other active filters in place.
 
 ### Categorize flow
 
