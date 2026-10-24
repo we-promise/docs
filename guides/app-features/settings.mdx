@@ -89,6 +89,19 @@ If your household treats contributions to an ISA, pension, or brokerage as savin
 
 The preference is part of the income statement cache key, so a new report request uses the updated setting.
 
+### Auto Matches
+
+Sure automatically detects likely transfer pairs between your accounts on every sync and creates pending suggestions for review. A family admin can control this behavior from **Settings → Auto Matches**.
+
+**Enable Auto Match toggle** (admin only): When enabled, each sync scans for matching outflow/inflow pairs and surfaces them as pending suggestions. The suggestions do not affect budgets, reports, or transaction kinds until you confirm them.
+
+- **Turning off**: Immediately removes all pending suggestions and stops new ones from being created. Turning the toggle off does not permanently exclude any transaction pair — if you re-enable the setting later, the same pairs can appear again as new suggestions.
+- **Turning on**: Queues a match scan right away so suggestions appear without waiting for the next scheduled sync.
+
+Only family admins can change this toggle. Other members and guests see it as read-only.
+
+See [Automatic Transfer Matching](/guides/key-concepts/transfers#automatic-transfer-matching) for full details on how matching works.
+
 ## Preview features
 
 Some newer areas of the app are gated behind preview features while they are still rolling out.
