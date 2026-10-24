@@ -980,6 +980,10 @@ On self-hosted instances, the securities and exchange-rate checks link super-adm
 | PostHog | The effective key and host loaded at boot, plus browser analytics status and, on self-hosted instances, shared feedback status. An unset `POSTHOG_HOST` defaults to `https://us.i.posthog.com`; an explicitly blank host with a key reports incomplete configuration. |
 | Logtail | Whether `LOGTAIL_API_KEY` and `LOGTAIL_INGESTING_HOST` are set. Reports as disabled outside the `production` environment even when both keys are present. |
 
+<Note>
+Sure disables Logtail's HTTP events middleware (`Logtail::Integrations::Rack::HTTPEvents`) at boot. That middleware bypasses Rails' parameter filters and serializes raw request and response headers — including `Authorization`, `Cookie`, and `X-Api-Key` headers, as well as query strings — directly into structured log events. With it disabled, the Logtail logger remains active as a destination for standard Rails logs, which do apply the parameter filters configured in `config/initializers/filter_parameter_logging.rb`. No credential values appear in log output from either path.
+</Note>
+
 An optional service can report **Incomplete configuration** when required settings are missing and either some settings are present or configuration signals an intent to enable it. For example, a nonblank `SKYLIGHT_ENABLED` other than `false` can trigger this status even with no authentication key; Stripe price IDs can also signal intent. The tab lists missing setting names without displaying their values.
 
 ### Verifying worker configuration
