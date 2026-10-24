@@ -49,33 +49,100 @@ By default, the `compose.example.yml` file runs without any configuration. For p
 
 ### Email configuration
 
-To enable email notifications and password resets, configure SMTP settings in your `.env` file:
+Sure sends email through an SMTP server that you provide. Email is sent by the `worker` service, not by `web`, so both services must have these settings.
 
-```txt
-SMTP_ADDRESS=smtp.example.com
-SMTP_PORT=587
-SMTP_DOMAIN=example.com
-SMTP_USERNAME=your-username
-SMTP_PASSWORD=your-password
-SMTP_AUTHENTICATION=plain
-SMTP_ENABLE_STARTTLS_AUTO=true
+On a self-hosted instance, Sure sends these emails:
+
+- Password reset links, when password sign-in is enabled.
+- A confirmation link when a user changes their email address, but only when **Require email confirmation** is on under Settings > Self-Hosting. When it is off, the new address is saved straight away and nothing is sent.
+- Rule notifications from rules with a "Send email notification" action.
+- The follow-up email after a PDF import is processed.
+- A daily summary to every super admin after the demo family is refreshed, but only when **Enable daily demo family refresh** is on and a demo family has been selected. It is off by default.
+
+Invitations are never emailed on a self-hosted instance. After you add a member, copy the invitation link from Settings > Profile Info and send it to them directly.
+
+| Variable | What it does | Default when not set |
+|----------|--------------|----------------------|
+| `SMTP_ADDRESS` | Host name of your SMTP server, for example `smtp.example.com`. | None. Required to send email. |
+| `SMTP_PORT` | Port of your SMTP server. | `25` |
+| `SMTP_USERNAME` | User name for logging in to the SMTP server. | None (no login) |
+| `SMTP_PASSWORD` | Password for logging in to the SMTP server. | None |
+| `SMTP_TLS_ENABLED` | `true` uses TLS from the start of the connection (SMTPS, usually port 465). Any other value connects in plain text and switches to TLS with STARTTLS when the server offers it (usually port 587). | Off |
+| `SMTP_TLS_SKIP_VERIFY` | `true` turns off verification of the SMTP server's certificate. | Off (the certificate is verified) |
+| `SSL_CA_FILE` | Path inside the container to a CA certificate (PEM) for verifying a server with a self-signed or internal certificate. The file must be mounted into the containers. | None |
+| `EMAIL_SENDER` | Address that emails are sent from, for example `sure@example.com`. | `sender@sure.local` |
+| `APP_DOMAIN` | Host name your instance is reached at, for example `sure.example.com`. Used to build links in emails. | None |
+
+A few things to watch:
+
+- `SMTP_TLS_ENABLED` and `SMTP_TLS_SKIP_VERIFY` are on only when the value is exactly the string `true`. `True`, `1`, or `yes` all count as off.
+- If `EMAIL_SENDER` is not set, email goes out from `sender@sure.local`, which many mail servers reject. Set it to an address your SMTP server is allowed to send from.
+
+**Passing the settings to the containers**
+
+Docker Compose uses `.env` to fill in the `${...}` values in `compose.yml`. It does not pass `.env` to the containers as a whole. A variable set only in `.env` does not reach the app unless `compose.yml` lists it.
+
+Both `web` and `worker` merge the shared `x-rails-env` anchor, so add the keys there once and both services get them. Add these to the anchor in `compose.yml`:
+
+```yaml
+x-rails-env: &rails_env
+  # ...existing keys...
+  APP_DOMAIN: ${APP_DOMAIN}
+  EMAIL_SENDER: ${EMAIL_SENDER}
+  SMTP_ADDRESS: ${SMTP_ADDRESS}
+  SMTP_PORT: ${SMTP_PORT:-465}
+  SMTP_USERNAME: ${SMTP_USERNAME}
+  SMTP_PASSWORD: ${SMTP_PASSWORD}
+  SMTP_TLS_ENABLED: ${SMTP_TLS_ENABLED:-true}
+  # Only when an otherwise valid certificate uses an untrusted CA:
+  # SMTP_TLS_SKIP_VERIFY: ${SMTP_TLS_SKIP_VERIFY:-false}
 ```
 
-#### SSL/TLS options
+The `:-default` syntax means Compose uses the default when the `.env` value is unset or empty. Plain `${VAR}` keys (like `SMTP_USERNAME`) pass an empty value when the variable is not set — an empty `SMTP_USERNAME` still makes the app try to log in. If your server needs no login, leave those keys out of the anchor entirely.
 
-For SMTP servers with custom SSL certificates or self-signed certificates:
+Then set the values in `.env`:
 
-**Skip TLS verification** (not recommended for production):
 ```txt
-SMTP_OPENSSL_VERIFY_MODE=none
+APP_DOMAIN="sure.example.com"
+EMAIL_SENDER="sure@example.com"
+SMTP_ADDRESS="smtp.example.com"
+SMTP_USERNAME="replacemewithyoursmtpusername"
+SMTP_PASSWORD="replacemewithyoursmtppassword"
+# For STARTTLS on port 587 instead of SMTPS on 465:
+# SMTP_PORT="587"
+# SMTP_TLS_ENABLED="false"
 ```
 
-**Use custom CA certificate**:
-```txt
-SSL_CA_FILE=/path/to/ca-certificate.pem
+Run `docker compose up -d` after changing `compose.yml` or `.env`. `docker compose restart` keeps the old environment, so new settings do not take effect.
+
+To check what the worker sees, without printing the password:
+
+```bash
+docker compose exec worker bin/rails runner 'p ActionMailer::Base.smtp_settings.slice(:address, :port, :user_name, :tls)'
+docker compose exec worker printenv EMAIL_SENDER APP_DOMAIN
 ```
 
-The `SSL_CA_FILE` option allows you to specify a custom CA certificate file for SSL verification when connecting to SMTP servers with self-signed or internal certificates.
+**Using a custom CA certificate for SMTP**
+
+If your SMTP server's certificate is signed by an internal CA or is self-signed, mount the CA certificate into the containers and point `SSL_CA_FILE` at it. Add `SSL_CA_FILE` to the anchor, and the volume to both `web` and `worker`:
+
+```yaml
+x-rails-env: &rails_env
+  # ...existing keys...
+  SSL_CA_FILE: /certs/my-ca.crt
+
+services:
+  web:
+    volumes:
+      - app-storage:/rails/storage
+      - ./my-ca.crt:/certs/my-ca.crt:ro
+  worker:
+    volumes:
+      - app-storage:/rails/storage
+      - ./my-ca.crt:/certs/my-ca.crt:ro
+```
+
+The worker is the service that sends email. The same `SSL_CA_FILE` setting is also used for other outbound HTTPS connections.
 
 ### Create an environment file
 
@@ -523,16 +590,16 @@ Your app is now accessible at `http://localhost:3000`.
 
 ## Updating
 
-The Docker image in your `compose.yml` file controls which version of Sure you're running:
+The `SURE_IMAGE_TAG` variable in your `.env` file controls which version of Sure you're running. The image in `compose.yml` reads from it:
 
 ```yml
-image: ghcr.io/we-promise/sure:latest
+image: ghcr.io/we-promise/sure:${SURE_IMAGE_TAG:-stable}
 ```
 
-### Recommended images
+### Recommended channels
 
-- `ghcr.io/we-promise/sure:latest` - Latest alpha release
-- `ghcr.io/we-promise/sure:stable` - Latest stable release
+- `stable` — latest stable release (default)
+- `latest` — latest alpha release
 
 You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
 
@@ -542,25 +609,24 @@ Your app does not automatically update. To update:
 
 ```bash
 cd ~/docker-apps/sure
-docker compose pull
-docker compose build
-docker compose up --no-deps -d web worker
+docker compose run --rm backup create  # recommended: back up first
+docker compose pull web worker
+docker compose up -d
 ```
 
 ### Change update channel
 
-To switch between update channels, edit the `compose.yml` file:
-
-```yml
-image: ghcr.io/we-promise/sure:stable
-```
-
-Then restart the app:
+Set `SURE_IMAGE_TAG` in your `.env` file to the channel or version you want:
 
 ```bash
-docker compose pull
-docker compose build
-docker compose up --no-deps -d web worker
+SURE_IMAGE_TAG=stable
+```
+
+Then pull and restart:
+
+```bash
+docker compose pull web worker
+docker compose up -d
 ```
 
 ## Backups, upgrades, and rollbacks
@@ -780,72 +846,7 @@ Restart the application after updating your configuration:
 docker compose restart web worker
 ```
 
-### Optional: SSL/TLS Configuration
 
-Sure supports additional SSL/TLS configuration options for secure email delivery and API connections.
-
-#### Custom CA Certificate
-
-If you're using a custom Certificate Authority (CA) or self-signed certificates, you can specify a CA file:
-
-```txt
-SSL_CA_FILE="/path/to/your/ca-certificate.pem"
-```
-
-This is useful when:
-- Running Sure in a corporate environment with internal CAs
-- Using self-signed certificates for development
-- Connecting to services with custom certificate chains
-
-#### Skip TLS Verification for Email
-
-For development or testing environments, you can disable TLS verification for the email mailer:
-
-```txt
-SMTP_ENABLE_STARTTLS_AUTO=false
-SMTP_TLS_VERIFY=false
-```
-
-<Warning>
-Only disable TLS verification in development or trusted environments. In production, always use proper TLS verification to ensure secure email delivery.
-</Warning>
-
-**When to use this:**
-- Development environments with self-signed certificates
-- Testing email functionality locally
-- Internal mail servers with custom certificates
-
-**Production recommendations:**
-- Always use valid SSL/TLS certificates in production
-- Use the `SSL_CA_FILE` option instead of disabling verification
-- Ensure your SMTP server supports STARTTLS
-
-### Mailer SSL configuration
-
-For SMTP connections, additional SSL options are available:
-
-```txt
-SMTP_ENABLE_STARTTLS_AUTO=true
-SMTP_OPENSSL_VERIFY_MODE=none
-```
-
-**SMTP_ENABLE_STARTTLS_AUTO**: Enable STARTTLS for SMTP connections (default: `true`)
-
-**SMTP_OPENSSL_VERIFY_MODE**: SSL verification mode for SMTP
-- `none`: Skip SSL verification
-- `peer`: Verify the server certificate (default)
-
-### Security considerations
-
-<Warning>
-Disabling SSL verification (`SSL_VERIFY=false` or `SMTP_OPENSSL_VERIFY_MODE=none`) exposes your application to man-in-the-middle attacks. Only use these settings in trusted networks or development environments.
-</Warning>
-
-For production deployments:
-- Use properly signed certificates from a trusted CA
-- Keep `SSL_VERIFY=true`
-- Use `SMTP_OPENSSL_VERIFY_MODE=peer`
-- If you must use self-signed certificates, provide a CA bundle via `SSL_CA_FILE`
 
 ## Monitoring system health
 
