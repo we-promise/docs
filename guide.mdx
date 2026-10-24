@@ -430,6 +430,24 @@ Income and expense category rows in the breakdown are clickable. Clicking a cate
 
 Investment-only rows (such as **Other Investments**) are not clickable because those entries are trade records rather than regular transactions and cannot be shown in the transaction list.
 
+### Spending vs normal
+
+<Note>
+Spending vs normal is a preview feature. The definition of "normal" may change in a future release.
+</Note>
+
+The **Spending vs normal** section in Reports shows whether your spending is higher or lower than usual, broken down by category. It uses a treemap where each box represents a category sized by net spending and coloured by how far spending deviates from normal. A ranked "What changed" list below the treemap shows the categories with the biggest movements.
+
+Clicking a treemap box or a row in the change list opens your transaction list filtered to that category and period.
+
+**How normal is calculated**
+
+- For a finished period, normal is the category's net spending over the year before the period, scaled to the period's length.
+- For an unfinished period (the current month by default), normal is the average of the same number of elapsed days taken from each of up to 12 earlier month starts. This avoids comparing ten days of spending against a full month.
+- Normal requires at least 28 days of transaction history. Below that threshold, the section shows totals without a comparison.
+- The baseline starts from your first counted transaction in your eligible accounts, so opening-balance valuations or early transfers don't dilute the average.
+- Amounts are net of refunds in the same category, matching the cash flow Sankey. Transaction exclusions, account exclusions, and the "Count investing as spending" preference all apply the same way they do in the rest of Reports.
+
 ## Next steps
 
 Now that you have your account set up:
