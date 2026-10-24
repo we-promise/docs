@@ -1151,6 +1151,14 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Spending widget comparison reverted to previous month
+
+Between the commit that introduced PR #4452's changes and the revert that followed, the spending widget compared the selected month's spending against the average of months within the dashboard's global date period. The revert restores the original behavior: the widget always compares against the immediately preceding calendar month.
+
+If you are on a build between that change and its revert, the spending widget's gray reference curve and header delta represent a period-averaged baseline rather than the previous month. Upgrading to a build containing [Sure PR #4452](https://github.com/we-promise/sure/pull/4452) restores the previous-month comparison.
+
+No configuration change is required.
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
