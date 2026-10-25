@@ -492,6 +492,18 @@ On first run, register a new account:
 
 The first user to register on a fresh instance is automatically assigned the `super_admin` role. If two registrations happen at the same time, Sure uses a database lock to ensure exactly one of them becomes `super_admin` and the other becomes `admin`.
 
+### Instance-wide settings require a super admin
+
+Provider credentials (such as Plaid), the shared AI connection settings (LLM provider, endpoints, API keys, and models), sync settings, and the external assistant connection are stored once for the whole instance and apply to every family. On an instance with more than one family, only a super admin can change them. On a single-family instance, that family's admins retain access. Family-scoped choices, such as which assistant a family uses, stay with that family's admins.
+
+If your instance predates automatic super admin assignment and has more than one family, those instance-wide settings become inaccessible after upgrading. Promote your own user once to restore access:
+
+```bash
+docker compose exec web bin/rails runner 'User.find_by!(email: "you@example.com").update!(role: :super_admin)'
+```
+
+After that, you can promote other users at `/admin/users`.
+
 ### Restrict future signups
 
 After creating your initial admin account, you can control how other people join your self-hosted instance from **Settings > Self-Hosting > Onboarding**.
