@@ -70,6 +70,8 @@ Track your credit card balances and spending. Credit card accounts can include:
 | Minimum Payment | Minimum amount due |
 | Annual Fee | Yearly card fee |
 | Expiration Date | Card expiration date |
+| Statement Close Day | Day of month your statement closes (1–31) |
+| Due Day | Day of month your payment is due (1–31) |
 
 ### Loan
 
@@ -127,6 +129,35 @@ When you pay down debt, your net worth increases (even though your cash decrease
 | **Net Worth** | **$1,500** | **$1,500** |
 
 Your net worth stays the same because you traded $500 of cash for $500 of debt reduction. But now you have no credit card debt!
+
+## Credit card overview
+
+When you set a **Statement Close Day** on a credit card, Sure enables an **Overview** tab on that account. The tab breaks your total debt into what is already a bill and what is still accruing for the next statement.
+
+### Summary cards
+
+| Card | Description |
+| --- | --- |
+| Statement Balance | Charges through the most recent close date — this is what you currently owe |
+| Since Last Statement | Charges since the close — this is what is building toward the next bill |
+| APR | The card's annual percentage rate |
+
+The two balance cards always sum to the total debt shown in the account header. When a payment is due, the due date and a countdown ("Due in 3 days" / "Overdue by 2 days") appear under whichever card the unpaid bill belongs to.
+
+When the accrued balance is negative — meaning you have paid down more than you charged since the last close — the card labels it as a credit toward the next statement.
+
+If the statement totals cannot be calculated (for example, when entries are booked in more than one currency), Sure shows an info notice rather than a partial figure.
+
+### Minimum payment alert
+
+When the statement balance exceeds the card's configured minimum payment, Sure shows a warning on the Overview tab so you can see at a glance whether paying the minimum clears the bill.
+
+### Configuring the statement cycle
+
+To enable the Overview tab, open the credit card's edit dialog and set the **Statement Close Day**. Optionally add a **Due Day** to see due-date countdowns. If Sure infers these dates from a connected provider (such as Plaid), it stores them automatically and never overwrites values you have set manually.
+
+> [!NOTE]
+> The full payment automation — automatically generating a recurring payment series when a statement closes — is not yet available. You can track your statement balance and due date on the Overview tab now, and record payments manually.
 
 ## Adding Debt Accounts
 
