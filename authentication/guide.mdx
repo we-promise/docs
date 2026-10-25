@@ -576,6 +576,14 @@ This is a generic message that does not expose internal database index names or 
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 - If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
 
+### Session inactivity expiry
+
+Web sessions expire after 30 days of inactivity. Sure tracks activity via the session's `updated_at` timestamp, refreshed at most once per hour per active session to avoid a write on every request. A session that has not been touched within the 30-day window is treated as expired on the next request and destroyed immediately.
+
+This expiry is enforced at every authentication entry point — cookie-based web requests, Doorkeeper OAuth token exchanges, and the super-admin constraint — through a shared `Session.find_active_by_cookie` method. There is no code path that can exchange an active session cookie without passing the inactivity check.
+
+A background job (`SessionCleanerJob`) also sweeps the database once a day and removes all expired sessions. The job rechecks each candidate under a row lock before destroying it, so a session touched by a concurrent request between the cleanup query and the destroy step is not removed.
+
 ### MFA password re-authentication
 
 Enabling or disabling two-factor authentication requires the user's current password before the change is applied. This prevents anyone who reaches an unlocked browser from stripping or adding a second factor without knowing the password.
@@ -616,6 +624,10 @@ Sure filters sensitive values from request logs so they never appear in log outp
 - FinanceKit publisher credential and event fields
 
 These are configured in `config/initializers/filter_parameter_logging.rb`.
+
+### Session data input validation
+
+The `PUT /current_session` endpoint, which saves UI tab preferences into the session record's JSON column, only accepts an explicit allowlist of tab keys. Any key not in the allowlist is silently ignored and never written to the database. This prevents a client from injecting arbitrary key/value pairs into the session's data store.
 
 ### Rate limiting
 
