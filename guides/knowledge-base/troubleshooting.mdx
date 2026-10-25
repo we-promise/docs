@@ -1151,6 +1151,22 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Breadcrumb trail on the account page and SSO provider forms had no link back to the list
+
+On the account detail page and on the SSO provider new/edit forms in the admin dashboard, the breadcrumb trail showed the section name (Accounts or SSO Providers) as plain text with no link. There was no way to navigate back to the list by clicking the breadcrumb.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    `AccountsController#show` and `Admin::SsoProvidersController#new`, `#edit`, `#create` (failed save), and `#update` (failed save) never set `@breadcrumbs`. They fell back to `Breadcrumbable`'s default trail, which renders the section crumb as plain text with no path. Only the list pages used the default trail intentionally — detail and form pages needed their own explicit trail with a linked section crumb.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Each of those actions now sets an explicit breadcrumb trail: **Home → section (linked) → current page (unlinked)**. The section crumb on the account detail page links back to `/accounts`, and the section crumb on SSO provider forms links back to `/admin/sso_providers`. List pages are unaffected and keep their unlinked current-page crumb.
+
+    Upgrade to a build containing [Sure PR #4373](https://github.com/we-promise/sure/pull/4373). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
