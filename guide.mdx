@@ -424,6 +424,18 @@ Each chevron button shows a tooltip with its keyboard shortcut. The shortcuts ar
 
 Keys pressed inside text fields on the page are not intercepted, so typing in a date input works normally.
 
+### Reordering sections
+
+The Reports page displays several sections (such as spending by category, income, and net worth). You can drag them into any order:
+
+- **Mouse or trackpad**: Hover over a section header to reveal the drag handle, then drag it to a new position.
+- **Touch (mobile)**: Press and hold a section header until it lifts, then drag it into place.
+- **Keyboard**: Tab to a section header, then press **Enter** or **Space** to grab it. Use **Up** and **Down** to move it, then press **Enter**, **Space**, or **Escape** to release.
+
+Keys pressed on controls inside a section — such as a CSV download link or the Google Sheets button — are not intercepted by the section's reorder handler. Those controls respond normally to Enter and Space.
+
+If you navigate away while holding a section with the keyboard, Sure saves the move before leaving so the new order is not lost.
+
 ### Drilling into categories
 
 Income and expense category rows in the breakdown are clickable. Clicking a category row takes you directly to your transaction list filtered to that category, so you can see exactly which transactions make up the total.
