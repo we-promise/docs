@@ -539,15 +539,19 @@ If you delete an account and it vanishes from every list and the balance sheet b
 
 ## Account reappears as disabled after a failed deletion
 
-When you delete an account, Sure marks it as pending deletion and then runs a background job to remove it. If the background job encounters an error during destruction, the account was previously left in the pending deletion state — hidden from every account list, ineligible for any further action, and impossible to re-delete. The only way out was a direct database fix.
+When you delete an account, Sure marks it as pending deletion and then runs a background job to remove it. If the background job encounters an error during destruction, the account is restored to disabled so it reappears in your account list and can be deleted again.
 
 <AccordionGroup>
-  <Accordion title="What causes this issue?">
-    The deletion request marks the account `pending_deletion` before queuing the background job that attempts destruction. If the destroy raises an error mid-run — for example, a database constraint violation or a provider API failure — the job's own error handler reset a `scheduled_for_deletion` flag that belongs to provider items, not to accounts. The account was left stuck in `pending_deletion` with no job queued to retry it.
+  <Accordion title="What causes a deletion to fail?">
+    Common causes include a database constraint violation, a callback on a related record raising an error, or a database deadlock (for example, a sync writing to the same account at the same time as the deletion).
   </Accordion>
 
-  <Accordion title="How was it fixed?">
-    `Account#destroy` now catches destruction errors and fires a `restore_after_failed_deletion` event, which transitions the account from `pending_deletion` back to `disabled`. The account reappears in your account list and can be deleted again once the underlying problem is resolved.
+  <Accordion title="How does Sure handle the failure?">
+    When destruction fails, the background job restores the account to `disabled` so it becomes visible and re-deletable. The restore writes `status` and `disabled_at` directly — bypassing validations — and only updates the row if the status has not been changed by another process in the meantime, so a concurrent re-enable is never overwritten.
+
+    For deadlocks specifically, Sure retries the deletion up to five times with growing waits (roughly 3 s, 18 s, 83 s, 258 s). The account stays in pending deletion during those retries. If all retries are exhausted, the account is restored to disabled.
+
+    Every failed attempt is logged to **Settings → Debug** under the `background_jobs` category. Each entry includes the error class and message so you can see why the deletion failed.
 
     For accounts that were already disabled before deletion was attempted, the original `disabled_at` timestamp is preserved so the net worth chart cutoff is not moved forward to the failure date.
 
@@ -555,7 +559,11 @@ When you delete an account, Sure marks it as pending deletion and then runs a ba
   </Accordion>
 
   <Accordion title="What should I do if an account is already stuck?">
-    If an account is already stuck in pending deletion on an older version, it requires a direct database update to restore it. Set the account's `status` column back to `disabled` so it becomes visible and can be re-deleted from the UI. After upgrading, an exception raised during destruction restores the account to disabled so you can retry.
+    If an account is already stuck in pending deletion on an older version, it requires a direct database update to restore it. Set the account's `status` column back to `disabled` so it becomes visible and can be re-deleted from the UI. After upgrading, an exception raised during destruction restores the account to disabled automatically.
+  </Accordion>
+
+  <Accordion title="How do I see why the deletion failed?">
+    Go to **Settings → Debug** and filter by the `background_jobs` category. Look for `error`-level entries with a message starting with `Failed to delete Account`. Each entry includes the error class, a truncated error message, and context about the record and family.
   </Accordion>
 </AccordionGroup>
 
@@ -624,6 +632,8 @@ If a provider connection shows "Deletion in progress" indefinitely and never dis
 
   <Accordion title="How was it fixed?">
     Sure now restores the deletion flag when the enqueue fails, so the connection returns to its normal state rather than staying stuck. If the job queue is temporarily unavailable, you can retry the deletion once the queue is healthy again.
+
+    When the deletion job runs but the destruction itself fails, Sure also resets the `scheduled_for_deletion` flag so the connection reappears. Every failed destruction is logged to **Settings → Debug** under the `background_jobs` category with the error class and message.
 
     Upgrade to the latest release to get this fix. No configuration change is required.
   </Accordion>
