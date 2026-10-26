@@ -48,6 +48,19 @@ The full chat interface is localized to match your language setting. This includ
 
 When the AI provider returns an error, Sure shows a localized message describing the error category, such as a rate limit, temporary service problem, or configuration issue. When chat debug mode is enabled, a technical-details section can also show the stored provider error message. Raw provider details are not shown in the normal chat error message, and may be unavailable for some failures.
 
+## Background task notice above the chat box
+
+When your instance runs with one AI thread, focusing or typing in the chat box pauses background AI jobs — such as auto-categorization and merchant detection — for up to 60 seconds so your chat can start sooner. A small bubble appears above the chat composer while this hold is active.
+
+The bubble shows one of two states:
+
+- **Countdown** — background jobs are paused and will resume in the number of seconds shown. Keep typing; the hold renews automatically as you type.
+- **Finishing a background task** — a background AI job started before the hold and is still running. It will finish before your message is processed.
+
+The bubble stays hidden when a chat is queued or already running, so it only appears when it is actually relevant. Back-to-back holds stop after 15 minutes to ensure background work gets a turn, and resume 60 seconds later.
+
+This behavior only applies when your worker has a single AI thread. With multiple AI threads the bubble never appears.
+
 ## Related settings
 
 - For AI provider setup, see [LLM support](/llm-support)
