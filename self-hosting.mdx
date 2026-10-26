@@ -227,6 +227,8 @@ When you configure a bank sync provider (such as Plaid, SimpleFIN, or Brex) on a
 
 > **Encryption keys missing** — This self-hosted install has not configured explicit Active Record encryption keys. Configure `primary_key`, `deterministic_key`, and `key_derivation_salt` before saving provider credentials in production.
 
+The warning includes a link to the [encryption setup and migration guide](#turning-on-active-record-encryption-after-first-boot) so you can find the backfill steps without leaving the settings flow.
+
 The trust statement on the provider form also changes to remind you that credentials will not be stored encrypted until you configure those keys.
 
 If encryption is not configured at all when you visit **Settings > Bank Sync**, Sure blocks access and redirects you with the same "Encryption keys missing" message.
