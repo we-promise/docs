@@ -70,6 +70,16 @@ These protections last until they are explicitly removed. Re-enabling sync clear
 
 Saving changes to **Name**, **Notes**, **Category**, **Merchant**, or **Tags** does not trigger a background account sync. Reports and budgets update immediately through the entries cache. Saving changes to **Amount**, **Date**, or **Account** does trigger an account sync to recalculate balances from the affected date forward.
 
+### Name suggestions and category auto-fill
+
+When you type in the **Name** field while adding or editing a transaction, Sure shows a dropdown of up to 8 past transaction names that resemble what you have typed so far. The suggestions come from transactions on accounts you can access.
+
+Selecting a suggestion fills in the name and, if that name has a commonly used category across your history, also sets the category automatically. The auto-filled category is the one most frequently used for that name.
+
+You can override the suggested category at any time by picking a different one from the category selector. A manual category pick always takes priority and will not be replaced by a later suggestion. If you choose a different name suggestion after setting a manual category, the category you picked manually is preserved.
+
+If a name suggestion has no clear majority category, any category that was previously auto-filled by an earlier suggestion is cleared, leaving the field empty for you to assign a category yourself.
+
 ### Create a merchant inline
 
 If the merchant you need does not exist yet, you can create it directly from the merchant selector in the transaction detail or new-transaction form. Type a name in the merchant field and select the option to create it. Sure saves the new merchant and immediately assigns it to the transaction. There is no need to navigate to **Settings → Merchants** first.
