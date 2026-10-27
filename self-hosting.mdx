@@ -1075,6 +1075,18 @@ After you save a demo family and enable the toggle, Sure runs the refresh job on
 - Retires and destroys the previous demo family.
 - Updates the stored family ID to point at the newly created family.
 
+### Features enabled for demo users
+
+When the demo generator creates a family, it enables several opt-in features for every user in that family — both the admin and the member account. This happens after user creation so the role-based defaults (which hide the AI sidebar for new members when no AI provider is configured) do not override the demo settings.
+
+Each demo user gets:
+
+- **AI enabled** — the AI assistant is turned on.
+- **AI sidebar visible** — the right-hand AI sidebar is shown by default on desktop.
+- **Preview features** — all preview-gated features (such as Goals and the new Sankey chart) are enabled.
+
+This means anyone using a demo family sees Sure with all opt-in features active, giving a complete picture of the product. If you are running a self-hosted demo and want to limit which features are shown, you can adjust individual user preferences from **Settings → User management** after the demo data is loaded.
+
 If the selected family no longer meets the safety checks (for example, a super-admin was added to it), the job skips that run and logs a warning instead of destroying data.
 
 ### Completion notification email
