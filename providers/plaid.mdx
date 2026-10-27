@@ -363,6 +363,44 @@ If you linked a credit card or loan account through Plaid and Sure imported bala
 
 To resolve this, trigger a manual sync from the account page. Sure will now recognize `transactions` as a supported product and import your transaction history.
 
+### Plaid sync overwrites loan fields you edited manually
+
+If you corrected a loan's interest rate, rate type, balance, or term in Sure and a subsequent Plaid sync reverted your changes, you were affected by a bug that is now fixed.
+
+Plaid's mortgage and student-loan processors previously wrote the full payload directly onto the loan, which bypassed the attribute locks that Sure sets when you save a field manually. A field that Plaid's payload omitted arrived as `nil` and blanked the stored value. A student loan you had marked as variable was also reverted to fixed on every sync by a hardcoded value in the old processor.
+
+All Plaid loan-term writes now go through a shared writer that respects your saved values. Fields the payload omits are dropped rather than written as blank, and a save that your locks reject is rolled back cleanly.
+
+If your loan still shows the wrong values after upgrading, open the loan form, verify the fields, save, and trigger a manual sync. The next sync will leave your saved values in place.
+
+### Variable rate loan shows wrong interest rate for past periods
+
+If a variable-rate mortgage or student loan showed the current Plaid-reported rate applied to all earlier periods — making the amortization schedule and the Overview charge the new rate over time before it was in effect — you were affected by a bug that is now fixed.
+
+When Plaid reported a new rate, Sure previously replaced the loan's `interest_rate` field directly. The rate-history logic then returned that new rate for every earlier date, so past periods were retroactively repriced.
+
+Sure now records a Plaid rate change as a dated entry in the variable rate schedule (the same approach Redbark already used): the first time a rate is seen it becomes the base rate, an unchanged rate is ignored, and a new rate is written as a schedule row dated to the day of the sync. The amortization schedule and Overview charge each rate only from the date it took effect.
+
+If your loan's schedule still looks wrong after upgrading, trigger a manual sync from the account page to apply the corrected logic.
+
+### Variable rate change dated to yesterday instead of today
+
+If a variable-rate loan's rate change was consistently dated one day earlier than expected — especially for families in timezones ahead of UTC — you were affected by a bug that is now fixed.
+
+Plaid syncs run as background jobs in UTC. For a family in Sydney (UTC+11), a sync at 06:00 local time is still the previous day in UTC, so the rate change was dated a day before the user saw it in their account and the schedule charged it from a period earlier.
+
+Sure now determines the sync date in the family's own timezone. If you have a rate schedule entry dated a day too early, you can correct it by opening the loan's rate history, removing the incorrect row, and triggering a manual sync.
+
+### Variable rate changes recorded while Plaid requires re-authentication
+
+If you had a Plaid connection that required re-authentication and your variable-rate loan accumulated incorrect dated rate entries on each sync after that, you were affected by a bug that is now fixed.
+
+When Plaid marks a connection as needing a login update, Sure's importer swallows the error and continues processing using the previous sync's cached liabilities payload. For a variable loan whose rate you had corrected and locked, the stale rate from that cached payload differed from the current rate in force, and Sure wrote it as a dated rate-change row, routing around the lock on every sync until you re-authenticated.
+
+Sure now skips variable rate writes entirely while a Plaid connection requires an update. The fix applies only to variable rate writes; the other loan terms and fixed-loan rates continue as before.
+
+If you have incorrect dated rate entries on a loan, open the loan's rate history and remove any rows written during the period the connection required re-authentication, then trigger a manual sync.
+
 ### Retracted transactions not removed
 
 When Plaid removes a transaction (for example, a pending transaction that never settled, or a duplicate Plaid later corrects), Sure deletes the matching entry from your account during the next sync.
