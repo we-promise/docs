@@ -108,6 +108,44 @@ Sure serves MCP over JSON-RPC 2.0 at the URL displayed in **Settings > MCP Serve
 
 Sure authenticates each MCP request with an active OAuth access token that has the `read_write` scope. The token's resource owner determines the Sure user and family available to the tools. Sure creates a fresh transient session for that user for the request so an existing browser or impersonation session is not reused.
 
+### OAuth discovery metadata
+
+Sure publishes two RFC 9728 discovery documents that MCP clients use to locate authorization endpoints and determine the required scope before attempting to connect.
+
+**Protected resource metadata** — `GET /.well-known/oauth-protected-resource`
+
+```json
+{
+  "resource": "https://your-sure-instance.example.com",
+  "authorization_servers": ["https://your-sure-instance.example.com"],
+  "scopes_supported": ["read_write"],
+  "bearer_methods_supported": ["header"]
+}
+```
+
+**Authorization server metadata** — `GET /.well-known/oauth-authorization-server`
+
+```json
+{
+  "issuer": "https://your-sure-instance.example.com",
+  "authorization_endpoint": "https://your-sure-instance.example.com/oauth/authorize",
+  "token_endpoint": "https://your-sure-instance.example.com/oauth/token",
+  "registration_endpoint": "https://your-sure-instance.example.com/register",
+  "response_types_supported": ["code"],
+  "grant_types_supported": ["authorization_code"],
+  "code_challenge_methods_supported": ["S256"],
+  "scopes_supported": ["read_write"]
+}
+```
+
+When a request to `/mcp` arrives without a valid token, Sure responds with HTTP 401 and a `WWW-Authenticate` header that references the protected resource document and states the required scope:
+
+```
+WWW-Authenticate: Bearer resource_metadata="https://your-sure-instance.example.com/.well-known/oauth-protected-resource", scope="read_write"
+```
+
+MCP clients that follow the authorization flow use these documents to discover endpoints and request the `read_write` scope. Clients that request a narrower scope (such as the Doorkeeper default `read`) will have their tokens rejected at `/mcp`.
+
 ### Dynamic client registration redirect URIs
 
 Sure registers MCP clients dynamically via `POST /register`. The `redirect_uris` field must contain at least one URI that matches one of the following schemes:
