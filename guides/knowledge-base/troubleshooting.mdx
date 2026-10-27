@@ -799,6 +799,24 @@ Some strict OpenAI-compatible providers (not OpenAI itself) reject chat requests
 
 </AccordionGroup>
 
+## Assistant responses show garbled dates or missing spaces before numbers
+
+When the AI assistant streams a reply, spaces that appear just before a number — for example, the space in "as of Oct 7" or "balance on 10-22-2026" — could be dropped. The rendered text showed "Oct7" or "as of10-22-2026" instead.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    OpenAI's streaming API sends the space before a number as its own separate chunk (for example `" "`, then `"10"`, then `"-"`, then `"22"`). The assistant responder previously skipped any chunk whose content was whitespace-only, treating it as empty. That dropped the space entirely, running words and numbers together in the displayed reply.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The responder now distinguishes between truly empty chunks (zero characters) and whitespace-only chunks (spaces, newlines). Empty chunks are still skipped. Whitespace-only chunks are treated as real content and passed through, so spaces before numbers are preserved in the final reply.
+
+    One edge case required extra handling: if the very first chunk of a response is whitespace-only, saving it immediately would fail a database presence check on the message content. The responder now buffers any leading whitespace and emits it together with the first non-blank chunk that follows.
+
+    Upgrade to a build containing [Sure PR #4515](https://github.com/we-promise/sure/pull/4515). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Chat shows "assistant not available" before the model finishes
 
 Self-hosted users running a local model (Ollama, LM Studio, etc.) may see the chat fail with "assistant not available" even though the model is still generating a reply and tokens are being billed.
