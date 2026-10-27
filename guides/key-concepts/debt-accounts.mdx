@@ -248,6 +248,19 @@ The chart offers a period picker with the same windows available on other accoun
 
 The forward-looking series (scheduled and projected) are only drawn under the **All** window, since they extend past today. The summary cards beside the chart show the projection figures regardless of which period is selected.
 
+### Interest and principal shading
+
+When the scheduled line is visible, the area beneath it is shaded to show how each repayment is split between interest and principal:
+
+| Shading | What it represents |
+| --- | --- |
+| Principal share (solid fill) | The portion of each repayment applied to reducing the outstanding balance |
+| Interest share (tinted, hatched) | The portion of each repayment charged as interest |
+
+The heights of the two regions represent each repayment's shares, not the amounts, because a single repayment is a small fraction of the outstanding balance and using amounts would produce a barely visible sliver along the axis. The interest region uses a diagonal hatch pattern as well as a tint so the two areas are distinguishable without relying on colour alone.
+
+Both legend entries appear only when the scheduled line is drawn. The chart's accessible description also states interest's share of the total paid across the first and final year's repayments (or across all repayments when the schedule is shorter than two years).
+
 ### Tooltip
 
 Hovering over or keyboard-stepping through the chart shows a tooltip for the nearest scheduled date in the selected window. If the window contains no scheduled points, the tooltip instead stops at the dates plotted by the available series. For each scheduled payment point, the tooltip shows the remaining balance and the breakdown of that payment into principal and interest, using the same labels as the Schedule tab. The opening point (the original loan amount) carries no breakdown because it is not a payment. The actual and projected series show only the balance.
