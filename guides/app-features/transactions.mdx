@@ -337,6 +337,10 @@ Rules run automatically during account syncs. You can also apply rules manually 
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 
+## Transaction API
+
+Each transaction returned by the API includes an `entry_id` field alongside the `id` field. Web routes such as `/transactions/:id` use the entry ID, not the transaction ID, so use `entry_id` when building direct links to a transaction in the app.
+
 ## Transaction splits API
 
 The API exposes a nested resource for managing transaction splits programmatically:
