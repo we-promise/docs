@@ -255,7 +255,9 @@ Because `liabilities` is only requested when linking a liability account (credit
 
 Sure fetches liability details (minimum payment, next payment due date, APR) for all Plaid accounts with type `credit`, regardless of subtype. This covers both standard credit cards (`credit/credit card`) and PayPal Credit accounts (`credit/paypal`). For loan accounts, liabilities are fetched only for `mortgage` and `student` subtypes.
 
-Plaid reports an item's products across three lists: `available_products`, `billed_products`, and `consented_products`. Sure treats all three as supported. Products granted through `additional_consented_products` during the Link flow appear in `consented_products` until they are first billed — if Sure only checked the first two lists, those products would appear unsupported and their data would not be fetched.
+Plaid reports an item's products across three lists: `available_products`, `billed_products`, and `consented_products`. Sure treats all three as supported when deciding whether to fetch transactions and investments. Products granted through `additional_consented_products` during the Link flow appear in `consented_products` until they are first billed — if Sure only checked the first two lists, those products would appear unsupported and their data would not be fetched.
+
+Liabilities are handled differently. Sure only calls `/liabilities/get` when the user consented to the liabilities product in their Link session, meaning `liabilities` must appear in `billed_products` or `consented_products`. Checking `available_products` is intentionally excluded here. A Depository link never requests liabilities consent, so if the same bank login also holds a credit card, `liabilities` would appear in `available_products` (the institution offers it) but not in the user's consented set. Calling `/liabilities/get` in that case returns `ADDITIONAL_CONSENT_REQUIRED` and fails the entire item sync. Gating on consent prevents that error.
 
 ## Transaction names
 
@@ -362,6 +364,16 @@ Sure now anchors the balance snapshot on the newest valid holding price date tha
 If you linked a credit card or loan account through Plaid and Sure imported balances and liabilities but no transactions, the connection was affected by a bug that is now fixed. Plaid places the `transactions` product in `consented_products` for liability accounts until the first billing call — Sure previously only checked `available_products` and `billed_products`, so `transactions` appeared unsupported and the fetch was skipped.
 
 To resolve this, trigger a manual sync from the account page. Sure will now recognize `transactions` as a supported product and import your transaction history.
+
+### Depository link fails with no accounts when sharing a login with a credit card
+
+If you have a bank login that includes both depository accounts (checking or savings) and a credit card, and you connected it through a Depository Link flow, Sure may have failed the entire item sync with no accounts imported.
+
+The cause was that Sure checked `available_products` (what the institution offers) when deciding whether to call `/liabilities/get`. Because the institution offered the liabilities product, Sure called it — but the user never consented to liabilities in a Depository Link session, so Plaid returned `ADDITIONAL_CONSENT_REQUIRED` and the whole sync failed before any accounts were imported.
+
+Sure now gates the liabilities fetch on `billed_products` and `consented_products` only. A Depository Link session does not include liabilities consent, so Sure skips the `/liabilities/get` call and the sync completes normally.
+
+To resolve this, trigger a manual sync from the account page. If the connection still shows a sync error, disconnect and reconnect the institution through Link.
 
 ### Retracted transactions not removed
 
