@@ -1725,11 +1725,18 @@ components:
       type: object
       required:
       - id
+      - entry_id
       - date
       - amount
+      - amount_cents
+      - signed_amount_cents
+      - amount_decimal
       - currency
       - name
       - classification
+      - kind
+      - excluded
+      - split_parent
       - account
       - tags
       - created_at
@@ -1738,11 +1745,30 @@ components:
         id:
           type: string
           format: uuid
+          description: Transaction ID
+        entry_id:
+          type: string
+          format: uuid
+          description: Entry ID used by web routes such as /transactions/:id. Use
+            this value to build direct links into the app.
         date:
           type: string
           format: date
         amount:
           type: string
+          description: Formatted amount string (localized, rounded for display)
+        amount_cents:
+          type: integer
+          description: Absolute amount in currency minor units (e.g. cents for USD)
+        signed_amount_cents:
+          type: integer
+          description: Signed amount in currency minor units; negative for expenses,
+            positive for income
+        amount_decimal:
+          type: string
+          description: Exact stored amount as a fixed-point string, in the entry's
+            sign convention (positive = outflow, negative = inflow). Use this for
+            exact arithmetic and when building a split that must sum to the parent.
         currency:
           type: string
         name:
@@ -1760,6 +1786,20 @@ components:
           type: boolean
         classification:
           type: string
+        kind:
+          type: string
+          description: How budgets and reports treat this transaction (e.g. loan_payment,
+            investment_contribution). Split parents carry the kind of their children.
+        excluded:
+          type: boolean
+          description: When true the transaction is excluded from budget and report
+            totals. Split parents are always excluded; their amounts are carried by
+            their children.
+        split_parent:
+          type: boolean
+          description: Whether this transaction is the parent of a split. Clients
+            summing a list should skip split parents, as their amounts are carried
+            by the children.
         account:
           "$ref": "#/components/schemas/Account"
         category:
