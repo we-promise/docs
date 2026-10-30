@@ -334,6 +334,12 @@ The AI chat interface is fully localized in Brazilian Portuguese (pt-BR). This i
 
 Several account page UI strings that previously failed to resolve in non-English locales now display correctly. The balance tooltip and "no balance data" message on account activity date rows, the selection toggle label in the activity feed, and the period picker's accessibility label all use the correct language when a non-English locale is set. Previously these strings rendered as raw translation-missing text or fell back silently to English.
 
+### Currency setting
+
+The **Currency** field in Settings → Preferences sets your family's primary currency. Sure validates the value against known ISO 4217 codes when you change it. A blank or unrecognized code is rejected with an error; choose a valid code such as `USD`, `EUR`, or `GBP` from the currency selector. If an older account stored a lowercase currency code, Sure normalizes it to uppercase automatically the next time any setting is saved.
+
+Families that already have an invalid currency stored can still update other preferences without fixing the currency first. The currency check only runs when the currency field itself is changed.
+
 ### MXN number formatting in Spanish
 
 When the interface language is set to Spanish, Mexican peso (MXN) amounts now display with US-style separators — a dot (`.`) as the decimal separator and a comma (`,`) as the thousands separator — matching how MXN values are natively formatted. Previously, the Spanish locale's European-style separators were applied to MXN, producing incorrect formats such as `1.234,56` instead of `1,234.56`. All other currencies continue to use the locale-aware separators for their respective locales.
