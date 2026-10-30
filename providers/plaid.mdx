@@ -245,15 +245,20 @@ If no accounts appear in the list, all of your Plaid accounts are already linked
 
 When you initiate a Plaid Link flow, Sure requests a specific set of Plaid products based on the type of account you are linking. Plaid filters out any institution that does not support every product in the requested set, so the product selection directly controls which institutions appear in the Link UI.
 
-| Account type | Primary product | Additional consented products |
-|---|---|---|
-| Investment | `investments` | `transactions` |
-| Credit card / Loan | `liabilities` | `transactions`, `investments` |
-| Depository (and others) | `transactions` | `investments` |
+| Account type | Primary product | Optional products | Additional consented products |
+|---|---|---|---|
+| Investment | `investments` | — | `transactions` |
+| Loan | `liabilities` | — | `transactions`, `investments` |
+| Credit card | `transactions` | `liabilities` | `investments` |
+| Depository (and others) | `transactions` | — | `investments` |
 
 Because `liabilities` is only requested when linking a liability account (credit card or loan), investment-only institutions such as E*TRADE that do not offer Plaid's liabilities product are now visible when you link an investment account. Previously, requesting `liabilities` for every account type caused those institutions to be silently hidden in the Link flow.
 
-Sure fetches liability details (minimum payment, next payment due date, APR) for all Plaid accounts with type `credit`, regardless of subtype. This covers both standard credit cards (`credit/credit card`) and PayPal Credit accounts (`credit/paypal`). For loan accounts, liabilities are fetched only for `mortgage` and `student` subtypes.
+For **credit cards**, `liabilities` is requested as an optional product. Plaid returns APR, minimum payment, and statement balance when the issuer supports it, but the connection succeeds even if the issuer does not. Issuers that previously showed "Connectivity not supported" in Plaid Link — such as Bilt Rewards — can now be linked. If an issuer does not support liabilities, those fields will be empty; transactions and balances still sync normally.
+
+For **loans**, `liabilities` is the primary product. Liabilities data is fetched for `mortgage` and `student` subtypes.
+
+Sure fetches liability details (minimum payment, next payment due date, APR) for all Plaid accounts with type `credit`, regardless of subtype. This covers both standard credit cards (`credit/credit card`) and PayPal Credit accounts (`credit/paypal`).
 
 Plaid reports an item's products across three lists: `available_products`, `billed_products`, and `consented_products`. Sure treats all three as supported. Products granted through `additional_consented_products` during the Link flow appear in `consented_products` until they are first billed — if Sure only checked the first two lists, those products would appear unsupported and their data would not be fetched.
 
@@ -288,7 +293,7 @@ These fields are updated on every sync to reflect what Plaid currently reports.
 - **OAuth support**: Secure authentication for supported banks
 - **Multiple accounts**: Connect accounts from different institutions
 - **Investment-only institutions**: Brokerages that do not offer liabilities (such as E*TRADE) can be linked as investment accounts
-- **Full credit liability support**: Liability data (minimum payment, due date, APR) is fetched for all Plaid `credit` account types, including PayPal Credit (`credit/paypal`) in addition to standard credit cards (`credit/credit card`)
+- **Broad credit card support**: Credit cards are linked using `transactions` as the primary product, so issuers that do not support Plaid's liabilities product (such as Bilt Rewards) can now be connected. Liability data (minimum payment, due date, APR) is fetched when the issuer supports it, and covers all Plaid `credit` account types including PayPal Credit (`credit/paypal`) and standard credit cards (`credit/credit card`)
 
 ## Pricing
 
@@ -356,6 +361,14 @@ If you run into Plaid errors that are not visible in Sure, check the Plaid Dashb
 If a Plaid investment account shows a cash balance that grows or fluctuates each day even though you have not made any cash changes, one possible cause is a balance snapshot anchored on a different date from its holdings. Plaid can report an institution price date for each holding, which may be from an earlier trading session. When that total was anchored on today's date instead, repricing the holdings for today left a gap that appeared as phantom cash.
 
 Sure now anchors the balance snapshot on the newest valid holding price date that is not in the future. Future dates are discarded individually; if no eligible date remains, Sure uses today. This reduces date-mismatch artifacts without assuming every holding has the same price date. Trigger a manual sync from the account page to pick up the corrected snapshot.
+
+### Credit card shows no APR or payment details after linking
+
+If you linked a credit card and transactions and balances are syncing correctly but the APR, minimum payment, and next payment due date fields are empty, the issuer does not support Plaid's liabilities product.
+
+For credit cards, liabilities data is optional — Sure requests it on a best-effort basis so that institutions without it (such as Bilt Rewards) can still be linked. When the issuer does not support liabilities, those fields stay empty. Transactions and balances sync normally.
+
+If you previously saw "Connectivity not supported" in Plaid Link for this card and could not connect it at all, you can now link it by going through the Plaid Link flow again from **Settings > Providers**.
 
 ### Credit card or loan shows no transactions after linking
 
