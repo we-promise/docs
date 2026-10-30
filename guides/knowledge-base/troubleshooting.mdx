@@ -1151,6 +1151,26 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Dashboard drill-down shows raw account IDs in transaction filter chips
+
+When you click the **Income** or **Expense** link on the dashboard's Money In / Out widget, Sure navigates to the Transactions page filtered to that account. Earlier builds displayed the raw account UUID in the active filter chip at the top of the Transactions page instead of the account name. The chip was also re-applied on every visit as if it were a new filter.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The filter-chip partial had cases for most filter types (dates, search text, transaction type, and so on) but no case for `account_ids`. When the dashboard drill-down passed an `account_ids` parameter, the chip fell through to the generic branch, which printed the raw value — in this case the account UUID.
+
+    The saved-filter behavior was a side effect: the chip was saved and restored because the parameter was present, but the label showed the ID each time.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The filter-chip partial now handles `account_ids` as its own case. When an `account_ids` chip is rendered, Sure looks up the account name from the current user's accessible accounts and displays it with an avatar initial, matching the visual style of the `accounts` chip.
+
+    A blank `account_ids` value is also handled gracefully so an empty filter does not raise an error.
+
+    Upgrade to a build containing [Sure PR #4569](https://github.com/we-promise/sure/pull/4569). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
