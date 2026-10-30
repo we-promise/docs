@@ -165,9 +165,12 @@ You can delete a goal directly from the goal's page using the **Delete** option 
 
 A redesigned Sankey cash flow chart is available as a preview feature on the dashboard. It uses a shared API with the mobile Swift client, making the web and mobile charts consistent.
 
-To access it, enable **Preview features** in your preferences (Settings → Preferences → Enable preview features).
+Showing the chart requires two opt-ins:
 
-When preview features are enabled, the new chart appears below the existing cashflow visualization on the dashboard under the label **New Sankey chart**. You can expand it into a full-screen dialog using the expand button in the chart header.
+1. Enable **Preview features** in your preferences (Settings → Preferences → Enable preview features).
+2. Enable the comparison chart itself. A toggle labeled **Show cashflow comparison chart** appears at the bottom of the cash flow section on the dashboard. Turn it on to display the Sankey chart below the existing visualization. You can turn it off at any time without disabling preview features for the rest of the app.
+
+The chart appears below the existing cashflow visualization on the dashboard under the label **New Sankey chart**. You can expand it into a full-screen dialog using the expand button in the chart header.
 
 The preview panel includes a feedback prompt so you can compare the new chart against the original and report any differences. If Sure detects that the two charts produce different financial totals, the "Something looks wrong" button highlights automatically. Submitting feedback opens a short form — describe the issue without including account numbers or balances, as responses are sent to PostHog.
 
