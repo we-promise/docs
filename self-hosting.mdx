@@ -466,7 +466,18 @@ POSTHOG_FEEDBACK_ENABLED=true
 
 `POSTHOG_FEEDBACK_ENABLED` controls whether the in-app feedback widget appears. Set it to `false` to hide the widget on your instance.
 
-When `POSTHOG_FEEDBACK_ENABLED` is `true` and `POSTHOG_KEY` is set, Sure emits one `web_ui_served_daily` event per user per calendar day. The event carries a daily pseudonym derived from the user ID and the current date — no account ID or persistent person profile is created. It also includes the `sure_version`, whether the user has preview features enabled, and the client IP for GeoIP enrichment. The pseudonym rotates every day, so the event counts daily active web users without linking activity across days. A shared Redis cache prevents duplicate events from parallel sessions or tab reloads; cache loss can allow a repeat event for the same user on the same day.
+When `POSTHOG_FEEDBACK_ENABLED` is `true` and `POSTHOG_KEY` is set, Sure emits daily activity events to count how the installation is used. Each event fires at most once per day per installation:
+
+| Event | When it fires |
+| --- | --- |
+| `web_ui_served_daily` | A signed-in user loads a full HTML page in their browser |
+| `ai_assistant_served_daily` | The AI assistant produces a response |
+| `job_served_daily` | A background job executes (including retries) |
+| `mcp_call_served_daily` | An MCP tool call executes |
+
+`web_ui_served_daily` is the only user-scoped event. It carries a daily pseudonym derived from the user ID and the current date, the `sure_version`, whether the user has preview features enabled, and the client IP for GeoIP enrichment. The pseudonym rotates every day, so the event counts daily active web users without linking activity across days. A shared Rails cache prevents duplicate events from parallel sessions or tab reloads.
+
+The remaining three events — `ai_assistant_served_daily`, `job_served_daily`, and `mcp_call_served_daily` — are installation-scoped. They carry a daily pseudonym derived from the UTC date and use Sidekiq's Redis to deduplicate across web and worker processes, including deployments with process-local Rails caches or Sentinel. Cache loss can allow a repeat event for any of these events on the same day.
 
 ## Running the application
 
