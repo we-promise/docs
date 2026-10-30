@@ -252,6 +252,10 @@ The forward-looking series (scheduled and projected) are only drawn under the **
 
 Hovering over or keyboard-stepping through the chart shows a tooltip for the nearest scheduled date in the selected window. If the window contains no scheduled points, the tooltip instead stops at the dates plotted by the available series. For each scheduled payment point, the tooltip shows the remaining balance and the breakdown of that payment into principal and interest, using the same labels as the Schedule tab. The opening point (the original loan amount) carries no breakdown because it is not a payment. The actual and projected series show only the balance.
 
+### Accessibility
+
+The chart includes an accessible description that screen readers announce in place of the visual. The description covers the current balance, the scheduled payoff date, and the projected payoff date. When the selected window contains a scheduled payment that the tooltip would stop at, the description also states that each tooltip shows the payment split into its principal and interest components — using the same labels as the Schedule tab. If the window holds no such payment, that sentence is omitted, so the description never promises a split the tooltip cannot show.
+
 ## Payoff projection
 
 The **Schedule** tab shows a payoff projection alongside the amortization table. The projection starts from your current recorded balance and applies the contracted repayment each period to show where the loan is actually heading — not where the original contract said it would be.
