@@ -309,6 +309,14 @@ If Sure didn't automatically match a transfer:
 - The dates may be too far apart
 - You can manually create a transfer to link them
 
+**Transfer? pill hint**
+
+When Sure finds a likely but unconfirmed counterpart for a transaction, it shows a **Transfer?** pill on that row in the transaction list. Clicking the pill opens the match dialog directly, pre-selecting the most likely candidate (same-category counterparts rank first, rejected pairs rank last).
+
+To dismiss a hint without matching: click the **x** ("Not a transfer") on the pill. Sure records the pair as rejected so neither the hint nor the automatic matcher offers them again. You can still match them manually through the transfer match dialog if you change your mind.
+
+The hint uses a narrower search window than the full match dialog: within 2 days and a 3% exchange-rate band, and only between transactions that share a category (or both have no category). This keeps the hint from surfacing coincidental same-amount pairs from unrelated transactions.
+
 ### Wrong Transfer Type
 
 If a transfer is categorized incorrectly:
