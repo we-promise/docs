@@ -7151,6 +7151,12 @@ paths:
         description: Filter by security ID
         schema:
           type: string
+      - name: ticker
+        in: query
+        required: false
+        description: Filter by ticker symbol. A ticker held on more than one exchange returns all matching holdings.
+        schema:
+          type: string
       responses:
         '200':
           description: holdings paginated
