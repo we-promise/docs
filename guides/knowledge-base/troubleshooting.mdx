@@ -951,6 +951,47 @@ Importing an `all.ndjson` export could fail with two unrelated errors:
 
 If a previous import attempt failed for either of these reasons, retry the import after upgrading.
 
+## Sure import creates a duplicate budget for the current period
+
+When you import a Sure export into a new family, the importer may fail with a uniqueness validation error on a budget if the destination family already has a household budget for the same period.
+
+A fresh family is seeded with a default household budget for the current month with all amounts set to zero.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    The importer now checks whether the destination family has an existing household budget (no assigned user) for the same start and end dates before creating a new one. If the existing budget has no amounts set at the top level — `budgeted_spending` is nil and `expected_income` is nil — and none of its category rows have a non-zero `budgeted_spending`, the importer reuses that budget instead of creating a duplicate.
+
+    A budget that already holds a plan (any non-nil top-level amount, an explicit 0 included, or any non-zero category amount) is left alone. The import proceeds normally and fails on the uniqueness constraint rather than overwriting your existing budget.
+
+    Budgets exported from a personal budget (one tied to a specific user) are never merged into the household budget.
+
+    Budget category rows that are merged into a reused budget are counted as updated, not created, in the import summary and readback verification.
+  </Accordion>
+
+  <Accordion title="What if the import still fails with a budget uniqueness error?">
+    If the destination family's budget for that period already has amounts set, the importer intentionally leaves it alone. To proceed:
+
+    1. Delete or clear the existing household budget for that period in **Settings** before retrying the import.
+    2. Or export from the source instance and re-import after removing the conflicting budget period on the destination.
+  </Accordion>
+</AccordionGroup>
+
+## Sure import fails preflight with a duplicate budget category error
+
+If an `all.ndjson` export file contains more than one `BudgetCategory` row with the same `budget_id` and `category_id` pair, the import preflight now rejects the file with a `duplicate_budget_category` error before any data is written.
+
+<AccordionGroup>
+  <Accordion title="What causes this?">
+    Each budget can hold at most one row per category. An NDJSON file that lists the same `(budget_id, category_id)` combination on two or more lines would cause a database uniqueness violation during import. The preflight check catches this upfront so the error is reported before any rows are written.
+
+    This can happen if an export file was manually edited, if a previous export had a bug that emitted duplicate rows, or if two separate export files were concatenated.
+  </Accordion>
+
+  <Accordion title="How do I fix it?">
+    Open the `all.ndjson` file in a text editor and search for `BudgetCategory` lines with the same `budget_id` and `category_id` values. Remove the duplicate lines, keeping only one row per pair. Re-run the import after saving the corrected file.
+  </Accordion>
+</AccordionGroup>
+
 ## Sure import fails with unresolved merchant references from an older export
 
 Exports produced before provider-merchant support was added did not include `ProviderMerchant` rows in the `all.ndjson` file. Importing such a file into a current version of Sure would previously fail preflight with a blocking error for every transaction whose `merchant_id` pointed at a provider-assigned merchant.
