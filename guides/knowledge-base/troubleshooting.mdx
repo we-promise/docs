@@ -3,6 +3,22 @@ title: "Troubleshooting"
 ---
 
 
+## Account filter chips show raw IDs after drilling down from the dashboard
+
+When you click the **Income** or **Expense** link on the dashboard's Money Flow widget, Sure opens the Transactions page filtered to that account set. In earlier versions, the active filter chips displayed the raw account UUID instead of the account name, and the chips persisted across page visits.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The filter chip template had no handler for the `account_ids` parameter — a separate filter key used by the Money Flow drill-down, distinct from the `accounts` key used when you apply a filter manually from the Transactions search popover. Without a matching case, the chip fell through to a default that printed the raw UUID. The blank-account edge case also lacked a guard, so an empty `account_ids` value produced a chip that could not be resolved or cleared.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The filter chip template now handles `account_ids` explicitly. It looks up the account name by ID and renders it with the same avatar and name display as a manually applied account filter. A blank account ID value is also handled so no unresolvable chip appears.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
