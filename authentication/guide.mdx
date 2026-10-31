@@ -322,6 +322,12 @@ The mobile API enforces the same login restrictions as the web interface:
 
 Previously these checks applied only to web sessions; the mobile API now honours them as well.
 
+### Mobile SSO provider discovery
+
+The mobile app fetches the configured SSO providers at sign-in time via `GET /api/v1/auth/sso_providers`. The response lists each provider's name and display label. The app renders one sign-in button per provider, retains a branded Google button when Google is configured, and hides SSO entirely when no providers are returned. Servers that do not expose this endpoint fall back to showing a Google button only.
+
+This means the mobile login screen now reflects whichever providers are configured — OIDC (Authentik, Keycloak), GitHub, SAML, and others — rather than showing a hardcoded Google button. SSO-only instances no longer lock out mobile users.
+
 ### Emergency admin override
 
 Allow super admins to log in locally during IdP outages:

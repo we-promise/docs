@@ -108,6 +108,15 @@ Sure serves MCP over JSON-RPC 2.0 at the URL displayed in **Settings > MCP Serve
 
 Sure authenticates each MCP request with an active OAuth access token that has the `read_write` scope. The token's resource owner determines the Sure user and family available to the tools. Sure creates a fresh transient session for that user for the request so an existing browser or impersonation session is not reused.
 
+### Path-scoped OAuth protected resource metadata
+
+Sure serves OAuth protected resource metadata at both the base well-known path and path-scoped variants, per [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728):
+
+- `/.well-known/oauth-protected-resource` — base metadata for the whole origin
+- `/.well-known/oauth-protected-resource/mcp` — path-scoped metadata for the `/mcp` endpoint
+
+The `401 Unauthorized` response from `/mcp` advertises the path-scoped endpoint in its `WWW-Authenticate` header. Clients that comply with RFC 9728 § 3.3 validate that the `resource` field in the metadata matches the URL they requested, so they require the path-scoped endpoint. Both paths are served; clients that use the base path continue to work.
+
 ### Dynamic client registration redirect URIs
 
 Sure registers MCP clients dynamically via `POST /register`. The `redirect_uris` field must contain at least one URI that matches one of the following schemes:
