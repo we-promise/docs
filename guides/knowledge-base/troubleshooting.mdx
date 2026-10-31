@@ -21,6 +21,24 @@ Account trend sparklines — the small charts next to account groups and individ
   </Accordion>
 </AccordionGroup>
 
+## Sidebar sparkline shows "Timeout" after the chart loaded
+
+In some versions, the sidebar sparkline for an account group or individual account could briefly display the chart and then switch to a "Timeout" warning badge — even though the chart data arrived successfully and within the 10-second limit.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Each sidebar sparkline frame uses a countdown timer that stops when the frame renders. The timer was previously cleared on the `turbo:frame-load` event. Turbo inserts the new frame content into the DOM several repaints before it dispatches `turbo:frame-load`, so a countdown that expired in that gap replaced the freshly rendered chart with the badge. On slow rendering paths — or in system test environments with a short timeout window — this race was hit reliably.
+
+    A secondary edge case also existed: clearing the countdown on any successful fetch response (rather than on an actual frame render) could cause problems when a session expired. The redirect to the sign-in page is reported by the browser as a successful response, so the countdown was cleared and Turbo's "content missing" placeholder replaced the chart instead of the timeout badge.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The countdown is now cleared on `turbo:before-frame-render` instead of `turbo:frame-load` or on any successful fetch response. Turbo dispatches `turbo:before-frame-render` only when it is about to insert a matching frame into the DOM — right before the render — so the race window is closed. Responses that contain no matching frame (errors, sign-in redirects) never trigger `turbo:before-frame-render`, so they keep counting down and still end in the badge as expected.
+
+    Upgrade to a build containing [Sure PR #4604](https://github.com/we-promise/sure/pull/4604). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## AI-detected merchants were created as shared records
 
 When merchant detection identified a new merchant from a transaction's description, Sure previously created a globally-shared `ProviderMerchant` record (source: `ai`). Because those records are visible to every family on the deployment, a transaction description crafted to steer the LLM's output could create or match a shared merchant with an attacker-chosen name, website, or logo — affecting all other families.
