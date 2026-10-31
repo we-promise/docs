@@ -1151,6 +1151,28 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Transactions list is slow with many rows
+
+Earlier versions rendered every transaction row from scratch on each page visit, filter change, or return from the drawer. On a list of 100 rows, this meant rerendering roughly 30 partials and components per row, and also loading 400 Turbo frames upfront — two per row for the category and tag popovers on both mobile and desktop cells — even though those popovers are almost never opened.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The category and tag menus each shipped an eager `<turbo-frame>` inside a closed popover. The frame loaded its content immediately regardless of whether the popover was ever opened. A page with 100 rows therefore loaded 400 frames on every render.
+
+    On top of that, every row was re-rendered on each visit, filter change, or navigation back from the transaction drawer, even when the underlying data had not changed.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Popover panels that use the new lazy-frame option create their `<turbo-frame>` only the first time the popover opens, so the content is fetched on demand rather than on page load. The category and tag menus use this pattern, and the category menu now renders only the badge variant appropriate for the current cell's screen size.
+
+    Each transaction row is now fragment-cached. The cache key covers every record and setting the row reads — the entry, transaction, tags, merchant, associated transfer legs, account details, category details, per-user display preferences, locale, and a digest of the row templates and locale files. Rows expire after 12 hours. A deploy with changed templates produces a new key immediately, so stale markup is never served.
+
+    Pending transfer rows and rows for crypto accounts whose subtype determines the display are kept out of the cache because they embed a CSRF token or depend on mutable account configuration that was not previously part of the key.
+
+    Upgrade to a build containing [Sure PR #4475](https://github.com/we-promise/sure/pull/4475). No configuration change is required. The row cache uses the same Redis instance as the rest of the app.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
