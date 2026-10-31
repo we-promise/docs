@@ -27,6 +27,12 @@ The mobile app loads the full message history when you open a conversation. The 
 
 If one of the intermediate pages fails to load — for example due to a network interruption — the app keeps the pages it already fetched instead of discarding the chat. The current screen does not display a partial-history notice. You can reopen the conversation to retry loading the missing messages.
 
+## Account list in the native mobile app
+
+The mobile app loads every account when you open the accounts screen. The accounts API paginates results in pages of up to 25 by default, and the app fetches every page in sequence using the `total_pages` field returned in each response. All accounts render once the final page is received, regardless of how many pages are needed.
+
+If your family has more than 25 accounts and some were not appearing in the mobile app, updating to the latest release resolves the issue.
+
 ## When the sidebar is hidden by default
 
 Sure can also hide the AI sidebar by default for some people:
