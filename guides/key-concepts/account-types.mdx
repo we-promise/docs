@@ -135,6 +135,10 @@ Cars, trucks, and other vehicles.
 - Model
 - Year
 - Mileage (miles or kilometers)
+- Purchase price
+- Purchase date (available when editing an existing vehicle)
+
+The purchase price and purchase date are stored as the vehicle's opening balance anchor. Sure uses the purchase price as the baseline for the **Trend** shown on the vehicle overview — the trend compares the current estimated value against the original purchase price and displays the change as a percentage. If you set only a purchase date without changing the price, the existing purchase price is kept. A purchase date must be earlier than the vehicle's oldest recorded entry; Sure rejects dates that would conflict with existing history.
 
 ### Other Asset
 
