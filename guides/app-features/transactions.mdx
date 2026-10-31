@@ -200,6 +200,12 @@ The Transactions screen includes shortcuts for:
 
 Use these management screens when the labels themselves need cleanup, not just one transaction assignment.
 
+## Merchant page
+
+Clicking a merchant in **Settings → Merchants** opens a dedicated merchant page. The page shows a summary of total spending and average transaction amount for that merchant, followed by a list of every transaction from that merchant across all the accounts you can access.
+
+The spending summary counts expense transactions only, so refunds do not distort the average. The transaction list uses the same layout as the main Transactions page, including mobile selection controls, but without the search and import toolbar.
+
 ## Editing provider-assigned merchants
 
 Bank providers can assign shared merchant records used across families. New merchants created by AI detection are family-owned; older AI-created provider records may still exist. You can personalize a shared provider merchant for your family.
@@ -207,6 +213,12 @@ Bank providers can assign shared merchant records used across families. New merc
 When you edit a provider-assigned merchant and change its **name** or **website**, Sure converts that merchant to a family-owned merchant for your family only. Your family's transactions point to the new family-owned record; other families on the instance continue to use the original shared merchant without seeing your changes.
 
 If you submit a blank website during the edit, Sure clears the website on your family's copy. Leaving the form unchanged keeps the shared merchant as-is.
+
+## Uploading a merchant logo
+
+For family-owned merchants, you can upload a custom logo image directly from the merchant edit form. This is useful for merchants that don't have a website, or when Brandfetch hasn't found the right logo automatically.
+
+To upload a logo, open **Settings → Merchants**, select the merchant, and use the logo upload control in the edit form. The uploaded image replaces any logo derived from the merchant's website.
 
 ## Lock category creation
 
