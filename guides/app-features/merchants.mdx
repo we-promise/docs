@@ -1,0 +1,81 @@
+---
+title: "Merchants"
+description: "View, manage, and organize the merchants associated with your transactions"
+keywords: ["merchants", "payees", "spending", "transactions", "settings"]
+---
+
+Merchants are the businesses and payees linked to your transactions. Sure tracks merchants to help you analyze spending patterns, apply rules, and keep your transaction history organized.
+
+## View all merchants
+
+Open **Settings → Merchants** to see every merchant associated with your transactions. The list is split into two sections:
+
+- **Your merchants** — merchants you have created or customized for your family.
+- **Provider merchants** — merchants automatically detected and assigned by your bank or data provider.
+
+Both sections are searchable. Type in the search box above each section to filter by name.
+
+## Merchant detail page
+
+Clicking any merchant in **Settings → Merchants** opens that merchant's detail page. The page shows:
+
+- **Summary** — total transaction count, total spending, average transaction amount, and the dates of the first and last transaction. Spending totals and averages are calculated from expense transactions only, so refunds do not reduce your averages.
+- **Transaction list** — every transaction for that merchant, across all accounts you can access, sorted most recent first.
+
+The transaction count and spending totals on this page are privacy-sensitive and blur when privacy mode is on.
+
+From the merchant detail page, you can also click **Edit** to rename the merchant or update its website.
+
+## Create a merchant
+
+You can create a new family merchant from **Settings → Merchants → New merchant**. Give it a name, an optional color, and an optional website URL.
+
+You can also create a merchant inline from any transaction form — type a name in the merchant field and choose the option to create it. See [Transactions](/guides/app-features/transactions#create-a-merchant-inline) for details.
+
+## Edit a merchant
+
+To rename a merchant or change its website, open the merchant's detail page and click **Edit**, or open **Settings → Merchants** and choose the edit option from the merchant row.
+
+### Provider merchant customization
+
+Provider merchants are shared records used by your bank or data provider. When you edit a provider merchant's **name** or **website**, Sure converts that record into a family-owned merchant for your family only. Your transactions point to the new family-owned copy; other families on the instance continue to use the original.
+
+Leaving the form unchanged keeps the shared provider merchant as-is.
+
+## Merge merchants
+
+When two merchants represent the same business, merge them to consolidate their transactions under a single record.
+
+<Steps>
+  <Step title="Open the merge page">
+    Go to **Settings → Merchants** and select **Merge merchants**.
+  </Step>
+  <Step title="Choose a target">
+    Select the merchant you want to keep as the **target**.
+  </Step>
+  <Step title="Choose sources">
+    Select one or more merchants to merge into the target. Their transactions will move to the target merchant.
+  </Step>
+  <Step title="Confirm">
+    Review your selections and confirm. The source merchants are deleted after the merge.
+  </Step>
+</Steps>
+
+## Enhance provider merchants
+
+Sure can automatically fetch high-resolution logos and website URLs for provider merchants using AI. From **Settings → Merchants**, select **Enhance merchants** to start the process. Enhancement runs in the background.
+
+<Note>
+Enhance provider merchants requires an OpenAI-compatible LLM to be configured. See [LLM support](/llm-support) for setup details.
+</Note>
+
+## Delete a merchant
+
+To remove a family-owned merchant, open it from **Settings → Merchants**, choose **Edit**, and select **Delete**. Transactions that used the deleted merchant become merchant-less.
+
+For provider merchants, deleting unlinks the merchant from your family's transactions. The shared merchant record itself is not removed. Recently unlinked provider merchants appear in a separate section on the Merchants page for 30 days in case you want to re-link them.
+
+## Related pages
+
+- [Transactions](/guides/app-features/transactions)
+- [Settings](/guides/app-features/settings)
