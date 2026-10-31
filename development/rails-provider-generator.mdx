@@ -81,8 +81,11 @@ This single command generates:
 - ✅ Controller with CRUD actions and Turbo Stream support
 - ✅ Routes
 - ✅ Bank sync wiring: the settings controller's `FAMILY_PANELS` entry and sync maps, and a `provider_summary` case
+- ✅ Source enum entries in `DataEnrichment` and `ProviderMerchant` — inserted in alphabetical order
 
-The last item means the provider appears under **Your connections** on the Bank sync page, its connection row shows a sync status, and the Sync button works — all without any manual follow-up steps.
+The bank sync wiring means the provider appears under **Your connections** on the Bank sync page, its connection row shows a sync status, and the Sync button works — all without any manual follow-up steps.
+
+The source enum entries track which provider created a merchant or enrichment record. Both enums carry a `# sorted` marker and are kept in alphabetical order by the `Sure/SortedList` RuboCop cop (`lib/rubocop/cop/sure/sorted_list.rb`). The generator inserts the new provider before the first existing entry that sorts after it, so the list stays sorted. If you add a provider manually, place its entry in the same alphabetical position — `bin/rubocop` will flag it otherwise.
 
 The generated item partial renders the provider's logo with `ProviderLogo`. That reads the provider's `Provider::Metadata::REGISTRY` entry, which the generator does not create, so add one in `app/models/provider/metadata.rb`. See the [providers LLM guide](https://github.com/we-promise/sure/blob/main/docs/llm-guides/providers.md#provider-logos) for the fields it reads (`domain`, `logo_text`, `logo_color`, `logo_icon`) and which are used when Brandfetch has no icon or is not configured.
 
