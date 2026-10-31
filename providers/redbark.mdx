@@ -37,7 +37,7 @@ API access requires a Redbark Developer or Professional plan. It is not availabl
 - **Account listing**: All connected bank accounts with institution names and logos
 - **Balances**: Current balances fetched from your bank on every sync
 - **Transaction history**: The first sync pulls 90 days of history by default, or from a start date you choose (up to 2,550 days back). Later syncs are incremental with a 7-day lookback.
-- **Deduplication**: Transactions are deduplicated by their Redbark transaction id, so re-syncing never creates duplicates
+- **Deduplication**: Transactions are deduplicated by their Redbark transaction id. When a bank re-issues a transaction under a new id, Sure keeps the existing entry and moves it to the new id rather than importing a duplicate — see [Bank ID re-issuance](#bank-id-re-issuance) below
 
 ### Choosing a sync start date
 
@@ -75,6 +75,23 @@ REDBARK_INCLUDE_PENDING=true
 ```
 
 When a pending transaction settles, the posted version replaces it automatically.
+
+### Bank ID re-issuance
+
+Some banks change the id of a transaction between syncs. Redbark passes bank ids through unchanged, so Sure can see an id disappear and a new id appear for what is the same transaction. Without handling this, each re-issuance would import a second entry.
+
+During each sync, Sure looks for stored posted transactions that are no longer returned by the API and new transactions that weren't stored before. A vanished row and a new row are treated as the same transaction when all of the following are true:
+
+- The amounts match exactly.
+- The dates are within 3 days of each other.
+- The transactions are related: if both carry a reference, the references match; otherwise, the descriptions match or one description is at least 16 characters long and is a prefix of the other.
+- Neither row has another candidate — if a vanished row matches two new rows, or two vanished rows match the same new row, both are left alone to avoid incorrect merges.
+
+When a match is found, Sure updates the existing entry to use the new id so continuity (notes, tags, category) is preserved. No duplicate is created.
+
+Some upstream providers temporarily substitute a generated placeholder id (prefixed `bank_tx_s_`) when the real bank id is unavailable. Sure records the placeholder as an alias on the existing entry rather than re-keying it. When the real id is returned in a later sync, the entry keeps its real id and the placeholder is silently dropped.
+
+Anything ambiguous is left unchanged. The worst outcome is a duplicate entry for that transaction, which resolves itself on the next sync once the old id stops appearing.
 
 ## Limitations
 
