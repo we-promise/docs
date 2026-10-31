@@ -17,7 +17,7 @@ Sure uses market data providers to fetch security prices, search for securities,
 | **MFAPI** | No | Unlimited | Indian mutual funds |
 | **MOEX** | No | Unlimited | Russian stocks, funds, and bonds (MOEX), including RUB forex |
 | **T-Invest (T-Bank)** | Yes (read-only token) | N/A | Russian stocks, funds, and bonds; brand logos for all securities |
-| **Mansa API** | Yes | 100 requests/day | NGX (Nigerian Exchange) securities |
+| **Mansa API** | Yes | 100 requests/day | 20 African stock exchanges (NGX, JSE, NSE, BRVM, and more) |
 
 ## Configuring providers
 
@@ -187,18 +187,18 @@ Because of the brand logo role, the T-Invest settings block in **Settings > Self
 
 ### Mansa API
 
-Mansa API provides current quote data for securities listed on the Nigerian Exchange (NGX). It is the only Sure provider with verified NGX coverage.
+Mansa API provides current quote data for securities listed on African stock exchanges. Sure supports all 20 exchanges that Mansa tracks, including NGX (Nigeria), JSE (South Africa), NSE (Kenya), and BRVM (West Africa).
 
 - **Rate limits**: 100 API requests per day (free tier)
-- **Coverage**: NGX (Nigerian Exchange) only
+- **Coverage**: 20 African stock exchanges
 - **API key**: Required — get one at [mansaapi.com](https://mansaapi.com)
 - **History**: The free tier returns today's quote only. Historical OHLCV data requires a paid Mansa Pro plan.
 
 <Note>
-Because the free tier has no historical endpoint, NGX holdings sync with today's price rather than building full price history. A date range that doesn't include today will return an error rather than empty data.
+Because the free tier has no historical endpoint, African exchange holdings sync with today's price rather than building full price history. A date range that doesn't include today will return an error rather than empty data.
 </Note>
 
-See the [Mansa API provider page](/providers/mansa) for full setup instructions.
+See the [Mansa API provider page](/providers/mansa) for setup instructions and the full list of supported exchanges.
 
 ## Price sync scope
 
