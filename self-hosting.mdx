@@ -1072,6 +1072,7 @@ Self-hosted super admins can opt into a daily demo family refresh from **Setting
 After you save a demo family and enable the toggle, Sure runs the refresh job once a day. The job:
 
 - Generates a fresh set of demo data under the same demo email address.
+- Links three public on-chain wallets — Bitcoin (`bc1qxnn9j…`), Ethereum (`0xC36A638…`, tracking ETH, USDC, and USDT), and Solana (`9Fcm6Gw5…`, tracking SOL, USDC, and USDT) — using Organic Maps' published donation addresses. These are real addresses whose balances are live-synced from the chain on each refresh, so crypto pricing must be enabled for the demo family's on-chain accounts to show values rather than zero. The wallets are linked only by the demo generator, not by a family data reset, so other families on the instance are never affected.
 - Retires and destroys the previous demo family.
 - Updates the stored family ID to point at the newly created family.
 
