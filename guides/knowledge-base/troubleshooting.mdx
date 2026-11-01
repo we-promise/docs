@@ -1151,6 +1151,24 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Activity Breakdown amounts wrap across multiple lines on mobile
+
+On mobile, currency amounts in the Reports Activity Breakdown table could wrap across two or more lines when the currency uses a space as a thousands separator (for example, `58 560,00 kr`). The percentage column could also be hidden on narrow viewports because the card's `overflow-hidden` clipped the table instead of allowing horizontal scrolling.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Currency amounts formatted with space separators contain non-breaking or regular spaces that a narrow viewport breaks across lines. The amount cell did not have `whitespace-nowrap` set, so the browser was free to wrap mid-amount.
+
+    The outer wrapper that enables horizontal scrolling on wider report tables (`w-max sm:w-full`) was also missing from the breakdown table. Without it, the card's `overflow-hidden` clipped the table on narrow screens, hiding the percentage column entirely instead of letting the scroll container handle the overflow.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Amount cells in the breakdown table are now marked `whitespace-nowrap`, matching how other money cells are styled across the app. The `w-max sm:w-full` scroll wrapper was restored around the breakdown table, allowing the outer `overflow-x-auto` container to handle narrow viewports correctly.
+
+    Upgrade to a build containing [Sure PR #4639](https://github.com/we-promise/sure/pull/4639). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
