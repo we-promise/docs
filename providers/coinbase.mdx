@@ -79,12 +79,23 @@ The Coinbase integration supports:
 
 ### Transaction syncing
 
-Sure automatically syncs:
+Sure imports all completed transaction types from Coinbase:
 
-- Trades (buy/sell)
-- Deposits and withdrawals
-- Transfers between accounts
-- Fees
+| Coinbase type | Recorded as |
+|---|---|
+| buy / sell | Trade (Buy / Sell) |
+| staking_reward | Trade (Dividend) |
+| interest | Trade (Interest) |
+| pro_deposit / pro_withdrawal | Trade (Transfer) |
+| staking_transfer / unstaking_transfer | Trade (Transfer) |
+| exchange_deposit / exchange_withdrawal | Trade (Transfer) |
+| vault_withdrawal | Trade (Transfer) |
+| asset_migration | Trade (Exchange) |
+| send | Trade (Transfer) |
+
+Staking rewards and interest are recorded with their real native value so they appear correctly in investment income reports. Internal transfers (moves between your own Coinbase sub-accounts) and exchanges are recorded with a zero cash amount because no purchase or sale took place.
+
+Fiat deposits and withdrawals (moving cash in or out of Coinbase) are not imported through this integration. Coinbase wallets are modeled as crypto accounts with a cash balance of zero; fiat movements would need a separate cash account entry.
 
 ### Holdings tracking
 
@@ -147,9 +158,11 @@ If you encounter connection errors:
 
 If transactions are missing:
 
-1. Manually trigger a sync
-2. Check the date range of the sync
-3. Verify the transaction exists in your Coinbase account
+1. Manually trigger a sync.
+2. Check **Settings** > **Debug** for any sync warnings. A truncated sync (rate-limited before all pages were fetched) is recorded there.
+3. Verify the transaction exists in your Coinbase account.
+4. For wallets with a long history, note that Sure fetches up to 5,000 transactions per wallet. Transactions older than that ceiling will not appear.
+5. Staking rewards, interest, and internal transfers are now imported. If you connected Coinbase before November 2026, manually trigger a sync to import those activity types for the first time.
 
 ### Account linking issues
 
@@ -162,10 +175,11 @@ If you have trouble linking wallets:
 
 ## Limitations
 
-- Historical data is limited to what's available via the Coinbase API
-- Some account types may not support full transaction history
-- Real-time price updates depend on Coinbase API availability
-- Cost basis is not available from the Coinbase API and is not tracked
+- Sure fetches up to 5,000 transactions per wallet per sync. Accounts with more than 5,000 lifetime transactions may not have their full oldest history imported.
+- If Coinbase rate-limits a sync mid-way, Sure preserves the pages already fetched and merges them with stored history. A warning appears in **Settings** > **Debug** when a sync was cut short.
+- Real-time price updates depend on Coinbase API availability.
+- Cost basis is not available from the Coinbase API and is not tracked.
+- Fiat deposits and withdrawals are not imported (see Transaction syncing above).
 
 ## Getting help
 
