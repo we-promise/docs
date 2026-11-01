@@ -148,7 +148,9 @@ The native coin is never affected, and anything already tracked keeps syncing re
 
 **Cosmos Hub records balance only, not transfers.** The balance includes spendable, delegated (staked), and unbonding ATOM. Sure’s Cosmos integration reads balance and staking endpoints without importing transfer history.
 
-**Bitcoin is one address at a time.** Extended keys (`xpub`, `ypub`, `zpub`) are not supported and are rejected as addresses. Most Bitcoin wallets are HD wallets where one extended key derives thousands of addresses — tracking a single address of such a wallet reports only that address's balance.
+**Bitcoin is one address at a time.** Extended keys (`xpub`, `ypub`, `zpub`) are not yet supported for HD wallet linking. Most Bitcoin wallets are HD wallets where one extended key derives thousands of addresses — tracking a single address of such a wallet reports only that address's balance.
+
+**Bitcoin addresses are checksum-verified.** Sure validates the checksum of every Bitcoin address you enter. A mistyped address is rejected at link time rather than accepted and syncing as empty. All five standard mainnet output types are accepted: P2PKH, P2SH, P2WPKH, P2WSH, and P2TR (Taproot). Bech32 addresses (`bc1…`) are normalised to lowercase before saving; mixed-case Bech32 is rejected because it fails the BIP173 checksum.
 
 **Solana token names depend on a token list.** RPC returns mints, not names, so names come from Jupiter's token search — and only for mints it reports as *verified*. Unverified or unknown mints keep a label built from their mint address and are tracked by quantity only. Names are cached for 24 hours per mint.
 
@@ -169,6 +171,8 @@ The native coin is never affected, and anything already tracked keeps syncing re
 **One token shows zero while the others in the same wallet are fine.** The price provider does not quote that token. Pricing is by symbol and covers major assets, so long-tail tokens are tracked by quantity and valued at zero.
 
 **A Bitcoin balance is much lower than my wallet app shows.** You are tracking one address of an HD wallet. See "Limitations" above.
+
+**Linking a Bitcoin address fails with an invalid address error.** Sure now verifies the address checksum before accepting it. Check the address character by character — a single wrong character causes this. Copy the address from your wallet software rather than typing it manually.
 
 **Sync says the explorer could not be reached.** The public endpoint is down, throttling you, or too slow to answer. Retry later, or point the relevant `*_URL` override at your own instance.
 
