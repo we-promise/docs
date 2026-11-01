@@ -969,6 +969,24 @@ Exports produced before provider-merchant support was added did not include `Pro
   </Accordion>
 </AccordionGroup>
 
+## Editing a merchant always redirected to the merchants list
+
+Before [PR #4635](https://github.com/we-promise/sure/pull/4635), submitting the merchant edit form always sent you back to **Settings → Merchants** regardless of where you opened the edit link from. If you reached the edit form from a merchant's detail page, you were not returned to that page after saving.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    The merchant detail page now passes the current URL as a `return_to` parameter when you click its **Edit** link. The edit form keeps that value, and after a successful update Sure redirects back to the page you came from instead of the merchants list.
+
+    If you arrived at the edit form from a paginated merchants list, Sure returns you to the same page and page position you were on. If no `return_to` value is present (for example, when navigating to the edit URL directly), Sure still redirects to the merchants list as before.
+
+    Control characters in a `return_to` value are now rejected. Browsers strip tabs and newlines from a URL before resolving it, which could allow a crafted value like `/\t/evil.example` to become `//evil.example` on the client. Sure now blocks any `return_to` path that contains a control character.
+  </Accordion>
+
+  <Accordion title="Why did I end up on the merchants list after editing?">
+    On older builds the edit form did not carry a `return_to` value, so Sure always fell back to the merchants list. Upgrade to a build containing [PR #4635](https://github.com/we-promise/sure/pull/4635) to get the improved redirect behavior. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Editing a provider merchant's website had no effect in older versions
 
 In versions before the fix in [#3824](https://github.com/we-promise/sure/pull/3824), submitting a website-only edit on a provider-assigned merchant (one created automatically by bank sync or AI enrichment) updated the shared merchant record for every family on the instance. If you had a same-name family merchant already, the edit form reported success but silently kept the old URL because the existing family merchant was not updated.
