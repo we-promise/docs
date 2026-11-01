@@ -70,6 +70,10 @@ These protections last until they are explicitly removed. Re-enabling sync clear
 
 Saving changes to **Name**, **Notes**, **Category**, **Merchant**, or **Tags** does not trigger a background account sync. Reports and budgets update immediately through the entries cache. Saving changes to **Amount**, **Date**, or **Account** does trigger an account sync to recalculate balances from the affected date forward.
 
+### Navigate to a merchant from a transaction row
+
+When a transaction has a merchant assigned, hovering over the transaction row reveals a small arrow icon after the merchant name. Clicking the arrow opens the merchant's detail page directly, without opening the transaction drawer first. The arrow is also reachable by keyboard: it becomes visible when the row receives focus, so you can tab to it and press Enter.
+
 ### Create a merchant inline
 
 If the merchant you need does not exist yet, you can create it directly from the merchant selector in the transaction detail or new-transaction form. Type a name in the merchant field and select the option to create it. Sure saves the new merchant and immediately assigns it to the transaction. There is no need to navigate to **Settings → Merchants** first.
