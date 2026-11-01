@@ -559,6 +559,24 @@ When you delete an account, Sure marks it as pending deletion and then runs a ba
   </Accordion>
 </AccordionGroup>
 
+## Balance recalculation is slow on accounts with years of history
+
+On accounts with a long transaction history — typically five or more years and several hundred entries — editing a transaction or running a manual sync could take noticeably longer than expected. The delay affected the incremental forward sync triggered by any edit, even when the change was in a recent 30-day window.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    An incremental forward sync seeds from the persisted balance at the start of the window and only iterates dates inside that window. However, `Balance::SyncCache` previously loaded and FX-converted every entry in the account's full history before the window calculation began. On long-lived accounts this dominated every edit-triggered sync, regardless of how small the change was.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `Balance::SyncCache` now accepts an optional start date. When the forward calculator confirms the sync is incremental, it passes the window start date so only entries from that point onward are loaded. Fallback paths — multi-currency accounts, a non-cash prior balance, or no prior balance — still load the full history as before.
+
+    Measured on a self-hosted production instance, a 30-day window recalculation on a five-year account dropped from around 700 ms to around 20 ms. Results are identical to the previous calculation.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Dashboard loads slowly with many accounts
 
 When a user has access to many accounts (through family sharing or account groups), earlier versions issued a separate database query to load accessible accounts on each access during a single request. This caused the dashboard to slow down noticeably as the account count grew.
