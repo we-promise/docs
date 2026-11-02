@@ -32,9 +32,10 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 
 | Tool | Description |
 | --- | --- |
-| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
+| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results. Each row includes `kind` (distinguishes real expenses from inter-account transfers), `classification` (direction; `amount` is always positive), `transfer_account` (the other side of a transfer), `pending` and `excluded` flags (absent when false), `clean_name` (bank label with prefixes and dates removed; absent when it matches `name`), `rail` (payment method read from the label), and `operation_date` (date in the bank label when it differs from the settlement date) |
 | `get_recurring_transactions` | Detected and manual recurring transactions (subscriptions, bills, salaries) with expected dates and per-currency totals |
-| `get_accounts` | List accounts with current and historical balances and account metadata |
+| `get_accounts` | List accounts with current and historical balances and account metadata. Loan accounts include a `terms` object with `interest_rate` (the rate in force; variable-rate loans also include `base_interest_rate` for the origination rate), `monthly_payment` (contracted payment for fixed-rate loans, or the next scheduled payment for variable-rate loans), `rate_type`, and `term_months`. Credit card accounts include `apr`, `minimum_payment`, `annual_fee`, and `available_credit`. Keys are absent when the user has not recorded the value. |
+| `get_uncategorized_transactions` | Uncategorized spending grouped by payee rather than row by row, with totals per currency separated by expense and income. Includes an `enrichment` block explaining whether any active rule performs auto-categorization, so an assistant can explain why transactions remain uncategorized. Results are capped at a two-year lookback window. |
 | `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
 | `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
 | `get_income_statement` | Retrieve income and expenses by category for a date range |
