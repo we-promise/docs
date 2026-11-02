@@ -42,6 +42,20 @@ The Brandfetch integration provides:
 
 This feature works automatically once enabled. Self-hosted users must also set the `BRAND_FETCH_CLIENT_ID` environment variable. See [self-hosting configuration](/self-hosting#brand-logo-variables) for details.
 
+### Account institution icons
+
+When creating or editing an account, you can choose a custom icon for the institution instead of relying on the automatic Brandfetch lookup.
+
+**How it works:**
+
+- Enter the institution's domain in the account form. Sure normalizes the value to a bare hostname, so you can paste a full URL such as `https://www.mybank.com/` and it resolves correctly.
+- Click **Pick icon** to open the icon picker. The button stays inactive until you have entered a complete domain.
+- The picker lists icon candidates fetched from the App Store, Google Play, Google, DuckDuckGo, Yandex, and Brandfetch for the domain and account name.
+- Select a candidate, upload your own raster image (up to 1 MB), or switch to the Brandfetch-fetched icon.
+- To return to the automatic icon, choose the **Remove** option in the picker.
+
+Icons are previewed immediately in the form and saved when you save the account. If you leave the domain field blank or change it, the icon picker updates its candidates in the background. A nightly background job fills in icons for accounts that don't yet have one, but it only sets automatic picks and never replaces a choice you made manually.
+
 ## API keys
 
 Generate API keys for programmatic access to your Sure data from **Settings → API Keys**. Each key carries a permission scope — Read Only or Read/Write — and is authenticated using the `X-Api-Key` request header.
@@ -283,6 +297,16 @@ The theme setting is saved to your account and syncs across all your devices.
 ### Localization
 
 The mobile app supports English and Swedish (Svenska). It uses the locale configured on your device to select the display language automatically.
+
+### Cash flow and spending by category
+
+The mobile app includes a Cash Flow report screen, accessible from the More tab.
+
+- Choose a period using the chips at the top: this month, last month, 30 days, 90 days, year to date, or 365 days.
+- The screen shows income, expenses, net savings, and your savings rate for the selected period.
+- A donut chart and ranked list break down spending or income by category, with each category's share of the total.
+- Tap a category to see its transactions for the period, including subcategory activity.
+- Privacy mode masks amounts and category shares.
 
 ### AI chat improvements
 
