@@ -67,6 +67,43 @@ API requests can authenticate with a user-generated `X-Api-Key` header, or with 
 
 See the [API reference](/api-reference) for available endpoints.
 
+### Cash flow endpoint
+
+`GET /api/v1/cash_flow` returns monthly totals and an optional Sankey graph.
+
+**Query parameters:**
+
+| Parameter | Values | Description |
+| --- | --- | --- |
+| `month` | `YYYY-MM-01` | First day of the month to query. Defaults to the current month. Must be a non-future date. |
+| `include` | `sankey` | Append the Sankey graph to the standard monthly response. Cannot be combined with `view`. |
+| `view` | `sankey` | Return only the Sankey graph (no daily series). Required when using `start_date`/`end_date` or `group_by`. |
+| `start_date` | `YYYY-MM-DD` | Start of a custom date range. Requires `view=sankey`. |
+| `end_date` | `YYYY-MM-DD` | End of a custom date range. Requires `view=sankey`. |
+| `group_by` | `category` (default), `account` | Controls how Sankey flows are grouped. Requires `view=sankey`. |
+
+**`group_by` values:**
+
+- `category` — the default view. Money flows through a single Cash Flow node, then branches into income and expense categories.
+- `account` — money flows through each individual account. Income categories feed into accounts; accounts feed into expense categories. An account that spends more than it receives (such as a credit card paid off by a transfer) is fed from Deficit. Transfers between accounts appear as flows between the two account nodes when one funded the other.
+
+**Example: account-grouped Sankey for a custom date range**
+
+```http
+GET /api/v1/cash_flow?view=sankey&start_date=2026-10-01&end_date=2026-10-31&group_by=account
+```
+
+**Error responses:**
+
+| Error code | Condition |
+| --- | --- |
+| `invalid_view` | `include` and `view` are both set, or an unsupported value is passed |
+| `invalid_group_by` | `group_by` is set without `view=sankey`, or an unsupported value is passed |
+| `invalid_period` | `start_date`/`end_date` used without `view=sankey`, dates are out of order, or `month` is also set |
+| `invalid_month` | `month` is not a first day of a month, or is a future date |
+
+Responses include `Cache-Control: private, no-store` and are not HTTP-cacheable. Authenticate using `X-Api-Key` or an OAuth2 bearer token — browser sessions are not accepted.
+
 ## Choosing a client
 
 - Start with the **web app** when a person needs the complete Sure experience.
