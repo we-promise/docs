@@ -32,9 +32,9 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 
 | Tool | Description |
 | --- | --- |
-| `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
+| `get_transactions` | Search transactions with optional filters and pagination. Each row includes `kind` (expense, income, transfer), `pending`, `excluded`, `entry_id`, and the counterparty account for transfers (omitted when the caller cannot access it). `amount` is always a positive magnitude; the direction is in `classification`. Useful for finding transactions and calculating statistics for small groups of results. |
 | `get_recurring_transactions` | Detected and manual recurring transactions (subscriptions, bills, salaries) with expected dates and per-currency totals |
-| `get_accounts` | List accounts with current and historical balances and account metadata |
+| `get_accounts` | List accounts with current and historical balances and account metadata. Accounts include a `terms` object with type-specific fields: loans expose `interest_rate`, `term_months`, `rate_type`, and `monthly_payment`; credit cards expose `apr`, `minimum_payment`, and `annual_fee`. A key is absent when the user has not recorded that value. |
 | `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
 | `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
 | `get_income_statement` | Retrieve income and expenses by category for a date range |

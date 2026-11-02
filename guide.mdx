@@ -124,6 +124,21 @@ Once created, you'll return to the home screen. You'll see your new account in t
 
 <img width="2508" height="1314" alt="Home screen of Sure, showing one account and no transactions" src="https://github.com/user-attachments/assets/7766a0cd-6b20-48f0-9ba2-87dfddd77236" />
 
+### Account icons
+
+When you add or edit an account, the form lets you set a custom icon for it. The icon appears alongside the account name throughout the app.
+
+The icon field works in two ways:
+
+- **Auto-fetch from domain** — enter the institution's domain (for example, `chase.com`) and Sure looks up candidate icons from app stores and favicon sources. Pick any result to use it.
+- **Upload your own** — upload a PNG, JPEG, GIF, WebP, or ICO image up to 1 MB. Your upload replaces the automatic icon.
+
+If a Brandfetch client ID is configured, Brandfetch logo candidates also appear in the picker. Without a client ID, only app-store and favicon sources are searched.
+
+The icon is applied when you save the account. If a candidate icon could not be downloaded at save time, the form shows a notice and you can try again or upload your own.
+
+To reset to the automatic icon, use the removal option in the icon field, then save.
+
 ### Expand and collapse account groups
 
 Each tab in the accounts sidebar (All, Assets, Debts) has an expand/collapse toggle icon in its header. Clicking the icon expands every account group in that tab when any group is closed, and collapses all groups when every group is already open. The icon updates automatically as you open or close groups manually.
