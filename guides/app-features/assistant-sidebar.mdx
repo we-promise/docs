@@ -44,9 +44,35 @@ When you start a new chat without providing a custom title, Sure generates a def
 
 The full chat interface is localized to match your language setting. This includes the AI greeting, suggested questions, chat navigation labels, consent dialog, and error messages. Brazilian Portuguese (pt-BR) is fully supported. Set your language under Settings → Preferences to switch the chat interface to your preferred language.
 
-## Error messages from the AI provider
+## What the assistant can see
 
-When the AI provider returns an error, Sure shows a localized message describing the error category, such as a rate limit, temporary service problem, or configuration issue. When chat debug mode is enabled, a technical-details section can also show the stored provider error message. Raw provider details are not shown in the normal chat error message, and may be unavailable for some failures.
+The assistant has access to your account details, transactions, and holdings to answer questions about your finances.
+
+### Account details
+
+When you ask about an account, the assistant can read:
+
+- Account name, type, subtype, and balance
+- Institution domain and currency
+- For loan accounts: interest rate, loan term in months, and rate type (fixed or variable), plus the calculated monthly payment
+- For credit cards: APR, minimum payment, and annual fee
+
+Fields the assistant reports as absent are fields you have not yet recorded in your account settings, not zeroes.
+
+### Transactions
+
+When you ask about transactions, the assistant can read:
+
+- Amount (always a positive number), classification (income or expense), and date
+- Category, merchant, tags, and notes
+- Whether the transaction is pending or excluded from reports
+- Transfer information: if the transaction is one leg of a transfer, the assistant can see the counterparty account when you have access to it
+
+The assistant uses these fields to answer questions such as "how much did I spend on groceries last month" or "show me unmatched transfers". Because `amount` is always positive and direction lives in `classification`, the assistant avoids sign errors when summing income and expenses.
+
+### Uncategorized transactions
+
+When you ask the assistant to help categorize transactions, it groups uncategorized activity by payee rather than listing individual rows. It also tells you whether any categorization rules are currently active, so it can explain why transactions may still be uncategorized even after running rules.
 
 ## Related settings
 
