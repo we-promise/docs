@@ -280,6 +280,26 @@ The theme setting is saved to your account and syncs across all your devices.
 
 ## Mobile app settings
 
+### Cash flow report
+
+The mobile app includes a Cash Flow report screen, accessible from the **More** tab. It shows income, spending, and net savings for a selected period, plus a breakdown of expenses (or income) by category.
+
+**Periods:** Choose from this month, last month, last 30 days, last 90 days, year to date, or last 365 days. "This month" and "Last month" follow your family's custom month start day if one is configured in family settings.
+
+**Summary:** The top of the screen shows total income, total spending, net savings, and savings rate for the selected period.
+
+**By category:** A donut chart and ranked list show each category's share of the selected side (expenses or income). Tap the **Expenses** or **Income** segment to switch sides.
+
+**Drill down:** Tap any category to see the individual transactions that make up its total for the period. The list matches what the report counts — excluded transactions, split parents, and transfer-like transaction kinds (funds movements, credit card payments, one-time transfers) are hidden. Loan payments and investment contributions appear as outflows regardless of their sign, consistent with how the report classifies them.
+
+**Subcategories:** The drill-down fetches all subcategories for a tapped parent category, including any that netted to zero on the tapped side, so the transaction list matches the full report figure.
+
+**Offline behavior:** A report loaded for a period stays visible if a later refresh fails or the device goes offline. The screen marks it "Outdated" so you know the data may not be current. Tapping **Try again** retriggers the request.
+
+**Privacy mode:** When privacy mode is on, all amounts and category shares are masked. The donut chart shows only its track ring.
+
+**Session expiry:** A 401 response from any request — the report, family settings, or the category drill-down — logs the session out and returns to the login screen.
+
 ### Localization
 
 The mobile app supports English and Swedish (Svenska). It uses the locale configured on your device to select the display language automatically.
