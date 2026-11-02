@@ -261,7 +261,9 @@ BRAND_FETCH_CLIENT_ID=your-brandfetch-client-id
 BRAND_FETCH_HIGH_RES_LOGOS=false
 ```
 
-When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
+When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI. When you add `BRAND_FETCH_CLIENT_ID`, Sure busts the cached sidebar and logos appear immediately without a manual refresh.
+
+Sure normalizes institution domains to the bare host before looking up a Brandfetch logo, so pasting a full URL such as `https://www.tbank.ru/` into the institution domain field works correctly.
 
 Merchant logo discovery works as follows:
 
