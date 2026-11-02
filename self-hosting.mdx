@@ -448,7 +448,7 @@ POSTHOG_HOST=https://us.i.posthog.com
 
 `POSTHOG_HOST` defaults to `https://us.i.posthog.com` when not set. Point it at your own PostHog instance if you self-host PostHog.
 
-When analytics are enabled, Sure registers a `sure_version` property on every browser event. The value comes from the `.sure-version` file bundled in the Docker image and matches the release tag (for example, `0.7.5-alpha.10`). This lets you filter PostHog events by the exact Sure version that produced them.
+When analytics are enabled, Sure registers a `sure_version` property on every browser event. The value comes from the `.sure-version` file bundled in the Docker image and matches the release tag (for example, `2026.11.2-alpha`). This lets you filter PostHog events by the exact Sure version that produced them.
 
 Sure also enables PostHog's person profiles for all events, which allows PostHog to enrich events with GeoIP data based on the client IP address.
 
@@ -531,10 +531,17 @@ image: ghcr.io/we-promise/sure:latest
 
 ### Recommended images
 
-- `ghcr.io/we-promise/sure:latest` - Latest alpha release
-- `ghcr.io/we-promise/sure:stable` - Latest stable release
+Sure uses CalVer release tags in the format `YYYY.M.D-alpha` for alpha releases and `YYYY.M.D` for stable releases (for example, `2026.11.2-alpha`).
 
-You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
+<Note>
+Floating `latest` and `stable` Docker channel tags are temporarily paused during CalVer validation. Use an explicit CalVer tag or the temporary SemVer compatibility alias (for example, `v0.7.7-alpha.3`) to pin a specific release. Check the [packages page](https://github.com/we-promise/sure/pkgs/container/sure) for available tags.
+</Note>
+
+- `ghcr.io/we-promise/sure:2026.11.2-alpha` — Explicit CalVer alpha tag (replace with the actual release date)
+- `ghcr.io/we-promise/sure:v0.7.7-alpha.3` — Temporary SemVer compatibility alias (valid for 2026 releases only)
+- `ghcr.io/we-promise/sure:nightly` — Floating nightly tag, published from scheduled builds
+
+See [Release versioning](/releases/versioning) for the full versioning scheme.
 
 ### Update to the latest version
 
@@ -547,12 +554,12 @@ docker compose build
 docker compose up --no-deps -d web worker
 ```
 
-### Change update channel
+### Change image tag
 
-To switch between update channels, edit the `compose.yml` file:
+To switch to a different release tag, edit the `image` line in `compose.yml`:
 
 ```yml
-image: ghcr.io/we-promise/sure:stable
+image: ghcr.io/we-promise/sure:2026.11.2-alpha
 ```
 
 Then restart the app:

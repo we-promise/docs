@@ -1,0 +1,79 @@
+---
+title: 'Release versioning'
+description: 'How Sure versions Docker images, Helm charts, and release tags.'
+keywords: ['versioning', 'CalVer', 'release', 'Docker', 'tags']
+---
+
+Sure uses Calendar Versioning (CalVer) for all releases starting with `v0.7.7-alpha.3`.
+
+## Tag format
+
+- **Alpha releases**: `YYYY.M.D-alpha` (for example, `2026.11.2-alpha`)
+- **Stable releases**: `YYYY.M.D` (for example, `2026.11.2`)
+
+Git tags include the `v` prefix (`v2026.11.2-alpha`). Docker image tags and Helm chart versions do not.
+
+The date in the tag is the UTC date the release was cut. Each UTC day supports at most one alpha and one stable release. A retry of the same release reuses the existing tag and date.
+
+## SemVer compatibility alias
+
+During the October–December 2026 transition window, each tagged release in the active channel also receives a temporary SemVer compatibility alias (for example, `v0.7.7-alpha.3`). This alias is a Git tag that points to the same commit and resolves to the same Docker image digest. It exists so that tools and scripts that expect a `v0.x.x` format continue to work without changes.
+
+The alias applies only to tagged 2026 releases. Advance the alias before each new release. Leaving an already-used alias on another commit blocks publication without moving it. Untagged builds and the other channel (alpha vs. stable) never receive an alias.
+
+## Docker image tags
+
+| Tag | What it points to |
+| --- | --- |
+| `YYYY.M.D-alpha` | Canonical CalVer alpha release |
+| `YYYY.M.D` | Canonical CalVer stable release |
+| `v0.x.x-alpha.N` | Temporary SemVer compatibility alias (2026 only) |
+| `sha-<commit>` | Specific commit SHA |
+| `YYYY.M.D-nightly` | Nightly build from that UTC date |
+| `nightly` | Floating tag, updated by scheduled builds |
+
+<Warning>
+Floating `latest` and `stable` Docker channel tags are temporarily paused while the CalVer rollout is validated. Neither tag is promoted by alpha or stable releases during this period. Use an explicit CalVer tag or the SemVer compatibility alias to pin a specific release. Re-enabling channel promotion requires a separate workflow change after validation.
+</Warning>
+
+## Build metadata
+
+The `.sure-version` file is generated during packaging and bundled inside the Docker image. It is not committed to the repository. Rails, Sentry, and the backup service read this file to report the running version.
+
+Source checkouts without the file report version `0.0.0-dev.<commit_sha>`, or `0.0.0-dev.unknown` when the commit is unavailable. Local Docker builds can generate the file explicitly to label the image; without it they are treated as dev builds.
+
+## Nightly builds
+
+Scheduled builds publish `nightly` and `YYYY.M.D-nightly` tags using the UTC date of the original workflow run. Retries retain that original date. Nightly builds do not promote `stable` or `latest`.
+
+## Desktop and mobile releases
+
+Desktop and mobile release builds derive their version from the release tag. Standalone mobile branch builds retain their explicit pubspec version.
+
+## Helm chart releases
+
+Release chart packages are stamped from the release tag. Chart-only releases select an existing immutable image via the `app_version` dispatch input (or an explicit `Chart.yaml` appVersion for chart-tag pushes). The checked-in chart uses development defaults and does not claim to be a dated release.
+
+## Cutting a release
+
+1. Generate the canonical tag from the UTC build day:
+
+   ```bash
+   # Alpha
+   tag="v$(date -u +%Y.%-m.%-d)-alpha"
+
+   # Stable (omit the -alpha suffix)
+   tag="v$(date -u +%Y.%-m.%-d)"
+   ```
+
+2. Push the tag at the intended release commit. The workflow uses the tag date for every subsequent retry, even if a retry runs after midnight.
+
+3. In `publish.yml`, `COMPATIBILITY_CHANNEL` selects the release type (`alpha` or `stable`) and `COMPATIBILITY_VERSION` supplies the legacy alias. No date edit is needed. Before each new release, advance `COMPATIBILITY_VERSION`.
+
+4. Push only the canonical tag. The workflow creates or verifies the legacy Git tag, publishes both Docker names against one manifest, and packages both Helm versions pointing to the canonical image.
+
+5. Verify that both Docker names resolve to the same digest, and confirm the canonical GitHub Release and its assets.
+
+## January 2027
+
+Compatibility aliases stop being issued in January 2027. The workflow only emits them for 2026 dates. Historical tags, images, and chart packages are kept for pinned installations and rollback. The temporary alias steps can then be removed from the workflow.

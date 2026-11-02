@@ -24,7 +24,8 @@
               "self-hosting-hostim",
               "self-hosting-pethost",
               "self-hosting-helm",
-              "roadmap"
+              "roadmap",
+              "releases/versioning"
             ]
           },
           {
