@@ -2,6 +2,16 @@
 title: "FAQ"
 ---
 
+## Self-hosting and permissions
+
+<AccordionGroup>
+  <Accordion title="Why are LLM or provider settings missing after an upgrade?">
+    Older installations may not have a super admin. On instances with multiple families, shared LLM and provider settings require the `super_admin` role; a family admin is not enough. Single-family self-hosted instances retain access for their family admins.
+
+    See [Restore access to instance-wide settings](/self-hosting#restore-access-to-instance-wide-settings) for the one-time Docker command and role-management instructions.
+  </Accordion>
+</AccordionGroup>
+
 ## Transaction history and imports
 
 <AccordionGroup>
