@@ -492,6 +492,8 @@ On first run, register a new account:
 
 The first user to register on a fresh instance is automatically assigned the `super_admin` role. If two registrations happen at the same time, Sure uses a database lock to ensure exactly one of them becomes `super_admin` and the other becomes `admin`.
 
+Upgrading an older installation without a super admin? See [Restore access to instance-wide settings](#restore-access-to-instance-wide-settings).
+
 ### Restrict future signups
 
 After creating your initial admin account, you can control how other people join your self-hosted instance from **Settings > Self-Hosting > Onboarding**.
@@ -546,6 +548,22 @@ docker compose pull
 docker compose build
 docker compose up --no-deps -d web worker
 ```
+
+### Restore access to instance-wide settings
+
+Older installations may have no `super_admin` because they were created before Sure automatically assigned that role to the first user. After upgrading, a family admin on an instance with more than one family may find shared settings missing or receive "not authorized" when saving them.
+
+Provider credentials, shared LLM settings (provider, endpoints, API keys, and models), sync settings, and the external assistant connection apply to every family. Only a `super_admin` can change these settings on a multi-family instance. On a single-family self-hosted instance, that family's admins retain access. Family-scoped choices, such as which assistant a family uses, remain available to that family's admins.
+
+If your instance has no super admin, run this once on your Docker host, from the directory containing your Compose file. Replace `you@example.com` with your existing Sure login email:
+
+```bash
+docker compose exec web bin/rails runner 'User.find_by!(email: "you@example.com").update!(role: :super_admin)'
+```
+
+If your app service has a different name, replace `web` with that service name. This promotes your existing **Sure application account**; it does not change your Linux or PostgreSQL user. Grant this instance-wide role only to someone who should administer all families.
+
+Reload **Settings > Self-Hosting** (`/settings/hosting`). You can then manage other users' roles at `/admin/users`. If your instance already has a super admin, ask them to manage your role there instead.
 
 ### Change update channel
 
