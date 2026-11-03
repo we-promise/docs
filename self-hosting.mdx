@@ -448,7 +448,7 @@ POSTHOG_HOST=https://us.i.posthog.com
 
 `POSTHOG_HOST` defaults to `https://us.i.posthog.com` when not set. Point it at your own PostHog instance if you self-host PostHog.
 
-When analytics are enabled, Sure registers a `sure_version` property on every browser event. The value comes from the `.sure-version` file bundled in the Docker image and matches the release tag (for example, `0.7.5-alpha.10`). This lets you filter PostHog events by the exact Sure version that produced them.
+When analytics are enabled, Sure registers a `sure_version` property on every browser event. The value comes from the `.sure-version` file bundled in the Docker image and matches the release tag (for example, `2026.11.3-alpha`). This lets you filter PostHog events by the exact Sure version that produced them.
 
 Sure also enables PostHog's person profiles for all events, which allows PostHog to enrich events with GeoIP data based on the client IP address.
 
@@ -534,7 +534,7 @@ image: ghcr.io/we-promise/sure:latest
 - `ghcr.io/we-promise/sure:latest` - Latest alpha release
 - `ghcr.io/we-promise/sure:stable` - Latest stable release
 
-You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
+You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure). Versions use calendar versioning in the format `YYYY.M.D` (for example, `2026.11.3` for a stable release or `2026.11.3-alpha` for an alpha).
 
 ### Update to the latest version
 
@@ -565,7 +565,7 @@ docker compose up --no-deps -d web worker
 
 ## Backups, upgrades, and rollbacks
 
-Current `main` includes a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. As of October 22, 2026, this service is not included in the latest stable release, `v0.7.5-hotfix.2`. The Compose service requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
+Current `main` includes a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. The Compose service requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
 
 Run all commands from the directory that holds `compose.yml`.
 
@@ -652,7 +652,7 @@ Use this to roll back the current install to an earlier backup:
 
 ```bash
 docker compose stop web worker
-docker compose run --rm backup restore 0.7.4/2026-10-01_080524-manual   # or "latest"
+docker compose run --rm backup restore 2026.11.3/2026-10-01_080524-manual   # or "latest"
 ```
 
 `restore` replaces the database and, when `storage.tar.gz` is present, replaces the mounted local file storage. Without that archive, it leaves local files unchanged and warns. It refuses while other database clients are connected unless explicitly forced, and asks for confirmation. Pass `--yes` to skip the prompt in scripts. It does not restore configuration automatically; restore the matching encryption settings before starting the app.
@@ -661,7 +661,7 @@ After restoring a release backup, set `SURE_IMAGE_TAG` in `.env` to the backed-u
 
 ```bash
 # In .env:
-SURE_IMAGE_TAG=0.7.4
+SURE_IMAGE_TAG=2026.11.3
 ```
 
 ```bash
@@ -673,7 +673,7 @@ docker compose up --no-deps -d web worker
 Every backup bundle contains a `restore.sh` script. Run it on any machine that has Docker to bring up a fresh instance from the backup:
 
 ```bash
-sh backups/0.7.4/2026-10-01_080524-manual/restore.sh
+sh backups/2026.11.3/2026-10-01_080524-manual/restore.sh
 ```
 
 The script verifies the bundle and asks for a folder for the new instance (the folder name becomes the Compose project name). It then:
@@ -699,7 +699,7 @@ docker compose logs backup
 docker compose run --rm backup list
 ```
 
-### Without the backup service (any version, including 0.7.5 and older)
+### Without the backup service
 
 You can run backups with the script on its own, without the `backup` service. Download it once next to `compose.yml`:
 
@@ -720,9 +720,9 @@ sh sure-backup recover backups/<version>/<backup>   # Restore into a new folder
 
 For create and restore, the script finds an existing `web` container and runs itself from that exact image with its volumes and database settings. The app must have been started at least once. Automatic version detection requires a valid runtime stamp or matching embedded version and schema metadata; otherwise it asks for `--version`.
 
-### Upgrading from the database-only backup service (v0.7.5)
+### Upgrading from the database-only backup service
 
-Sure v0.7.5 shipped a `backup` service that ran `bin/db-backup.sh` and uploaded database-only dumps via rclone. To upgrade to the full-instance backup service:
+If you are on an older release that shipped a `backup` service running `bin/db-backup.sh` with database-only dumps via rclone, upgrade to the full-instance backup service:
 
 1. Replace the `backup` service in your `compose.yml` with the `backup` and `backup-offsite` services from the current [`compose.example.yml`](https://github.com/we-promise/sure/blob/main/compose.example.yml).
 2. In `.env`, remove `BACKUP_OVERWRITE`. `BACKUP_SCHEDULE` must be a daily time (`minute hour * * *`). Move `BACKUP_DESTINATION`, `INSTANCE_ID`, and all `RCLONE_CONFIG_*` variables to the `backup-offsite` service.
