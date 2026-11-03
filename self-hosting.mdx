@@ -526,40 +526,45 @@ Your app is now accessible at `http://localhost:3000`.
 The Docker image in your `compose.yml` file controls which version of Sure you're running:
 
 ```yml
-image: ghcr.io/we-promise/sure:latest
+image: ghcr.io/we-promise/sure:${SURE_IMAGE_TAG:-stable}
 ```
 
-### Recommended images
+### Available image tags
 
-- `ghcr.io/we-promise/sure:latest` - Latest alpha release
-- `ghcr.io/we-promise/sure:stable` - Latest stable release
+<Note>
+The `stable` and `latest` floating channel tags are temporarily not being updated during the CalVer version-scheme transition (October–December 2026). Use an explicit CalVer tag or the `nightly` tag to get the most current image. Channel promotion will resume once the new versioning is validated.
+</Note>
 
-You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
+- `ghcr.io/we-promise/sure:YYYY.M.D-alpha` — a specific alpha release (for example, `2026.11.3-alpha`)
+- `ghcr.io/we-promise/sure:YYYY.M.D` — a specific stable release (for example, `2026.11.3`)
+- `ghcr.io/we-promise/sure:nightly` — latest nightly build from `main`
+- `ghcr.io/we-promise/sure:stable` — latest stable release (not updated during CalVer transition)
+- `ghcr.io/we-promise/sure:latest` — latest alpha release (not updated during CalVer transition)
 
-### Update to the latest version
+You can also browse all available tags on the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
 
-Your app does not automatically update. To update:
+### Update to a specific version
+
+Set `SURE_IMAGE_TAG` in your `.env` file to the tag you want to run:
+
+```txt
+SURE_IMAGE_TAG=2026.11.3-alpha
+```
+
+Then pull and restart:
 
 ```bash
 cd ~/docker-apps/sure
-docker compose pull
-docker compose build
+docker compose pull web worker
 docker compose up --no-deps -d web worker
 ```
 
 ### Change update channel
 
-To switch between update channels, edit the `compose.yml` file:
-
-```yml
-image: ghcr.io/we-promise/sure:stable
-```
-
-Then restart the app:
+To switch between tags, update `SURE_IMAGE_TAG` in your `.env` file and restart:
 
 ```bash
-docker compose pull
-docker compose build
+docker compose pull web worker
 docker compose up --no-deps -d web worker
 ```
 
