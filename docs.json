@@ -62,7 +62,8 @@
               "development/mcp",
               "evals",
               "development/rails-provider-generator",
-              "development/llm-benchmarks"
+              "development/llm-benchmarks",
+              "development/android-builds"
             ]
           },
           {
