@@ -49,7 +49,9 @@ In earlier versions, when an account finished syncing, Sure broadcast a rendered
   </Accordion>
 
   <Accordion title="How was it fixed?">
-    The broadcast that replaced the account row in the family stream is removed. Instead, when a sync completes, Sure sends a lightweight sync toast to each browser. The browser refreshes through its own authenticated request, so only members with access see the account data. Refresh can be deferred during interaction with forms or dialogs, and a manual refresh may be needed.
+    The broadcast that replaced the account row in the family stream is removed. Instead, when a sync completes, Sure sends a lightweight sync toast to each browser. The browser refreshes through its own authenticated request, so only members with access see the account data.
+
+    The refresh fires automatically 500 ms after the toast appears, once per sync. If a page-level fetch is already in progress (for example, the account page's own post-sync reload), the toast's timer is cancelled to avoid a double refresh. Navigations that only update a Turbo frame — such as inline form submissions or prefetches — do not cancel the timer, so the refresh still happens on the next quiet moment. If you are in the middle of a form or a dialog is open, the refresh is deferred until you finish; the toast stays visible so you can trigger it manually whenever you are ready.
 
     The fix also covers linked accounts that sync on their own with no follow-up provider event, which would previously have left the accounts page stale for members who do have access.
 
