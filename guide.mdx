@@ -148,6 +148,10 @@ Sparklines inside collapsed account groups are loaded lazily — Sure only fetch
 
 For linked investment and crypto accounts, the sparkline only covers the period supported by your provider connection. Data from before the provider's first import is excluded, so the sparkline reflects your actual account history rather than estimated or zero-filled values from before the connection was established.
 
+Individual account sparklines are cached against that account's own data — its balance history, last sync time, and any linked provider connections. This means a sync of a different account does not cause your sparkline to reload unnecessarily. If you link or unlink a provider connection on an account, the sparkline for that account refreshes to reflect the change.
+
+Investment and crypto account sparklines also refresh whenever any account in your family syncs. Their chart series are normalized across holdings that can change outside an individual account sync — for example, when a security price is reset — so they track the family-wide sync state to stay accurate.
+
 Group sparklines in the sidebar use the same accounts as the group total they sit next to. That means they include only the accounts that are accessible to you, included in your finances (owned by you or shared with the "include in finances" option), and not excluded from reports. Because the sparkline and the group total count the same accounts, the trend line tracks the balance figure shown for that group.
 
 ## Adding transactions
