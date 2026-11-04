@@ -319,6 +319,25 @@ If you edit the rule and change its match criteria — adding or removing a cond
 
 Editing any other part of the rule (name, action values, stop-processing toggle) does not reset the baseline.
 
+### Rule groups
+
+Rules can be organized into named groups on the **Settings → Rules** page. Groups are folders that arrange the list — they do not change the order rules run in. Rules in a group still run in the same top-to-bottom sequence as ungrouped rules.
+
+To create a group, use the **New group** option on the Rules page. You can then drag rules into the group or move them using the keyboard.
+
+- **Fold and unfold**: each group can be collapsed to hide its rules. Sure remembers your fold state across page refreshes.
+- **Group menu**: the menu on a group header lets you turn all of the group's rules on or off, rename the group, or delete it. Deleting a group removes only the group — its rules remain and are ungrouped, keeping their position in the run order.
+- **Dragging**: you can drag groups and ungrouped rules to reorder the top-level list. Dragging is disabled while a search or filter is active.
+
+### Search and filters
+
+The Rules page includes a search field and a set of filters to help you find rules in a long list.
+
+- **Search** matches rule names, condition values, and action values.
+- **Filters** narrow the list by status (active/inactive), action type, condition type, account, and group. Active filters are preserved in the URL so you can share or bookmark a filtered view.
+
+Dragging to reorder is disabled while any search or filter is active.
+
 ### Rule order
 
 Rules run from top to bottom in the order shown on **Settings → Rules**. You can drag any rule by its handle to change its position in the list. The order matters when two rules target the same field on the same transaction: the higher rule wins and the lower rule leaves that field alone. Tags are an exception — every matching rule adds its tags rather than the first one winning.
@@ -336,6 +355,10 @@ Rules run automatically during account syncs. You can also apply rules manually 
 **Apply All** runs every rule in the family — including inactive ones — so their transaction changes (category, merchant, tags, and so on) take effect. Inactive rules skip the email notification action only: matches seen while a rule is off are not recorded and no digest email is sent. When you switch a rule back on, those unrecorded matches are picked up on the next run.
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
+
+### Export and import rules
+
+You can export your rules to CSV from **Settings → Rules** and re-import them later. The exported file includes a `group` column that carries each rule's group name. When you import that file, Sure places each rule into the named group, creating the group if it does not exist yet. A blank `group` cell means the rule has no group. A file that does not include a `group` column at all leaves each rule's current group unchanged on import.
 
 ## Transaction splits API
 
