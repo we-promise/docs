@@ -337,6 +337,18 @@ Rules run automatically during account syncs. You can also apply rules manually 
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 
+### Recent runs
+
+The **Settings → Rules** page shows a **Recent Runs** table below the rule list. Each row records one execution with:
+
+- **Date/Time** — when the run started
+- **Type** — whether the run was triggered manually or by a scheduled sync. Manual runs show an indigo badge; scheduled runs show a violet badge.
+- **Status** — the outcome of the run. Pending runs show an amber badge, successful runs show a green badge, and failed runs show a red badge. A tooltip on the status badge displays the error message when a run fails.
+- **Rule name** — the rule that was applied
+- **Transaction counts** — how many transactions were queued, processed, modified, and blocked during the run
+
+The table is populated when you apply rules manually (via **Re-apply** or **Apply All**) or when rules run automatically during an account sync.
+
 ## Transaction splits API
 
 The API exposes a nested resource for managing transaction splits programmatically:
