@@ -49,6 +49,8 @@ The mobile app is a Flutter companion app for iOS and Android. It connects to a 
 
 Use it when someone needs phone access and the feature set they need is available in the mobile client. For the full application surface, use the web app.
 
+The version in `mobile/pubspec.yaml` is a development placeholder (`0.0.0-dev+0`). CI injects the real version from the release tag at build time, so locally built development copies report `0.0.0-dev` rather than a release version.
+
 ## LLM agents and MCP clients
 
 LLM agents are clients too. Sure exposes a Model Context Protocol endpoint for external assistants and agent runtimes that need structured access to financial data.
