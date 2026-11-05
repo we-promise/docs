@@ -395,6 +395,16 @@ Sure now shows the error as a page-level alert instead of silently closing the m
 
 If the alert is a generic connection error with no specific guidance, verify that your `PLAID_CLIENT_ID`, `PLAID_SECRET`, and `PLAID_ENV` values are correct and that your Sure instance is reachable over HTTPS. Check **Developers > Logs** in the Plaid Dashboard for more detail on what failed.
 
+### Duplicate accounts after re-consenting at Chase or other tokenized-number institutions
+
+Some institutions, including Chase, use tokenized account numbers. When you re-consent through the **Add accounts** flow, Plaid can assign a new `account_id` to an account it already shares with your connection. Before this fix, Sure treated the new ID as a new account and imported it a second time, causing the original account to stop updating.
+
+Sure now uses Plaid's `persistent_account_id` to recognize accounts that changed IDs. When a new `account_id` appears in an import, Sure checks whether an account with the same `persistent_account_id` exists in the same connection but is no longer returned by Plaid under its old ID. If it finds one, it moves the existing account to the new ID instead of creating a duplicate. The account keeps its history and its link to the Sure account.
+
+If you are already seeing duplicate accounts created before this fix, they are not removed automatically. You can delete the duplicate manually from the account list.
+
+Accounts without a `persistent_account_id` continue to match on `account_id` as before.
+
 ### Link popup closes after selecting a bank
 
 If the Plaid popup closes immediately after you select a bank, and Sure shows no useful app logs, the problem may be on Plaid's side rather than in your Sure configuration.
