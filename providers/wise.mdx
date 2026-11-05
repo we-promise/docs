@@ -3,7 +3,7 @@ title: Wise
 description: Connect your Wise multi-currency account using a personal API token
 ---
 
-Wise integration connects your Wise multi-currency account to Sure using a personal API token. Sure syncs your currency balances, Jars (savings pots), transfers, and Wise Assets activity directly from the Wise API — no OAuth flow required.
+Wise integration connects your Wise multi-currency account to Sure using a personal API token. Sure syncs your currency balances, Jars (savings pots), transfers, card payments, and activity directly from the Wise API — no OAuth flow required.
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
@@ -14,13 +14,13 @@ See [Transaction history and import limits](/providers/transaction-history) for 
 3. You choose which profile(s) to connect — each becomes its own connection in Sure
 4. Sure discovers every currency balance and Jar under the connected profile(s)
 5. You link each discovered balance to a new or existing Sure account
-6. Syncs then run automatically, pulling balances, transfers, and Jar activity
+6. Syncs then run automatically, pulling balances, transfers, card payments, and Jar activity
 
 ## Setting up Wise
 
 1. Sign in to your Wise business account at [wise.com](https://wise.com) (personal API tokens are issued from business account settings, even if you're only connecting a personal profile)
 2. Go to **Settings → Connect and manage apps → Developer tools → API tokens** (requires two-factor authentication on the account)
-3. Create a new personal API token and choose an access level: **read only** lets Sure read balances, transfers, and Jar activity; **full** additionally allows the token to authorize recipients and transfers, so prefer read-only unless you need that capability elsewhere
+3. Create a new personal API token and choose an access level: **read only** lets Sure read balances, transfers, and activity; **full** additionally allows the token to authorize recipients and transfers, so prefer read-only unless you need that capability elsewhere
 4. In Sure, go to **Settings > Providers**, find the **Wise** panel, and paste the token
 5. If the token has access to more than one profile (for example, a personal and a business profile), select which ones to connect — Sure creates a separate connection for each
 6. Open **Set Up Accounts** on the new connection and link each currency balance to a Sure account
@@ -37,14 +37,28 @@ For testing, Wise provides a sandbox environment at `https://api.wise-sandbox.co
 - **Standard balances**: one balance per currency held in your Wise account, refreshed (including reserved amount) on every sync
 - **Jars (savings pots)**: synced alongside standard balances and mapped to a savings-type account in Sure
 - New balances discovered on a sync are shown as "needs setup" until linked to a Sure account
+- A balance that no longer appears in Wise for two syncs in a row is marked as closed and frozen; if Wise lists it again, it becomes active again
 
 ### Transaction syncing
 
-- The first sync imports history from the date you configure (or 365 days by default); later syncs use a 7-day lookback from the last successful sync
-- Transactions are fetched from the Wise balance-statement endpoint, which covers both incoming and outgoing payments. The statement endpoint requires [SCA](#strong-customer-authentication-sca) — without it, Sure falls back to the outgoing-only transfers endpoint, so incoming payments will be missing until SCA is configured
-- Transfers are matched to their linked balance by Wise balance ID, so Jars that share the same currency are still tracked as separate accounts
-- Cross-currency incoming transfers use the amount actually received, not the amount sent
-- When a same-currency transfer includes a fee, the fee is imported as a separate "Wise fee" transaction
+Sure fetches transactions using per-source coverage windows rather than a fixed lookback. Each source (transfers, activities, statements) tracks the range it has successfully covered and starts the next sync from there, so no transactions are skipped between syncs.
+
+- The first sync imports history from the date you configure (or a default number of days back); later syncs extend coverage incrementally from the last successful fetch
+- On a complete full-history import, a balance account opens at 0 on the day before Wise created the balance
+- Transfers, card payments, cash withdrawals, direct debits, refunds, and other single-leg activities are all imported
+- Transactions are routed to the specific balance they belong to — a payment in one currency no longer appears on balances in other currencies
+- Cross-currency conversions are imported as a debit on the source balance and a credit on the target balance, each with the amount in the correct currency
+- Outgoing transfer fees are calculated from the gross debit (what left the balance) rather than Wise's `sourceValue` field, so the fee line reflects the actual cost
+- If a sync fetch fails partway through (for example, due to a network error or Wise rate limit), Sure records which sources arrived in full and retries the rest on the next sync; the connection card shows a sync summary with any fetch failures
+
+### Card payments and activity
+
+Without balance statements (available on personal tokens in some regions and SCA-enabled business accounts), the Wise activity feed is the source for card payments, refunds, cash withdrawals, and direct debits.
+
+- Card payments, cash withdrawals, direct debits, refunds, cashback, and rewards are imported from the activity feed when statements are not available for a balance
+- Each activity is booked on the balance that paid or received it
+- Split payments (where Wise charges across multiple balances) are resolved by replaying each balance's history to determine the exact amount each balance contributed; the split is shown per balance
+- When statements become available for a balance (after SCA is configured), activity-feed transactions are matched to their statement counterparts and renamed in place, preserving any categories, notes, or links you set
 
 ### Jar activity
 
@@ -58,7 +72,13 @@ If your Wise account has both personal and business profiles, you can connect se
 
 ## Strong Customer Authentication (SCA)
 
-Wise requires Strong Customer Authentication on the balance-statement endpoint. SCA uses an RSA keypair: Sure signs a one-time challenge with the private key, and Wise verifies it against the public key you register in your Wise account. Without SCA, the statement endpoint returns 403 and Sure falls back to the outgoing-only transfers endpoint, so incoming payments will not appear.
+Wise requires Strong Customer Authentication on the balance-statement endpoint. SCA uses an RSA keypair: Sure signs a one-time challenge with the private key, and Wise verifies it against the public key you register in your Wise account.
+
+Without SCA, Sure falls back to the transfers and activity feed. This fallback covers outgoing transfers, card payments, and most activity types, but incoming bank payments into your Wise account details may be missing. Configuring SCA adds the statement endpoint, which provides a complete transaction history.
+
+<Note>
+In some regions, personal API tokens cannot access the statement endpoint at all — Wise returns 403 without an SCA challenge. Sure detects this and treats the balance as statement-unavailable rather than reporting it as a sync failure. The transfers and activity fallback continues to run for those balances.
+</Note>
 
 ### Enabling SCA
 
@@ -78,7 +98,7 @@ Generating a new keypair does not automatically revoke the previous public key i
 
 ### Troubleshooting SCA
 
-**Incoming payments are missing**: SCA is not yet configured or the public key has not been registered with Wise. Follow the steps above.
+**Incoming payments are missing**: SCA is not yet configured or the public key has not been registered with Wise. Follow the steps above. In some regions, personal tokens cannot access statements regardless of SCA — the transfers and activity fallback will still import card payments and outgoing transfers.
 
 **Statement fetch fails after configuring SCA**: confirm the public key in Wise matches the one shown in the Sure Wise panel. If the key was regenerated, the old public key must be removed from Wise and the new one registered.
 
@@ -87,7 +107,8 @@ Generating a new keypair does not automatically revoke the previous public key i
 - Uses a Wise personal API token rather than OAuth; the token carries whatever account access you grant it in Wise
 - Wise Assets (investment) balances are not tracked as accounts — only fees charged against them are imported
 - Each discovered currency balance must be linked to a Sure account manually after the first sync; balances aren't created automatically
-- Incoming payments only sync after [SCA is configured](#strong-customer-authentication-sca)
+- Incoming bank payments into your Wise account details only sync after [SCA is configured](#strong-customer-authentication-sca) (except in regions where the statement endpoint is unavailable to personal tokens)
+- Outgoing transfers funded by a card or external bank (rather than from your Wise balance) are identified as externally funded; the debit for those does not appear on any Wise balance in Sure
 
 ## Troubleshooting
 
@@ -101,4 +122,8 @@ Generating a new keypair does not automatically revoke the previous public key i
 
 **Incoming payments are missing**: the balance-statement endpoint requires SCA. Follow the [SCA setup steps](#strong-customer-authentication-sca) to generate a keypair and register the public key with Wise.
 
+**Transactions appear on the wrong balance**: this affected multi-currency accounts on older syncs. Run a fresh sync — Sure now routes each transaction to the specific balance it belongs to and removes any incorrectly routed entries.
+
 **Connection appears under Available instead of Your connections**: after a successful setup, the Wise panel should move to the "Your connections" section of **Settings → Providers** and show a status pill, sync button, and last-synced line. If it stays in Available, the connection was not saved. Re-enter the API token and save again.
+
+**Sync shows fetch failures**: if a sync could not retrieve all data (for example, due to a Wise API error), the connection card shows which sources failed. Sure keeps the previously stored data and retries the failed sources on the next sync, so no transactions are lost.
