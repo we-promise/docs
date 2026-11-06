@@ -3,6 +3,30 @@ title: "Troubleshooting"
 ---
 
 
+## Sidebar sparklines load slowly on the first visit after an update
+
+Account sparklines in the sidebar — the small trend charts next to each account group and individual account — are fetched as separate frames. On the very first visit after Sure is updated or after your account data changes, those frames are requested from the server. On every subsequent visit, the browser reuses its cached copy and the sparklines appear immediately without a network request.
+
+<AccordionGroup>
+  <Accordion title="How does the caching work?">
+    Each sparkline frame URL carries a `?v=` parameter — a short digest of the account data that drives that sparkline, combined with your locale. When the version in the URL matches Sure's current version for your data, the response includes a `Cache-Control: private, max-age=86400` header. The browser stores the frame and serves it from cache on subsequent page loads without contacting the server.
+
+    When your account data changes — for example, a new transaction syncs, you link or unlink a provider, or a balance is recorded — Sure computes a new version for the affected sparklines. The sidebar renders with updated frame URLs, the browser sees URLs it has not cached, and only those frames are re-fetched. Sparklines whose data did not change continue to be served from cache.
+
+    Group sparkline versions include the current date, so they roll over at midnight and are re-fetched once per day as the 30-day chart window shifts.
+  </Accordion>
+
+  <Accordion title="Why do sparklines appear one by one on first load?">
+    Sparkline frames load lazily and in parallel, but the server handles them in small batches on a single-process deployment. The first time your browser requests a set of frames — or after the cache expires — each frame goes to the server and renders in sequence. Once all frames are cached, later visits show them instantly.
+
+    If your deployment runs multiple worker processes or a reverse proxy with caching, frames may load faster on first visit.
+  </Accordion>
+
+  <Accordion title="Why did my sparklines disappear after linking or unlinking a provider?">
+    Linking or unlinking a provider changes the set of accounts behind a sparkline without updating the account record itself. Sure includes your provider link count and the latest provider link timestamp in the sidebar cache key, so the cached sidebar picks up the change and requests fresh frames with the new version. The sparklines briefly show a loading placeholder while the new frames are fetched.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
