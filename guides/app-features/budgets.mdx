@@ -103,6 +103,19 @@ Only a surplus carries — an overspend never reduces next month's envelope. The
 
 The top-of-page budget totals (`budgeted_spending`, `allocated_spending`, `available_to_allocate`) are not affected by the carry.
 
+### What triggers a rollover recalculation
+
+Sure recalculates the rollover chain whenever any of the following change:
+
+- Budget allocations or category settings
+- An account's owner, status, or report-exclusion flag
+- Whether an account share is included in a member's finances
+- Which accounts are tax-advantaged (for example, changing an investment account's subtype to a 401k or IRA)
+- Transaction data (entries cache version)
+- Exchange rates for your family's currency
+
+Changes that don't affect any of these — such as editing an account's name or balance — do not trigger a recalculation.
+
 ### Rollover and personal budgets
 
 Each budget owner's rollover chain is independent. A household budget's carry is shared across all family members and is not influenced by who views the page. A personal budget's carry follows only that member's own accounts.
