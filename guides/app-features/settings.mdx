@@ -320,6 +320,14 @@ This ensures you always see the current status without manually refreshing the p
 
 Sure supports multiple display languages. You can change the interface language from **Settings → Preferences**.
 
+### Time zone selector
+
+The **Time zone** field in Settings → Preferences uses a searchable select. Type any part of a zone identifier — for example, `New_York` or `London` — to filter the list.
+
+Each IANA time zone appears exactly once, labelled with its standard UTC offset and identifier (for example, `(UTC-05:00) America/New_York`). Underscores in identifiers match a space when you type, so searching `New York` finds `America/New_York`.
+
+Previously, the list used Rails' friendly zone names. Several of those names mapped to the same IANA identifier (for example, "Moscow" and "St. Petersburg" both stored `Europe/Moscow`), which could cause the browser to display a different city than the one actually saved.
+
 ### Country selector
 
 The **Country** field in Settings → Preferences uses a searchable dropdown. Type a country name to filter the list instead of scrolling through the full list.

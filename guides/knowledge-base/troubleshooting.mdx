@@ -765,7 +765,9 @@ If auto-categorization or merchant detection rules appear to do nothing, the bac
 
 ## App crashes for a family with an invalid timezone
 
-If a family's timezone setting contains an unrecognized IANA zone name (for example, after a tzdata rename like `Europe/Kiev` → `Europe/Kyiv`), Sure now falls back to the application default timezone instead of crashing.
+If a family's timezone setting contains an unrecognized IANA zone name (for example, after a tzdata rename like `Europe/Kiev` → `Europe/Kyiv`), Sure falls back to the application default timezone instead of crashing.
+
+The time zone preference at **Settings → Preferences** now stores IANA identifiers (for example, `America/New_York`) and shows one entry per identifier. If your stored value is a legacy Rails zone name (for example, `Eastern Time (US & Canada)`), Sure maps it to its IANA identifier automatically. If the value cannot be mapped — due to a tzdata rename, a database restore, or a direct database edit — Sure falls back and logs a warning to **Settings → Debug** under the `timezone` category.
 
 ## Chat fails immediately on a new account with a strict OpenAI-compatible provider
 
