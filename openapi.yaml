@@ -4572,6 +4572,59 @@ components:
         error:
           type: string
 paths:
+  "/api/v1/version":
+    get:
+      summary: Get application version
+      description: |
+        Returns the running application version and the Git commit SHA of the build.
+        Authentication is required by default. Self-hosted operators can opt in to
+        unauthenticated access by setting `PUBLIC_VERSION_ENDPOINT=true`. Even with
+        that flag set, supplying any credentials still validates them — blank or
+        whitespace API keys are rejected. Responses are never cached
+        (`Cache-Control: private, no-store`).
+      tags:
+      - Version
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read
+      responses:
+        '200':
+          description: version information
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: private, no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - version
+                - commit_sha
+                properties:
+                  version:
+                    type: string
+                    description: Application version string (e.g. "2026.11.2")
+                    example: "2026.11.2"
+                  commit_sha:
+                    type: string
+                    nullable: true
+                    description: Full Git commit SHA of the running build, or null when not available
+                    example: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+        '401':
+          description: authentication required or credentials invalid
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '403':
+          description: API key lacks the required read scope
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
   "/api/v1/accounts":
     get:
       summary: List accounts
