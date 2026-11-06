@@ -1129,6 +1129,24 @@ If you want to load sample data on a 512 MB host:
 2. Apply the change with a **fresh deploy or restart of the worker**. On Render, plan changes only take effect on the next deploy and do not apply on a plain restart.
 3. Load the sample data, then optionally lower the worker back to the smaller plan with another fresh deploy.
 
+## Administration
+
+### Reset market data
+
+The super-admin can reset all instance-wide exchange rates and security prices from the **Settings > Self-Hosting > Danger Zone** section. This deletes only the data that the configured providers can fetch again, then re-imports it and queues a sync for every family on the instance so no family is left with stale or 1:1-converted totals.
+
+Data that no provider can refetch is preserved:
+
+- Offline securities
+- Securities whose assigned provider is unavailable
+- All exchange rates when no exchange rate provider is configured
+
+The reset holds an advisory lock so two resets cannot run at the same time, and it does not retry on failure, so clicking the button a second time while a reset is in progress queues a new reset only after the first completes.
+
+<Warning>
+This action is available to the super-admin only. It deletes and re-imports market data for the entire instance, not just a single family.
+</Warning>
+
 ## Troubleshooting
 
 ### Database connection errors
