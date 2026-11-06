@@ -1,0 +1,77 @@
+---
+title: Releasing
+description: How Sure versions are tagged, built, and released across web, desktop, and mobile
+---
+
+Sure uses [CalVer](https://calver.org/) (`YYYY.M.D`) for release tags. This page covers how releases are cut and how the release notes workflow handles authored content.
+
+## Version format
+
+| Type | Tag format | Example |
+|------|-----------|---------|
+| Stable | `vYYYY.M.D` | `v2026.11.6` |
+| Alpha | `vYYYY.M.D-alpha` | `v2026.11.6-alpha` |
+
+Publish at most one alpha and one stable release per UTC day. A retry reuses the same tag — never increment a suffix or move a tag to a different commit.
+
+## Cutting a release
+
+<Steps>
+  <Step title="Generate the canonical tag">
+    Run this from the intended release commit:
+
+    ```bash
+    # Alpha
+    tag="v$(date -u +%Y.%-m.%-d)-alpha"
+
+    # Stable
+    tag="v$(date -u +%Y.%-m.%-d)"
+    ```
+  </Step>
+  <Step title="Push the tag">
+    ```bash
+    git push origin "$tag"
+    ```
+
+    The `publish.yml` workflow fires on the new tag and handles the rest: Docker images, the Helm chart, desktop and mobile artifacts, and the GitHub Release.
+  </Step>
+  <Step title="Verify">
+    Check that both Docker names resolve to the same digest and that the GitHub Release has the expected assets attached.
+  </Step>
+</Steps>
+
+## Release notes
+
+The `publish.yml` workflow runs a **Prepare release notes** step before creating the GitHub Release. It fetches any existing release notes for the tag, appends a **Mobile Debug Builds** section that links to the attached APK and iOS artifacts, then writes the result to a temp file. The release action reads that file instead of generating notes itself.
+
+### What the step preserves
+
+The step is designed to be idempotent and non-destructive:
+
+- **Existing authored text** — any content already in the release body (highlights, migration notes, etc.) is kept exactly as written, including its line endings.
+- **`## What's Changed` section** — the automatically generated changelog block is left at the end. The mobile notice is inserted immediately before it, never inside it.
+- **CRLF line endings** — notes written with Windows-style line endings are not converted.
+- **Fenced code blocks** — headings inside backtick or tilde fences are ignored, so a `## What's Changed` example inside a markdown code block does not confuse the insertion logic.
+
+Running the step a second time on a release that already has the mobile notice produces an identical result (the notice is not duplicated).
+
+### Compatibility alias
+
+Some releases carry a legacy version alias (for example, `v0.7.7-alpha.3` alongside the CalVer tag). When the `ALIAS_NOTE` environment variable is set, the alias line is prepended to the mobile notice and deduplicated on reruns.
+
+### Error handling
+
+If the GitHub API returns an authentication or server error (any status other than 404), the step throws and the release is not created. A 404 means no release exists yet, so the step generates fresh notes before appending the mobile section.
+
+## Mobile builds
+
+Every release triggers the Flutter build workflow. Android and iOS artifacts are attached to the GitHub Release under the **Assets** section.
+
+- **Android APK** — a debug build for sideloading on Android devices.
+- **iOS build** — an unsigned build; production installs require code signing. See the [iOS TestFlight guide](https://github.com/we-promise/sure/blob/main/mobile/docs/iOS_TESTFLIGHT.md) in the repository for distribution instructions.
+
+Standalone mobile branch builds (triggered manually from a non-release branch) use the version from `pubspec.yaml` rather than a release tag.
+
+## Versioning details
+
+See [`docs/releases/versioning.md`](https://github.com/we-promise/sure/blob/main/docs/releases/versioning.md) in the repository for the full CalVer transition notes, Docker channel promotion status, and the legacy alias policy.
