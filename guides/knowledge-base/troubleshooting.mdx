@@ -494,6 +494,24 @@ When an investment account holds a large number of securities, opening the holdi
   </Accordion>
 </AccordionGroup>
 
+## Holdings list is slow when many positions lack a stored cost basis
+
+When an investment account holds many positions whose cost basis must be calculated from trade history, loading the holdings list could be slow. Each holding without a stored cost basis ran its own pair of database queries to compute the average cost.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    When no stored cost basis is available for a holding, Sure computes one from the account's trade history using a weighted-average cost calculation. Earlier versions ran this calculation independently for each holding — two queries per position — so an account with many uncosted positions triggered a large number of queries at page load.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now batches the weighted-average cost calculation across all eligible holdings in a single grouped query. Holdings that already have a stored cost basis, or that have unsaved changes, are excluded from the batch and continue to use their existing values. The batch uses the same exchange-rate joins, fee logic, and internal-movement rules as the per-holding path, so the calculated figures are identical.
+
+    A reload on any holding in the batch clears its preloaded cost, trend, and day-change figures so they are recalculated from the updated data.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Rule prompt disappears after changing category from the transaction drawer
 
 In older versions, changing a transaction's category from the transaction detail drawer did not show the "create a rule?" prompt. The prompt was delivered while the drawer was still open, which placed it behind the drawer in the browser's rendering stack where it could not be seen or clicked. A sync completing shortly after then refreshed the page and removed it entirely.
