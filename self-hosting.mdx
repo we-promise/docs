@@ -221,6 +221,20 @@ SURE_IMPORT_MAX_NDJSON_SIZE_MB=50
 
 This applies to both the GUI upload and the API upload paths. If you do not set this variable, the default limit is used.
 
+### Version API
+
+The `GET /api/v1/version` endpoint returns the running application version and Git commit SHA. Authentication is required by default — callers must supply a valid API key with at least `read` scope.
+
+You can make the endpoint publicly accessible (no credentials needed) with:
+
+```txt
+PUBLIC_VERSION_ENDPOINT=true
+```
+
+When this flag is set, unauthenticated requests succeed. Requests that supply credentials are still validated — blank or whitespace API keys are rejected with `401`. Responses are never cached (`Cache-Control: private, no-store`), regardless of the flag value.
+
+The flag defaults to `false`. Leave it unset unless you have a specific reason to expose version metadata without authentication.
+
 ### Encryption keys for bank sync
 
 When you configure a bank sync provider (such as Plaid, SimpleFIN, or Brex) on a self-hosted instance that has not set explicit Active Record encryption keys, Sure shows a warning before you save your credentials:
