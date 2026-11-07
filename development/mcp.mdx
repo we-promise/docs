@@ -137,6 +137,10 @@ During the `initialize` handshake, the client sends its preferred version in `pa
 
 The `initialize` response also includes a `sessionId` field. Sure records the session in a server-side cache for 24 hours. Subsequent requests may include this value in the `Mcp-Session-Id` request header; Sure validates the session and echoes the ID in the corresponding response header. Clients that do not send a session ID are still served normally.
 
+#### JSON-RPC notifications
+
+JSON-RPC notifications are messages without an `id` field (for example `notifications/initialized`). The MCP Streamable HTTP transport specifies that a server accepting a notification returns `202 Accepted` with an empty body. Sure follows this requirement. MCP reverse proxies such as Pipelock reject any other status code for notifications, which would fail the handshake before any tool call is made. If you connect through Pipelock, use Sure version 2026-11-07 or later, which returns the correct `202` status.
+
 ### Legacy environment-token fallback
 
 Self-hosted deployments can optionally support older clients that cannot complete the browser authorization flow. Set both `MCP_API_TOKEN` to a high-entropy secret and `MCP_USER_EMAIL` to an existing Sure user's email. The client sends the configured token as a bearer token, and the selected user's family data is exposed to the available MCP tools.
