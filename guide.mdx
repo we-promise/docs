@@ -136,7 +136,7 @@ You can configure which groups start expanded by default under **Settings → Ap
 
 By default, accounts within each group are sorted alphabetically by name. You can change this under **Settings → Appearance → Default account order** to sort by name (A-Z or Z-A) or by balance (high to low or low to high).
 
-Choose **Manual (drag to reorder)** to arrange accounts yourself. A **Sort accounts** button then appears at the top of the sidebar. Click it to enter sort mode, drag rows to reposition them, and click **Done** to exit. You can also move rows with the keyboard: press **Enter** or **Space** to grab a row, use **Up** and **Down** to reposition it, and press **Enter**, **Space**, or **Escape** to release. The order is saved per account type group and also applies to the dashboard balance sheet.
+Choose **Manual (drag to reorder)** to arrange accounts yourself. A **Sort accounts** button then appears at the top of the sidebar. Click it to enter sort mode, drag rows to reposition them, and click **Done** to exit. Drag the row itself — dragging the account logo moves the row too, but dragging selected text or a link inside the row does not start a reorder. On touch, press and hold a row until it activates, then drag; using a second finger (for example, to pinch-zoom) cancels any reorder in progress. You can also move rows with the keyboard: press **Enter** or **Space** to grab a row, use **Up** and **Down** to reposition it, and press **Enter**, **Space**, or **Escape** to release. The order is saved per account type group and also applies to the dashboard balance sheet. If a save fails, the list returns to its last saved order and a notification appears.
 
 ### Account sparklines and trend percentages
 
@@ -394,11 +394,11 @@ Hidden widget preferences are per-user. Other members of your family see their o
 
 You can drag widgets into any order. Three input methods are supported:
 
-- **Mouse or trackpad**: Hover over a widget to reveal the drag handle (grip icon) in its header. Click and drag the widget to its new position.
-- **Touch (mobile)**: Press and hold a widget for approximately 800 ms until it lifts, then drag it into place.
+- **Mouse or trackpad**: Hover over a widget to reveal the drag handle (grip icon) in its header. Click and drag the widget to its new position. Dragging selected text or an image inside a widget does not move the widget.
+- **Touch (mobile)**: Press and hold a widget for approximately 800 ms until it lifts, then drag it into place. Using a second finger cancels the drag.
 - **Keyboard**: Tab to a widget, then press **Enter** or **Space** to grab it. Use **Up** and **Down** to move it, then press **Enter**, **Space**, or **Escape** to release. Keys pressed on controls inside a widget (such as a button or input) are not intercepted, so normal interactions still work.
 
-The new order is per-user. Mouse and touch moves save when dropped; keyboard moves save when you release the widget.
+The new order is per-user. Mouse and touch moves save when dropped; keyboard moves save when you release the widget. Dropping a widget onto its own position leaves the order unchanged.
 
 ### Spending trend chart
 
