@@ -34,6 +34,7 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | --- | --- |
 | `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
 | `get_recurring_transactions` | Detected and manual recurring transactions (subscriptions, bills, salaries) with expected dates and per-currency totals |
+| `get_uncategorized_transactions` | Lists uncategorized spending grouped by payee rather than row by row. Call this before quoting per-category totals — a large uncategorized total means category-level figures are understated. Also reports whether any active auto-categorization rule is configured. |
 | `get_accounts` | List accounts with current and historical balances and account metadata |
 | `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
 | `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
@@ -43,6 +44,7 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `get_tags` | List family tags alphabetically |
 | `get_categories` | List family categories hierarchically, including IDs and parent relationships |
 | `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames. This is the vector-store document index, not the Statement Vault — statements archived via `upload_account_statement` are not searchable through it |
+| `get_transfer_match_candidates` | Shows how a transaction can be matched as a transfer between the user's own accounts. Returns the transaction's current transfer (if any — a `pending` status means Sure auto-matched it and the user has not reviewed it yet), plus candidate transactions in other accounts: opposite direction, matching amount, within 30 days. Use this before calling `match_transfer` or `review_transfer`. |
 
 ### Rules
 
@@ -67,9 +69,12 @@ New rules are saved inactive; renaming an existing active rule can leave it acti
 | `update_tag` | Update an existing tag's name or color |
 | `create_category` | Create a unique category, optionally as a subcategory |
 | `update_category` | Update an existing category's name, color, or icon |
+| `delete_category` | Delete a category. Transactions in the deleted category move to a replacement category when one is provided, otherwise they become uncategorized. Subcategories of a deleted top-level category are kept and become top-level categories. Budget allocations for the deleted category are removed. This cannot be undone; confirm with the user before calling. |
 | `create_transaction` | Create a new transaction on a writable account. Negative amount = income (money in), positive = expense (money out). Pass `type` (`income` or `expense`) to derive the sign from a positive magnitude instead. Pass `external_id` (and optionally `source`, defaulting to `"mcp"`) to make the call idempotent: a repeat call with the same account + source + external_id returns the existing transaction instead of creating a duplicate. |
 | `delete_transaction` | Permanently delete a transaction and its ledger entry, recalculating the account balance. Pass the transaction `id` returned by `get_transactions` or `create_transaction`. Optionally pass `account_id` as a guard so a mismatched id cannot delete the wrong record. Split child transactions cannot be deleted individually; delete the split parent instead. |
-| `unmatch_transfer` | Unlink a confirmed or pending transfer between two accounts, keeping both transactions. A confirmed transfer’s legs return to standard kinds; a pending match’s existing kinds are preserved. Pass the `transaction_id` of either side or the `transfer_id`. By default the pairing is rejected so auto-match won't suggest it again; pass `reject: false` to only unlink. Fee transactions attached to the transfer are deleted with it and listed in the result. Pass `dry_run: true` to preview the effect first. |
+| `match_transfer` | Marks a transaction as a transfer between the user's own accounts so it stops counting as income or spending. Pass either `counterpart_transaction_id` (an existing opposite transaction from `get_transfer_match_candidates`) or `target_account_id` (an account with no matching transaction — a counterpart is created there). Both accounts must be writable. Payments to loans and credit cards still count in budgets. |
+| `review_transfer` | Confirms or rejects a transfer that Sure auto-matched but the user has not reviewed yet (status `pending` in `get_transfer_match_candidates`). `confirm` keeps the match. `reject` unlinks the two transactions and stops auto-match from suggesting that pairing again. Only pending transfers can be reviewed; both accounts must be writable. |
+| `unmatch_transfer` | Unlink a confirmed or pending transfer between two accounts, keeping both transactions. A confirmed transfer's legs return to standard kinds; a pending match's existing kinds are preserved. Pass the `transaction_id` of either side or the `transfer_id`. By default the pairing is rejected so auto-match won't suggest it again; pass `reject: false` to only unlink. Fee transactions attached to the transfer are deleted with it and listed in the result. Pass `dry_run: true` to preview the effect first. |
 | `update_transfer` | Switch a confirmed transfer from a non-investment, non-crypto account into an investment or crypto account between an investment contribution and a plain transfer. Both accounts must be writable. Contributions count as spending by default, unless the family turns off **Count investing as spending**. Use this when a brokerage or crypto account only converts currency and the round trip should not appear as an expense. Pass `dry_run: true` to preview the change first. |
 | `update_transaction` | Update an existing transaction's name, notes, category, merchant, or tags after finding it with `get_transactions` |
 | `update_budget` | Update budget allocations for a month |
@@ -78,6 +83,8 @@ New rules are saved inactive; renaming an existing active rule can leave it acti
 `create_transaction` and `delete_transaction` write to the ledger. `delete_transaction` is permanent and irreversible. `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
 `apply_rule` activates a rule and runs it against matching transactions, respecting rule order and attribute locks by default. Deactivating the rule does not undo earlier changes.
+
+Family configuration tools (`create_tag`, `update_tag`, `create_category`, `update_category`, `delete_category`) are not available to guest users and are absent from `tools/list` for guest-scoped tokens.
 
 ### Preview tools
 
