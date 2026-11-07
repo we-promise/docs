@@ -1170,3 +1170,26 @@ On mobile, certain drawers (transactions, trades, transfers, holdings, and valua
     Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
   </Accordion>
 </AccordionGroup>
+
+## Rule-applied tags appeared on a transaction even when the save was rejected, or re-applying a rule skipped transactions it should have updated
+
+Before [PR #4390](https://github.com/we-promise/sure/pull/4390), when a rule tried to enrich a transaction's attributes and the underlying save failed — for example, because a validation rule on the transaction record rejected the write — two incorrect things happened:
+
+- **Stale in-memory tags**: if the rule set tags via the `tag_ids` field, the tag association was written to the database join table before the save ran. The savepoint rolled those rows back, but the in-memory association cache was not cleared. The same transaction instance then reported the refused tag IDs as current, so a retry compared equal and skipped the record as unchanged.
+- **Phantom provenance rows**: enrichment provenance records (`DataEnrichment` rows) were written inside the setter loop, before the save call, inside a transaction that committed either way. A refused save left provenance rows for attribute values the record never actually accepted. On a repeat write those phantom rows caused the old, overwritten value to be treated as the confirmed current value.
+
+Both issues could cause a rule to appear to have applied without its change actually persisting, or to skip records on re-apply even though the value was never saved.
+
+<AccordionGroup>
+  <Accordion title="What changed?">
+    Provenance rows are now written only after the save is confirmed to have succeeded, and only for records that already existed before the call began (new-record saves are not provenance-logged). A refused save raises `ActiveRecord::Rollback` inside a `requires_new` savepoint, so join rows a virtual setter such as `tag_ids=` inserted are rolled back along with the rest.
+
+    After a refused save, the in-memory association cache for any collection setter that was attempted (such as `tags`) is reset so the next read goes to the database. Errors and plain attribute values are left unchanged so callers that read errors or restore attributes behave as before.
+
+    Upgrade to a build containing [Sure PR #4390](https://github.com/we-promise/sure/pull/4390). No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What if I have phantom provenance rows from before the fix?">
+    Phantom provenance rows from before the fix can cause the enrichment system to treat a value as confirmed even when it was never saved. To clear them, use **Reset AI cache** under **Settings → Rules** if the affected rules use AI enrichment, or contact your instance maintainer to inspect and remove orphaned `DataEnrichment` rows for the affected attributes and source.
+  </Accordion>
+</AccordionGroup>
