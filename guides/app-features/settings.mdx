@@ -203,7 +203,7 @@ You can customize how your dashboard is displayed:
 
 If you hide all widgets, the dashboard shows an empty state with a link back to Customize mode.
 
-**Reorder widgets**: Drag widgets into any order. Hover over a widget to reveal the drag handle (grip icon) in its header, then drag to reposition. On touch devices, press and hold a widget for about 800 ms before dragging. With a keyboard, press **Enter** or **Space** to grab a focused widget, use **Up** and **Down** to move it, and press **Enter**, **Space**, or **Escape** to release. The new order is per-user and saves on drop or keyboard release.
+**Reorder widgets**: Drag widgets into any order. Hover over a widget to reveal the drag handle (grip icon) in its header, then drag to reposition. Dragging selected text or an image inside a widget does not move the widget. On touch devices, press and hold a widget for about 800 ms before dragging; using a second finger cancels the drag. With a keyboard, press **Enter** or **Space** to grab a focused widget, use **Up** and **Down** to move it, and press **Enter**, **Space**, or **Escape** to release. The new order is per-user and saves on drop or keyboard release. Dropping a widget onto its own position leaves the order unchanged.
 
 **2-column layout**: On wide screens, display dashboard cards in a 2-column grid for better space utilization. This setting is available in Settings → Appearance.
 
@@ -228,13 +228,15 @@ Control how accounts are sorted within each group in the sidebar and the dashboa
 
 When you select **Manual**, a **Sort accounts** button appears at the top of the accounts sidebar. Click it to enter sort mode. In sort mode you can:
 
-- **Mouse**: drag any account row to a new position within its group
-- **Touch**: drag rows on touch devices
-- **Keyboard**: press **Enter** or **Space** to grab a focused row, use **Up** and **Down** to move it, then press **Enter**, **Space**, or **Escape** to release
+- **Mouse**: drag any account row to a new position within its group. Drag the row itself — dragging the account logo moves the row too, but dragging selected text or a link inside the row does not start a reorder.
+- **Touch**: press and hold a row until it activates, then drag it. Using a second finger (for example, to pinch-zoom) cancels any reorder in progress.
+- **Keyboard**: press **Enter** or **Space** to grab a focused row, use **Up** and **Down** to move it, then press **Enter**, **Space**, or **Escape** to release.
 
 The order is saved per account type group and per user. Accounts you add later appear after your arranged ones, sorted alphabetically.
 
 The manual order also applies to the dashboard balance sheet. If you navigate away while holding a row with the keyboard, Sure saves the move before continuing so the new page reflects your change.
+
+If a save fails — for example because you are offline — the list returns to its last saved order and a notification appears. A timed-out save may still have reached the server, so that notification suggests reloading the page to confirm.
 
 ### Drag to select a date range on charts
 
