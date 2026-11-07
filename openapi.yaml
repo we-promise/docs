@@ -422,6 +422,8 @@ components:
           enum:
           - active
           - read
+          - acknowledged
+          - expired
         generated_at:
           type: string
           format: date-time
@@ -8158,6 +8160,45 @@ paths:
                 "$ref": "#/components/schemas/InsightCollection"
         '403':
           description: preview features disabled
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/insights/{id}/acknowledge":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Insight UUID
+      schema:
+        type: string
+        format: uuid
+    patch:
+      summary: Acknowledge an insight
+      description: Marks an active or read insight as acknowledged. Requires write
+        scope. Guest users cannot acknowledge insights. Shared-account visibility
+        is re-checked under a row lock, so the insight must still be visible to
+        every active family member at the time of the request. Returns 204 on
+        success and 404 when the insight does not exist or is no longer visible.
+        Acknowledging an already-acknowledged or expired insight is a no-op that
+        still returns 204.
+      tags:
+      - Insights
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      responses:
+        '204':
+          description: insight acknowledged
+        '403':
+          description: insufficient scope or preview features disabled
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '404':
+          description: insight not found or not visible
           content:
             application/json:
               schema:
