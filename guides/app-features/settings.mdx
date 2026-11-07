@@ -68,6 +68,31 @@ The **Accounts** page has a sync control in the header that lets you trigger and
 
 Sure triggers a family-wide sync automatically on login when `auto_sync_on_login` is enabled and the family has not synced yet today. When this auto-sync is in progress as you navigate to the Accounts page, the sync controls reflect the in-progress state immediately.
 
+### Per-connection sync frequency
+
+Each connection syncs once a day as part of the family-wide sync. You can set an additional sync frequency on any individual connection so it syncs more often throughout the day, on top of the daily sync.
+
+Available intervals are every 15 minutes, 30 minutes, 1 hour, 2 hours, 4 hours, 6 hours, or 12 hours. Runs are aligned to multiples of the interval from midnight UTC, so a connection on a 6-hour schedule always syncs at 00:00, 06:00, 12:00, and 18:00 UTC rather than drifting over time.
+
+**To set a sync frequency:**
+
+1. Go to the **Accounts** page.
+2. Open the menu on the connection card you want to configure.
+3. Select **Sync frequency**.
+4. Choose an interval from the dropdown, or select **Usual sync only** to remove a custom schedule.
+5. Click **Save**.
+
+Who can change the frequency depends on the provider:
+
+- **Admins** can set the sync frequency for every connection.
+- **Members** can set the frequency for connections they own on providers that support per-member ownership.
+
+The entry does not appear for connections that are being deleted or for users who do not have permission to manage the connection.
+
+<Note>
+Frequent syncs count against the provider's rate limits. Some providers (such as Plaid) bill per transactions refresh. Consider these costs before setting a short interval.
+</Note>
+
 ## AI settings
 
 Configure AI features like chat and transaction rules from Settings → Self-Hosting. See the [LLM support documentation](/llm-support) for more details.
