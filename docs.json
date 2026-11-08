@@ -103,10 +103,10 @@
               "providers/plaid",
               "providers/redbark",
               "providers/up-bank",
+              "providers/sharesight",
               "providers/snaptrade",
               "providers/sophtron",
               "providers/trade-republic",
-              "providers/sharesight",
               "providers/trading212",
               "providers/financekit",
               "providers/jev"
