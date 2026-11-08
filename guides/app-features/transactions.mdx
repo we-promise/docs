@@ -311,6 +311,19 @@ Rules can set:
 - Name
 - **Send email notification** – sends a digest email listing new matching transactions each time the rule runs
 
+#### Merchant action
+
+The merchant picker in a rule action offers two groups of merchants:
+
+- **Family merchants** – merchants you have created or renamed for your family.
+- **Provider merchants** – merchants assigned by a bank sync or AI detection that appear on transactions you can see.
+
+A provider merchant stays available as a rule target as long as it is still on at least one of your family's transactions. If the merchant is later converted to a family merchant or merged into another merchant, Sure rewrites any rule conditions or actions that referenced the old record to point at the replacement, so existing rules continue to work.
+
+When you save a rule that targets a provider merchant you cannot currently see (for example, a merchant on another family member's account), the selection is kept and shown with a label rather than silently cleared.
+
+Rule export and import preserve provider merchants by name. When you import a CSV rule that names a provider merchant still present on your transactions, Sure reuses that merchant rather than creating a duplicate family merchant. If the name matches several provider merchants, Sure creates a family merchant with that name instead to avoid ambiguity.
+
 #### Email notification action
 
 When a rule has a send email notification action, Sure records the set of transactions that already matched at the time the rule was created or activated. Later digests include matching transactions not already recorded as delivered; the initial matching set is not re-sent.
