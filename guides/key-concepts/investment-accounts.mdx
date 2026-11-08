@@ -87,7 +87,7 @@ Dividends and interest are recorded as trades to maintain data integrity:
 This approach ensures all investment income is properly tracked while maintaining the requirement that trades reference a security.
 
 > [!NOTE]
-> Some providers — including Trading 212, Interactive Brokers, Questrade, SnapTrade, Indexa Capital, and Kraken (fiat staking and earn) — deliver dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms when calculating the dividend and interest totals shown on your investment summary.
+> Some providers — including Trading 212, Interactive Brokers, Questrade, Sharesight, SnapTrade, Indexa Capital, and Kraken (fiat staking and earn) — deliver dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms when calculating the dividend and interest totals shown on your investment summary.
 
 ### Transaction Fees
 
@@ -329,7 +329,7 @@ To record a dividend or interest payment:
 > [!NOTE]
 > Dividends require a security selection, while interest can be recorded without one. When no security is selected for interest, Sure automatically creates a per-account synthetic cash security (kind: `cash`, offline: `true`) to maintain data integrity.
 
-Some providers — including Trading 212, Interactive Brokers, Questrade, SnapTrade, Indexa Capital, and Kraken (fiat staking and earn) — import dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms when calculating the totals shown on your investment summary. Income-labeled outflows such as margin-interest charges or dividend reversals reduce the total rather than adding to it.
+Some providers — including Trading 212, Interactive Brokers, Questrade, Sharesight, SnapTrade, Indexa Capital, and Kraken (fiat staking and earn) — import dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms when calculating the totals shown on your investment summary. Income-labeled outflows such as margin-interest charges or dividend reversals reduce the total rather than adding to it.
 
 ### Trade Fees
 
