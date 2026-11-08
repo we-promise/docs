@@ -3291,6 +3291,76 @@ components:
             "$ref": "#/components/schemas/SecurityPrice"
         pagination:
           "$ref": "#/components/schemas/Pagination"
+    SecurityPriceImportRequest:
+      type: object
+      required:
+      - security_id
+      - prices
+      properties:
+        security_id:
+          type: string
+          format: uuid
+          description: ID of the untracked security to import prices for. The security
+            must have no assigned price provider and no offline_reason, meaning no
+            data provider has ever matched it.
+        prices:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          description: Daily closing prices to import. All rows must use the same
+            currency. A resubmitted date replaces the existing price and clears its
+            provisional flag. Dates must be ISO 8601 calendar dates not in the future
+            (relative to the family's time zone).
+          items:
+            type: object
+            required:
+            - date
+            - price
+            - currency
+            properties:
+              date:
+                type: string
+                format: date
+                description: Closing date in YYYY-MM-DD format
+              price:
+                type: string
+                description: Closing price as a positive decimal with at most 4 decimal
+                  places
+              currency:
+                type: string
+                description: ISO 4217 currency code. Must match the currency of any
+                  existing prices for this security, or the currency of the caller's
+                  trades or holdings in it.
+    SecurityPriceImportResponse:
+      type: object
+      required:
+      - security_id
+      - currency
+      - created
+      - updated
+      - start_date
+      - end_date
+      properties:
+        security_id:
+          type: string
+          format: uuid
+        currency:
+          type: string
+          description: Currency used for all imported prices
+        created:
+          type: integer
+          description: Number of new price rows inserted
+        updated:
+          type: integer
+          description: Number of existing price rows replaced
+        start_date:
+          type: string
+          format: date
+          description: Earliest date in the imported batch
+        end_date:
+          type: string
+          format: date
+          description: Latest date in the imported batch
     Money:
       type: object
       required:
@@ -9164,6 +9234,63 @@ paths:
                 "$ref": "#/components/schemas/ErrorResponse"
         '422':
           description: invalid filter
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    post:
+      summary: Import closing prices for an untracked security
+      tags:
+      - Security Prices
+      security:
+      - apiKeyAuth: []
+      - oauth2:
+        - read_write
+      description: Stores daily closing prices for a security that no price provider
+        tracks. The security must be held or traded in an account the caller can write
+        to. All rows are validated before any are written; a single bad row rejects
+        the whole batch. A resubmitted date replaces the existing price and clears
+        its provisional flag. Security prices are shared across every family holding
+        the security, so this endpoint is limited to self-hosted instances and requires
+        the read_write scope. Up to 1,000 rows per request. The affected accounts
+        are synced after a successful import.
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/SecurityPriceImportRequest"
+      responses:
+        '200':
+          description: prices imported
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SecurityPriceImportResponse"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '403':
+          description: forbidden - not a self-hosted instance, insufficient scope,
+            or guest user
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '404':
+          description: security not found or not eligible (listed, cash, or no qualifying
+            account)
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: validation failed - bad row data or currency mismatch; response
+            lists each bad row's index and reason
           content:
             application/json:
               schema:
