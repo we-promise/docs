@@ -73,12 +73,16 @@ After saving the query, use the gear icon in the **Flex Web Service Configuratio
 
 1. Go to **Settings → Providers**.
 2. Find the **Interactive Brokers** section.
-3. Paste your **Query ID** and **Token** into the form fields and save.
+3. Enter a connection name, paste your **Query ID** and **Token** into the form fields, and click **Add Interactive Brokers connection**.
 4. Sure begins syncing and discovering your IBKR accounts.
 
 ### Step 4: Set up accounts
 
-After the first sync, discovered IBKR accounts appear in the setup queue. Click **Set up accounts** in the provider panel to select which brokerage accounts to link and confirm the linkage. You can also link a discovered IBKR account to an existing manual investment account if you already have one in Sure.
+After the first sync, discovered IBKR accounts appear in the setup queue. Click **Set up accounts** in the connection panel to select which brokerage accounts to link and confirm the linkage. You can also link a discovered IBKR account to an existing manual investment account if you already have one in Sure.
+
+## Multiple connections
+
+Use a separate named connection for each IBKR entity or Flex Query you want to sync (for example, one for an Ireland account and one for a US account). Each connection has its own name, sync, account setup, and disconnect actions in **Settings → Providers**. When you have more than one IBKR connection, account cards on the Accounts page display the connection name, and the **Add account** menu lists one entry per connection so you can choose which connection's accounts to add.
 
 ## How balances work
 
