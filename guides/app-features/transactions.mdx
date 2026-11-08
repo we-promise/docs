@@ -45,6 +45,16 @@ To add a transaction that was not imported from a provider, select **Add transac
 
 If you submit the form more than once — for example by double-clicking the save button, using the browser back button, or restoring a cached tab — Sure detects the repeated submission and opens the existing transaction instead of creating a second one.
 
+### Scheduled (future-dated) transactions
+
+You can enter a transaction with a future date to anticipate upcoming spending and see how it will affect your balance. The transaction appears in your list marked with a **Scheduled** badge.
+
+Scheduled transactions are excluded from balance calculations and period totals until their date arrives. The account balance tooltip shows a **Projected** line so you can see what the balance will be once all scheduled entries post.
+
+When today reaches a scheduled transaction's date, Sure automatically re-syncs the account so the balance updates — even if auto-sync is turned off for your family.
+
+If a bank import arrives within seven days of a scheduled entry's date and matches its amount, Sure claims the import as the booked version of that entry, moves it to the bank's posting date, and keeps any name or category you set on the scheduled entry.
+
 ## Edit transaction details
 
 Click anywhere on a transaction row to open it and update the fields that affect reporting and review:
