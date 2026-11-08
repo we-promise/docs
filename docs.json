@@ -106,6 +106,7 @@
               "providers/snaptrade",
               "providers/sophtron",
               "providers/trade-republic",
+              "providers/sharesight",
               "providers/trading212",
               "providers/financekit",
               "providers/jev"
