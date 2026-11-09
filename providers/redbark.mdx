@@ -47,7 +47,7 @@ Sure caps the lookback at 2,550 days, leaving a safety margin inside Redbark’s
 
 Incremental fetching requires both stored transactions for the account and a recorded last-sync time on its Redbark connection. With both present, Sure fetches from last sync minus 7 days. Otherwise, it uses the configured start date, clamped to the rolling 2,550-day window, or the 90-day default.
 
-As of October 22, 2026, this setup field and lookback-cap behavior are on `main` in [Sure PR #4306](https://github.com/we-promise/sure/pull/4306), but are not in the latest stable release, `v0.7.5-hotfix.2`.
+This setup field and lookback-cap behavior from [Sure PR #4306](https://github.com/we-promise/sure/pull/4306) are included in the alpha channel (`0.7.7-alpha.5` and later).
 
 ### Variable loan rates
 
