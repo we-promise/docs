@@ -1151,6 +1151,28 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Confirmation dialog stays open after updating a balance value
+
+When editing a balance entry's date or amount from the account drawer, the confirmation dialog previously stayed open over the page after saving. The balance chart also continued to show the old history because the page was not refreshed.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Changing a valuation's date or amount goes through a confirmation dialog. The update responded to the Turbo request by redrawing the drawer header and the activity row. Nothing inside the dialog listened for those updates, so the dialog remained open and the balance chart kept the stale history.
+
+    Additionally, when the request had no `Referer` header (for example, under a strict no-referrer policy), the stream redirect had no target, which also left the dialog open.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    A confirmed date or amount change now reloads the page, matching the behavior that adding a new value already used. The dialog and drawer both close and the balance chart shows the updated history.
+
+    Editing only the notes field still redraws the drawer in place and keeps it open, since notes do not reshape the balance history.
+
+    The stream redirect also falls back to the given path when the request has no `Referer`, so the dialog closes correctly under a no-referrer policy.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
