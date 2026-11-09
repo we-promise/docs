@@ -17,7 +17,7 @@ Account trend sparklines — the small charts next to account groups and individ
 
     Charts whose drawable width and height were already at least 50 pixels are unaffected by this guard change.
 
-    Upgrade to a build containing [Sure PR #4361](https://github.com/we-promise/sure/pull/4361). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4361](https://github.com/we-promise/sure/pull/4361). This fix is included in the alpha channel (`0.7.7-alpha.5` and later). No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -652,7 +652,7 @@ After you delete an account, cash flow charts, income statements, and category s
   <Accordion title="How was it fixed?">
     On `main`, the shared freshness key uses an account version containing both the account count and the full-precision latest update timestamp. The count changes when an account is destroyed, preventing the key from reverting to its pre-deletion value. Family and category statistics now use the shared freshness key too, so a new report request refreshes those results when account status or family currency changes.
 
-    This fix was merged in [Sure PR #4235](https://github.com/we-promise/sure/pull/4235). As of October 20, 2026, it is on `main` but is not included in the latest stable release, `v0.7.5-hotfix.2`. Use a build containing that fix, or wait for a stable release that includes it. No configuration change is required.
+    This fix was merged in [Sure PR #4235](https://github.com/we-promise/sure/pull/4235). It is included in the alpha channel (`0.7.7-alpha.5` and later). No configuration change is required.
   </Accordion>
 </AccordionGroup>
 
@@ -1167,6 +1167,6 @@ On mobile, certain drawers (transactions, trades, transfers, holdings, and valua
 
     `DS::Dialog#close_button` now shows at every width so drawers always have a close control on mobile.
 
-    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. No configuration change is required.
+    Upgrade to a build containing [Sure PR #4342](https://github.com/we-promise/sure/pull/4342). This fix is included in the alpha channel (`0.7.7-alpha.5` and later). No configuration change is required.
   </Accordion>
 </AccordionGroup>

@@ -448,7 +448,7 @@ POSTHOG_HOST=https://us.i.posthog.com
 
 `POSTHOG_HOST` defaults to `https://us.i.posthog.com` when not set. Point it at your own PostHog instance if you self-host PostHog.
 
-When analytics are enabled, Sure registers a `sure_version` property on every browser event. The value comes from the `.sure-version` file bundled in the Docker image and matches the release tag (for example, `0.7.5-alpha.10`). This lets you filter PostHog events by the exact Sure version that produced them.
+When analytics are enabled, Sure registers a `sure_version` property on every browser event. The value comes from the `.sure-version` file bundled in the Docker image and matches the release tag (for example, `0.7.7-alpha.5`). This lets you filter PostHog events by the exact Sure version that produced them.
 
 Sure also enables PostHog's person profiles for all events, which allows PostHog to enrich events with GeoIP data based on the client IP address.
 
@@ -565,7 +565,7 @@ docker compose up --no-deps -d web worker
 
 ## Backups, upgrades, and rollbacks
 
-Current `main` includes a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. As of October 22, 2026, this service is not included in the latest stable release, `v0.7.5-hotfix.2`. The Compose service requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
+The bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration is included in the alpha channel (version `0.7.7-alpha.5` and later) and in `main`. It requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
 
 Run all commands from the directory that holds `compose.yml`.
 
