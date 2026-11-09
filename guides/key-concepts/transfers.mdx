@@ -149,6 +149,8 @@ To review suggested transfers:
 **When you reject a match:**
 
 - If a transaction already had a kind (for example, one you set manually), that kind is preserved — rejection does not reset it.
+- When you reject a **pending** match from the transaction list, Sure redraws both transaction rows in place without reloading the page. The match controls disappear and the rows return to their normal state. If another visible transaction row was showing a "Transfer?" hint that pairs with one of those legs, Sure redraws that row too.
+- A page reload happens instead when: you can no longer see either leg on the current page, a freed leg sits inside a split group, more than ten rows would need to be redrawn, the transfer has fees attached, the rejected transfer was already confirmed (not pending), or the list has no Referer header to identify the view context.
 
 ## Cross-Currency Transfers
 
