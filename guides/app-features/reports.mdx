@@ -1,0 +1,72 @@
+---
+title: Reports
+description: A financial overview across net worth, spending, investments, and transaction breakdowns
+---
+
+## Overview
+
+The Reports page gives you a consolidated view of your financial picture across a selected time period. It is organized into collapsible sections that you can reorder to match your workflow. Each section updates when you change the period at the top of the page.
+
+Navigate to **Reports** from the left sidebar.
+
+## Periods
+
+Five period presets are available at the top of the Reports page:
+
+| Period | What it covers |
+|---|---|
+| Monthly | A single calendar month |
+| Quarterly | A three-month quarter |
+| YTD | January 1 to today |
+| Last 6 months | Rolling six-month window |
+| Custom | Any start and end date you choose |
+
+Use the left and right arrow keys on your keyboard (or the period navigation buttons) to move between periods.
+
+## Sections
+
+### Net worth
+
+Shows your total assets, total liabilities, and net worth at the end of the selected period. Visible whenever you have at least one account connected.
+
+### Trends
+
+Tracks income and expense totals over recent periods and surfaces directional changes. Visible when you have accounts with transaction data.
+
+### Spending vs normal
+
+Compares your spending in the selected period against your recent average. This section requires preview features to be enabled and appears only when comparison data is available.
+
+### Investment performance
+
+Displays return metrics for your investment accounts. Visible when you have at least one investment account.
+
+### Investment flows
+
+Summarizes contributions to and withdrawals from your investment accounts during the period. Visible when you have investments with non-zero contribution or withdrawal activity.
+
+### Activity Breakdown
+
+Lists every income and expense category with its total amount and share of overall spending or income for the period. You can sort the table by amount using the column header. Clicking a category row opens the matching transactions.
+
+The breakdown tables scroll horizontally on narrow screens. To scroll with a keyboard, tab to the Income or Expense table — it becomes a focusable region — then use the left and right arrow keys to reach columns outside the viewport.
+
+## Reordering sections
+
+Drag any section by its handle to change the order. Sure saves the order to your account so it persists across sessions.
+
+## Collapsing sections
+
+Click the section header to collapse or expand it. Collapsed state is saved per section.
+
+## Printing
+
+Click **Print report** (top-right of the Reports page) to open a print-optimized view of the current period. The print layout includes all visible sections.
+
+## Exporting to CSV
+
+You can export the transaction breakdown for the selected period as a CSV file. From the Activity Breakdown section, click the export button and choose **Download CSV**. The file is named `transactions_breakdown_<start>_to_<end>.csv`.
+
+### Google Sheets integration
+
+To keep a live breakdown in Google Sheets, click the export button and choose **Open in Google Sheets**. The instructions page gives you a CSV URL that you can use with Google Sheets' `IMPORTDATA` function, together with an API key from **Settings → API keys**.
