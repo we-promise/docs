@@ -9998,7 +9998,11 @@ paths:
               schema:
                 "$ref": "#/components/schemas/Transaction"
         '422':
-          description: validation error - missing required fields
+          description: >-
+            Validation error. Returned when required fields are missing, tag_ids
+            is not an array of strings, or any of tag_ids, category_id, or
+            merchant_id does not belong to the caller's family (or is not a
+            valid UUID).
           content:
             application/json:
               schema:
@@ -10038,11 +10042,17 @@ paths:
                     category_id:
                       type: string
                       format: uuid
-                      description: Category ID
+                      description: >-
+                        Category ID. Must belong to the caller's family.
+                        Returns 422 if the ID is unknown or belongs to another
+                        family.
                     merchant_id:
                       type: string
                       format: uuid
-                      description: Merchant ID
+                      description: >-
+                        Merchant ID. Must be a family-owned merchant or a
+                        provider merchant accessible to the caller. Returns 422
+                        if the ID is unknown or belongs to another family.
                     nature:
                       type: string
                       enum:
@@ -10068,7 +10078,12 @@ paths:
                       items:
                         type: string
                         format: uuid
-                      description: Array of tag IDs
+                      description: >-
+                        Array of tag IDs to assign. Must be an array of strings;
+                        all IDs must be valid UUIDs belonging to the caller's
+                        family. Returns 422 if the value is not an array of
+                        strings, or if any ID is unknown or belongs to another
+                        family.
                   required:
                   - account_id
                   - date
@@ -10125,6 +10140,17 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: >-
+            Validation error. Returned when tag_ids is not an array of strings,
+            or any of tag_ids, category_id, or merchant_id does not belong to
+            the caller's family (or is not a valid UUID). Also returned when
+            attempting to edit a split child directly, or changing the amount,
+            date, or type of a split parent.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
       requestBody:
         content:
           application/json:
@@ -10152,9 +10178,20 @@ paths:
                     category_id:
                       type: string
                       format: uuid
+                      description: >-
+                        Category ID. Must belong to the caller's family.
+                        Re-sending the ID the transaction already holds is
+                        accepted. Returns 422 if the ID is unknown or belongs
+                        to another family.
                     merchant_id:
                       type: string
                       format: uuid
+                      description: >-
+                        Merchant ID. Must be a family-owned merchant or a
+                        provider merchant accessible to the caller. Re-sending
+                        the ID the transaction already holds is accepted.
+                        Returns 422 if the ID is unknown or belongs to another
+                        family.
                     nature:
                       type: string
                       enum:
@@ -10167,8 +10204,13 @@ paths:
                       items:
                         type: string
                         format: uuid
-                      description: Array of tag IDs to assign. Omit to preserve existing
-                        tags; use [] to clear all tags.
+                      description: >-
+                        Array of tag IDs to assign. Omit to preserve existing
+                        tags; use [] to clear all tags. Must be an array of
+                        strings; all IDs must be valid UUIDs belonging to the
+                        caller's family. Returns 422 if the value is not an
+                        array of strings, or if any ID is unknown or belongs to
+                        another family.
                     user_modified:
                       type: boolean
                       description: Whether provider syncs should preserve user-supplied
