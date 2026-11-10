@@ -942,6 +942,35 @@ When creating a rule from the rule creation modal, saving the form could fail wi
   </Accordion>
 </AccordionGroup>
 
+## Monarch import retries with "Date has already been taken" or shows locked upload and account steps
+
+When a Monarch import job fails after its transaction has committed — for example, if scheduling the post-import sync raises an error — retrying previously re-imported the same data. The duplicate balance entries caused the retry to fail immediately with a "Date has already been taken" error, leaving the import stuck in a failed state with no way to complete it.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    A Monarch import commits its data (accounts, balance history, and transactions) in a database transaction. Publishing also schedules a family sync after the commit. If that scheduling step raised an error, the job was marked failed and the import's status was set back to failed — even though the data was already in the database.
+
+    A retry started the full import process again, hit the existing balance entries, and failed with a uniqueness error. The previously committed data could never be completed or undone.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The import now tracks whether its data has committed. A retry that finds committed data skips the import step entirely and only finishes publishing — running the post-import sync and marking the import complete.
+
+    The upload and account-mapping steps also lock once data has committed, so changes to the export files or account choices made after a partial failure are not silently ignored. The steps show a message explaining that the import can be finished or deleted, but not reconfigured.
+
+    To undo the import and start over with different settings, delete the import. Deleting a committed Monarch import removes the imported entries and restores any opening balances or account statuses that were changed.
+
+    Upgrade to a build containing [Sure PR #4832](https://github.com/we-promise/sure/pull/4832). No configuration change is required.
+  </Accordion>
+
+  <Accordion title="My import is already stuck — what do I do?">
+    If a Monarch import is currently stuck in a failed state on an older version:
+
+    - **To complete it**: Upgrade to a version containing the fix, then retry the import. The retry detects the committed data and finishes publishing without re-importing.
+    - **To start over**: Delete the import. Deletion restores the previously committed data to its pre-import state so you can run a fresh import with different files or account choices.
+  </Accordion>
+</AccordionGroup>
+
 ## Import fails on rules with no name or deleted rejected transfers
 
 Importing an `all.ndjson` export could fail with two unrelated errors:
