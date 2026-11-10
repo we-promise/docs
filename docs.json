@@ -45,6 +45,7 @@
               "guides/app-features/transactions",
               "guides/app-features/budgets",
               "guides/app-features/csv-imports",
+              "guides/app-features/monarch-import",
               "guides/app-features/statement-vault",
               "features/recurring-transactions",
               "guides/app-features/goals",
