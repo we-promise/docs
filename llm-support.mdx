@@ -167,6 +167,14 @@ OPENAI_ACCESS_TOKEN=sk-proj-...
 # No other configuration needed
 ```
 
+Some OpenAI API keys must use a regional host such as `us.api.openai.com`. Setting `OPENAI_URI_BASE` to a regional host is supported — Sure treats `api.openai.com` and its single-label regional subdomains (for example, `https://us.api.openai.com/v1`) as first-party OpenAI endpoints, so the Responses API, `max_completion_tokens`, and health checks all work correctly. No model value is required.
+
+```bash
+OPENAI_ACCESS_TOKEN=sk-proj-...
+OPENAI_URI_BASE=https://us.api.openai.com/v1
+# No OPENAI_MODEL needed — regional hosts are treated as OpenAI
+```
+
 Recommended models:
 
 - `gpt-4.1` - Default, best balance of speed and quality
@@ -361,7 +369,7 @@ Environment variables take precedence over the settings UI.
 
 ## Responses API routing
 
-Sure automatically routes chat requests to the OpenAI Responses API when using the official OpenAI endpoint, and falls back to the Chat Completions API for custom providers. You can override this behavior with the `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` environment variable.
+Sure automatically routes chat requests to the OpenAI Responses API when using the official OpenAI endpoint (including regional hosts such as `us.api.openai.com`), and falls back to the Chat Completions API for custom providers. You can override this behavior with the `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` environment variable.
 
 | Variable | Description | Default |
 | --- | --- | --- |
@@ -535,8 +543,8 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | --- | --- | --- |
 | `LLM_PROVIDER` | Active LLM provider: `openai` or `anthropic`. Takes precedence over any provider choice saved in the UI. | `openai` |
 | `OPENAI_ACCESS_TOKEN` | API key for the provider | — |
-| `OPENAI_URI_BASE` | Custom endpoint URL (leave blank for OpenAI) | — |
-| `OPENAI_MODEL` | Model name (required for custom endpoints). A blank value is treated as unset and falls through to the UI setting, then `gpt-4.1` | `gpt-4.1` |
+| `OPENAI_URI_BASE` | Custom endpoint URL (leave blank for OpenAI). Regional OpenAI hosts such as `https://us.api.openai.com/v1` are treated as first-party endpoints — the Responses API and `max_completion_tokens` stay enabled, and no model value is required. | — |
+| `OPENAI_MODEL` | Model name (required for custom third-party endpoints; not required for OpenAI or its regional hosts). A blank value is treated as unset and falls through to the UI setting, then `gpt-4.1` | `gpt-4.1` |
 | `OPENAI_REQUEST_TIMEOUT` | HTTP timeout in seconds for each individual HTTP call to the model | `60` |
 | `AI_RESPONSE_TIMEOUT` | Whole-turn watchdog timeout in seconds. See [Chat response timeout](#chat-response-timeout) for sizing guidance | `90` |
 | `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `8` |
