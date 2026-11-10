@@ -1168,6 +1168,8 @@ If you add those keys after your instance already has data, the normal app start
 - New writes use encryption after the app boots with the keys.
 - Existing rows are not automatically re-encrypted.
 
+**Exception: provider identifier fields encrypted in the November 2026 release.** The deploy migration introduced in that release automatically encrypts any plaintext values already stored in `EnableBankingItem#last_psu_ip`, `AkahuAccount#formatted_account`, and `LunchflowAccount#raw_holdings_payload`. If encryption is configured when you run the migration, those rows are rewritten at deploy time without a manual backfill step. If encryption is not configured at deploy time, those rows remain in plaintext until you configure keys and run the backfill task. The `security:backfill_encryption` task covers all three fields.
+
 Run the backfill task once after the app is up:
 
 ```bash
