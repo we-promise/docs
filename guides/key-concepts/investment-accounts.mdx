@@ -35,6 +35,12 @@ If a provider reports prices for individual securities on different dates within
 
 For accounts that have no provider connection, Sure shows the most recent holding per security in the account's currency from your manually entered or calculated data. Holdings recorded in a different currency than the account's base currency are excluded from the current portfolio view.
 
+#### Calculated holdings and provider snapshots
+
+When a provider snapshot exists for a security on a given date, Sure removes any calculated holding for that same security and date so the two do not count the same position twice. The cleanup runs per security rather than across the entire account at once, which keeps query time proportional to the number of securities in the snapshot rather than the total rows in the account. Accounts with long histories — several hundred securities over multiple years — that previously took a long time to sync now complete in a few seconds.
+
+Calculated holdings for dates that are not covered by a provider snapshot are kept. Sure uses them to draw balance charts between sync snapshots.
+
 #### How locks carry forward across syncs
 
 When a provider creates a new daily snapshot row for a holding you have previously locked — either a security remap lock or a cost basis lock — Sure copies those locks onto the new row automatically. This applies to all providers, including those that do not supply a per-holding unique identifier (such as Plaid, Indexa Capital, and SnapTrade securities). Without this carry-forward, a new sync would silently drop your manual corrections and replace them with the provider's values.
