@@ -103,6 +103,7 @@
               "providers/plaid",
               "providers/redbark",
               "providers/up-bank",
+              "providers/sharesight",
               "providers/snaptrade",
               "providers/sophtron",
               "providers/trade-republic",
