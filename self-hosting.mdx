@@ -534,6 +534,10 @@ image: ghcr.io/we-promise/sure:latest
 - `ghcr.io/we-promise/sure:latest` - Latest alpha release
 - `ghcr.io/we-promise/sure:stable` - Latest stable release
 
+<Note>
+Floating channel promotion for `latest` and `stable` is temporarily paused while the CalVer release rollout is validated. Both tags continue to point to their previous images and are not deleted, but they are not updated by new releases. To run a specific recent release, pin to an explicit CalVer tag (for example, `ghcr.io/we-promise/sure:2026.11.10-alpha`) from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure). Channel promotion will resume after validation is complete.
+</Note>
+
 You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
 
 ### Update to the latest version

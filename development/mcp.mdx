@@ -43,6 +43,7 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `get_tags` | List family tags alphabetically |
 | `get_categories` | List family categories hierarchically, including IDs and parent relationships |
 | `search_family_files` | Search uploaded family documents and return relevant excerpts and source filenames. This is the vector-store document index, not the Statement Vault — statements archived via `upload_account_statement` are not searchable through it |
+| `get_uncategorized_transactions` | Lists spending with no category yet, grouped by payee rather than row by row. Each group corresponds to what a single categorization rule would cover. Returns per-currency totals split by expense and income, an enrichment block explaining why transactions are uncategorized (whether auto-categorize and merchant-detection rules exist and are active), and whether an LLM provider is configured. Use this before quoting per-category totals — a large uncategorized total means category figures are understated by an unknown amount. |
 
 ### Rules
 
@@ -56,6 +57,14 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `apply_rule` | Activate a rule and apply it to matching transactions. Requires the `preview_token` from the latest `preview_rule`, `create_rule`, or `update_rule` call for that rule (`get_rules` does not issue one). The token expires after 30 minutes and is invalidated if the rule definition or its match count changes. By default, transactions whose values were set by hand are preserved; pass `override_locked: true` to overwrite them. Runs in the background. |
 
 New rules are saved inactive; renaming an existing active rule can leave it active. `apply_rule` is the only tool that activates a rule and applies it to existing transactions. A `preview_token` from an actual preview is required; it expires after 30 minutes and is invalidated if the rule definition or match count changes since the preview was issued. AI-backed actions (`auto_categorize`, `auto_detect_merchants`) are not available through MCP — edit those rules in **Settings > Rules**.
+
+### Transfers
+
+| Tool | Description |
+| --- | --- |
+| `get_transfer_match_candidates` | Shows how a transaction can be matched as a transfer between the user's own accounts. Returns the transaction's current transfer if one exists (a `pending` status means Sure auto-matched it and the user has not reviewed it yet). Otherwise returns candidate transactions in other accounts: opposite direction, matching amount, within 30 days. `previously_rejected` marks a pairing the user already rejected. Use before calling `match_transfer` or `review_transfer`. |
+| `match_transfer` | Marks a transaction as a transfer between the user's own accounts, so it stops counting as income or spending and moves the other account's balance. Pass `counterpart_transaction_id` to pair with an existing transaction from `get_transfer_match_candidates`, or `target_account_id` to create the counterpart in an account with no matching transaction (the usual case for manual loan and savings accounts). Pass `dry_run: true` to preview without changing anything. Both accounts must be writable. |
+| `review_transfer` | Confirms or rejects a transfer that Sure auto-matched but the user has not reviewed yet (status `pending` in `get_transfer_match_candidates`). `confirm` keeps the match; `reject` unlinks the two transactions and prevents auto-match from suggesting that pairing again. Only pending transfers can be reviewed and both accounts must be writable. |
 
 ### Create, update, and import
 
