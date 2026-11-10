@@ -76,6 +76,10 @@ Note that sending `pending=0` to the SimpleFIN API is not the same as omitting t
 
 Sure supports both the legacy SimpleFIN `errors` field and the structured `errlist` field introduced in protocol v2. When `errlist` is nonempty, it takes precedence over legacy `errors`.
 
+#### Protocol v2 account data
+
+SimpleFIN protocol v2 accounts carry a `conn_id` field instead of an inline `org` object. Institution details — name, logo, and URL — are stored in the top-level `connections` list rather than on each account. Sure reads that connections list and attaches the matching institution data to each v2 account before importing, so institution names and logos display correctly for all accounts regardless of which protocol version the bridge uses.
+
 Error responses are classified as either partial or fatal:
 
 - **Partial errors** (`act.*` error codes): affect one or more individual accounts but accounts data is still returned. Sure records these errors in sync stats for visibility and continues importing the remaining accounts.
@@ -167,6 +171,8 @@ The SimpleFIN specification says the `cost_basis` field is a per-share value, bu
 
 Institutions where Sure applies this correction: Vanguard, Fidelity, Schwab, and E\*Trade.
 
+This correction requires Sure to know the institution name. For SimpleFIN protocol v2 accounts, institution details come from the top-level `connections` list rather than from each account directly. Sure reads institution data from that connections list, so the cost-basis correction applies correctly to v2 accounts at these institutions.
+
 If your institution sends a total cost in `cost_basis` but is not in this list, the holding will show an inflated per-share basis. In that case, you can correct the value by setting a manual cost basis on the holding.
 
 ## Limitations
@@ -206,6 +212,12 @@ If a credit card or loan balance looks wrong after syncing:
 If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. Only accounts whose ID is genuinely absent from the upstream response are treated as stale and eligible for re-linking. Ambiguous cases where multiple local accounts share a name are skipped rather than resolved automatically, preventing one account from silently inheriting another's transaction history.
 
 If you notice an account that appears to have lost its transaction history after a sync, check **Settings → Debug** for any skipped stale-linkage repair entries that may indicate an ambiguous name match.
+
+### Missing institution name or logo
+
+If your accounts were showing no institution name or logo, your SimpleFIN bridge may be using protocol v2. Protocol v2 accounts carry a `conn_id` reference instead of inline institution data, and earlier versions of Sure did not read the top-level `connections` list where that data lives. This is now fixed: Sure reads institution details from the connections list and attaches them to each v2 account during import.
+
+Re-sync from **Settings → Providers → SimpleFIN** to pick up the institution name and logo for any affected accounts.
 
 ### Setup token issues
 
