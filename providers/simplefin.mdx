@@ -56,6 +56,11 @@ When syncing transactions, you can specify:
 
 SimpleFIN expects Unix timestamps for date parameters.
 
+The SimpleFIN Bridge enforces a recommended maximum of 45 days per request. Sure respects this limit in both sync paths:
+
+- **Initial history import**: Walks backward in consecutive 45-day chunks (up to 8 requests, covering about 360 days). Stops after three consecutive chunks return no new transactions, reaching at least 135 days back. The target is clamped to one year.
+- **Regular sync**: The window from the last successful sync to now is split into consecutive 45-day requests, oldest first. This prevents sync failures from accumulating into a range that the Bridge would reject. The lookback is capped at one year regardless of how long the connection was interrupted.
+
 ### Pending transaction inclusion
 
 Pending transactions are included by default. Sure resolves whether to request them in this order:
@@ -230,6 +235,12 @@ If the connection was working and now requires reconnection after a sync, check 
 Pending transactions are requested by default. Some institutions don't return them even when `pending=1` is sent. This is a limitation of the institution's data feed, not a bug in SimpleFIN or Sure.
 
 If you want to disable pending transactions entirely, set `SIMPLEFIN_INCLUDE_PENDING=0` in your environment or turn off **Include pending transactions** under **Settings → Self-Hosting**.
+
+### Sync failures after a long gap
+
+If a SimpleFIN connection has not synced successfully for more than 45 days, earlier versions of Sure would send the entire accumulated window in one request. The Bridge would reject it with "Requested date range exceeds recommended range of 45 days", causing every retry to fail in the same way.
+
+Sure now splits the window into consecutive 45-day requests, so a connection that has been failing for weeks or months will recover automatically on the next sync. If the connection has been stuck for a long time, trigger a manual sync from **Settings → Providers → SimpleFIN** to start the recovery immediately.
 
 ### Network errors
 
