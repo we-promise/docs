@@ -1,23 +1,31 @@
 ---
-title: SSO audit logging
-description: Monitor and track SSO authentication events, configuration changes, and user activity
+title: Audit logging
+description: Monitor and track SSO authentication events, sensitive account operations, and configuration changes
 ---
 
 ## Overview
 
-SSO audit logging provides comprehensive tracking of all authentication-related events, configuration changes, and user activity. This enables security monitoring, compliance reporting, troubleshooting, and forensic analysis.
+Sure maintains two audit logs that together cover the full range of authentication and account security events.
 
-## Accessing audit logs
+**SSO audit log** — tracks login, link, and unlink events for every SSO provider. Stored in `SsoAuditLog`.
 
-Navigate to the audit logs page in your admin dashboard:
+**Security audit log** — tracks API key creation and revocation, MFA enable and disable, passkey and security key add and remove, and password changes. Stored in `SecurityAuditLog`. Rows persist after account deletion; the user email, IP address, and user agent are stored encrypted so the audit trail does not create a GDPR-erasure gap.
+
+Both logs are currently console-only. No dashboard UI reads either table, so investigation requires direct database access or a Rails console session on the server.
+
+## SSO audit log
+
+### Accessing the SSO audit log
+
+The SSO audit log is available from the admin dashboard:
 
 ```
 https://your-domain.com/admin/audit-logs
 ```
 
-## Event types
+### Event types
 
-### Authentication events
+#### Authentication events
 
 | Event Type | Description | Severity |
 |------------|-------------|----------|
@@ -29,7 +37,7 @@ https://your-domain.com/admin/audit-logs
 | `auth.token.revoked` | Access token revoked | Warning |
 | `auth.session.expired` | User session expired | Info |
 
-### Provider configuration events
+#### Provider configuration events
 
 | Event Type | Description | Severity |
 |------------|-------------|----------|
@@ -40,7 +48,7 @@ https://your-domain.com/admin/audit-logs
 | `provider.disabled` | Provider disabled | Warning |
 | `provider.test` | Provider test login performed | Info |
 
-### User account events
+#### User account events
 
 | Event Type | Description | Severity |
 |------------|-------------|----------|
@@ -52,7 +60,7 @@ https://your-domain.com/admin/audit-logs
 | `user.roles.synced` | User roles synchronized from IdP | Info |
 | `user.roles.updated` | User roles manually updated | Info |
 
-### Connected account events
+#### Connected account events
 
 | Event Type | Description | Severity |
 |------------|-------------|----------|
@@ -61,11 +69,39 @@ https://your-domain.com/admin/audit-logs
 | `account.linked` | Multiple SSO accounts linked | Info |
 | `account.unlinked` | SSO accounts unlinked | Warning |
 
-## Log entry details
+## Security audit log
 
-Each audit log entry contains:
+The security audit log captures changes to account security controls. Each entry records the user affected, the acting user (when an admin performed the action on another account), the IP address, the user agent, and event-specific metadata.
 
-### Core fields
+### Security event types
+
+| Event type | Trigger |
+|---|---|
+| `api_key_created` | A new API key is saved successfully |
+| `api_key_revoked` | An API key is revoked |
+| `mfa_enabled` | A user completes TOTP setup and enables MFA |
+| `mfa_disabled` | A user or admin disables MFA |
+| `webauthn_credential_added` | A passkey or security key is registered |
+| `webauthn_credential_removed` | A passkey or security key is removed |
+| `password_changed` | A user changes their own password, or an admin resets a user's password |
+
+Events are written only on the success path, inside a database transaction with the state-changing operation. A failed attempt — wrong current password, invalid OTP code, audit-write failure — does not produce an entry.
+
+### Actor attribution
+
+When an admin changes another user's password via the admin console, the log entry records `actor_user_id` in its metadata. Self-service changes omit this field. The actor is always the real user (`Current.true_user`), not an impersonated session's apparent identity.
+
+### Data retention
+
+Rows are kept indefinitely, including after the user they describe is deleted. The foreign key uses `ON DELETE SET NULL`, so `user_id` becomes `NULL` when the account is removed, but the encrypted `user_email` column still identifies the account the event belonged to.
+
+There is no automated pruning. Retention policy decisions are left to each deployment operator.
+
+### Log entry details
+
+Each SSO audit log entry contains:
+
+#### Core fields
 
 | Field | Description |
 |-------|-------------|
@@ -76,7 +112,7 @@ Each audit log entry contains:
 | IP address | Source IP address |
 | User agent | Browser/client information |
 
-### Event-specific data
+#### Event-specific data
 
 | Field | Description |
 |-------|-------------|
@@ -88,7 +124,7 @@ Each audit log entry contains:
 | Session ID | Session identifier |
 | Request ID | Unique request identifier for correlation |
 
-### Example log entries
+#### Example log entries
 
 #### Successful login
 ```json
