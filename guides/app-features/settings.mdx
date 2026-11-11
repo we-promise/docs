@@ -9,6 +9,19 @@ Sure provides various settings to customize your experience and control how the 
 
 ## Security settings
 
+### Security audit log
+
+Sure records a security audit log entry for each of the following actions:
+
+- API key created or revoked
+- MFA enabled or disabled
+- Passkey or security key added or removed
+- Password changed (by the account holder or by an admin resetting another user's password)
+
+Each entry captures the event type, the user affected, the IP address, the user agent, and — when an admin performed the action on another account — the admin's user ID. User email, IP address, and user agent are stored encrypted. Rows persist after the account is deleted, so the audit trail survives user removal.
+
+The log is currently console-only. Querying it requires direct database access or a Rails console session on the server.
+
 ### High-resolution logos
 
 Sure can fetch high-resolution logos for merchants, financial institutions, and cryptocurrencies using the Brandfetch service. This feature enhances the visual appearance of your transactions, accounts, and holdings.
