@@ -338,6 +338,29 @@ Several account page UI strings that previously failed to resolve in non-English
 
 When the interface language is set to Spanish, Mexican peso (MXN) amounts now display with US-style separators — a dot (`.`) as the decimal separator and a comma (`,`) as the thousands separator — matching how MXN values are natively formatted. Previously, the Spanish locale's European-style separators were applied to MXN, producing incorrect formats such as `1.234,56` instead of `1,234.56`. All other currencies continue to use the locale-aware separators for their respective locales.
 
+### Indian number grouping for INR and Indian locales
+
+Sure now formats Indian rupee (INR) amounts and amounts displayed in Indian locales using the South Asian lakh/crore digit grouping. For example, ₹12,34,567.89 is shown instead of ₹1,234,567.89.
+
+Indian grouping is applied automatically when either of the following is true:
+
+- The currency is INR.
+- The interface locale is one of: `en-IN`, `en-IND`, `hi`, `hi-IN`, `mr-IN`, `ta`, `te`, `bn`, `gu`, `kn`, `ml`, or `pa`.
+
+You can override the default for any amount using the `indian_grouping` formatting option:
+
+```ruby
+# INR defaults to Indian grouping
+Money.new(100_000, :inr).format                          # => "₹1,00,000.00"
+Money.new(100_000, :inr).format(indian_grouping: false)  # => "₹100,000.00"
+
+# Any other currency defaults to Western grouping but can opt in
+Money.new(100_000, :usd).format                         # => "$100,000.00"
+Money.new(100_000, :usd).format(indian_grouping: true)  # => "$1,00,000.00"
+```
+
+Passing `true` or `false` overrides the automatic rule; passing `nil` falls back to the currency and locale defaults. The currency symbol, decimal precision, and symbol placement are unaffected — only the digit grouping changes. No configuration or migration is required.
+
 ### Date formatting across all locales
 
 Dates that span multiple years — such as those shown in bills, the period picker, and transaction date pickers — now display in the correct format for your locale. Previously, only 7 of the 118 supported locales defined their own short-with-year date format. The other 111 fell back to the English format (`Jan 05, 2027`), so a German user, for example, would see `Jan 05, 2027` instead of `05. Jan 2027`. All 118 locales now have an explicit short-with-year format derived from their own long date format.
