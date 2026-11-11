@@ -126,7 +126,7 @@ Sure supports various security types:
 
 ### Asset classification
 
-Each security can be classified by asset class, sub-class, sector, industry, and region. This classification data will power allocation breakdowns — letting you see how your portfolio is distributed across equities, fixed income, real estate, and other categories.
+Each security can be classified by asset class, sub-class, sector, industry, and region. Sure uses this data to power the allocation view in your portfolio, letting you see how your investments are distributed across different groupings.
 
 **Asset classes**
 
@@ -157,6 +157,26 @@ Each security can be classified by asset class, sub-class, sector, industry, and
 | `default` | Applied as a fallback |
 
 **Classification locked** is a boolean flag. When `true`, no automated source — provider, AI, or default — can overwrite the classification. Sure sets this automatically when you change a security's classification manually.
+
+### Portfolio allocation groupings
+
+The allocation view breaks your portfolio down by one of seven groupings. Every grouping measures the same portfolio — your holdings plus each account's uninvested cash (its balance less its holdings, positive only) — so the totals are consistent and weights sum to 100%.
+
+| Grouping | What it shows |
+| --- | --- |
+| `asset_class` | Distribution by asset class (equity, fixed income, liquidity, etc.). Cash is filed under `liquidity`. |
+| `asset_sub_class` | Distribution by sub-class (stock, bond, cash, etc.). Cash is filed under `cash`. |
+| `sector` | Distribution by sector. Cash has no sector and falls into `unclassified`. |
+| `region` | Distribution by region. Cash has no region and falls into `unclassified`. |
+| `account` | Value held in each investment account, including that account's uninvested cash. |
+| `currency` | Value grouped by the currency each holding is priced in, with account cash in its account's currency. |
+| `kind` | Splits positions into `cash`, `crypto`, and `standard` based on the security's flags. |
+
+The `asset_class` and `asset_sub_class` groupings support drill-down: expanding an asset class shows its sub-classes, and expanding a sub-class shows individual positions. `sector`, `region`, `account`, `currency`, and `kind` are flat — they do not nest.
+
+Segments with a zero or negative value are excluded. If a security's classification column is empty, it falls into an `unclassified` bucket rather than being dropped, so a portfolio of unclassified securities is told it has nothing classified rather than receiving an empty list.
+
+Holdings with a negative value (which indicate corrupt data) are excluded from all allocation groupings before any totals are summed, so a bad row cannot net into one level and silently drop out of another.
 
 ## Stock splits
 
