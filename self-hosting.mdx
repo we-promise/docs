@@ -542,10 +542,24 @@ Your app does not automatically update. To update:
 
 ```bash
 cd ~/docker-apps/sure
-docker compose pull
-docker compose build
-docker compose up --no-deps -d web worker
+docker compose run --rm backup create   # recommended: back up first
+docker compose pull web worker          # pull the newest image
+docker compose up -d                    # restart; migrations run automatically
 ```
+
+### Re-encrypting data after an encryption-related update
+
+Some releases expand encryption coverage to fields that were previously stored without it. When a release note mentions a fix to Active Record encryption configuration, data written before you updated may still be stored as plaintext. After updating, run the backfill task to convert those rows:
+
+```bash
+# Preview (dry run)
+docker compose run --rm web bin/rails "security:backfill_encryption[100,1]"
+
+# Write
+docker compose run --rm web bin/rails "security:backfill_encryption[100,0]"
+```
+
+The write pass is safe to rerun. Check that the JSON report on its last line shows `"ok":true` and `"failed_count":0` for every table before starting the app.
 
 ### Change update channel
 
@@ -558,9 +572,8 @@ image: ghcr.io/we-promise/sure:stable
 Then restart the app:
 
 ```bash
-docker compose pull
-docker compose build
-docker compose up --no-deps -d web worker
+docker compose pull web worker
+docker compose up -d
 ```
 
 ## Backups, upgrades, and rollbacks
@@ -1171,14 +1184,14 @@ If you add those keys after your instance already has data, the normal app start
 Run the backfill task once after the app is up:
 
 ```bash
-# Safe preview first (dry-run is the default)
-docker compose exec web bin/rails security:backfill_encryption
+# Safe preview first (1 = dry run, changes nothing)
+docker compose run --rm web bin/rails "security:backfill_encryption[100,1]"
 
-# Perform the rewrite
-docker compose exec web env DRY_RUN=false bin/rails security:backfill_encryption
+# Perform the rewrite (0 = write)
+docker compose run --rm web bin/rails "security:backfill_encryption[100,0]"
 ```
 
-The task is idempotent, so it is safe to rerun if needed.
+The dry run reports every table with `"failed_count"` and `"dry_run":true`. Proceed to the write pass only when every table shows `"failed_count":0`. The task is idempotent, so it is safe to rerun if needed.
 
 If login started failing immediately after changing encryption settings, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first. After the app can read the existing data again, run the backfill task if you are intentionally moving to dedicated keys.
 
