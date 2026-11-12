@@ -94,6 +94,7 @@ Loan accounts support additional fields:
 | Insurance rate | Annual insurance premium rate, charged monthly alongside the repayment. |
 | Insurance type | How the premium is calculated: **Level term** charges the rate on the original balance each month (constant premium); **Decreasing** charges it on the outstanding balance (falls as you repay). |
 | Interest basis | How each monthly period is measured against a year. **30/360** charges a flat one-twelfth each month and is the default. **Actual/365** charges by the actual number of days in the month divided by 365 — standard for UK and Australian mortgages. **Actual/actual** charges by actual days divided by the number of days in the calendar year, splitting periods that cross a year boundary. |
+| Linked transfers are principal only | When enabled, linked transfers from another account are applied to principal only. Turn this on when you transfer only the principal and record interest as a separate expense. |
 | Monthly Payment | Calculated from loan details (fixed-rate only) |
 
 > [!NOTE]
@@ -149,14 +150,33 @@ When you add a loan, you can enter both the original principal (opening balance)
 
 When you enter an original principal, Sure dates its opening anchor on the loan's start date if that date is strictly newer than the cutoff 30 years ago; otherwise it uses the form's opening balance date. If this opening anchor is before today and the current remaining balance differs, Sure also records today's balance so the first sync preserves both. If the opening anchor is today, its opening balance takes precedence and a separate current-balance anchor is not created. Dating a supported opening anchor on the start date lets the chart begin at origination.
 
-## Understanding Loan Payments
+## Understanding loan payments
 
-When you make a loan payment, the payment typically covers:
+Sure tracks your loan balance as the remaining principal. As you make payments, the balance decreases until the loan is paid off.
 
-1. **Interest** - Cost of borrowing
-2. **Principal** - Reducing the amount you owe
+### How payments are split
 
-Sure tracks your loan balance, which represents the remaining principal. As you make payments, the balance decreases until the loan is paid off.
+For eligible manual loans (those with a matching opening balance and origination date), Sure splits each payment into principal and interest when the preview feature is enabled on your account. The split follows the loan's amortization schedule:
+
+- Interest is charged once per scheduled period on the opening balance of that period.
+- A payment first covers any outstanding interest, then any insurance premium, then reduces principal by the remainder.
+- A payment above the remaining principal leaves a credit rather than being dropped.
+
+**Payments up to five days late** still reduce the principal the new period charges interest on, so a weekend slip matches the schedule.
+
+Provider-owned loans are not affected — only manual loans whose recorded opening balance matches their origination amount are replayed this way.
+
+### How transactions are classified
+
+| Transaction type | Effect |
+| --- | --- |
+| Unlinked positive row (refund, redraw, reversal) | Adds to principal |
+| Linked transfer (full payment, default) | Covers interest first, then principal |
+| Linked transfer (principal-only mode) | Applies entirely to principal; interest is recorded separately |
+
+### Principal-only transfers toggle
+
+If you transfer only the principal to your loan account and record the interest as a separate expense, turn on **Linked transfers are principal only** in the loan settings. With this option enabled, linked transfers go straight to principal, and any outstanding interest from the schedule is counted separately. Leave the option off when the linked transfer is the full payment (the default).
 
 > [!TIP]
 > To track loan payments accurately, create a [transfer](./transfers.mdx) from your checking account to your loan account. This properly reflects the payment in both accounts.
