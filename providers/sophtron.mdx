@@ -106,6 +106,7 @@ When syncing transactions, Sure:
 - Maps transaction data including amount, date, merchant, and description
 - Supports both income and expense transaction types
 - Defaults the currency to USD when not specified by the provider
+- Applies the correct sign convention based on the account's balance meaning setting (see [Incorrect balance sign on credit cards](#incorrect-balance-sign-on-credit-cards))
 
 ### Sync start date
 
@@ -123,17 +124,21 @@ You can configure a **sync start date** to control how far back Sure fetches tra
 
 ### Incorrect balance sign on credit cards
 
-Sophtron institutions do not all use the same balance sign. Sure stores credit-card debt as a positive amount owed and an overpayment as a negative credit.
+Sophtron institutions do not all use the same sign convention. Some report from the account holder's perspective (debt is negative, credit is positive) and some report from the lender's perspective (debt is positive, credit is negative). Sure stores credit-card debt as a positive amount owed and an overpayment as a negative credit.
 
-For **credit cards**, Automatic mode negates the provider balance. This is suitable when that institution reports debt as negative; institutions that report debt as positive may need an override. If a card balance looks wrong after syncing, you can override this automatic behavior. Open the account's edit form and find the **Sophtron balance meaning** dropdown:
+For **credit cards**, Automatic mode negates both the provider balance and transaction amounts. This is correct for institutions that report debt as negative. Institutions that report debt as positive (lender-signed feeds) will show purchases as income and payments as expenses in Automatic mode. If a card balance or transactions look wrong after syncing, open the account's edit form and find the **Sophtron balance meaning** dropdown:
 
-- **Automatic** (default): Sure negates the credit card balance from the provider.
-- **Debt (you owe the bank)**: Forces the absolute value of the reported balance to be stored as debt.
+- **Automatic** (default): Sure negates the credit card balance and transaction amounts from the provider.
+- **Debt (you owe the bank)**: Sure detects that this is a lender-signed feed and keeps transaction amounts as reported, so charges appear as outflows and payments as inflows.
 - **Credit (bank owes you)**: Forces the balance to be treated as a credit in your favor (for example, an overpayment).
 
 Use an override only when Sophtron consistently reports an ambiguous sign for a specific card. Choose Debt or Credit according to what the balance means at your institution.
 
-When you change the setting, Sure applies the override to the stored balance immediately and schedules a sync so the account reflects the corrected value without delay. If applying the override fails, Sure rolls back the change so you can retry the selection.
+When you save the override, Sure applies it to the stored balance immediately and schedules a sync. The next sync re-signs any existing transactions so they reflect the corrected convention. If applying the override fails, Sure rolls back the change so you can retry the selection.
+
+<Note>
+  If the card balance is exactly zero when you save the override, Sure cannot determine the feed's sign convention from that balance alone. The override is saved, but transaction re-signing is deferred until you save the card form again with a non-zero balance.
+</Note>
 
 ### Authentication errors
 
