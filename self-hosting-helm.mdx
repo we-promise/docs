@@ -534,6 +534,25 @@ pipelock:
 
 This creates a separate Deployment, Service, and ConfigMap. The chart auto-injects `HTTPS_PROXY`, `HTTP_PROXY`, and `NO_PROXY` into web and worker pods.
 
+### MCP listener authentication
+
+Pipelock 3.2 and later refuse to start a non-loopback MCP listener without either `pipelock.mcpProxy.allowUnauthenticated: true` (the default) or a listener token supplied via a Kubernetes Secret. Helm rendering fails with a clear error if neither is set.
+
+To require a listener token, create a Kubernetes Secret containing the token and set `pipelock.mcpProxy.authTokenSecret.name`:
+
+```yaml
+pipelock:
+  enabled: true
+  mcpProxy:
+    allowUnauthenticated: false
+    authTokenSecret:
+      name: sure-pipelock-mcp-token   # Secret with key "token" (or override with authTokenSecret.key)
+```
+
+The pod's `fsGroup` (1000 by default) is what lets Pipelock read the mounted Secret. Keep it in place if you override `podSecurityContext`.
+
+Clients must then send `Proxy-Authorization: Bearer <listener token>` alongside their usual `Authorization: Bearer <MCP_API_TOKEN>` for Sure. Without the listener token Pipelock answers `407 Proxy Authentication Required`.
+
 ### Request body scanning
 
 Request body scanning covers cleartext HTTP, reverse-proxy, and WebSocket bodies. HTTPS tunnel bodies remain opaque without TLS interception.
