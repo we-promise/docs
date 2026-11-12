@@ -1283,7 +1283,9 @@ When using `compose.example.ai.yml`, Pipelock is always running. External AI age
 The example compose file does not enable TLS interception, so Pipelock controls the tunnel destination but cannot read encrypted request or response bodies. Docker Compose also does not prevent a client from bypassing the proxy.
 </Note>
 
-For full Pipelock configuration including signed receipts, see [Self-hosting with Helm](/self-hosting-helm#pipelock-ai-agent-security-proxy) for Kubernetes options and the `pipelock.example.yaml` reference file in the Sure repository.
+Pipelock 3.2 and later refuse to start a non-loopback MCP listener without either the `--mcp-allow-unauthenticated` flag or a listener token file. The example compose file passes `--mcp-allow-unauthenticated` so it works with no extra setup. Sure's `/mcp` still requires its own bearer or OAuth token regardless of this setting.
+
+For full Pipelock configuration — including MCP listener tokens, signed receipts, Helm setup, and troubleshooting — see [Pipelock: AI agent security proxy](/self-hosting-pipelock).
 
 ## Local development bind
 
