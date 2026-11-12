@@ -3,6 +3,26 @@ title: "Troubleshooting"
 ---
 
 
+## Provider connections survive a family reset for some providers
+
+When you reset a family's financial data (via **Settings → Reset financial data** or `DELETE /api/v1/users/reset`), connections and stored credentials for Akahu, CoinSpot, Sharesight, Trade Republic, Trading 212, and Wise were not removed. After the reset, the background sync job re-synced those connections and re-imported their data, leaving the account in an inconsistent state.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The reset uses a list of provider associations to delete. Akahu, CoinSpot, Sharesight, Trade Republic, Trading 212, and Wise were missing from that list. Their connections and stored credentials survived the reset, and the next scheduled or manual sync re-imported their data.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The six missing provider associations have been added to the reset list. A regression test now fails whenever a syncable provider is omitted, so future providers cannot be forgotten.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What should I do if I already ran a reset on an affected version?">
+    Run the reset again after upgrading. The affected provider connections and credentials will be removed on the second reset.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
