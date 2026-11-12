@@ -106,6 +106,8 @@ These tools are designed for agents that maintain a document-backed record of a 
 
 Sure serves MCP over JSON-RPC 2.0 at the URL displayed in **Settings > MCP Server**. The endpoint supports `initialize`, `tools/list`, and `tools/call` over HTTP `POST` requests. MCP-compatible clients use this URL and handle browser-based sign-in and authorization with Sure.
 
+The MCP Streamable HTTP transport also sends `GET` (SSE stream) and `DELETE` (session termination) requests to the same endpoint. Sure does not serve those transports, so it answers `GET` and `DELETE` with `405 Method Not Allowed` and an `Allow: POST` response header. If the request includes an `Mcp-Session-Id` header whose session is no longer in the server-side cache, Sure answers `404 Not Found` instead, so the client knows to start a new session with `initialize`. Both verbs require a valid bearer token; requests without one return `401` before the method check.
+
 Sure authenticates each MCP request with an active OAuth access token that has the `read_write` scope. The token's resource owner determines the Sure user and family available to the tools. Sure creates a fresh transient session for that user for the request so an existing browser or impersonation session is not reused.
 
 ### Dynamic client registration redirect URIs
