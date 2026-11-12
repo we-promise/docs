@@ -246,7 +246,9 @@ Encryption is also required to generate a Wise SCA keypair. Without it, the **Ge
 </Note>
 
 <Note>
-Sure can derive these values from `SECRET_KEY_BASE` automatically, so the warning only appears when none of the three environment variables are explicitly set. If you already set `SECRET_KEY_BASE`, encryption is still active — you will only see the warning if you want to use dedicated keys instead. See [Turning on Active Record encryption after first boot](#turning-on-active-record-encryption-after-first-boot) if you need to backfill existing data.
+Sure can derive these values from `SECRET_KEY_BASE` automatically, so the provider-credentials warning only appears when none of the three environment variables are explicitly set. If you already set `SECRET_KEY_BASE`, encryption is still active — you will only see this warning if you want to use dedicated keys instead.
+
+A separate boot-time `[SECURITY]` log warning appears when encryption is configured but the backfill has not been completed yet. See [Turning on Active Record encryption after first boot](#turning-on-active-record-encryption-after-first-boot) for details.
 </Note>
 
 ### Brand logo variables
@@ -1179,6 +1181,14 @@ docker compose exec web env DRY_RUN=false bin/rails security:backfill_encryption
 ```
 
 The task is idempotent, so it is safe to rerun if needed.
+
+When the task completes with zero failures, it records a versioned completion flag in the database. Sure reads that flag at boot and automatically disables the plaintext fallback (`support_unencrypted_data` and `extend_queries`) from that point forward. A plaintext value that lands in an encrypted column after a completed backfill — from a bug, a manual database edit, or a bad migration — will raise an error instead of being silently accepted.
+
+If a future Sure release expands encryption coverage to additional models, the flag is invalidated and the boot-time warning reappears until you re-run the task. Run the backfill again the same way and the flag is updated.
+
+<Note>
+Until the backfill completes, Sure logs a `[SECURITY]` warning at boot. The warning is informational — the app starts and runs normally with the plaintext fallback active — but it signals that the transition to full encryption is not yet finished. Run the task to clear it.
+</Note>
 
 If login started failing immediately after changing encryption settings, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first. After the app can read the existing data again, run the backfill task if you are intentionally moving to dedicated keys.
 
