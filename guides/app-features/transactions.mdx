@@ -354,6 +354,40 @@ Amounts use the same sign convention as the transaction endpoints: positive for 
 
 Read requests need read scope and access to the account. Split writes need `read_write` scope and owner or full-control permission on the account. Use `amount_decimal` from the split response for exact amounts; inputs are rounded to four decimal places before checking their sum. See the [OpenAPI spec](https://docs.sure.am/openapi.yaml) for full request and response schemas.
 
+## Manual transaction reconciliation
+
+Manually-entered accounts (accounts with no bank sync) support per-transaction reconciliation so you can check off entries against a bank statement, similar to traditional personal finance tools.
+
+This feature must be enabled per family member. Go to **Settings → Preferences → Transactions** and turn on **Manual reconciliation**.
+
+### Reconciliation statuses
+
+Each transaction on a manual account cycles through three statuses:
+
+| Status | Meaning |
+|---|---|
+| Unreconciled | Not yet checked against a statement (default) |
+| Cleared | Confirmed on a statement, but the period is not yet fully reconciled |
+| Reconciled | Statement period fully reconciled; treat the transaction as locked |
+
+### Marking a transaction
+
+A clickable status badge appears on each transaction row and in the transaction detail view for manual accounts. Click the badge to advance to the next status. The cycle is: Unreconciled → Cleared → Reconciled → Unreconciled.
+
+Hovering over the badge shows a tooltip describing the current status and what clicking will do next.
+
+Reconciliation status changes do not apply to synced accounts. If a selection includes transactions from both manual and synced accounts, the bulk update updates only the manual ones and skips the rest without an error.
+
+### Bulk reconciliation
+
+Select multiple transactions and choose **Edit** to set the same reconciliation status across all selected manual-account rows. The reconciliation field is available in the bulk-edit drawer alongside name, category, merchant, tags, and notes.
+
+### Filtering by reconciliation status
+
+The search popover on the Transactions page includes a **Reconciliation** filter group. Check one or more of **Unreconciled**, **Cleared**, or **Reconciled** to narrow the list to transactions in those states.
+
+The filter only matches transactions on manual accounts. Synced transactions are always excluded from reconciliation filtering because reconciliation status does not apply to them.
+
 ## Bill allocations
 
 When a transaction has been applied to one or more bill occurrences, an **Applied to** section appears at the bottom of the transaction detail view. Each entry shows the bill name (linked to the bill's detail page), the amount applied, and the due date of the occurrence.
