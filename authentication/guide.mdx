@@ -576,6 +576,12 @@ This is a generic message that does not expose internal database index names or 
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 - If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
 
+### Self-service password change
+
+The self-service password change endpoint (`PATCH /password`) always requires the current password. A missing, blank, or JSON `null` value for `password_challenge` is treated as an empty string and fails the check. This ensures that an active session alone — such as an unlocked computer or a stolen session cookie — is not enough to set a new password and lock out the real owner.
+
+The password reset flow intentionally bypasses this check: the reset token already proves the user controls the account email address.
+
 ### MFA password re-authentication
 
 Enabling or disabling two-factor authentication requires the user's current password before the change is applied. This prevents anyone who reaches an unlocked browser from stripping or adding a second factor without knowing the password.
