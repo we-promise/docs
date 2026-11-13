@@ -339,9 +339,21 @@ When importing transactions, ensure the account names in your CSV exactly match 
 
 Sure will import all rows from your CSV. Review your data before importing to avoid duplicates.
 
+When an imported row matches a transaction that already exists (from a manual entry or a previous import), Sure updates that transaction's category, tags, and notes from the new import and locks it, but keeps it associated with its original import. If you revert the new import, only the transactions it created are removed. Your original transactions are not deleted.
+
 ### Rule import with tag conditions produces broken rules
 
 If you imported a rules CSV with `transaction_tag` conditions on an older version of Sure (before the fix in [#3419](https://github.com/we-promise/sure/pull/3419)), the tag name was stored as-is instead of being resolved to the tag's ID. Rules with this problem match no transactions for the tag condition. To fix affected rules, delete and re-import them, or edit each rule manually in **Settings → Rules** to remove and re-add the tag condition.
+
+### Reverting an import deleted pre-existing transactions
+
+On versions before the fix in [#4960](https://github.com/we-promise/sure/pull/4960), reverting or deleting a CSV transaction import could delete transactions that existed before the import ran. This happened when the import matched a pre-existing transaction as a duplicate: the matched entry was reassigned to the new import, so the revert destroyed it along with the entries the import created.
+
+The fix stops the import from taking ownership of matched entries. Existing transactions are still updated (category, tags, notes) and locked by the import, but they keep their original association. Only entries the import itself created are removed when you revert.
+
+**Known limitation:** Reverting a re-import does not restore the category, tags, or notes that the import wrote onto a matched entry. If you need to undo those field changes, edit the affected transactions manually after reverting.
+
+If you are on an older version and experienced data loss from this issue, upgrade to the latest release. Deleted transactions cannot be recovered automatically — you will need to re-enter or re-import them.
 
 ### Sure NDJSON import fails with a null rule name
 
