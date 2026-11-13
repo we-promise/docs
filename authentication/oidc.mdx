@@ -19,7 +19,14 @@ OIDC works with any compliant identity provider, including:
 - GitLab
 - GitHub (via OIDC)
 
-## Configuration via admin UI
+## Configuration methods
+
+You can configure OIDC providers in two ways:
+
+- **Admin UI (recommended)**: manage providers through `/admin/sso_providers` without server restarts. Requires `AUTH_PROVIDERS_SOURCE=db`.
+- **Environment variables**: configure providers via `config/auth.yml` and environment variables. Requires a server restart after changes.
+
+### Admin UI setup
 
 <Steps>
   <Step title="Navigate to SSO providers">
@@ -55,6 +62,48 @@ OIDC works with any compliant identity provider, including:
     Save the configuration and test the login flow
   </Step>
 </Steps>
+
+### Environment variable setup
+
+Set the following variables in your `.env` file or Docker Compose environment:
+
+```bash
+OIDC_ISSUER="https://accounts.google.com"
+OIDC_CLIENT_ID="your-oidc-client-id"
+OIDC_CLIENT_SECRET="your-oidc-client-secret"
+OIDC_REDIRECT_URI="https://yourdomain.com/auth/openid_connect/callback"
+```
+
+Restart the application after saving the variables. These settings correspond to the default `openid_connect` provider entry in `config/auth.yml`. When OIDC is correctly configured, users see a **Sign in with OpenID Connect** button on the login page (the label can be customised with `OIDC_BUTTON_LABEL`).
+
+For multiple OIDC providers or providers with custom names, configure them directly in `config/auth.yml`. See [Authentication guide](/authentication/guide#multiple-oidc-providers) for the YAML format and the matching per-provider environment variables.
+
+#### Local login control
+
+By default, both local email/password login and SSO are available. To restrict login to SSO only:
+
+```bash
+# Disable email/password login for all users
+AUTH_LOCAL_LOGIN_ENABLED=false
+
+# Allow super admins to still log in locally (useful during IdP outages)
+AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=true
+```
+
+JIT account creation behaviour is controlled by:
+
+```bash
+# Allow new accounts on first SSO login (default)
+AUTH_JIT_MODE=create_and_link
+
+# Only allow SSO sign-in for users who already have an account
+AUTH_JIT_MODE=link_only
+
+# Restrict JIT account creation to specific email domains
+ALLOWED_OIDC_DOMAINS="example.com,corp.com"
+```
+
+See [Authentication guide](/authentication/guide#local-login-control) for the full set of configuration options.
 
 ## Provider-specific guides
 
@@ -283,6 +332,49 @@ The application automatically validates:
 - Token issuer (`iss` claim matches issuer URL)
 
 ## Troubleshooting
+
+### Self-signed certificate or internal CA
+
+If your identity provider uses a self-signed certificate or an internal certificate authority, Sure cannot validate the OIDC discovery endpoint by default.
+
+Configure SSL verification in your `.env` file:
+
+```bash
+# Path to your CA certificate in PEM format (recommended)
+SSL_CA_FILE=/certs/my-ca.crt
+
+# Disable SSL verification — only for testing, not for production
+SSL_VERIFY=false
+
+# Enable verbose SSL logging to diagnose certificate issues
+SSL_DEBUG=true
+```
+
+When using `SSL_CA_FILE` with Docker, mount the certificate into the container:
+
+```yaml
+# docker-compose.yml
+services:
+  web:
+    environment:
+      SSL_CA_FILE: /certs/my-ca.crt
+    volumes:
+      - ./my-ca.crt:/certs/my-ca.crt:ro
+  worker:
+    environment:
+      SSL_CA_FILE: /certs/my-ca.crt
+    volumes:
+      - ./my-ca.crt:/certs/my-ca.crt:ro
+```
+
+Common SSL errors and fixes:
+
+| Error | Fix |
+| --- | --- |
+| `self-signed certificate` | Set `SSL_CA_FILE` to your CA certificate |
+| `certificate verify failed` | Ensure `SSL_CA_FILE` points to the correct CA |
+| `certificate has expired` | Renew the server's SSL certificate |
+| `unknown CA` | Add the issuing CA to `SSL_CA_FILE` |
 
 ### Invalid redirect URI error
 
