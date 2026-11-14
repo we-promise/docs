@@ -66,6 +66,8 @@ After transactions are extracted, the import still needs an account before it ca
 
 When you assign an account to a PDF import, Sure matches each extracted transaction against the account's existing entries by amount and date (with a small date window to account for posting-date differences). Transactions that are already on file are marked reconciled and excluded from the import; only genuinely new transactions are offered for review.
 
+After the AI processes a PDF import, the extracted statement period (start date, end date), opening balance, closing balance, institution name, and account last-four digits are written back to the statement record. This keeps the displayed statement period accurate even for accounts with mid-month billing cycles. Previously, statements defaulted to the full calendar month (the 1st through the last day) with a zero opening balance until manually corrected; they now reflect the exact dates found in the document.
+
 The import summary shows:
 
 - **Extracted** — total transactions found in the statement
