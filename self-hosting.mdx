@@ -851,6 +851,26 @@ For production deployments:
 
 When the Sidekiq worker container isn't running, background jobs silently never execute. Balance calculations, net-worth updates, and account syncs stall, and the UI may show zeros or "No balance data available" without explaining why.
 
+### Hosts that sleep (laptops, NAS)
+
+Scheduled jobs such as the daily account sync and the market data import only run if the worker is awake within 10 minutes of their scheduled time. A run missed by more than that is skipped until the next scheduled time. If your host sleeps overnight, you can let missed runs catch up by raising the grace period in your `.env` file:
+
+```txt
+SIDEKIQ_CRON_GRACE_PERIOD_SECONDS=86400   # default 600 (10 minutes)
+```
+
+When the worker wakes, each job runs once for its most recent missed time, as long as that time falls within the grace period. Older missed runs are not replayed. For example, a job scheduled at 22:00 on Friday that the worker misses until Monday morning needs `259200` (3 days) to catch up; with `86400` it waits until Monday 22:00.
+
+Blank, non-integer, or non-positive values fall back to the default of 600 seconds, so a typo cannot stop all cron jobs. A fresh or recreated cron job can also run once at worker start for its last scheduled slot when the grace period is large.
+
+The variable only reaches the worker if your compose file passes it through. The current `compose.example.yml` and `compose.example.ai.yml` forward it in the `x-rails-env` block. If your `compose.yml` was copied from an older example, add the following line under `x-rails-env`:
+
+```yaml
+SIDEKIQ_CRON_GRACE_PERIOD_SECONDS: ${SIDEKIQ_CRON_GRACE_PERIOD_SECONDS:-}
+```
+
+After changing the value, run `docker compose up -d worker` to recreate the worker with the new setting. Using `docker compose restart` keeps the old value.
+
 ### Sidekiq queue dashboard credentials
 
 The Sidekiq queue dashboard is available at `/sidekiq` for signed-in super admins only. You can add a second HTTP basic-auth layer on top of that by setting both of these variables:
