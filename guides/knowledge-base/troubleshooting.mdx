@@ -210,6 +210,26 @@ If an account balance or your net worth chart falls to zero for a day — withou
   </Accordion>
 </AccordionGroup>
 
+## Dashboard, reports, or transactions show an exchange rate notice
+
+Sure shows inline notices on the dashboard, Reports, and Transactions pages when a currency conversion is incomplete or is based on an out-of-date rate.
+
+<AccordionGroup>
+  <Accordion title="What does the missing exchange rate warning mean?">
+    A warning reading "No exchange rate from [CURRENCY] to [FAMILY CURRENCY] is stored yet, so some totals may leave out amounts in [CURRENCY]" means Sure has no stored rate at all for that pair. Amounts in the named currency are excluded from net worth, investment, income, and spending totals until a rate is available. The warning names every currency affected.
+  </Accordion>
+
+  <Accordion title="What does the out-of-date exchange rate notice mean?">
+    An info notice reading "The latest exchange rate to [FAMILY CURRENCY] is out of date: [CURRENCY] from [DATE]. Today's totals use it." means Sure has a stored rate for the pair, but its newest entry is more than five days old. Today's totals are calculated using that stored rate; the notice shows the date it comes from so you know how stale the conversion is.
+  </Accordion>
+
+  <Accordion title="How do I resolve these notices?">
+    Go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured. Twelve Data is the default. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once a usable rate is stored, the notice disappears and the previously excluded amounts are included in totals on the next request.
+
+    If your self-hosted instance does not use a data provider, you can add exchange rates manually at **Settings → Exchange rates**.
+  </Accordion>
+</AccordionGroup>
+
 ## Account shows an error when a foreign-currency transaction has no exchange rate
 
 If an account holds transactions in a currency that has no exchange rate available for a given date, earlier versions would abort the entire balance calculation for that account, marking it as errored even though all transactions had imported correctly.
@@ -220,9 +240,9 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 
   <Accordion title="How was it fixed?">
-    Sure now skips the unconvertible entry rather than aborting. The entry is excluded from the balance total, the missing rate pair is written to **Settings → Debug** under the `sync` category, and the rest of the account's transactions are still used to calculate balances normally.
+    Sure now handles a missing rate for a specific date by looking for the nearest stored rate — the latest one before that date, or the earliest one after it. Only a currency with no stored rate at all is left out of totals.
 
-    Holdings with a missing rate are handled differently: they are still counted toward the total at a 1:1 rate (to avoid phantom cash appearing in the cash balance), and the occurrence is also logged.
+    When a currency pair has no stored rate at all, Sure excludes its amounts from totals and shows a warning on the dashboard, Reports, and Transactions pages naming the missing currency. The missing rate pair is also written to **Settings → Debug** under the `sync` category.
 
     To see which rate was absent, go to **Settings → Debug** and filter by the `sync` category. Look for entries from `Balance::SyncCache` with level `warn`.
 
@@ -230,7 +250,7 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 
   <Accordion title="How do I resolve the missing exchange rate?">
-    Go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured. Twelve Data is the default. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once rates are fetched, the previously skipped entries will be included in the next balance calculation.
+    Go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured. Twelve Data is the default. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once rates are fetched, the previously excluded amounts are included in the next balance calculation.
   </Accordion>
 </AccordionGroup>
 
