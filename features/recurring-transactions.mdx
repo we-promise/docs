@@ -275,6 +275,10 @@ When a current occurrence is available, the bill summary drawer leads with its r
 
 The bill drawer is the complete bill surface. It shows the bill summary at the top, followed by collapsible sections — Overview (12-month chart, per-year totals, price changes), Coming up (upcoming due dates), History (settled cycles and what paid each one), and Notes. Coming up, History, and Notes appear when they have content. The deep sections load lazily when you scroll to them. Edit, Pause/Resume, and Delete are available from a menu in the drawer header, next to the close button. AI configure appears there when you have enabled AI and an LLM provider is available.
 
+Each row in the History section is a link that opens the payment drawer for that cycle, giving you direct access to the cycle's payment list and the unlink action. Paid, skipped, and missed cycles all open this way.
+
+When the drawer is showing an open cycle and the bill has a settled cycle with at least one confirmed payment, a secondary **Manage payments** button appears in the bill summary alongside the primary action. It opens the most recent settled cycle's payment drawer. The button is hidden when the drawer is already showing a settled cycle (the primary action already manages payments for that cycle), or when the bill has no settled cycles with confirmed allocations.
+
 ### Bill row subline
 
 Each bill row shows a single subline with context about that occurrence. The subline follows a fixed order, truncating from the end when space is tight:
