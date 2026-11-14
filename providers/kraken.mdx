@@ -14,7 +14,7 @@ Sure imports one combined Crypto exchange account per Kraken connection, contain
 - Current crypto holdings and balances — staked and bonded wallet balances (such as ETH.B or DOT28.S) are combined with their spot balance into a single holding per asset, valued at their balance-weighted average price
 - Spot trade fills (buy/sell history)
 - Deposits and withdrawals — each imported as two entries: the principal and a separate fee entry, so the transfer can be matched to your receiving account
-- Staking rewards and Earn income
+- Staking rewards and Earn income — standard Earn products (bonded, flex, and auto-earn) are already included in your main balance; only hybrid Earn holdings such as the Bitcoin vault are added separately
 - Dust sweeps ("convert small balances") as paired Sweep In / Sweep Out entries
 - Standalone fiat fees
 
@@ -117,6 +117,12 @@ If you see separate holdings for what should be one position — for example, BT
 ### Fiat balance appears as a holding
 
 If a currency like EUR or USD appears in your holdings list, the balance was imported before Sure began excluding fiat from the holdings snapshot. Current imports skip fiat holdings. This does not guarantee removal of fiat holding records already stored by an older import.
+
+### Earn holdings show roughly double the expected balance
+
+If your Kraken account shows an inflated crypto balance — for example, 16.85 ETH when you only hold 8.42 — standard Earn allocations (bonded, flex, and auto-earn) may have been counted twice. These strategies are already included in your main balance from Kraken's extended balance endpoint; a previous version of Sure also added them from the Earn allocations endpoint, which doubled those positions.
+
+The fix is applied automatically on the next sync. No re-import is required. Only hybrid Earn products such as the Bitcoin vault are now added from Earn allocations.
 
 ### Trade quantities or cash amounts look slightly off
 
