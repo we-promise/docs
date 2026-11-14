@@ -35,6 +35,8 @@ When you import transactions from Up, Sure maps Up's category slugs to your exis
 
 The mapping uses high-confidence matches only. Up categories that do not have a clear Sure equivalent (for example, Booze, Pets, Apps & Games, Life Admin, and Technology) are left uncategorised so you can apply your own rules or let the AI assistant categorise them.
 
+Category matching works regardless of the language your family uses. Default categories are stored in your configured interface language (for example, "Lebensmittel" in German), and Sure maps them back to their English equivalents before matching against Up's category slugs. Custom category names you have created are matched as-is.
+
 If you have already set or locked a category on a transaction in Sure, a re-sync will not overwrite it.
 
 To turn off automatic category mapping, open the account in Sure, go to its settings, and disable the **Automatic category mapping** toggle. When disabled, imported transactions carry no auto-assigned category and are left for your rules or the AI categorizer to handle. The raw Up metadata is still imported; only the auto-category assignment is skipped.
@@ -52,6 +54,8 @@ Category mapping only applies to your existing Sure categories. If your family h
 ## Troubleshooting
 
 **"Configure Up in provider settings first" error**: If you see this alert when trying to add an Up account, the selected connection has no configured personal access token. Go to **Settings > Providers > Up**, paste your token, and save before adding accounts.
+
+**Categories not being assigned when using a non-English language**: If your family's interface language is not English, default categories are stored in that language (for example, "Lebensmittel" instead of "Groceries"). Earlier versions of Sure could not match these translated names against Up's English category slugs, leaving all synced transactions uncategorised. This is fixed in builds containing [Sure PR #4997](https://github.com/we-promise/sure/pull/4997). After updating, trigger a manual sync from each Up account to apply category matching to recent transactions.
 
 **Missing categories after sync**: Check that you have categories configured in Sure under **Settings > Categories**. If no categories exist, Up transactions arrive uncategorised by design.
 
