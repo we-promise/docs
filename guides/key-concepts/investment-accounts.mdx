@@ -27,6 +27,16 @@ The Investments panel on the dashboard and in reports aggregates your holdings b
 
 Portfolio weight shown in the top holdings table and in the allocation view is calculated as a percentage of your total portfolio value (including cash). Both views share the same denominator, so the same security always shows the same weight in both places.
 
+### Per-account holding weights
+
+The Holdings tab on an individual account also shows each position's weight. The denominator is the largest of:
+
+- The account balance
+- The total value of the account's current holdings
+- The individual holding's own value
+
+This means weights are always at or below 100%, even when derived cash is negative (for example, when a deposit is missing or account valuations are slightly below the holdings total). Accounts where cash is not negative are unaffected.
+
 ### Provider-synced holdings
 
 When a provider (such as SimpleFIN, SnapTrade, or CoinStats) imports your holdings, it delivers a snapshot of your positions on a specific day. Sure tracks which day each snapshot came from and only shows holdings from the **most recent provider import day** in investment views. Holdings from earlier snapshots are excluded so that stale positions do not appear alongside your current portfolio.
