@@ -1,0 +1,77 @@
+---
+title: Dashboard
+description: Overview of the dashboard widgets available in Sure, including the new Cash Flow Rings widget
+keywords: ['dashboard', 'widgets', 'cash flow rings', 'net worth', 'balance sheet', 'spending']
+---
+
+## Overview
+
+The dashboard is your financial home screen. It shows a set of widgets — each covering a different view of your finances — that you can arrange, resize, collapse, or hide to match how you work.
+
+## Customizing your dashboard
+
+Click the grid icon in the dashboard header to enter customize mode. From there you can:
+
+- **Reorder widgets** — drag them into any order.
+- **Resize widgets** — toggle between half-width and full-width for widgets that support it.
+- **Hide a widget** — click the X on any widget. Hidden widgets appear in the hidden section at the top of the customize view, where you can restore them.
+- **Collapse a widget** — click the section header to collapse it. The widget stays in your layout but takes up minimal space until you expand it again.
+
+Changes are saved to your account and persist across devices.
+
+## Widgets
+
+### Insights
+
+A feed of the three highest-priority, unacknowledged observations Sure has generated about your finances — spending anomalies, budget overruns, net worth milestones, and more. Each card has a **Dig in with AI** button that opens the assistant sidebar with the insight pre-loaded.
+
+Insights require preview features to be enabled. See [Insights](/guides/app-features/insights) for the full list of insight types and how they work.
+
+### Cashflow (Sankey)
+
+A full-width Sankey chart showing how money moved from income sources through spending categories over the selected period. Useful for seeing the flow of funds at a glance. The chart requires at least one account with categorized transactions.
+
+### Money In / Out
+
+A compact card showing total inflows and total outflows for the selected period, with per-category breakdowns and account filtering. Each bar is clickable and drills into the matching transaction list. The widget has its own month picker and account filter, independent of the dashboard period at the top of the page.
+
+### Spending
+
+A chart showing your spending trend over time, with category filtering and a month selector. The chart grows to fill its column; at full width it shows more time on the x-axis.
+
+### Outflows
+
+A single-ring donut chart showing your spending by category for the selected period. Hovering a segment highlights the slice and shows the category total. Clicking a segment opens the corresponding transaction list.
+
+### Cash Flow Rings
+
+Two concentric rings on one scale — the outer ring shows inflows by category, and the inner ring shows outflows by category — read like a budget gauge where income is the budget.
+
+The center of the chart shows:
+- **Spent** — total spending for the period.
+- **Of \$X income** — the income against which spending is measured.
+- A net figure: **\$X left** in green when spending is under income, or **\$X over** in red when spending exceeds income.
+
+When spending is under income, the unused portion is drawn as a muted segment on the outflows ring. When spending exceeds income, an overage segment appears in red on the inflows ring. Either way both rings close at the same total, so the visual gap between them represents the difference.
+
+Below the chart, inflows and outflows are listed by category group with group totals. Hovering a row highlights the corresponding arc. Clicking a category row opens the matching transaction list.
+
+The widget has its own month picker and account filter. Changing the month or accounts here does not affect other dashboard widgets or the period at the top of the page. Drill-down links carry the account filter so the transactions you see match what the chart counted. An empty state keeps the controls visible so you can navigate away from a month with no data.
+
+**Eligibility:** The Cash Flow Rings widget uses the same eligible accounts as the other income-statement widgets. Accounts excluded from income statement calculations (such as investment and crypto accounts) do not appear in the account filter.
+
+### Investments
+
+A summary of your investment portfolio for the selected period — total value, total return, contributions, withdrawals, and a holdings table. Appears only when you have at least one investment account connected.
+
+### Net Worth
+
+A chart of your net worth over time. The period selector at the top of the dashboard controls the date range shown.
+
+### Balance Sheet
+
+A snapshot of your assets and liabilities — depository, investment, property, and crypto on the asset side; credit, loan, and other on the liability side — with current values pulled from your connected accounts.
+
+## Period selector
+
+The period selector at the top of the dashboard page controls the date range for widgets that follow the global period (Net Worth, Balance Sheet, Cashflow). Widgets with their own pickers — Money In / Out, Spending, Outflows, and Cash Flow Rings — are not affected by the global period selector. Changing the global period never resets a widget's own picker.
