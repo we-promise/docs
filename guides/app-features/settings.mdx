@@ -334,6 +334,16 @@ The AI chat interface is fully localized in Brazilian Portuguese (pt-BR). This i
 
 Several account page UI strings that previously failed to resolve in non-English locales now display correctly. The balance tooltip and "no balance data" message on account activity date rows, the selection toggle label in the activity feed, and the period picker's accessibility label all use the correct language when a non-English locale is set. Previously these strings rendered as raw translation-missing text or fell back silently to English.
 
+The transactions and imports areas are now fully translated in German. This covers:
+
+- **Transactions list filters** — the attachment filter (Mit Anhang / Ohne Anhang) and the AI categorization filter (KI / KI-Verlauf), including their tooltip descriptions.
+- **Transaction detail panel** — provider extras section (Anbieterdaten), payment metadata (Zahlungsdetails), counterparty fields (Gegenpartei), and all provider-specific field labels such as payee, payer, reference number, and confidence level.
+- **Activity labels** — investment transaction types (Kaufen, Verkaufen, Dividende, Zinsen, Gebühr, and others) shown in the transaction list and detail view.
+- **Recurring transaction UI** — the "Mark as recurring" action, its description, and the upcoming recurring transactions toggle.
+- **Import flows** — the full Monarch import configuration screen, including account mapping, type and status selectors, and all help text. The PDF statement import flow is also fully translated, including the ready-for-review notice, reconciliation summary, and account selection.
+- **QIF imports** — the "select an account" alert that appears when uploading a QIF file without selecting a destination account now resolves correctly in all locales, including German. Previously this message showed as a raw missing-translation string.
+- **PDF import pluralization fix** — the ready-for-review description previously read "Wir haben 1 Transaktionen …" for a single transaction. It now uses correct singular and plural forms.
+
 ### MXN number formatting in Spanish
 
 When the interface language is set to Spanish, Mexican peso (MXN) amounts now display with US-style separators — a dot (`.`) as the decimal separator and a comma (`,`) as the thousands separator — matching how MXN values are natively formatted. Previously, the Spanish locale's European-style separators were applied to MXN, producing incorrect formats such as `1.234,56` instead of `1,234.56`. All other currencies continue to use the locale-aware separators for their respective locales.
