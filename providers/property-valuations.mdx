@@ -128,6 +128,27 @@ To link a provider:
 
 After linking, the Overview tab shows the last valuation date and a **Refresh valuation** button. The property is included in future automatic monthly refreshes.
 
+## Property overview cards
+
+When you open a property account and go to the **Overview** tab, Sure shows a summary of the property's value and gain.
+
+| Card | What it shows |
+|---|---|
+| Market value | The current account balance in the property's currency |
+| Purchase price | The earliest valuation recorded, in the property's currency |
+| Trend | The gain or loss since purchase, as an amount and percentage, in the property's currency |
+| Trend in [family currency] | The same gain expressed in your family's currency, using stored exchange rates — shown only when the property's currency differs from the family currency |
+| Year built | The year built field on the property account |
+| Living area | The area field on the property account |
+
+### Trend in family currency
+
+When a property is held in a currency different from your family currency, the **Overview** tab shows an extra **Trend in [family currency]** card alongside the standard Trend card. It converts the purchase value at the exchange rate on the purchase date and the current balance at today's rate, so a currency move that would otherwise hide or inflate a gain is visible.
+
+Sure uses only stored exchange rates — the page never calls an exchange rate provider while rendering. It picks the latest stored rate on or before the target date, or the earliest one after it when no earlier rate exists. If no stored rate exists for the currency pair at all, the card shows **Exchange rate unavailable** instead of a converted amount.
+
+The card does not appear when the property is already in the family currency.
+
 ## Adding a property using a valuation provider
 
 ### US properties (RentCast or Realie)
