@@ -343,6 +343,16 @@ Sure will import all rows from your CSV. Review your data before importing to av
 
 If you imported a rules CSV with `transaction_tag` conditions on an older version of Sure (before the fix in [#3419](https://github.com/we-promise/sure/pull/3419)), the tag name was stored as-is instead of being resolved to the tag's ID. Rules with this problem match no transactions for the tag condition. To fix affected rules, delete and re-import them, or edit each rule manually in **Settings → Rules** to remove and re-add the tag condition.
 
+### Property details and address after a Sure NDJSON import
+
+When you import a Sure export into a new family, property accounts are restored with their subtype, year built, area value, and area unit. If the export includes a street address for the property, the address (line 1, line 2, locality, region, county, postal code, country) is restored as well.
+
+A property whose export has no address imports with no address. An explicit `null` area unit keeps the `sqft` default.
+
+If an import maps to a property account that already exists in the target family (a later import in the same session), Sure updates the account but does not update the property's details or address. This matches the behavior for all other account types.
+
+Provider links (AVM valuation providers) are not restored. After the import completes, reconnect your valuation provider from the account's settings.
+
 ### Sure NDJSON import fails with a null rule name
 
 Rules exported from Sure may have a `null` name field, which is valid. If a full `all.ndjson` export fails preflight with an error about a missing rule name, ensure you are using a current version of Sure — older versions incorrectly required the name field to be present.
