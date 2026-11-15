@@ -66,6 +66,16 @@ Sure reads the batch limit of 100 account IDs per API call. If a multi-account b
 
 A failed `account-details` fetch does not replace the stored details snapshot. Non-authentication failures are logged and allow the sync to continue; authentication failures propagate and require reconnecting the connection.
 
+### Auto-categorization
+
+Sure automatically categorizes Redbark transactions on import using two signals from the Redbark API:
+
+1. **Bank category code** (`category` field) — Redbark reports a fixed category code such as `FOOD_AND_DRINK` or `ENTERTAINMENT`. Sure maps 11 of Redbark's 16 codes to your existing Sure categories. Five codes (`MERCHANDISE`, `RENT_AND_UTILITIES`, `GOVERNMENT_AND_NON_PROFIT`, `TRANSFER_IN`, `TRANSFER_OUT`) are intentionally left unmapped because they are too broad to categorize reliably, or represent money movement that Sure's transfer matcher handles separately.
+
+2. **Merchant Category Code (MCC)** — used as a fallback when the bank category code is blank, unrecognized, or excluded. MCCs allow more specific matching (for example, MCC `5411` maps to Groceries when the bank category code is not set).
+
+Categorization matches against your family's own category names and never creates new categories. It never overwrites a category you have already set or locked manually.
+
 ### Pending transactions
 
 Only posted transactions are imported by default. To also import pending transactions, set this in your Sure environment:
