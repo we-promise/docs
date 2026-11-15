@@ -66,6 +66,23 @@ Sure reads the batch limit of 100 account IDs per API call. If a multi-account b
 
 A failed `account-details` fetch does not replace the stored details snapshot. Non-authentication failures are logged and allow the sync to continue; authentication failures propagate and require reconnecting the connection.
 
+### Category mapping
+
+Redbark reports a fixed bank-category code (such as `FOOD_AND_DRINK` or `TRANSPORTATION`) on every transaction. Sure maps 11 of the 16 possible codes onto your existing Sure categories, matching by the category name in your own language. Five codes are intentionally left unmapped:
+
+- `MERCHANDISE` — too broad to guess confidently; covers everything from electronics to groceries
+- `RENT_AND_UTILITIES` — cannot be split between Sure's separate Mortgage/Rent and Utilities categories
+- `GOVERNMENT_AND_NON_PROFIT` — combines tax payments and charitable donations, which belong in different categories
+- `TRANSFER_IN` / `TRANSFER_OUT` — money movement; Sure's transfer matcher handles these instead
+
+When the bank-category code is blank or unmapped, Sure falls back to the transaction's Merchant Category Code (MCC) if one is present.
+
+Matching respects your locale: if your Sure interface is not in English, category names are compared in your language first, then against English aliases.
+
+Category mapping only applies to your existing Sure categories. If you have already set or locked a category on a transaction, a re-sync will not overwrite it. If a recognized code has no matching category in your family's category list, the transaction is left uncategorized rather than assigned a category based on the MCC.
+
+To turn off automatic category mapping, open the account in Sure, go to its settings, and disable the **Automatic category mapping** toggle. When disabled, imported transactions carry no auto-assigned category and are left for your rules or the AI categorizer to handle.
+
 ### Pending transactions
 
 Only posted transactions are imported by default. To also import pending transactions, set this in your Sure environment:
