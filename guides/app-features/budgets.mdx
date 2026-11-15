@@ -185,6 +185,22 @@ Sure reserves the remaining unpaid amounts of open occurrences that are:
 
 Confirmed payment allocations reduce the reserved amount. Paid, skipped, missed, income, and transfer occurrences are excluded.
 
+## Category spending averages
+
+Sure calculates a monthly average and median for each category to help you understand your typical spending patterns. These figures appear alongside your budget progress.
+
+### How averages are calculated
+
+The average looks back up to 12 past months. Months with no transactions at all count as zero spend. Months where all transactions are in a foreign currency with no available exchange rate are excluded from the count entirely — they cannot be measured, so they are skipped rather than treated as zero.
+
+This means that if you had a month of spending in a currency Sure could not convert, that month does not drag your average down. The average reflects only months where Sure could actually measure your spending.
+
+A category with no measurable past months shows no average.
+
+### Multi-currency households
+
+In households that use multiple currencies, averages are always expressed in your budget currency. If an individual transaction cannot be converted (no exchange rate is available for that currency on that date), it is excluded from that month's total. If an entire month's category spending is unconvertible, that month is skipped in the average calculation.
+
 ## Status Indicators
 
 Sure uses color-coded badges to show your budget status at a glance:
