@@ -911,7 +911,7 @@ The tab is loaded lazily and does not affect the initial page load time. Click t
 
 The system health page has an **AI** tab at `/admin/system_health?tab=ai`. When you first open the tab, Sure shows a loading placeholder and then fetches the results in the background. This keeps the page responsive while up to six live probes run. The checks are bounded, non-destructive, and cover the effective AI configuration:
 
-- **LLM probe** — Verifies the configured model is available. For standard OpenAI, it queries the models list. For OpenAI-compatible endpoints (Ollama, OpenRouter, etc.), it sends a short chat completion request instead, since many compatible providers do not implement the models list endpoint.
+- **LLM probe** — Verifies the configured model is available. For every protocol — OpenAI, OpenAI-compatible, and Anthropic — the probe lists the provider's models and checks that the configured model is returned. No chat call is made. Probe failures report one of these codes: `no_credit` (the account balance is exhausted), `unauthorized` (invalid or revoked key), `unreachable` (the endpoint could not be reached), `model_not_available` (the model is not in the returned list), or a provider-specific message for other errors.
 - **Function calling (tools) probe** — Asks the configured model for one trivial tool call using the same `tools` payload the assistant sends for its own function calls. A pass means tool calls work end-to-end. Two distinct failure outcomes are reported separately: if the tools request is rejected as a client error but the same request without tools succeeds, the probe marks tool support as **unsupported** (common with models on providers like OpenRouter that answer a bare 404); if the endpoint accepted the tools parameter but the model replied with text instead of calling the tool, the probe marks it as **tools accepted, but the model called none**. The probe uses the same API route the assistant takes — Responses API for hosted OpenAI when `supports_responses_endpoint?` is true, Chat Completions otherwise — so it always reflects the path live chat follows.
 - **PDF text extraction probe** — Sends a synthetic PDF to the model and checks that the response correctly identifies the institution name embedded in the document. This probe only runs when the effective provider is OpenAI and the model reports PDF text extraction support. The synthetic document contains no customer data.
 - **PDF vision processing probe** — Same synthetic PDF check using the vision processing path. Runs for any provider that reports vision-based PDF support, including Anthropic. The synthetic document contains no customer data. If the probe fails with "The pdftoppm renderer (poppler-utils) is not available in this container", your image predates the fix that bundled `poppler-utils`; pull the latest image and restart.
@@ -1046,11 +1046,47 @@ OPENAI_EXTRA_HEADERS='{"x-opencode-session": "{session_id}"}'
 - The value must be a valid JSON object. If it is missing, not an object, or not valid JSON, Sure logs an error and falls back to no extra headers. Chat continues normally.
 - String keys and values are used as-is. Blank values are dropped.
 - If a header value contains the literal `{session_id}`, Sure substitutes the current chat's UUID at request time. This identifies requests per conversation rather than per installation. The substitution only happens for chat requests — batch flows such as auto-categorization, merchant detection, and PDF processing never receive session headers.
+- Extra headers are not sent to embedding or vector-store calls. AI health probes run through the same AI transport as production calls, but they also do not receive extra headers.
 - This variable is environment-only. There is no Settings UI equivalent.
 
 <Note>
 The Sidekiq health banner, system health page, and AI status tab are only available in self-hosted mode. Managed deployments do not show these features.
 </Note>
+
+### AI tracing modes
+
+AI calls made through Sure's AI transports are traced in one of two modes. Health probes are never traced in either mode — they carry no family data and run when an admin opens the health page.
+
+The active mode follows the variables you have set:
+
+| Variables set | Mode | What leaves the server |
+| --- | --- | --- |
+| `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` | `content` | Prompts, outputs, token usage, the model and endpoint, and Sure's error class — sent to Langfuse |
+| Only `OTLP_ENDPOINT` (and `OTLP_HEADERS` for authentication) | `metadata` | Model, settings, finish reason, token counts, and latency — as OpenTelemetry spans to any OTLP backend (Langfuse, Tempo, Jaeger, OpenObserve). No prompts, tool results, or answers |
+| Both | `content`, with a warning in the log | Same as `content` |
+| Neither | off | Nothing |
+
+```bash
+# Metadata mode: cost and latency without sending financial data to a tracing backend
+OTLP_ENDPOINT=https://otel.example.com/v1/traces
+OTLP_HEADERS=Authorization=Basic%20dXNlcjpwYXNz
+```
+
+`OTLP_HEADERS` uses the OpenTelemetry header format: `key=value` pairs separated by commas, with values URL-encoded. In metadata mode, traces omit the endpoint name, Sure's error class, and errors raised before a request is sent.
+
+### AI usage: one row per request, shown per call
+
+The LLM usage page shows one row per AI call. A call that required several requests — for example, a retried `429` or `503` — expands to show each request with its status, tokens, cost, and error. Totals count calls, not individual requests.
+
+If you query the `llm_usages` table directly, group by `COALESCE(call_id, id)` to count calls. Rows written before this change, and rows from features that have not yet moved onto the AI transports, have no `call_id` and represent calls of one request each.
+
+### Outbound proxy for AI clients
+
+Sure resolves a single proxy for all its AI HTTP clients: `HTTPS_PROXY` first, then `HTTP_PROXY`, regardless of the scheme of the server being called. `NO_PROXY` is honoured, including CIDR blocks such as `10.0.0.0/8`. Loopback addresses (`127.0.0.0/8`, `::1`, and `localhost`) are never proxied.
+
+This proxy setting covers OpenAI-compatible clients, the native Anthropic transport used by health probes, and the external assistant. `NO_PROXY` matches hostnames as written: `127.0.0.1` does not cover `localhost`.
+
+If you previously relied on an `http://` gateway going direct with only `HTTPS_PROXY` set, that gateway now goes through the proxy unless you add it to `NO_PROXY`.
 
 ## Demo data refresh
 
