@@ -125,13 +125,19 @@ If a later sync determines an activity should be classified differently (for exa
 
 ### Option contract support
 
-Sure imports option trades from SnapTrade, including standard and mini-option contracts.
+Sure imports option positions from SnapTrade into your holdings, in addition to option trades in your activity history. Standard and mini-option contracts are both supported.
 
 When SnapTrade reports an `option_symbol` alongside a plain `symbol`, Sure uses the option symbol. This prevents brokerages such as Robinhood, which populate `symbol` with the underlying equity even on options activity, from importing option trades as common stock.
 
-Option contracts are displayed with a formatted name that includes the underlying ticker, strike price, option type, and expiration date. For example: `AAPL $150 CALL (2026-01-20)`.
+Option contracts are displayed with a formatted name that includes the underlying ticker, strike price, option type, and expiration date. For example: `AAPL $240 CALL (2026-12-18)`.
 
-SnapTrade reports option quantity in contracts but quotes price per underlying share. Sure converts the per-share price to a per-contract price by applying the contract multiplier (100 for standard options, 10 for mini-options) so that `quantity × price` correctly represents total contract value.
+SnapTrade reports option quantity in contracts but quotes price per underlying share. Sure applies the contract multiplier (100 for standard options, 10 for mini-options, or the multiplier supplied by SnapTrade's instrument data) to the per-share price and to cost basis, so that `quantity × price` correctly represents total contract value.
+
+**Short options** reduce your account balance but do not appear as holding rows, because holdings cannot carry a negative quantity. The obligation is still reflected in your account total. For accounts where short positions outweigh long ones, Sure uses the calculated total rather than SnapTrade's reported balance.
+
+**Expired options** remain in your account total until the broker stops reporting them (typically one to three days after expiry). Once removed by the broker, Sure writes a zero row for the position so it no longer appears in current holdings and is not double-counted when the corresponding expiration activity arrives.
+
+Future option positions (`future_option`) are not imported while that asset class is in beta.
 
 ### Trade amount and fee accuracy
 
@@ -183,7 +189,7 @@ The task processes records in batches and prints a JSON summary of results when 
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
 - **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
-- **Options in holdings**: Option positions are not shown in the holdings view; only options activity (trades) is imported
+- **Short options in holdings**: Short option positions reduce your account balance but do not appear as holding rows, because holdings cannot have a negative quantity. Long options appear in the holdings view normally.
 
 ## Troubleshooting
 
