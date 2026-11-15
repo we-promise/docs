@@ -353,6 +353,8 @@ When a transaction is linked to a bill, the **Applied to** section on the transa
 
 The paycheck planner slices your upcoming bills across the pay periods defined by your declared income. Only manually declared income series (bill type `income`, set to manual) define pay periods; automatically detected inflows do not.
 
+The planner includes only payable obligations: bills, subscriptions, installment payments, and recurring transfers into credit card or loan accounts. Recurring transfers between your own depository accounts (for example, a savings sweep) are excluded because they are not obligations — moving money between your own accounts does not reduce your net worth.
+
 Bills are sorted and filed by their effective due date — the later of the original due date and the snoozed date, if any. A bill snoozed past a payday is filed under the pay period it will actually be due in rather than the one that precedes it.
 
 For each pay period the planner shows:
