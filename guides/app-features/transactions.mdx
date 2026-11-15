@@ -278,6 +278,7 @@ Rules support the following condition types:
 - **Category** – match transactions that already have a specific category assigned, or that have no category
 - **Tag** – match transactions that already have a specific tag applied, or that have no tags
 - **Transaction details** – search within provider-specific metadata such as SimpleFIN payee, description, or memo fields
+- **Additional details** – match on a specific named field within provider-supplied metadata. Unlike Transaction details, which searches across all values at any depth, this condition targets a single named key so the match is scoped to that field only. Enter the field name and value separated by `=` (for example, `merchant_category_code=5411`). To match any transaction that carries the field regardless of its value, enter only the key with no `=`. The field is looked up at any depth in the metadata, so you do not need to know which provider namespace it sits under.
 - **Notes** – match on the notes you have added to a transaction
 - **Account** – match on the account the transaction belongs to
 
@@ -289,6 +290,7 @@ Each condition type supports a set of operators based on how the field stores it
 - **Tag**: Equal to, Not equal to, Is empty, Is not empty
 - **Transaction type**: its own fixed set of type-matching operators
 - **Transaction details**: Contains, Equal to, Is empty (JSONB metadata supports contains and equality semantics only)
+- **Additional details**: Equal to, Contains (the field must be present and its value must match; key-scoped JSONB lookup)
 
 The **Not equal to** operator also matches transactions where the field has no value set, so "category not equal to Food" includes uncategorized transactions. **Does not contain** likewise matches transactions where the text field is absent.
 
