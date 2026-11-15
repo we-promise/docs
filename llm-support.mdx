@@ -229,15 +229,14 @@ OPENAI_MODEL=your-model-name
 
 You can connect to Gemini directly via Google AI Studio's OpenAI-compatible endpoint, or via OpenRouter.
 
-Sure also recognizes `gemini-4-argon` in its usage-cost estimates.
-
 **Recommended Gemini models:**
 
+- `gemini-4-argon` - Flagship frontier reasoning model; 1M token context, native multimodal and deep multi-step reasoning for complex financial analysis, code execution, and agentic workflows
 - `gemini-3.8-flash` - Best all-around choice; fast, strong reasoning, and reliable tool calling for chat and finance tools
 - `gemini-3.5-flash-lite` - Ultra-low cost and fast; ideal for background categorization and merchant detection
 - `gemini-3.1-pro-preview` - Best for complex financial analysis, portfolio queries, and multi-year trends
-- `gemini-2.5-flash` - Previous-generation option for users with existing access
-- `gemini-2.5-pro` - Previous-generation reasoning model for users with existing access
+- `gemini-2.5-flash` - Previous-generation budget model; fast and dependable fallback
+- `gemini-2.5-pro` - Previous-generation model for complex financial analysis
 
 Google limits direct Gemini 2.5 API access to users who actively used those models previously. For new projects, use `gemini-3.5-flash-lite` or `gemini-3.8-flash`; see [Google's model availability guidance](https://ai.google.dev/gemini-api/docs/models).
 
@@ -454,6 +453,25 @@ The prefix identifies the provider. Traces and their child generations record in
 
 After starting Sure with the variables set, open your Langfuse dashboard to see traces and their nested generations. Traces appear with their full name (for example, `openai.chat_response`); a chat turn that makes multiple provider calls can produce multiple traces.
 
+### Tracing modes: content or metadata
+
+AI calls are traced in one of two modes. Health probes are not traced in either — they carry no family data and run each time an admin opens the health page.
+
+| Variables set | Mode | What leaves the server |
+| --- | --- | --- |
+| `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` | content | Prompts, outputs, token usage, the model and endpoint, and Sure's error class |
+| Only `OTLP_ENDPOINT` (and `OTLP_HEADERS` for authentication) | metadata | Model, settings, finish reason, token counts and latency, as OpenTelemetry spans to any OTLP backend (Langfuse, Tempo, Jaeger, OpenObserve). No prompts, tool results or answers |
+| Both | content, with a warning in the log | As content |
+| Neither | off | Nothing |
+
+```bash
+# Metadata mode: cost and latency without sending financial data to a tracing backend
+OTLP_ENDPOINT=https://otel.example.com/v1/traces
+OTLP_HEADERS=Authorization=Basic%20your-base64-credentials
+```
+
+`OTLP_HEADERS` uses the OpenTelemetry form: `key=value` pairs separated by commas, with values URL-encoded. In metadata mode, traces lose the endpoint name, Sure's error class, and errors raised before a request is sent.
+
 ## Evaluation system
 
 Test and compare different LLMs for your specific use case. The eval system helps you benchmark models for transaction categorization, merchant detection, and chat assistant functionality.
@@ -543,6 +561,7 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | `OPENAI_SUPPORTS_PDF_PROCESSING` | Set to `false` for endpoints without vision support | `true` |
 | `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` | Override Responses API vs Chat Completions routing | Auto-detected |
 | `LLM_JSON_MODE` | JSON output mode for OpenAI-compatible categorization and merchant-detection calls, plus text-based PDF and bank-statement extraction: `auto`, `strict`, `json_object`, or `none`. For OpenAI-compatible categorization and merchant detection, `auto` tries strict JSON first and retries once with `none` if strict is rejected with HTTP 400, the response is malformed, or more than 50% of requested results fail or are missing. Text-based PDF and bank-statement extraction do not use this retry wrapper. | — |
+| `AI_DEBUG_MODE` | Set to `true` to enable debug logging for AI chat turns | `false` |
 
 Native OpenAI Responses calls and PDF vision processing do not use `LLM_JSON_MODE`. For text extraction without a JSON schema, `strict` falls back to `json_object`.
 
