@@ -29,7 +29,7 @@ Sure uses the Mercury API to pull account balances and transaction history direc
 1. Go to **Settings → Providers**.
 2. Find the **Mercury** section.
 3. Enter a connection name and paste the full token (including the `secret-token:` prefix).
-4. Leave the **Base URL** field blank for production. For sandbox testing, enter `https://api-sandbox.mercury.com/api/v1`.
+4. Leave the **Base URL** field blank for production. For sandbox testing, enter `https://api-sandbox.mercury.com/api/v1`. These are the only two values Sure accepts; any other URL is rejected on save.
 5. Click **Add Mercury connection**.
 
 Sure begins syncing your accounts automatically after saving the connection.
@@ -67,3 +67,12 @@ Mercury requires that your server's IP address is whitelisted in the Mercury das
 ### Sandbox testing
 
 For sandbox testing, set the **Base URL** to `https://api-sandbox.mercury.com/api/v1`. Sandbox tokens are separate from production tokens and do not work against the production endpoint.
+
+### Base URL restrictions
+
+Sure only accepts two values for the Mercury base URL:
+
+- `https://api.mercury.com/api/v1` (production, used when the field is blank)
+- `https://api-sandbox.mercury.com/api/v1` (sandbox)
+
+Any other value is rejected when you save the connection. If a row in the database holds a URL outside this list (for example, one written directly by SQL), Sure uses the production default when syncing. Requests to Mercury no longer follow redirects to other hosts.

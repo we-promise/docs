@@ -221,6 +221,17 @@ SURE_IMPORT_MAX_NDJSON_SIZE_MB=50
 
 This applies to both the GUI upload and the API upload paths. If you do not set this variable, the default limit is used.
 
+### Mercury and Sophtron base URL restrictions
+
+Sure restricts the Mercury and Sophtron base URL fields to their official HTTPS endpoints. If your self-hosted instance previously pointed Mercury or Sophtron at a local proxy, mock server, or any URL outside the allow-list, that URL is rejected when you next save the connection and ignored at read time (Sure falls back to the provider default for syncing).
+
+Allowed values:
+
+- **Mercury:** `https://api.mercury.com/api/v1` and `https://api-sandbox.mercury.com/api/v1`
+- **Sophtron:** `https://api.sophtron.com/api` (also accepted with a trailing slash or `/v2` suffix, normalized to the root)
+
+This matches the existing behavior for Brex, which has always enforced a URL allow-list. Requests to these three providers no longer follow redirects to other hosts.
+
 ### Encryption keys for bank sync
 
 When you configure a bank sync provider (such as Plaid, SimpleFIN, or Brex) on a self-hosted instance that has not set explicit Active Record encryption keys, Sure shows a warning before you save your credentials:
