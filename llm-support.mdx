@@ -7,6 +7,20 @@ description: "Configure AI features with local or cloud models"
   LLM usage is optional and must be explicitly configured. You can maintain full control by running local models on your own systems through Ollama, LM Studio, or similar tools. No data is sent to external services unless you configure a cloud provider.
 </Note>
 
+## Feature availability and routing
+
+Every AI feature in Sure — the chat assistant, bill setup, PDF import, document search, transaction categorization, and merchant detection — goes through a single availability check before it runs. The check asks whether the configured provider can serve the feature, and whether the user and family have opted in.
+
+When a feature is unavailable, Sure returns the reason:
+
+- **Not configured** — no provider endpoint is set up for that feature.
+- **User disabled** — the user's AI switch is off (applies to chat and bill setup only).
+- **Capability missing** — the configured provider does not support what the feature needs (for example, an embedding model is required for document search).
+
+If your deployment uses Anthropic as its only provider, all AI features that Anthropic supports — including merchant enhancement, rule actions, and PDF import — are now available. A previous bug caused those features to check only for OpenAI; that check has been replaced by the unified router.
+
+For API consumers, a blocked AI action returns HTTP `403` with `{ "error": "ai_unavailable", "reason": "<reason>" }`.
+
 ## Architecture: two AI pipelines
 
 Sure has two separate AI systems that operate independently. Understanding this matters because they have different configuration requirements.
