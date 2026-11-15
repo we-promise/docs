@@ -32,6 +32,40 @@ Sure has two separate AI systems that operate independently. Understanding this 
 
 If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (for the OpenAI-compatible provider) or `ANTHROPIC_ACCESS_TOKEN` / `ANTHROPIC_API_KEY` (for the native Anthropic provider), or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
 
+## AI routing and consent
+
+Sure uses a central router (`Ai::Router`) to decide whether a feature can run for a given family and user, and which model to use. Every AI feature goes through this router rather than looking up a provider directly. The routing matrix is static and cannot be changed at runtime.
+
+### Feature routing matrix
+
+Each feature has a lane, a set of model requirements, a consent level, and a list of data it sends to the provider.
+
+| Feature | Lane | Consent | Data sent |
+| --- | --- | --- | --- |
+| `chat` | interactive | Per-user (`ai_enabled`) | Your chat messages; financial data the assistant looks up; text of stored statements |
+| `bill_setup` | interactive | Per-user (`ai_enabled`) | Transaction dates, amounts, names; category names; bill configuration |
+| `extract_pdf` | prompt | Per-user (`ai_enabled`) | The document you upload |
+| `embed` | prompt | Per-user (`ai_enabled`) | Your uploaded documents (whole files or text chunks) |
+| `search_documents` | interactive | Per-user (`ai_enabled`) | Your search text |
+| `categorize` | background | Per-family | Transaction names and amounts; provider category hints; category names |
+| `detect_merchants` | background | Per-family | Transaction names; merchant names |
+| `enhance_merchants` | background | Per-family | Merchant names |
+
+### Consent levels
+
+There are two consent levels:
+
+- **Per-user** — the user must explicitly enable AI from the chat screen (the `ai_enabled` flag on their account). Features that are per-user: `chat`, `bill_setup`, `extract_pdf`, `embed`, and `search_documents`. A user who hasn't enabled AI is redirected to the consent screen when they try to start a chat or send a message; read-only views (the chat index, the new-chat screen) show the consent prompt inline instead.
+- **Per-family** — no individual user action is required. Features that are per-family: `categorize`, `detect_merchants`, and `enhance_merchants`. These run in the background as long as the instance has a configured LLM provider.
+
+### Why a feature may be unavailable
+
+The router checks three things in order:
+
+1. **Not configured** — no route exists for the feature (no LLM provider is set up). Admins see a prompt to add one in Settings → Self-Hosting; other users see that the feature isn't available.
+2. **User consent** — for per-user features, the user hasn't turned on AI. The user sees a prompt to enable it from the AI assistant.
+3. **Capability missing** — the configured model doesn't support what the feature needs (for example, a model without streaming can't run chat, or a model without embedding support can't run document search).
+
 ## Where AI jobs run (Sidekiq lanes)
 
 AI work runs in the Sidekiq `worker` in its own capsule ("lane"), so a slow model can't hold up syncs, balance recalculation, and scheduled jobs. Both lanes are defined in `config/sidekiq.yml`:
