@@ -15,7 +15,7 @@ Insights appear in the dashboard feed.
 |---|---|
 | `spending_anomaly` | A category's projected month-end spend deviates 25 %+ from the three-month average baseline (above or below). Projection uses the full calendar month length, not just elapsed days, so an on-pace category is never flagged as a shortfall. Only fires after 7 days into the month. |
 | `cash_flow_warning` | Projected cash balance may drop below a safe threshold within the next 30 days |
-| `net_worth_milestone` | Net worth has crossed a round-number milestone within the last 30 days |
+| `net_worth_milestone` | Net worth has crossed a round-number milestone within the last 30 days. A milestone is celebrated only when it is the highest milestone net worth reached in that window, net worth is still at or above it, the upward crossing happened inside the window, and net worth had stayed below it for the 30 days before the crossing. A drop below a milestone expires the insight without surfacing a lower one; a dip-and-recovery does not re-announce the same milestone until a full month has passed below it. |
 | `subscription_audit` | A recurring transaction has not appeared since its expected due date, by at least one full billing cycle |
 | `savings_rate_change` | Savings rate has shifted materially compared to recent months |
 | `idle_cash` | A cash account has a large balance that has been untouched for 60+ days |
