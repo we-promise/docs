@@ -143,6 +143,14 @@ EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global 
 - **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
 - **API key**: Required — get one at [eodhd.com](https://eodhd.com)
 
+#### Searching for securities by ISIN
+
+When you search for a security using an ISIN (International Securities Identification Number), Sure recognises the query as an ISIN and ranks any result that carries that exact ISIN first. This makes it easier to identify the right listing when EODHD returns multiple results for the same instrument across different exchanges.
+
+EODHD returns an ISIN with each search result. Sure displays it next to the exchange name in the search dropdown — for example, `SGLD (London) · IE00B579F325 · EODHD`. Results from providers that do not return an ISIN show no ISIN in the dropdown.
+
+A query is treated as an ISIN when it matches the standard format: two letters followed by nine alphanumeric characters and a check digit that passes the Luhn algorithm. Queries with leading or trailing spaces, or with an invalid check digit, are not treated as ISINs and rank as normal text searches.
+
 #### Warsaw Exchange (GPW) securities
 
 Securities listed on the Warsaw Stock Exchange (XWAR/GPW) are priced in PLN. If you added Polish securities before this fix was released, their historical prices may have been stored as USD. Sure automatically corrects mis-tagged Warsaw prices on upgrade: USD prices are relabeled to PLN, duplicates are removed, and any affected accounts are queued for a sync so holdings revalue at the correct exchange rate.
