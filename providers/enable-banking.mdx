@@ -7,6 +7,10 @@ Enable Banking is a free third-party provider that allows you to connect Europea
 
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
+<Note>
+As of [Sure PR #5045](https://github.com/we-promise/sure/pull/5045) (merged 16 November 2026), the first transaction fetch for a new account uses `strategy=longest` to retrieve the full available history instead of a fixed 3-month window. The setup date picker no longer enforces a 2-year minimum. If your installed release predates this change, the old 3-month default applies.
+</Note>
+
 ## How it works
 
 Enable Banking uses the PSD2 open banking framework to securely access your bank data:
@@ -104,6 +108,12 @@ When syncing transactions, Sure imports both booked and pending transactions:
 - When a pending transaction settles, the pending entry is automatically replaced by the booked version
 - You can filter synced transactions by date range
 - Large transaction sets are paginated automatically
+
+**First fetch (full history):** On the very first transaction fetch for an account — before any transaction payload has been stored — Sure sends `strategy=longest` to retrieve the full available history. If you configured a sync start date, it is sent as `date_from` under this strategy; without a configured date, no lower bound is sent and the bank returns as much history as it permits. The page budget for this fetch is 1,000 pages. If the fetch stops early due to the page cap, a repeated continuation key, or a 400/422 response on a later page, the rows received so far are kept and the sync summary notes that older history may be incomplete.
+
+**Incremental fetches:** Once a first fetch completes — even if it found no transactions — all later syncs are incremental. An incremental fetch starts 7 days before the older of the last completed sync date and the date of the newest stored transaction row, with a maximum lookback of 89 days from that term. This overlap recovers transactions missed during outages or for accounts that were unlinked and re-linked. Neither term goes before your configured sync start date (when set) or after today.
+
+**Pending transactions on first fetch:** The pending-transaction fetch on a first sync uses a 30-day window and does not send `strategy=longest`, since pending rows are only a few days old.
 
 ### Pending transactions
 
