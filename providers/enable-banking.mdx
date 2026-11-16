@@ -213,6 +213,25 @@ Sure strips payment wallet prefixes (Apple Pay, Google Pay, Samsung Pay) from re
 
 Sure also strips known small-merchant payment-processor prefixes (SumUp, Square, iZettle, PayPal) from the selected line, and matches the transaction against your family's known merchants for a cleaner display name.
 
+#### Remittance payee vs. bank transaction type
+
+Some banks (such as SEB) provide no counterparty name and use the bank transaction code description — a generic ISO 20022 label such as "Card purchase", "Direct debit", or "Payment" — as the only text in a transaction. Using that label alone means every card purchase gets the same name, regardless of who was paid.
+
+When a transaction has no counterparty and the remittance information contains a descriptive payee (at least three letters, not a reference number, not a masked card number, and not the account holder's own name), Sure uses the remittance payee rather than the generic type label.
+
+If the remittance payee and the bank transaction type differ, Sure combines them as **"payee - transaction type"** so transactions to the same payee stay distinct across different transaction types. For example, an SEB card purchase at a restaurant appears as "Racksta Krog - Card purchase". If the remittance text already matches the bank transaction type, only the payee is used without duplication.
+
+The following remittance lines are skipped when selecting the payee name:
+
+- Lines that are only a reference number (e.g. "Reference 0394676", "Faktura nr 12345", "OCR: 4711")
+- Contiguous or spaced masked card numbers (e.g. `474836xxxxxx6879` or `474836 XXXXXX 6879`)
+- Technical POS terminal lines (e.g. `POS 45,13 AT D6 31.07. 10:27`)
+- The account holder's own name
+
+A known merchant name from your family's history is always trusted before the letter-count heuristic, so short names such as "H&M" are matched correctly even though they are under the minimum character threshold.
+
+Merchant assignment is not affected by this change. A new merchant is only created from remittance text when the counterparty is a technical `CARD-*` placeholder or the text matches an already-known merchant, consistent with the existing behavior.
+
 ### Duplicate transaction handling
 
 Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
