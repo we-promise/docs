@@ -143,6 +143,26 @@ EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global 
 - **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
 - **API key**: Required — get one at [eodhd.com](https://eodhd.com)
 
+#### Supported European and German regional exchanges
+
+EODHD uses its own exchange codes rather than standard MICs. Sure maps the following European venues so that ticker symbols are built correctly and search results store the canonical exchange identifier:
+
+| Venue | MIC | EODHD code | Currency |
+| --- | --- | --- | --- |
+| Frankfurt | XFRA | F | EUR |
+| Euronext Brussels | XBRU | BR | EUR |
+| Euronext Lisbon | XLIS | LS | EUR |
+| Vienna Stock Exchange | XWBO | VI | EUR |
+| Euronext Dublin | XDUB | IR | EUR |
+| Berlin | XBER | BE | EUR |
+| Dusseldorf | XDUS | DU | EUR |
+| Hamburg | XHAM | HM | EUR |
+| Hanover | XHAN | HA | EUR |
+| Munich | XMUN | MU | EUR |
+| Stuttgart | XSTU | STU | EUR |
+
+If you added securities on any of these exchanges before this mapping was introduced, their stored exchange code may be the raw EODHD code (for example `F` instead of `XFRA`). Sure recognises these legacy codes as aliases for the canonical MIC, so existing holdings are found correctly and are not duplicated when you search for the same security again.
+
 #### Warsaw Exchange (GPW) securities
 
 Securities listed on the Warsaw Stock Exchange (XWAR/GPW) are priced in PLN. If you added Polish securities before this fix was released, their historical prices may have been stored as USD. Sure automatically corrects mis-tagged Warsaw prices on upgrade: USD prices are relabeled to PLN, duplicates are removed, and any affected accounts are queued for a sync so holdings revalue at the correct exchange rate.
