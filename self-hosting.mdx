@@ -53,8 +53,8 @@ Sure sends email through an SMTP server that you provide. Email is sent by the b
 
 On a self-hosted instance, Sure sends these emails:
 
-- Password reset links, when password sign-in is enabled.
-- A confirmation link when a user changes their email address, but only when **Require email confirmation** is on under Settings > Self-Hosting. When it is off, the new address is saved straight away and nothing is sent.
+- Password reset links for accounts that are not SSO-only.
+- A confirmation link when a user changes their email address with **Require email confirmation** on under Settings > Self-Hosting. When it is off, the new address is saved straight away.
 - Rule notifications, from rules with a "Send email notification" action.
 - The follow-up email after a PDF import is processed.
 - A daily summary to every super admin after the demo family is refreshed, but only when **Enable daily demo family refresh** is on under Settings > Self-Hosting and a demo family has been selected for it. It is off by default.
@@ -115,7 +115,7 @@ SMTP_PASSWORD="replacemewithyoursmtppassword"
 
 Keys listed in the anchor with no default in the plain `${VAR}` form are passed as empty values when not set in `.env` — not as unset. An empty `EMAIL_SENDER` replaces the `sender@sure.local` fallback with an empty address, and an empty `SMTP_USERNAME` still makes the app try to log in. If your server needs no login, leave the `SMTP_USERNAME` and `SMTP_PASSWORD` lines out of the anchor. Keys written as `${VAR:-default}`, such as `SMTP_PORT` and `SMTP_TLS_ENABLED` above, fall back to the default when the `.env` value is unset or empty.
 
-**Using a custom CA certificate**
+#### Using a custom CA certificate
 
 If your SMTP server's certificate is signed by an internal CA or is self-signed, mount the CA certificate into the containers and point `SSL_CA_FILE` at it. Add `SSL_CA_FILE` to the anchor, and the volume to both `web` and `worker`:
 
@@ -807,6 +807,23 @@ To restore an older `backup_*.sql.gz` file, stop `web` and `worker`, then load i
 gunzip -c backup_<timestamp>.sql.gz | docker compose exec -T db psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 ```
 
+
+## SSL certificate configuration
+
+For outbound HTTPS connections that use Sure’s SSL configuration, `SSL_CA_FILE` adds trust for a custom certificate authority. Mount a readable PEM file into both `web` and `worker` and pass its container path through the shared `x-rails-env` anchor, as shown in [Using a custom CA certificate](#using-a-custom-ca-certificate) above.
+
+At boot, Sure validates the certificate file and normally writes a combined system-and-custom CA bundle to `tmp/ssl_ca_bundle.pem`. It sets `SSL_CERT_FILE` to that bundle for the Ruby process, so clients that use Ruby’s default certificate store can also trust the custom CA. If the combined bundle cannot be created, Sure logs a warning and uses the custom file alone; that fallback can lose trust in public certificate authorities.
+
+These additional environment variables are read at boot:
+
+- `SSL_VERIFY` enables certificate verification by default. Values `0`, `false`, `no`, and `off` disable it, ignoring case and surrounding spaces. This does not replace the separate SMTP setting `SMTP_TLS_SKIP_VERIFY`.
+- `SSL_DEBUG=true` enables verbose SSL configuration logging, including the active CA file and combined bundle path. It does not change certificate verification.
+
+Pass these keys through your Compose environment anchor if you use them. After changing the environment, use `docker compose up -d` to recreate the affected containers; a restart retains their old environment. For the separate AI Compose file, include `-f compose.ai.yml` in the command.
+
+<Warning>
+Disabling certificate verification removes protection against server impersonation. Prefer a valid CA certificate with verification enabled; use verification overrides only for controlled development or testing.
+</Warning>
 
 ## Monitoring system health
 
