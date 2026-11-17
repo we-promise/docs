@@ -47,6 +47,14 @@ Protocol 2 enforces per-publisher limits:
 - 100 accepted or processing batches in the inbox at one time
 - 100 chunks per capture (allowing large histories across consecutive captures)
 
+The 1 MiB batch payload limit is enforced before the request body is parsed:
+
+- If the request includes a `Content-Length` header that exceeds 1 MiB, Sure returns `413` immediately without reading the body.
+- If the body has no declared length (for example, a chunked transfer), Sure reads up to 1 MiB + 1 byte and returns `413` if the body exceeds the limit.
+- In both cases the response body is `{"error":"payload_too_large"}`.
+
+A body within the limit is accepted and processed normally.
+
 ### Batch receipt status
 
 | Status | Meaning |
