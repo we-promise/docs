@@ -234,6 +234,14 @@ This re-keying only applies to booked (settled) transactions on both sides. Pend
 
 Transactions that already carry a provider ID are not affected by this logic.
 
+## Skipping accounts
+
+When Enable Banking authorizes a bank connection, the consent covers every account the bank grants access to — which may include accounts you do not want to track in Sure. During setup, choose **Skip this account** in the account type dropdown for any such account.
+
+Skipped accounts are remembered. Sure stops importing their balance and transaction data, and they no longer appear in the setup queue or outstanding-setup counts. The account row is kept so the choice survives future re-authorizations and the account does not reappear as "needs setup".
+
+To start syncing a skipped account later, link it to a Sure account. Linking clears the skipped flag, and the next sync begins fetching its data.
+
 ## Supported account types
 
 Enable Banking supports both personal and business accounts:
