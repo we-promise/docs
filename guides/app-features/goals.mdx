@@ -21,9 +21,14 @@ Every goal is one of two kinds:
 
 ## Progress basis
 
-For goals backed by **depository accounts** (checking, savings), Sure uses the account balance to measure progress.
+When you create or edit a goal, you choose how Sure measures progress:
 
-For goals backed by **investment accounts**, Sure defaults to the **contributions basis**: the net amount deposited into the account, excluding market gains. This prevents a market decline from making a goal look behind even when you have kept up with savings.
+- **Balance (default)** — the current market value of the linked accounts. Market gains and losses move the progress figure.
+- **Contributions** — the net amount deposited into the linked accounts, excluding cumulative market gains and losses. Progress reflects what you have put in, not what the market has done to it.
+
+You can switch the basis on the goal's edit form at any time while the goal is active or paused.
+
+**Completed goals** lock the basis at the moment of completion. The figure shown is the balance at completion, and changing the basis is not allowed until you reopen the goal. An archived goal that was never completed keeps the live calculation and stays editable.
 
 ## Creating a goal
 
@@ -32,8 +37,9 @@ For goals backed by **investment accounts**, Sure defaults to the **contribution
 3. Choose a kind (**One-off** or **Maintained**).
 4. Enter a name, target amount, currency, and optional deadline (one-off only).
 5. Pick one or more accounts to link. Accounts must be depository or investment type. Accounts in different currencies can all be linked to the same goal; a hint below the account list confirms which currency the totals will use.
-6. Optionally add a color, icon, and notes. If you skip the color, Sure assigns a default color automatically. The progress ring on the goal card and the goal's avatar both use the same color, so they always match.
-7. Save.
+6. Choose a **progress basis**: **Balance** (default) counts the current market value; **Contributions** counts only what has been deposited, excluding market gains and losses.
+7. Optionally add a color, icon, and notes. If you skip the color, Sure assigns a default color automatically. The progress ring on the goal card and the goal's avatar both use the same color, so they always match.
+8. Save.
 
 ### Emergency fund targets
 
@@ -94,6 +100,13 @@ A pledge is a recorded intent to add money toward a goal. Use it when you want t
 3. Choose an account, enter the amount, and confirm.
 
 Sure watches incoming transactions and account-balance updates for the pledge window. When a matching deposit arrives — within $0.50 or 1% of the pledge amount and within the pledge window — Sure marks the pledge as matched and links it to the transaction.
+
+Pledge resolution is triggered by several paths:
+
+- **Provider sync** — Plaid, SimpleFIN, Enable Banking, and other connected providers resolve pledges when they import transactions.
+- **In-app transfers** — using the transfer form, manually matching a transfer, or recording a standalone deposit resolves the pledge as soon as the booking is saved.
+- **Automation rules** — a rule that marks a transaction as a transfer resolves the pledge if the destination account is linked to the goal.
+- **Crypto wallet arrivals** — an on-chain transfer into a crypto wallet linked to a goal resolves a pledge when the wallet syncs.
 
 Pledges expire after seven days if no matching transaction arrives. You can extend a pledge's window or renew it.
 

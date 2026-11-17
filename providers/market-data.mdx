@@ -97,6 +97,21 @@ Sure automatically appends Yahoo Finance's required exchange suffix when fetchin
 
 London-listed securities are quoted in pence (GBp) by Yahoo Finance. Sure converts pence prices to GBP automatically.
 
+#### Canadian exchanges
+
+The following Canadian venues are supported:
+
+| Exchange | MIC | Yahoo suffix | Currency |
+| --- | --- | --- | --- |
+| Toronto Stock Exchange | XTSE | `.TO` | CAD |
+| TSX Venture Exchange | XTSX | `.V` | CAD |
+| Canadian Securities Exchange | XCNQ | `.CN` | CAD |
+| Cboe Canada (NEO) | NEOE | `.NE` | CAD |
+
+Canadian share classes and units use a dash separator in Yahoo Finance's symbol format. For example, a security stored as `CSH.UN` on the Toronto Stock Exchange is looked up as `CSH-UN.TO`. Sure converts the separator automatically; you do not need to enter the dashed form when searching.
+
+If you added Canadian securities before this support was added, the ticker rows stored under Yahoo's raw search codes (`VAN`, `CNQ`, `NEO`) are automatically recognized and upgraded to their canonical MICs on the next lookup.
+
 If a security's exchange is not in the table above, its ticker is sent to Yahoo Finance without a suffix. You can still find and add such securities by searching with the full suffixed symbol as shown on Yahoo Finance's quote page URL.
 
 #### Searching for securities with exchange suffixes
