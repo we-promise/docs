@@ -113,7 +113,7 @@ You can rename a bill from the bill drawer (Edit → name field). Renaming updat
 
 #### Mark as recurring
 
-You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills). For expense transactions, the transaction's category is copied to the new series. Income transactions do not carry a category.
+You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills). For expense transactions, the transaction's category is copied to the new series. The new income series does not receive the transaction's category.
 
 The **Mark as recurring** button is disabled, and the corresponding POST is refused, when a recurring transaction already covers the selected transaction — whether that series was created manually or detected automatically. The explanation beside the button says that the transaction already matches a recurring transaction. A **Not this one** dismissal excludes that series from the identity-based coverage check for this transaction; a confirmed payment allocation or a separate exact-identity duplicate check can still block the action.
 
@@ -228,15 +228,15 @@ When a new bill series is detected automatically, Sure checks the transaction de
 
 You can assign a spending category to a bill the same way you categorize transactions. The category field appears on the new-bill dialog and on the edit form.
 
-Sure fills a blank category automatically so you do not have to set it manually in most cases:
+Sure can fill a blank category from transaction history:
 
-- **Automatic detection** — when detection claims a series or recovers from a provider-replaced entry, it sets the category to the most common category across the bill's matched transactions, if the bill does not already have one. The fill is a guarded write: if you have already set a category (even between when the series was loaded and when it is saved), your choice is kept and the transaction-derived one is discarded.
-- **Manual variance pass** — when you confirm or update a detected series, the same most-common-category logic runs across the matched entries.
+- **Automatic detection** — when detection claims an existing series, it sets the category to the most common category across the bill's matched transactions, if the bill does not already have one. The fill is a guarded write: if you have already set a category (even between when the series was loaded and when it is saved), your choice is kept and the transaction-derived one is discarded.
+- **Manual variance pass** — during detection, active manual series without a destination account have their variance refreshed from up to six months of matching entries. If the category is blank, the same guarded most-common-category fill runs. Confirming or editing a detected series does not itself run this pass.
 - **Mark as Recurring** — when you mark an expense transaction as recurring from the transaction detail view, the transaction's own category is copied to the new series.
 - **Create a bill from a transaction** — when you open the declaration dialog from an expense transaction, the transaction's category is prefilled. You can change it before saving.
-- **Smart fill** — when you use smart fill to auto-populate a new bill's fields from a transaction's charge history, the category is included in the proposal.
+- **Smart fill** — the add-bill dialog keeps the transaction's prefilled category; it does not apply a category proposed by the AI.
 
-Income series are never auto-categorized through these paths; categories on income bills must be set manually.
+Income series are excluded from these automatic category fills. Income declarations do not prefill a category or show the bill category picker.
 
 If your family has categories locked, the category select on the new-bill dialog and edit form respects that lock and disables inline category creation, the same way the transaction form does.
 
