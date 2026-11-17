@@ -77,6 +77,16 @@ SEED=12345 rake demo_data:default
 Demo data is only available when running Sure in development mode, not in production or self-hosted deployments.
 </Note>
 
+### Coding conventions
+
+Keep these conventions in mind when contributing code.
+
+**Comments** — write comments to explain non-obvious intent, constraints, and current behavior. Don't use comments as an implementation diary or to record issue/PR history; put that context in commit messages and PR descriptions instead. Update or remove stale comments whenever you change the surrounding code.
+
+**Ruby** — two-space indentation, `snake_case` for methods and variables, `CamelCase` for classes.
+
+**JavaScript** — `lowerCamelCase` for variables and functions, `PascalCase` for classes. Follow [Biome](https://biomejs.dev/) for formatting and lint. Keep domain logic out of ERB templates.
+
 ### Design system previews
 
 Sure uses [Lookbook](https://lookbook.build/) to render component previews. After starting `bin/dev`, open `/design-system` in your browser to browse and preview all `DS::*` components.
