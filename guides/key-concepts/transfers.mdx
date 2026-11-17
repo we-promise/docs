@@ -105,7 +105,7 @@ The **From** and **To** selectors support search — type part of an account nam
 
 ## Automatic Transfer Matching
 
-When you sync accounts with a provider (Plaid, SimpleFIN, etc.), Sure attempts to automatically match transfers between accounts. A family admin can disable this behavior from **Settings → Auto Matches** using the **Enable Auto Match** toggle. Turning it off removes all pending suggestions and stops new ones from being created on future syncs. Re-enabling it immediately queues a fresh match scan across the family's accounts.
+When you sync accounts with a provider (Plaid, SimpleFIN, etc.), Sure attempts to automatically match transfers between accounts. A family admin can disable this behavior from **Settings → Auto Matches** using the **Enable Auto Match** toggle. Turning it off removes pending auto-match suggestions and stops new ones from being created on future syncs. Confirmed transfers and imported pending transfers whose transactions are already marked as transfers stay in place. Re-enabling it immediately queues a fresh match scan across the family's accounts.
 
 ### How Matching Works
 
@@ -130,7 +130,7 @@ When Sure finds a potential transfer match, it creates a **pending** transfer su
 
 **Reviewing suggestions from the Auto Matches page:**
 
-Go to **Settings → Auto Matches** to see all pending suggestions in one place. The page lists each suggestion with the source account, destination account, and date. You can confirm or reject suggestions individually, or select multiple rows and use **Confirm selected** or **Reject selected** to handle them in bulk.
+Go to **Settings → Auto Matches** to see pending suggestions for which you can access both accounts. The page lists each suggestion with the source account, destination account, and date. With write access to both accounts, you can confirm or reject a suggestion individually, or select multiple rows and use **Confirm selected** or **Reject selected** to handle them in bulk.
 
 **Reviewing suggestions from a transaction:**
 

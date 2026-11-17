@@ -150,7 +150,7 @@ Sure automatically detects likely transfer pairs between your accounts on every 
 
 **Enable Auto Match toggle** (admin only): When enabled, each sync scans for matching outflow/inflow pairs and surfaces them as pending suggestions. The suggestions do not affect budgets, reports, or transaction kinds until you confirm them.
 
-- **Turning off**: Immediately removes all pending suggestions and stops new ones from being created. Turning the toggle off does not permanently exclude any transaction pair — if you re-enable the setting later, the same pairs can appear again as new suggestions.
+- **Turning off**: Removes pending auto-match suggestions and stops new ones from being created. Confirmed transfers and imported pending transfers whose transactions are already marked as transfers stay in place. Turning the toggle off does not permanently exclude any transaction pair — if you re-enable the setting later, the same pairs can appear again as new suggestions.
 - **Turning on**: Queues a match scan right away so suggestions appear without waiting for the next scheduled sync.
 
 Only family admins can change this toggle. Other members and guests see it as read-only.
