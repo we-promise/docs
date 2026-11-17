@@ -109,11 +109,13 @@ Use the trash icon to permanently remove a recurring transaction record.
 
 #### Renaming a bill
 
-You can rename a bill from the bill drawer (Edit → name field). Renaming updates its display name without changing its matching identity. For bills matched by transaction name, Sure preserves the original detected name separately. Bills linked to a merchant continue to match by merchant ID. Renaming alone does not cause a bill to be suggested again.
+You can rename a bill from the bill drawer (Edit → name field). Renaming updates its display name without changing its matching identity. For bills matched by transaction name, Sure preserves the original detected name separately and shows it in the "How this bill is matched" section of the drawer as "Matches transactions named {name}". This hint only appears when the detected name differs from the bill's current display name, and is hidden for merchant-backed bills (which match by merchant ID regardless of transaction name). Bills linked to a merchant continue to match by merchant ID. Renaming alone does not cause a bill to be suggested again.
 
 #### Mark as recurring
 
 You can manually mark any individual transaction as recurring from the transaction detail view. Click **Mark as Recurring** to create a manual recurring transaction. The system automatically calculates amount variance from the past 6 months of similar transactions, allowing it to track recurring charges that vary in amount (like utility bills). For expense transactions, the transaction's category is copied to the new series. Income transactions do not carry a category.
+
+The **Mark as recurring** button is disabled, and the corresponding POST is refused, when a recurring transaction already covers the selected transaction — whether that series was created manually or detected automatically. The explanation beside the button says that the transaction already matches a recurring transaction. A **Not this one** dismissal excludes that series from the identity-based coverage check for this transaction; a confirmed payment allocation or a separate exact-identity duplicate check can still block the action.
 
 Two manual recurring entries for the same payee are allowed as long as their amounts differ (for example, a $3.00 fee and a $19.68 charge from the same merchant). An exact duplicate — same account, payee, currency, and amount — is still blocked.
 
@@ -122,6 +124,16 @@ Two manual recurring entries for the same payee are allowed as long as their amo
 With preview features enabled, **Create a bill** appears alongside **Mark as Recurring** in the detail view for a transaction that is not a split child. It opens the declaration dialog with the merchant name (or transaction name when there is no merchant name), absolute amount, account, currency, category (for expense transactions), and a projected next due date filled in. These fields can be adjusted before saving. An income transaction opens an income declaration instead of a bill, and income declarations do not prefill a category.
 
 This is the fastest path for declaring a bill you can already see in your transaction history. The dialog requires preview features to be enabled under **Settings → Preferences**.
+
+**Duplicate bill prevention** — when you open "Create a bill" from a transaction that is already covered by an existing bill or recurring income series, the dialog shows that series rather than the blank form. A warning names the covering series with a link to open it, and the form is hidden behind a "Create a separate bill anyway" disclosure. This prevents accidentally creating a second bill for the same payment.
+
+If the covering series is still a suggestion (detected but not yet confirmed), the dialog says so and offers a "Confirm bill" button (or "Add income" for an income series) for users with write access to that series. Confirming activates the bill and triggers the history-reconstruction flow. Creating another bill for the same payment can produce duplicate tracking when the suggestion is confirmed.
+
+If the covering series is a recurring income (an inflow), the dialog uses income terminology throughout so the context is clear.
+
+Choosing "Create a separate bill anyway" is valid when you genuinely need a second bill — for example, a new price tier from the same service. The form submits with an `allow_duplicate` flag; if you fix a validation error and resubmit, that flag is preserved so the covering-bill check does not reappear on a corrected submission.
+
+A **Not this one** dismissal is specific to the selected transaction: it excludes that series from the identity-based coverage check, without disabling matching for other transactions. Existing confirmed payment allocations and the Mark as recurring action’s separate exact-identity duplicate check still apply.
 
 ## Schedules and cadences
 
@@ -231,6 +243,12 @@ If your family has categories locked, the category select on the new-bill dialog
 ### Notes
 
 Free-text notes stored on the recurring transaction for your own reference.
+
+### Category
+
+You can assign a category to a bill from the bill edit form. The category picker is searchable: type any part of a category name to filter the list. Categories are grouped under their parent, so subcategories appear indented beneath the top-level category they belong to.
+
+When your family has category locking enabled (under **Settings → Categories**), the picker respects that lock. It will not offer the option to create a new category from the bill form when the lock is active, matching the behavior of the transaction form.
 
 ## Status lifecycle
 
@@ -385,7 +403,7 @@ The allocation bar is shown for periods with positive income. Its segments and s
 - **Normal period** — the bar has up to three segments: due (high contrast), reserved (muted), and safe (green). Zero-value segments are omitted; each breakdown column has a swatch only when its segment is present.
 - **Short period** — the bar splits into two segments: covered (muted, the portion income reaches) and short (red, the gap). Only the short column gets a swatch, because only the shortfall has a corresponding segment on the bar. The due and reserved columns still show their figures but without swatches.
 
-A leading window covers the time between today and the next payday. It has no income, so shortfalls in that window are measured against your cash on hand (the sum of your visible depository accounts, excluding tax-advantaged accounts). When the balance cannot be determined, the window is shown without any cash-based judgment — neither the shortfall warning nor the covered-with-items note appears.
+A leading window covers the time between today and the next payday. It has no income, so Sure compares its obligations with your cash on hand: the sum of your visible, accessible depository accounts, excluding tax-advantaged accounts. When cash covers the obligations and there are bills to show, a strip pairs the total due with what remains after those obligations. A thin bar shows the total due against your cash on hand. Each bill appears as a dated ledger row: a due date on the left, the bill name linking to the occurrence drawer, and the amount on the right. Bills past their grace period are marked overdue in red. The first five rows are visible; the rest fold behind an expandable disclosure. When obligations exceed cash, a shortfall warning shows the gap, obligations and cash balance, with a link to the largest bill. When the cash balance cannot be determined, neither cash-dependent view appears.
 
 The income schedule summary appears as a card above the pay periods. It shows an eyebrow label ("Income"), the next payday headline, and a Manage control that expands to list each income series with its frequency, next payday, and amount. This section was previously a bare disclosure that sat directly on the page background.
 
