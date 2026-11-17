@@ -442,11 +442,11 @@ Clicking a treemap box or a row in the change list opens your transaction list f
 
 **How normal is calculated**
 
-- For a finished period, normal is the category's net spending over the year before the period, scaled to the period's length.
-- For an unfinished period (the current month by default), normal is the average of the same number of elapsed days taken from each of up to 12 earlier month starts. This avoids comparing ten days of spending against a full month.
-- Normal requires at least 28 days of transaction history. Below that threshold, the section shows totals without a comparison.
-- The baseline starts from your first counted transaction in your eligible accounts, so opening-balance valuations or early transfers don't dilute the average.
-- Amounts are net of refunds in the same category, matching the cash flow Sankey. Transaction exclusions, account exclusions, and the "Count investing as spending" preference all apply the same way they do in the rest of Reports.
+- For a finished period, normal is the category's net spending over up to a year before the period, scaled to the period's length.
+- For an unfinished period (the current month by default), normal is the average of same-length windows starting on the corresponding date in each of up to 12 earlier months. For the default current-month view, those windows start on the first of each month. Only complete windows inside the available baseline are used. This avoids comparing ten days of spending against a full month.
+- Normal requires at least 28 days of eligible history before the selected period. Below that threshold, the section shows totals without a comparison.
+- The baseline covers up to a year before the selected period. Its start is limited by the earliest non-pending, non-excluded transaction in your eligible accounts, after applying transaction-kind exclusions and the investing preference. Opening-balance valuations do not set the baseline start.
+- Amounts are net of refunds in the same category, matching the cash flow Sankey. Displayed category spending is floored at zero. Transaction exclusions, account exclusions, and the "Count investing as spending" preference all apply the same way they do in the rest of Reports.
 
 ## Next steps
 

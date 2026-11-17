@@ -3530,7 +3530,7 @@ components:
           type: boolean
           description: >
             The period has not ended: it is cut to today, and normal is the average
-            of the same number of days from each of up to 12 earlier month starts.
+            of same-length windows starting on the corresponding date in each of up to 12 earlier months.
         baseline_period:
           type: object
           nullable: true
@@ -3544,7 +3544,7 @@ components:
             end_date:
               type: string
               format: date
-          description: Up to a year before the period, from the first counted transaction. Null with under 28 days of history.
+          description: Up to a year before the period, starting no earlier than the first non-pending, non-excluded transaction in eligible accounts after transaction-kind exclusions. Null with under 28 days of eligible history before the period.
         comparable:
           type: boolean
           description: False when there is not enough history to compute a normal.
@@ -5670,10 +5670,11 @@ paths:
       - Reports
       description: >
         Net spending per category in a period, compared with each category's normal.
-        For a finished period, normal is net spending over the year before the period,
+        For a finished period, normal is net spending over up to a year before the period,
         scaled to the period length. An unfinished period (in_progress) is cut to today
-        and compared with the average of the same number of days from each of up to 12
-        earlier month starts, counting only windows that end before the period. The data
+        and compared with the average of same-length windows starting on the corresponding
+        date in each of up to 12 earlier months, counting only complete windows inside
+        the available baseline. The data
         behind the Reports section "Spending vs normal". Uses the authenticated user's
         finance accounts and Sure reporting rules. Experimental: the section is a preview
         feature, and how normal is defined may still change.
@@ -5694,6 +5695,8 @@ paths:
         description: Inclusive ISO date at or after start_date.
       security:
       - apiKeyAuth: []
+      - oauth2: [read]
+      - oauth2: [read_write]
       responses:
         '200':
           description: comparison returned
