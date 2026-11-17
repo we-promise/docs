@@ -109,7 +109,7 @@ Use the trash icon to permanently remove a recurring transaction record.
 
 #### Renaming a bill
 
-You can rename a bill from the bill drawer (Edit → name field). Renaming updates its display name without changing its matching identity. For bills matched by transaction name, Sure preserves the original detected name separately. Bills linked to a merchant continue to match by merchant ID. Renaming alone does not cause a bill to be suggested again.
+You can rename a bill from the bill drawer (Edit → name field). Renaming updates its display name without changing its matching identity. For bills matched by transaction name, Sure preserves the original detected name separately and shows it in the "How this bill is matched" section of the drawer as "Matches transactions named {name}". This hint only appears when the detected name differs from the bill's current display name, and is hidden for merchant-backed bills (which match by merchant ID regardless of transaction name). Bills linked to a merchant continue to match by merchant ID. Renaming alone does not cause a bill to be suggested again.
 
 #### Mark as recurring
 
