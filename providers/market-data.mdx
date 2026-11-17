@@ -94,8 +94,16 @@ Sure automatically appends Yahoo Finance's required exchange suffix when fetchin
 | BSE India | XBOM | `.BO` | INR |
 | Colombia | XBOG | `.CL` | COP |
 | Indonesia | XIDX | `.JK` | IDR |
+| Toronto Stock Exchange | XTSE | `.TO` | CAD |
+| TSX Venture Exchange | XTSX | `.V` | CAD |
+| Canadian Securities Exchange | XCNQ | `.CN` | CAD |
+| Cboe Canada (NEO) | NEOE | `.NE` | CAD |
 
 London-listed securities are quoted in pence (GBp) by Yahoo Finance. Sure converts pence prices to GBP automatically.
+
+#### Canadian share classes and units
+
+Canadian securities that use a dot to separate share class or unit suffixes (for example, `CSH.UN` or `CCL.B`) are automatically converted to the dash-separated form Yahoo Finance uses (`CSH-UN.TO`, `CCL-B.TO`). This means `CSH.UN`, `CSH-UN`, `CSH.UN.TO`, and `CSH-UN.TO` all resolve to the same Yahoo symbol. The dash conversion applies only to Canadian venues; US and other exchanges are unaffected.
 
 If a security's exchange is not in the table above, its ticker is sent to Yahoo Finance without a suffix. You can still find and add such securities by searching with the full suffixed symbol as shown on Yahoo Finance's quote page URL.
 
