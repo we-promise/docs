@@ -424,6 +424,20 @@ Each chevron button shows a tooltip with its keyboard shortcut. The shortcuts ar
 
 Keys pressed inside text fields on the page are not intercepted, so typing in a date input works normally.
 
+### Filtering by tags
+
+A tag checklist appears next to the period tabs on the Reports page. Selecting one or more tags limits the following sections to transactions that carry any of the selected tags:
+
+- The summary cards (income, expenses, net savings, and the change versus the previous period)
+- Trends & Insights
+- The activity breakdown, its CSV export, and the Google Sheets URL
+
+A transaction that carries several of the selected tags is counted once. Trades are excluded from tag filtering because they cannot carry tags.
+
+Net worth, investments, and budget performance are built from balances and budgets rather than transactions, so they remain family-wide regardless of the tag selection.
+
+The tag selection is preserved when you change the period, navigate between months, or switch between monthly, quarterly, and yearly views. Category breakdown rows link to your transaction list filtered by both the category and the active tags.
+
 ### Drilling into categories
 
 Income and expense category rows in the breakdown are clickable. Clicking a category row takes you directly to your transaction list filtered to that category, so you can see exactly which transactions make up the total.
