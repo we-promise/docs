@@ -235,11 +235,11 @@ A link to the Goals page appears in the panel so you can inspect what is earmark
 
 ## Budgets on mobile
 
-The mobile app includes a read-only Budgets screen that mirrors the web experience. You can view your budgets and category spending from your phone, but you create and edit budget amounts on the web.
+The mobile app includes a read-only Budgets screen with budget totals and category spending. You can view your budgets and category spending from your phone, but you create and edit budget amounts on the web.
 
 ### Accessing budgets
 
-Open **More** and tap **Budgets**. The screen opens on the budget period that contains today. If your family uses a custom month start date (for example, the 15th), the server's current period is used — not just the calendar month.
+Open **More** and tap **Budgets**. On a successful initial lookup, the screen opens on the server's current budget period, including a custom month start date (for example, the 15th). If that period cannot be resolved, it starts on the device's calendar month.
 
 ### Month navigation
 
@@ -263,11 +263,11 @@ When one or more categories are over budget, a segmented control appears above t
 
 ### Drilling into transactions
 
-Tap any category row to see the transactions behind it for that budget period. The screen shows the category name and period in the header, with transactions listed newest first. Tap **Load more** at the bottom to page through additional transactions. Pull down to refresh.
+Tap a category row to open the transaction list filtered by that category and the budget period. The screen shows the category name and period in the header, with transactions listed newest first. Tap **Load more** at the bottom to page through additional transactions. Pull down to refresh.
 
 ### Offline behavior
 
-Months you have already viewed in the session are cached and stay visible when you lose your connection. A banner at the top of the screen indicates you are offline and viewing earlier figures. If you try to load a month that was never cached while offline, the screen shows an error with a retry option.
+While the Budgets screen remains open, loaded months are cached in memory. Loading a cached month while offline keeps those figures visible and shows a banner indicating that they are earlier figures. If you try to load a month that was never cached while offline, the screen shows an error with a retry option.
 
 ### Creating and editing budgets
 
