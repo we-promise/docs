@@ -93,6 +93,7 @@ Loan accounts support additional fields:
 | Down payment | What you paid upfront. Not part of the amortization, but used to calculate your leverage ratio on the overview. |
 | Insurance rate | Annual insurance premium rate, charged monthly alongside the repayment. |
 | Insurance type | How the premium is calculated: **Level term** charges the rate on the original balance each month (constant premium); **Decreasing** charges it on the outstanding balance (falls as you repay). |
+| Interest basis | How each monthly period is measured against a year. **30/360** charges a flat one-twelfth each month and is the default. **Actual/365** charges by the actual number of days in the month divided by 365 — standard for UK and Australian mortgages. **Actual/actual** charges by actual days divided by the number of days in the calendar year, splitting periods that cross a year boundary. |
 | Monthly Payment | Calculated from loan details (fixed-rate only) |
 
 > [!NOTE]
@@ -189,6 +190,8 @@ Below the summary cards, the overview shows how far into repayment you are:
 ## Amortization schedule
 
 Sure generates a full amortization schedule for any loan that has an interest rate, a term, and an original balance — including variable-rate and adjustable-rate loans. The schedule uses a constant-payment (French) method: interest is charged on the outstanding principal each month, and the remainder of each payment reduces principal. This matches the table your lender uses.
+
+The interest charged each period is calculated using the loan's **Interest basis** setting. The default, 30/360, charges a flat one-twelfth of the annual rate each month. Actual/365 and actual/actual charge by the actual number of days in the period, which lets the schedule match lenders who accrue on those conventions — common for UK and Australian mortgages.
 
 To view the schedule, open a loan account and select the **Schedule** tab.
 
