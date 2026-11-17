@@ -49,6 +49,7 @@
               "features/recurring-transactions",
               "guides/app-features/goals",
               "guides/app-features/insights",
+              "guides/app-features/weekly-cleanup",
               "guides/app-features/family-sharing",
               "guides/app-features/settings",
               "guides/app-features/passkeys",
