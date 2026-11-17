@@ -159,6 +159,13 @@
             ]
           },
           {
+            "group": "Reports",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/spending_vs_normal"
+            ]
+          },
+          {
             "group": "Balances",
             "openapi": "/openapi.yaml",
             "pages": [
