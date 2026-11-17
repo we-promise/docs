@@ -694,6 +694,12 @@ If the budget page crashes with a server error after the AI assistant sets a spe
   </Accordion>
 </AccordionGroup>
 
+## Income, net worth, or budget totals briefly stale after upgrade
+
+After upgrading to the build that contains [Sure PR #5168](https://github.com/we-promise/sure/pull/5168), the cache keys used for income statements, investment totals, net worth charts, transaction search totals, and budget rollover calculations are rebuilt once. During that first request after deploy you may see a momentary stale value; the correct figures appear after the cache warms.
+
+No computed amounts change. The rebuild is automatic and requires no configuration change.
+
 ## Budget totals do not update after deleting transactions
 
 If a budget still shows spending from a transaction that was already deleted, the most likely cause is a stale aggregate cache. Sure hard-deletes the transaction entry, so the deleted transaction is gone; the stale value can come from cached budget or income totals that were not invalidated by deleting an older entry.
