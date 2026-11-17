@@ -881,6 +881,22 @@ If you clicked **Record payment** in the manual payment panel of the bill occurr
 
 If you click **Add transaction** on the new transaction form without selecting an account, the button previously appeared to do nothing (the request returned a 404 error). The form now re-renders with a validation error so you can see what is missing and correct it.
 
+## Split rows appear in a different order than entered
+
+When you edit a split or view the transaction drawer, the split rows previously appeared in an unpredictable order that could change after a database vacuum or provider sync. The split editor and the transaction drawer now show split rows in the order they were created — earliest first, with ties broken by ID.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The split editor (`SplitsController#edit`) and the transaction drawer read split child entries without an `ORDER BY` clause. PostgreSQL returns rows in physical (heap) order when no order is specified, and that order shifts after rows are rewritten — for example, after a provider sync or a background job that touches the entry. The result was split rows appearing in a different sequence each time the editor or drawer opened.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    A new `Entry.in_split_order` scope orders split child entries by `created_at` and then by `id`. This scope is applied in the split editor, the transaction drawer's split list, and the data exporter. The export output is unchanged — the exporter already used the same ordering. Only the display order in the UI is affected; balances, rules, the API, and all totals remain the same.
+
+    Upgrade to a build containing [Sure PR #5169](https://github.com/we-promise/sure/pull/5169). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Split transactions not grouped in account activity
 
 When the **Group split transactions** preference was enabled, split child entries were collapsed under their parent on the Transactions page but still appeared as flat, ungrouped rows on the Activity tab of individual account pages.
