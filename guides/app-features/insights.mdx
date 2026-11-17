@@ -1,11 +1,11 @@
 ---
 title: Insights
-description: Proactive, AI-written financial observations delivered to your family nightly
+description: Proactive financial observations delivered to your family nightly
 ---
 
 ## Overview
 
-Insights are short, actionable observations about your finances that Sure generates nightly. Each insight spots a pattern or event in your data — a spending anomaly, a milestone crossed, a budget running over — and writes a plain-language summary so you understand what changed and why.
+Insights are short, actionable observations about your finances that Sure generates nightly. Each insight spots a pattern or event in your data — a spending anomaly, a milestone crossed, a budget running over — and fills a plain-language summary from a template so you understand what changed and why.
 
 Insights appear in the dashboard feed.
 
@@ -60,9 +60,33 @@ The idle cash generator only considers accounts every active member can see. A p
 
 The dashboard shows the three highest-priority, unacknowledged insights. Clicking an insight marks it `read`. Dismissing it marks it `acknowledged`.
 
+## Dig in with AI
+
+Each insight card has a **Dig in with AI** button that opens the assistant sidebar with a pre-filled message summarising the insight — its title, body, period, and key figures. You can edit the message before sending it.
+
+The button is shown when:
+
+- The family's assistant is enabled
+- An LLM provider is configured (or an external assistant is set up)
+
+Clicking the button prefills the chat input; it does not send the message automatically.
+
+### Customizing the dig-in prompt
+
+Family admins can replace the default first message from **Settings → AI Prompts** under the **Insight Dig In** section. The override supports four placeholders:
+
+| Placeholder | Value |
+|---|---|
+| `%{title}` | Insight title |
+| `%{body}` | Insight body text |
+| `%{period}` | Display period (e.g. "Oct 1 – Oct 31") |
+| `%{facts}` | Key figures as a bulleted list |
+
+Any other `%{...}` sequences are left as typed. Clearing the field restores the default message.
+
 ## Language
 
-Insight bodies are written in your family's locale. When an LLM provider is configured and a family member has AI enabled, Sure passes the family's BCP 47 locale code to the model so both the LLM-generated body and the template fallback speak the same language. If no locale is set, Sure defaults to English.
+Insight bodies are filled from i18n templates in your family's locale. The template is interpolated with the generator's pre-computed figures, so no LLM call is made when creating or refreshing an insight. If no locale is set, Sure defaults to English.
 
 ## API access
 

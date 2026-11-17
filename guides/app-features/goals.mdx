@@ -31,7 +31,7 @@ For goals backed by **investment accounts**, Sure defaults to the **contribution
 2. Click **New goal**.
 3. Choose a kind (**One-off** or **Maintained**).
 4. Enter a name, target amount, currency, and optional deadline (one-off only).
-5. Pick one or more accounts to link. Accounts must be depository or investment type.
+5. Pick one or more accounts to link. Accounts must be depository or investment type. Accounts in different currencies can all be linked to the same goal; a hint below the account list confirms which currency the totals will use.
 6. Optionally add a color, icon, and notes. If you skip the color, Sure assigns a default color automatically. The progress ring on the goal card and the goal's avatar both use the same color, so they always match.
 7. Save.
 
@@ -129,6 +129,28 @@ You can reverse some state transitions. Open the goal's detail page and use the 
 - **Unarchive** an archived goal — moves it back to active and reinstates its earmark.
 
 Deleting a goal removes it and its pledges entirely. It does not affect your account balances or transactions.
+
+## Multi-currency goals
+
+A goal can link accounts in different currencies. The goal itself has a single currency, and all progress figures — balance, target, pace, remaining amount — are shown in that currency. Each account's earmark stays in the account's native currency; totals are converted to goal currency at the time they are displayed.
+
+**Exchange rate rules:**
+
+- Backing (current balance), pace, and market value all use today's rate. Pace is an estimate, and converting per entry date would require a rate lookup for every transaction on every page load.
+- Recording a spend linked to a transaction or matching a pledge uses the entry’s date. A manual spend without a linked transaction uses today’s rate.
+- If a rate is unavailable, Sure never substitutes a 1:1 conversion. Instead, accounts whose balances cannot be converted are left out of the total and a warning is shown.
+
+**Missing rate warnings:**
+
+When one or more linked accounts cannot be converted because no exchange rate is available, Sure alerts you. On the goal card a small warning marker appears beneath the progress amount with the text "Some balances aren't counted (no exchange rate yet)". On the goal detail page a warning alert appears above the progress ring, naming which currencies are missing and what currency the goal uses. The alert includes a link to exchange rate provider settings for self-hosted administrators.
+
+Recording a spend from an account whose currency cannot be converted is refused until a rate becomes available.
+
+**Goal currency is locked** once at least one account is linked. To change the currency, you would need to remove the linked accounts first.
+
+**The spend dialog** shows a hint when the goal has linked accounts in more than one currency: "Enter the amount in [goal currency]. For an account in another currency, it's converted at today's rate before it comes off that account's earmark."
+
+**The funding breakdown** on the goal detail page shows each linked account's contribution and trailing inflows. For an account whose currency cannot be converted, the inflow figures show "—" instead of zero.
 
 ## Linked accounts and earmarks
 
