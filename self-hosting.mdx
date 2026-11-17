@@ -616,11 +616,13 @@ Your app is now accessible at `http://localhost:3000`.
 
 ## Updating
 
-The `SURE_IMAGE_TAG` variable in your `.env` file controls which version of Sure you're running. The image in `compose.yml` reads from it:
+In the current example Compose file, `SURE_IMAGE_TAG` in `.env` selects the Sure image version. The image entry reads:
 
 ```yml
 image: ghcr.io/we-promise/sure:${SURE_IMAGE_TAG:-stable}
 ```
+
+If your existing `compose.yml` hardcodes an image tag, `SURE_IMAGE_TAG` has no effect until that image entry uses the variable shown above.
 
 ### Recommended channels
 
@@ -631,7 +633,7 @@ You can also pin to a specific version from the [packages page](https://github.c
 
 ### Update to the latest version
 
-Your app does not automatically update. To update:
+Your app does not automatically update. With the current Compose file and its backup service, run:
 
 ```bash
 cd ~/docker-apps/sure
@@ -639,6 +641,8 @@ docker compose run --rm backup create  # recommended: back up first
 docker compose pull web worker
 docker compose up -d
 ```
+
+For older deployments without the backup service, take a backup using the [host-script method](#without-the-backup-service-any-version-including-0-7-5-and-older) before pulling the new image.
 
 ### Change update channel
 
@@ -657,7 +661,7 @@ docker compose up -d
 
 ## Backups, upgrades, and rollbacks
 
-Current `main` includes a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. As of October 22, 2026, this service is not included in the latest stable release, `v0.7.5-hotfix.2`. The Compose service requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
+Current `main` and the latest stable release checked on November 17, 2026, `v0.7.6-hotfix.1`, include a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. Older images without [PR #3909](https://github.com/we-promise/sure/pull/3909), including `v0.7.5-hotfix.2`, require the host-script method below.
 
 Run all commands from the directory that holds `compose.yml`.
 
