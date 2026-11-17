@@ -316,7 +316,7 @@ Rules can set:
 
 #### Split transaction action
 
-The **Split transaction** action automatically splits every matching transaction into two or more child entries each time the rule runs. Use it to break up recurring shared charges — such as a bundled subscription or a shared expense — without splitting each transaction manually.
+The **Split transaction** action splits eligible matching transactions into two or more child entries each time the rule runs. Use it to break up recurring shared charges — such as a bundled subscription or a shared expense — without splitting each transaction manually.
 
 A rule with a split transaction action must have that as its only action. No other actions (category, merchant, tags, etc.) can be combined with a split on the same rule.
 
@@ -327,6 +327,7 @@ A rule with a split transaction action must have that as its only action. No oth
 - It is not a split child of another transaction.
 - It is not pending.
 - It is not excluded.
+- Its exclusion attribute is not locked, unless the rule is explicitly applied with attribute locks ignored. An excluded transaction remains ineligible even with that override.
 
 **Configuring split rows:**
 
@@ -335,11 +336,11 @@ Each row in the split builder defines one child entry. You can add between 2 and
 Every row requires:
 - **Name** — the display name for the child transaction (up to 255 characters).
 - **Type** — either **Fixed** or **Percentage**.
-- **Amount** — the fixed dollar amount or percentage share.
+- **Amount** — a positive fixed amount in the transaction’s currency (up to four decimal places), or a positive percentage share. Child amounts retain the parent’s income or expense sign.
 
 Optionally, each row can also set:
-- **Category** — the category assigned to that child entry. If set, later rules cannot overwrite it.
-- **Merchant** — the merchant assigned to that child entry. If set, later rules cannot overwrite it.
+- **Category** — the category assigned to that child entry. If set, it is locked against automatic changes by later rules; an explicitly applied rule that ignores attribute locks can override it.
+- **Merchant** — the merchant assigned to that child entry. If set, it is locked against automatic changes by later rules; an explicitly applied rule that ignores attribute locks can override it.
 - **Tags** — one or more tags applied to that child entry.
 
 A child entry without a merchant inherits the parent transaction's merchant.
@@ -349,14 +350,14 @@ A child entry without a merchant inherits the parent transaction's merchant.
 You can mix fixed and percentage rows in the same split action. Fixed rows are resolved first; percentage rows divide whatever amount remains after the fixed amounts are subtracted.
 
 - **Fixed**: takes a literal amount from the transaction total. All fixed rows together must not exceed the transaction's total.
-- **Percentage**: takes a share of the remainder after all fixed rows are resolved. Percentage rows must sum to exactly 100%.
+- **Percentage**: takes a share of the remainder after all fixed rows are resolved. Percentage rows must total 100%, allowing a tolerance of 0.01 percentage points. Fixed rows must leave a positive remainder for percentage rows. Percentage amounts are rounded to the currency’s precision, capped at four decimal places; the last percentage row absorbs the remainder. A split that would produce a zero or negative percentage child is skipped.
 
-Because fixed splits leave no room to absorb amount differences, a rule whose split rows are all fixed requires an **Amount = [exact value]** condition. This guarantees that only transactions with the matching total are split, preventing the rule from silently producing children that do not add up to the parent. A rule with at least one percentage row does not need this condition, because the percentage row(s) always adapt to whatever amount is left.
+A rule whose split rows are all fixed requires an **Amount = [exact value]** condition that applies to every match: it must be a top-level condition or inside an **all/AND** group, rather than only one branch of an **any/OR** group. The fixed shares must sum to that condition’s amount. A rule with at least one percentage row does not need an exact-amount condition; percentage rows divide the positive remainder, subject to the rounding and eligibility checks above.
 
 **What happens when a split rule runs:**
 
-- Transactions already split, excluded, or flagged as transfer are skipped.
-- If a fixed-only split's shares do not equal the matching transaction's amount at run time (for example, the rule was saved before the amount changed), that transaction is skipped and noted in the debug log at **Settings → Debug**.
+- Transactions already split, split children, pending transactions, excluded transactions, and transfers are skipped. A lock on the exclusion attribute also prevents automatic splitting; explicitly ignoring attribute locks bypasses that lock check, but does not make excluded transactions eligible.
+- If the configured shares cannot resolve to valid child amounts at run time — for example, fixed shares do not equal the transaction’s magnitude, leave no positive remainder, or percentage rounding produces a non-positive child — that transaction is skipped and noted in the debug log at **Settings → Debug**.
 - If two rules (or a rule run and a manual split) try to split the same transaction at the same time, the second attempt is skipped rather than creating duplicate children.
 
 **Import and export:**
