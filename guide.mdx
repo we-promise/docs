@@ -442,6 +442,8 @@ Income and expense category rows in the breakdown are clickable. Clicking a cate
 
 Investment-only rows (such as **Other Investments**) are not clickable because those entries are trade records rather than regular transactions and cannot be shown in the transaction list.
 
+Zero-amount entries are excluded from the activity breakdown and from the monthly CSV export. Some banks post a $0.00 transaction when a subscription checks a card (an authorisation). Because no money moved, these entries are neither income nor expense and do not appear as rows in the breakdown or in the CSV. They remain visible on the Transactions page.
+
 ### Spending vs normal
 
 <Note>
