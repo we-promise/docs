@@ -1146,9 +1146,9 @@ If you want to load sample data on a 512 MB host:
 
 ## Daily market data import
 
-Sure imports security prices once a day, Monday to Friday. By default the import runs at 22:00 UTC, about an hour after the New York close. To change the time or turn the import off, open **Settings > Self-Hosting** and use the market data import options under the sync settings. The time you save there is interpreted in your browser's timezone.
+Sure schedules security-price imports once a day, Monday to Friday. By default the import runs at 22:00 UTC. To change the time or turn the import off, open **Settings > Self-Hosting** and use the market data import options under the sync settings. When you save the time, Sure records your family's timezone (or UTC when it is unset).
 
-You can also set the defaults in your `.env` file. A value saved on the settings page always takes precedence over these variables:
+Environment variables supply defaults for settings not saved in the application. A saved setting takes precedence. With Docker Compose, pass these variables into the application and worker containers; setting them only in Compose's `.env` does not do that:
 
 ```txt
 MARKET_DATA_SYNC_ENABLED=1        # 1 = on, anything else = off
