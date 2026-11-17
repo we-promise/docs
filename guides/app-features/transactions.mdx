@@ -43,6 +43,18 @@ When you merge a pending duplicate into its posted counterpart, Sure carries ove
 
 To add a transaction that was not imported from a provider, select **Add transaction** from the Transactions screen. Fill in the date, amount, account, and any other details, then save.
 
+### Auto-generate transaction names
+
+When the **Auto-generate transaction names** setting is on, leaving the name field blank fills it automatically from the category and merchant you select. The generated name combines both values with a dash — for example, "Food & Dining - Netflix". If only one is set, only that value is used.
+
+The name field shows a live placeholder preview as you choose a category or merchant, so you can see what the auto-generated name will be before saving. The field also suggests recent transaction names as you type, letting you reuse a name without typing it again.
+
+The name field remains required when no category or merchant is selected — a fully blank transaction is not accepted.
+
+Auto-generation applies only to new transactions entered manually. Provider-synced and CSV-imported transactions are not affected.
+
+To enable or disable this setting, go to **Settings → Appearance** and toggle **Auto-generate transaction names** under the Transactions section. Only admins can change this setting. The change applies to all members of your household.
+
 If you submit the form more than once — for example by double-clicking the save button, using the browser back button, or restoring a cached tab — Sure detects the repeated submission and opens the existing transaction instead of creating a second one.
 
 ## Edit transaction details
@@ -51,7 +63,10 @@ Click anywhere on a transaction row to open it and update the fields that affect
 
 - **Name**: The display name for the transaction
 - **Date**: The transaction date
-- **Amount**: The transaction amount and direction. When you change the currency selector, the amount field's symbol, decimal step, and precision update immediately to match the selected currency. You can paste formatted amounts — such as `20,000`, `1.234,56`, or `$1,234.56` copied from a bank statement or spreadsheet — directly into any money field. Sure parses the value and inserts the plain number. When the pasted amount is ambiguous (for example, `1,234` could be one-thousand-two-hundred-thirty-four or one point two-three-four), Sure uses the decimal separator of the selected currency to decide: pasting `1,234` into a euro field yields 1.234, while the same paste into a US dollar field yields 1234. Amounts in parentheses are treated as negative. Text that does not match a recognizable amount is left to the browser.
+- **Amount**: The transaction amount and direction. When you change the currency selector, the amount field's symbol, decimal step, and precision update immediately to match the selected currency. Amount fields accept several input styles:
+  - **Comma decimals**: You can type a comma as the decimal separator (for example, `12,50`). The field keeps whichever separator you typed while the form submits the canonical dot form to the server.
+  - **Calculator expressions**: You can type simple arithmetic directly in the field — for example, `12.50+4.30` or `100/3`. Sure evaluates the expression when you leave the field and replaces it with the result. Standard operator precedence applies (`*` and `/` before `+` and `-`). On mobile, a row of operator buttons (`+`, `-`, `×`, `÷`) appears when the field is focused so you can build expressions without a physical keyboard.
+  - **Pasting formatted amounts**: You can paste amounts such as `20,000`, `1.234,56`, or `$1,234.56` copied from a bank statement or spreadsheet. Sure parses the value and inserts the plain number. When the pasted amount is ambiguous (for example, `1,234` could be one-thousand-two-hundred-thirty-four or one point two-three-four), Sure uses the decimal separator of the selected currency to decide: pasting `1,234` into a normal euro transaction amount field yields 1.23 after rounding to the currency’s precision, while the same paste into a US dollar field yields 1234. Amounts in parentheses are treated as negative. Invalid amounts or expressions, such as `100-` or `5/0`, block form submission until corrected.
 - **Account**: The account the transaction belongs to. When adding a new transaction, the account selector includes a search box so you can find the right account quickly.
 - **Category**: The income or expense category used for budgets and reports. Subcategories appear indented under their parent in every category selector across the app, so the hierarchy is always visible when you assign or change a category. The "Uncategorized" option is displayed as a badge in the category selector, consistent with how other categories appear, making it easy to identify at a glance.
 - **Merchant**: The merchant or payee associated with the transaction
@@ -69,6 +84,16 @@ Edits through the API or AI assistant also lock the fields that changed, includi
 These protections last until they are explicitly removed. Re-enabling sync clears the entry's user-modified and import-lock flags and its field locks.
 
 Saving changes to **Name**, **Notes**, **Category**, **Merchant**, or **Tags** does not trigger a background account sync. Reports and budgets update immediately through the entries cache. Saving changes to **Amount**, **Date**, or **Account** does trigger an account sync to recalculate balances from the affected date forward.
+
+### Name suggestions and category auto-fill
+
+When adding a transaction, type at least 3 characters in the **Description** field to see up to 8 matching past transaction names. The suggestions come from transactions on accounts you can access. When automatic transaction names are enabled, shorter queries can also show matching names from a list of up to 20 recent names.
+
+Selecting a suggestion fills in the name and, when categorized history exists for that name, also sets the most frequently used category. A category already selected when the form opens is preserved.
+
+You can override the suggested category at any time by picking a different one from the category selector. A manual category pick always takes priority and will not be replaced by a later suggestion. If you choose a different name suggestion after setting a manual category, the category you picked manually is preserved.
+
+If a name suggestion has no suggested category, any category that was previously auto-filled by an earlier suggestion is cleared, leaving the field empty for you to assign a category yourself.
 
 ### Create a merchant inline
 
@@ -124,9 +149,21 @@ Checking both options together is the same as leaving both unchecked: no attachm
 
 For split transactions, Sure checks the parent transaction for attachments. A split child counts as attached when its parent has a file, so the filter behaves consistently whether you view splits individually or grouped.
 
-### Filter by uncategorized on an account page
+### Filter the account activity feed
 
-The Filter popover on each account's activity list includes an **Uncategorized only** option under a **Category** section. Checking it narrows the activity list to transactions that meet the same uncategorized definition used by the Transactions page filter, the uncategorized badge, and Quick Categorize. The filter combines with the status filters (Confirmed, Pending) and the search field, so you can work through what still needs a category within a single account without switching to the global Transactions page.
+The activity feed on each account's detail page supports date, amount, category, tag, merchant, type and status filters, scoped to that account. Open the **Filter** popover next to the search field to filter by:
+
+- **Date** — start and end dates
+- **Amount** — equal-to, less-than or greater-than comparisons
+- **Category** — including an **Uncategorized only** option that matches the same uncategorized definition used by the Transactions page, the uncategorized badge, and Quick Categorize
+- **Tag** — including **Untagged** to show transactions with no tags assigned
+- **Merchant** — including **No merchant** to show transactions without an assigned merchant
+- **Type** — income, expense, or transfer
+- **Status** — Confirmed or Pending
+
+When a type filter is active, Sure excludes non-transaction entries (valuations and trades) from the activity list because those entry types do not have transaction types. The account selector is omitted because the feed is already scoped to one account. The AI-categorization filter is also not shown here.
+
+Active filters appear as removable badges below the search field. Removing a badge clears only that filter and leaves all other active filters in place.
 
 ### Categorize flow
 
@@ -311,9 +348,59 @@ Rules can set:
 - Name
 - **Send email notification** – sends a digest email listing new matching transactions each time the rule runs
 
+#### Split transaction action
+
+The **Split transaction** action splits eligible matching transactions into two or more child entries each time the rule runs. Use it to break up recurring shared charges — such as a bundled subscription or a shared expense — without splitting each transaction manually.
+
+A rule with a split transaction action must have that as its only action. No other actions (category, merchant, tags, etc.) can be combined with a split on the same rule.
+
+**When a transaction is eligible to be split:**
+
+- It is not a transfer.
+- It has not already been split.
+- It is not a split child of another transaction.
+- It is not pending.
+- It is not excluded.
+- Its exclusion attribute is not locked, unless the rule is explicitly applied with attribute locks ignored. An excluded transaction remains ineligible even with that override.
+
+**Configuring split rows:**
+
+Each row in the split builder defines one child entry. You can add between 2 and 20 rows.
+
+Every row requires:
+- **Name** — the display name for the child transaction (up to 255 characters).
+- **Type** — either **Fixed** or **Percentage**.
+- **Amount** — a positive fixed amount in the transaction’s currency (up to four decimal places), or a positive percentage share. Child amounts retain the parent’s income or expense sign.
+
+Optionally, each row can also set:
+- **Category** — the category assigned to that child entry. If set, it is locked against automatic changes by later rules; an explicitly applied rule that ignores attribute locks can override it.
+- **Merchant** — the merchant assigned to that child entry. If set, it is locked against automatic changes by later rules; an explicitly applied rule that ignores attribute locks can override it.
+- **Tags** — one or more tags applied to that child entry.
+
+A child entry without a merchant inherits the parent transaction's merchant.
+
+**Fixed vs. percentage splits:**
+
+You can mix fixed and percentage rows in the same split action. Fixed rows are resolved first; percentage rows divide whatever amount remains after the fixed amounts are subtracted.
+
+- **Fixed**: takes a literal amount from the transaction total. All fixed rows together must not exceed the transaction's total.
+- **Percentage**: takes a share of the remainder after all fixed rows are resolved. Percentage rows must total 100%, allowing a tolerance of 0.01 percentage points. Fixed rows must leave a positive remainder for percentage rows. Percentage amounts are rounded to the currency’s precision, capped at four decimal places; the last percentage row absorbs the remainder. A split that would produce a zero or negative percentage child is skipped.
+
+A rule whose split rows are all fixed requires an **Amount = [exact value]** condition that applies to every match: it must be a top-level condition or inside an **all/AND** group, rather than only one branch of an **any/OR** group. The fixed shares must sum to that condition’s amount. A rule with at least one percentage row does not need an exact-amount condition; percentage rows divide the positive remainder, subject to the rounding and eligibility checks above.
+
+**What happens when a split rule runs:**
+
+- Transactions already split, split children, pending transactions, excluded transactions, and transfers are skipped. A lock on the exclusion attribute also prevents automatic splitting; explicitly ignoring attribute locks bypasses that lock check, but does not make excluded transactions eligible.
+- If the configured shares cannot resolve to valid child amounts at run time — for example, fixed shares do not equal the transaction’s magnitude, leave no positive remainder, or percentage rounding produces a non-positive child — that transaction is skipped and noted in the debug log at **Settings → Debug**.
+- If two rules (or a rule run and a manual split) try to split the same transaction at the same time, the second attempt is skipped rather than creating duplicate children.
+
+**Import and export:**
+
+Split rule configurations are included in family exports and imports. Each row's category, merchant, and tags are exported by name so the configuration transfers correctly when imported into another family.
+
 #### Email notification action
 
-When a rule has a send email notification action, Sure records the set of transactions that already matched at the time the rule was created or activated. Later digests include matching transactions not already recorded as delivered; the initial matching set is not re-sent.
+When a rule has a send email notification action, Sure records the set of transactions that already matched at the time the email action was added to the rule (including when the rule is first created with one) or when the rule is activated. Later digests include matching transactions not already recorded as delivered; the initial set is not re-sent. An existing transaction that starts matching after the baseline can be included, even if it was not newly imported.
 
 If you edit the rule and change its match criteria — adding or removing a condition, changing a condition's type, operator, or value, or updating the rule's effective date — Sure re-records that baseline using the new conditions. Transactions that match the new criteria when the edit is saved are recorded as already delivered and are not included in the next digest. This prevents older transactions from appearing in the email as if they were new after a rule is widened.
 
@@ -328,6 +415,17 @@ Rules run from top to bottom in the order shown on **Settings → Rules**. You c
 Each rule has a **Stop processing further rules** toggle. When a transaction matches a rule with this toggle enabled, no rules below it run against that transaction. Use this to prevent lower rules from overriding a deliberate assignment.
 
 When a rule with stop processing is enabled, a **Stop** badge appears next to it in the list as a visual reminder.
+
+### Built-in classifier rules
+
+Two built-in rules appear at the top of your rules list and run the Classifier without an AI provider:
+
+- **Merchant matcher** — copies a missing merchant from near-duplicate transactions. For example, a transaction named "NETFLIX.COM 8812" gets the merchant from similar transactions like "Netflix com". Transfers are excluded.
+- **Category classifier** — categorizes uncategorized transactions using the Bayes classifier trained on your history. Transactions the classifier is not confident about are left uncategorized for a downstream AI rule to handle.
+
+Both rules are free and do not require an AI provider. You can reorder them within your rules list to control when they run relative to your other rules. Toggling either rule on or off on **Settings → Classifier** also toggles it here, and vice versa. These are ordinary rules: you can edit their conditions and actions on the Rules page. You can also delete one and add it back from **Settings → Classifier** if needed.
+
+You can tune how these rules behave from **Settings → Classifier**: adjust the confidence threshold, similarity cutoffs, and other options for the category classifier and merchant matcher.
 
 ### Applying rules
 
