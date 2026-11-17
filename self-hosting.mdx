@@ -509,6 +509,26 @@ When you change the sync time in the UI, Sure saves your family's current timezo
 
 With Docker Compose, ensure these variables reach the application and worker containers. Setting them only in Compose's `.env` file does not pass them into the containers.
 
+### Linked-account balance anchoring
+
+By default, every stale provider-reported balance anchor is kept as a reconciliation waypoint, which can produce a "Manual balance update" entry in the activity feed for each sync day. The `BALANCE_REUSE_EXPLAINED_ANCHOR` flag changes this behavior: when enabled, Sure compares the stale anchor against the transactions imported in the same sync and moves the anchor forward in place when the ledger explains the change. When the ledger does not explain it, the anchor is preserved as a reconciliation waypoint as before.
+
+```txt
+# Optional: linked-account balance anchoring. Default off.
+# When enabled, a stale provider balance anchor that the sync's imported
+# transactions explain is moved forward instead of being kept as a
+# reconciliation waypoint.
+# BALANCE_REUSE_EXPLAINED_ANCHOR=1
+```
+
+Only `:cash` accounts are evaluated. Investment and other non-cash accounts keep the previous behavior regardless of this flag.
+
+<Warning>
+Enabling this flag can revise historical chart values on the first reverse sync after enabling it, and overwrites explained anchors in place. Disabling the flag or reverting the code does not restore an anchor that was already overwritten. Take a database backup before enabling it.
+</Warning>
+
+Existing reconciliation rows created before the flag was enabled are not deleted or rewritten automatically. There is no migration to repair historical waypoints because the schema does not distinguish a sync-created waypoint from a genuine user reconciliation.
+
 ### Redis Sentinel (high availability)
 
 By default Sure connects to Redis using `REDIS_URL`. For high-availability deployments that use Redis Sentinel, set `REDIS_SENTINEL_HOSTS` instead. When that variable is present it takes precedence over `REDIS_URL`.
