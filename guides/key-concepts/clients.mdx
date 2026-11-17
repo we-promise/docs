@@ -13,7 +13,7 @@ Sure is centered on a Rails server. Every client connects to that server and use
 | macOS desktop app | People who want Sure in a native Mac window with system app chrome and deep-link handling | Native shell around the web app | See the desktop README in the repository |
 | Mobile app | Basic mobile access on iOS and Android, currently focused on login and account balances | Flutter companion app | See the mobile README in the repository |
 | LLM agents and assistants | Claude Desktop, GPT agents, local agents, or custom tools that need structured access to Sure data | MCP endpoint for external AI clients | See [MCP server](/development/mcp) |
-| Custom API clients | Scripts, services, importer experiments, dashboards, or other integrations | HTTP API | See the [API reference](/api-reference) |
+| Custom API clients | Scripts, services, importer experiments, dashboards, or other integrations | HTTP API | See the [API reference](/api-reference/accounts/list-accounts) |
 
 ## Web app
 
@@ -65,7 +65,7 @@ Custom clients can call Sure's HTTP API directly. This is the right path for scr
 
 API requests can authenticate with a user-generated `X-Api-Key` header, or with OAuth2 bearer tokens from Sure's Doorkeeper authorization server for registered app clients.
 
-See the [API reference](/api-reference) for available endpoints.
+See the [API reference](/api-reference/accounts/list-accounts) for available endpoints.
 
 ## Choosing a client
 
