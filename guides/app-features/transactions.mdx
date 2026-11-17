@@ -51,7 +51,10 @@ Click anywhere on a transaction row to open it and update the fields that affect
 
 - **Name**: The display name for the transaction
 - **Date**: The transaction date
-- **Amount**: The transaction amount and direction. When you change the currency selector, the amount field's symbol, decimal step, and precision update immediately to match the selected currency. You can paste formatted amounts — such as `20,000`, `1.234,56`, or `$1,234.56` copied from a bank statement or spreadsheet — directly into any money field. Sure parses the value and inserts the plain number. When the pasted amount is ambiguous (for example, `1,234` could be one-thousand-two-hundred-thirty-four or one point two-three-four), Sure uses the decimal separator of the selected currency to decide: pasting `1,234` into a euro field yields 1.234, while the same paste into a US dollar field yields 1234. Amounts in parentheses are treated as negative. Text that does not match a recognizable amount is left to the browser.
+- **Amount**: The transaction amount and direction. When you change the currency selector, the amount field's symbol, decimal step, and precision update immediately to match the selected currency. Amount fields accept several input styles:
+  - **Comma decimals**: You can type a comma as the decimal separator (for example, `12,50`). The field keeps whichever separator you typed while the form submits the canonical dot form to the server.
+  - **Calculator expressions**: You can type simple arithmetic directly in the field — for example, `12.50+4.30` or `100/3`. Sure evaluates the expression when you leave the field and replaces it with the result. Standard operator precedence applies (`*` and `/` before `+` and `-`). On mobile, a row of operator buttons (`+`, `-`, `×`, `÷`) appears when the field is focused so you can build expressions without a physical keyboard.
+  - **Pasting formatted amounts**: You can paste amounts such as `20,000`, `1.234,56`, or `$1,234.56` copied from a bank statement or spreadsheet. Sure parses the value and inserts the plain number. When the pasted amount is ambiguous (for example, `1,234` could be one-thousand-two-hundred-thirty-four or one point two-three-four), Sure uses the decimal separator of the selected currency to decide: pasting `1,234` into a normal euro transaction amount field yields 1.23 after rounding to the currency’s precision, while the same paste into a US dollar field yields 1234. Amounts in parentheses are treated as negative. Invalid amounts or expressions, such as `100-` or `5/0`, block form submission until corrected.
 - **Account**: The account the transaction belongs to. When adding a new transaction, the account selector includes a search box so you can find the right account quickly.
 - **Category**: The income or expense category used for budgets and reports. Subcategories appear indented under their parent in every category selector across the app, so the hierarchy is always visible when you assign or change a category. The "Uncategorized" option is displayed as a badge in the category selector, consistent with how other categories appear, making it easy to identify at a glance.
 - **Merchant**: The merchant or payee associated with the transaction
@@ -310,6 +313,56 @@ Rules can set:
 - Notes
 - Name
 - **Send email notification** – sends a digest email listing new matching transactions each time the rule runs
+
+#### Split transaction action
+
+The **Split transaction** action splits eligible matching transactions into two or more child entries each time the rule runs. Use it to break up recurring shared charges — such as a bundled subscription or a shared expense — without splitting each transaction manually.
+
+A rule with a split transaction action must have that as its only action. No other actions (category, merchant, tags, etc.) can be combined with a split on the same rule.
+
+**When a transaction is eligible to be split:**
+
+- It is not a transfer.
+- It has not already been split.
+- It is not a split child of another transaction.
+- It is not pending.
+- It is not excluded.
+- Its exclusion attribute is not locked, unless the rule is explicitly applied with attribute locks ignored. An excluded transaction remains ineligible even with that override.
+
+**Configuring split rows:**
+
+Each row in the split builder defines one child entry. You can add between 2 and 20 rows.
+
+Every row requires:
+- **Name** — the display name for the child transaction (up to 255 characters).
+- **Type** — either **Fixed** or **Percentage**.
+- **Amount** — a positive fixed amount in the transaction’s currency (up to four decimal places), or a positive percentage share. Child amounts retain the parent’s income or expense sign.
+
+Optionally, each row can also set:
+- **Category** — the category assigned to that child entry. If set, it is locked against automatic changes by later rules; an explicitly applied rule that ignores attribute locks can override it.
+- **Merchant** — the merchant assigned to that child entry. If set, it is locked against automatic changes by later rules; an explicitly applied rule that ignores attribute locks can override it.
+- **Tags** — one or more tags applied to that child entry.
+
+A child entry without a merchant inherits the parent transaction's merchant.
+
+**Fixed vs. percentage splits:**
+
+You can mix fixed and percentage rows in the same split action. Fixed rows are resolved first; percentage rows divide whatever amount remains after the fixed amounts are subtracted.
+
+- **Fixed**: takes a literal amount from the transaction total. All fixed rows together must not exceed the transaction's total.
+- **Percentage**: takes a share of the remainder after all fixed rows are resolved. Percentage rows must total 100%, allowing a tolerance of 0.01 percentage points. Fixed rows must leave a positive remainder for percentage rows. Percentage amounts are rounded to the currency’s precision, capped at four decimal places; the last percentage row absorbs the remainder. A split that would produce a zero or negative percentage child is skipped.
+
+A rule whose split rows are all fixed requires an **Amount = [exact value]** condition that applies to every match: it must be a top-level condition or inside an **all/AND** group, rather than only one branch of an **any/OR** group. The fixed shares must sum to that condition’s amount. A rule with at least one percentage row does not need an exact-amount condition; percentage rows divide the positive remainder, subject to the rounding and eligibility checks above.
+
+**What happens when a split rule runs:**
+
+- Transactions already split, split children, pending transactions, excluded transactions, and transfers are skipped. A lock on the exclusion attribute also prevents automatic splitting; explicitly ignoring attribute locks bypasses that lock check, but does not make excluded transactions eligible.
+- If the configured shares cannot resolve to valid child amounts at run time — for example, fixed shares do not equal the transaction’s magnitude, leave no positive remainder, or percentage rounding produces a non-positive child — that transaction is skipped and noted in the debug log at **Settings → Debug**.
+- If two rules (or a rule run and a manual split) try to split the same transaction at the same time, the second attempt is skipped rather than creating duplicate children.
+
+**Import and export:**
+
+Split rule configurations are included in family exports and imports. Each row's category, merchant, and tags are exported by name so the configuration transfers correctly when imported into another family.
 
 #### Email notification action
 
