@@ -317,7 +317,7 @@ Auto-categorization, merchant detection, and provider-merchant enhancement are i
 - **Claude 3.x, 4.x, and Haiku 5.5** — uses `tool_choice: { type: "tool", disable_parallel_tool_use: true }` to force the model to call the tool.
 - **Claude 5 families (Opus 5.5, Sonnet 5.5, Fable 5.1, Mythos 5.1) and any model not in the forced list** — uses `tool_choice: { type: "auto", disable_parallel_tool_use: true }` and appends a fixed system prompt instruction telling the model to call the tool. This avoids forcing a tool choice on models outside Sure’s allowlist.
 
-Both strategies request structured tool output without the OpenAI-compatible JSON-mode fallback. A model can still omit the tool call or return an invalid result; Sure raises an error when the expected tool output is missing or malformed.
+Both strategies request structured tool output without the OpenAI-compatible JSON-mode fallback. On the `auto` path, if the model answers with text and no tool call, Sure retries once: it appends the model's text reply and a user message asking the model to call the tool, then repeats the request with `auto` still set (models on this path reject a forced `tool_choice`). The first call's token usage is billed regardless of the retry. If the retry also omits the tool call, or if the tool-call result is malformed, Sure raises an error.
 
 Batch size is controlled by `LLM_MAX_ITEMS_PER_CALL` (default `25`), the same variable used by the OpenAI-compatible provider. Raise `ANTHROPIC_MAX_TOKENS` alongside it — the Messages API requires a reply-token limit and a large batch can exceed the default `4096` — or replies will be cut off.
 
