@@ -76,7 +76,7 @@ Configure AI features like chat and transaction rules from Settings → Self-Hos
 
 ### Count investing as spending
 
-By default, money moved into an investment account (an `investment_contribution` transaction) counts as spending in budgets, reports, the savings rate, and the cash flow Sankey chart. Existing account and transaction exclusions still apply, including accounts excluded from reports and tax-advantaged accounts.
+By default, investment contributions from a non-investment, non-crypto account into an investment or crypto account count as spending in budgets, reports, the savings rate, and the cash flow Sankey. Transfers between investment or crypto accounts remain funds movements. Existing account and transaction exclusions still apply, including accounts excluded from reports and tax-advantaged accounts.
 
 If your household treats contributions to an ISA, pension, or brokerage as saving rather than spending, you can turn this off. Go to **Settings → Preferences** and toggle **Count investing as spending** to off (requires admin role). When the setting is off:
 
@@ -84,6 +84,8 @@ If your household treats contributions to an ISA, pension, or brokerage as savin
 - The cash flow Sankey draws a separate **Invested** outflow node next to Surplus or Deficit.
 - The AI assistant's income statement reports an `invested` total alongside income and expenses.
 - Budget drilldowns and report breakdowns exclude those transactions.
+- Loan payments are unaffected and remain counted as expenses.
+
 
 The preference is part of the income statement cache key, so a new report request uses the updated setting.
 
@@ -201,6 +203,8 @@ You can customize how your dashboard is displayed:
 
 If you hide all widgets, the dashboard shows an empty state with a link back to Customize mode.
 
+**Reorder widgets**: Drag widgets into any order. Hover over a widget to reveal the drag handle (grip icon) in its header, then drag to reposition. On touch devices, press and hold a widget for about 800 ms before dragging. With a keyboard, press **Enter** or **Space** to grab a focused widget, use **Up** and **Down** to move it, and press **Enter**, **Space**, or **Escape** to release. The new order is per-user and saves on drop or keyboard release.
+
 **2-column layout**: On wide screens, display dashboard cards in a 2-column grid for better space utilization. This setting is available in Settings → Appearance.
 
 When enabled:
@@ -211,6 +215,26 @@ When enabled:
 **Start expanded by default**: Choose which account groups open automatically when the dashboard and account sidebar load. Available in Settings → Appearance → Dashboard.
 
 You can select any combination of the nine account group types: Cash, Investments, Crypto, Property, Vehicles, Credit Cards, Loans, Other Asset, and Other Liability. Groups you check here start open on every page load. You can still collapse them manually at any time — the preference only controls the initial state, not any changes you make during the session.
+
+### Account order
+
+Control how accounts are sorted within each group in the sidebar and the dashboard balance sheet. Go to **Settings → Appearance** and choose a **Default account order**:
+
+- **Name (A-Z)** — alphabetical ascending (default)
+- **Name (Z-A)** — alphabetical descending
+- **Balance (Low to High)** — smallest balance first
+- **Balance (High to Low)** — largest balance first
+- **Manual (drag to reorder)** — arrange accounts yourself
+
+When you select **Manual**, a **Sort accounts** button appears at the top of the accounts sidebar. Click it to enter sort mode. In sort mode you can:
+
+- **Mouse**: drag any account row to a new position within its group
+- **Touch**: drag rows on touch devices
+- **Keyboard**: press **Enter** or **Space** to grab a focused row, use **Up** and **Down** to move it, then press **Enter**, **Space**, or **Escape** to release
+
+The order is saved per account type group and per user. Accounts you add later appear after your arranged ones, sorted alphabetically.
+
+The manual order also applies to the dashboard balance sheet. If you navigate away while holding a row with the keyboard, Sure saves the move before continuing so the new page reflects your change.
 
 ### Drag to select a date range on charts
 
