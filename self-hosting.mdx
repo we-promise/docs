@@ -565,7 +565,7 @@ docker compose up --no-deps -d web worker
 
 ## Backups, upgrades, and rollbacks
 
-Current `main` includes a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. As of October 22, 2026, this service is not included in the latest stable release, `v0.7.5-hotfix.2`. The Compose service requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
+Current `main` includes a bundle-based backup service for the database, mounted local uploaded files, and available deployment configuration. This service is included in the `0.7.7-alpha` series (`latest` tag) and is not included in the latest stable release, `v0.7.5-hotfix.2`. The Compose service requires a Sure image containing [PR #3909](https://github.com/we-promise/sure/pull/3909). For older images, use the host-script method below.
 
 Run all commands from the directory that holds `compose.yml`.
 
