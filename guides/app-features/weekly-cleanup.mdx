@@ -1,0 +1,49 @@
+---
+title: Weekly cleanup
+description: Proactive weekly data-health chat delivered to family admins every Monday
+keywords: ['weekly cleanup', 'proactive chat', 'data quality', 'merchants', 'transactions', 'imports']
+---
+
+## Overview
+
+Each Monday at 07:00, Sure runs a set of read-only checks across your family's data and opens a proactive chat for each family admin that summarises what it found. The chat is seeded with a complete report covering uncategorized transactions, stale imports, provider sync gaps, missing merchant details, duplicate entries, large transactions missing context, and potentially duplicate merchants.
+
+The weekly cleanup feature is available to families with preview features enabled.
+
+## Who receives the chat
+
+Only family admins receive a weekly cleanup chat. Members and guests do not. Each admin gets their own chat scoped to the accounts they can access — an account one admin cannot see never appears in their report.
+
+Admins must also have AI enabled on their account. Deactivated admins and admins with AI turned off are skipped for that run.
+
+## What the report covers
+
+Each chat opens with a plain-language summary of findings across seven checks. A section is included only when that check found something to report; a clean run results in a bill-of-health message instead.
+
+| Check | What it surfaces |
+|---|---|
+| Uncategorized transactions | Standard (non-transfer, non-excluded) transactions from the last 7 days with no category assigned |
+| Stale imports | Imports that failed in the last 7 days, or imports still in an `importing` or `reverting` state past the stuck threshold |
+| Provider data gaps | Accounts or connections whose latest sync is still `failed` or `stale` — indicating fresh data is not flowing from the provider |
+| Missing merchant info | Standard transactions from the last 7 days with no merchant linked |
+| Duplicate imported entries | Import-created entries with the same account, date, amount, and name appearing more than once in the last 30 days |
+| Missing context | Transactions of $100 or more from the last 7 days that have no notes and no attachments |
+| Duplicate merchants | Merchant names across the family that likely refer to the same merchant, identified by name normalization and trigram-similarity clustering |
+
+Each section lists up to five examples so you can act on the most relevant items immediately.
+
+## Idempotency
+
+Sure creates at most one cleanup chat per admin per weekly period. If the job runs more than once in the same week — for example after a manual re-run — admins who already received that week's chat are skipped. This is enforced by a unique record keyed on `[family, user, week_start]`.
+
+If a detector fails during a run, Sure skips that admin for the current run rather than recording a partial result. The next scheduled run retries the full scan.
+
+## Merchant duplicate detection
+
+The merchant-duplicate check is fully deterministic — no AI model is involved. Sure normalizes merchant names (lowercasing, stripping punctuation, expanding common abbreviations) and then clusters similar names using trigram similarity. Names within a cluster are likely duplicates.
+
+The report shows the top clusters with the two most representative names per cluster, plus a count if the cluster is larger. You can then merge duplicate merchants manually from the Merchants settings page.
+
+## Preview gate
+
+The weekly cleanup job respects the same preview-features gate as [Insights](/guides/app-features/insights). Families without preview features enabled are skipped entirely.
