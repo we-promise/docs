@@ -47,19 +47,19 @@ This creates a `compose.yml` file in your current directory with the default con
 
 By default, the `compose.example.yml` file runs without any configuration. For production deployments or if you're running outside of a local network, follow these steps to add security.
 
-### Email configuration
+### Email configuration (SMTP)
 
-Sure sends email through an SMTP server that you provide. Email is sent by the `worker` service, not by `web`, so both services must have these settings.
+Sure sends email through an SMTP server that you provide. Email is sent by the background worker (the `worker` service), not by `web`, so the worker must have these settings.
 
 On a self-hosted instance, Sure sends these emails:
 
-- Password reset links, when password sign-in is enabled.
-- A confirmation link when a user changes their email address, but only when **Require email confirmation** is on under Settings > Self-Hosting. When it is off, the new address is saved straight away and nothing is sent.
-- Rule notifications from rules with a "Send email notification" action.
+- Password reset links for accounts that are not SSO-only.
+- A confirmation link when a user changes their email address with **Require email confirmation** on under Settings > Self-Hosting. When it is off, the new address is saved straight away.
+- Rule notifications, from rules with a "Send email notification" action.
 - The follow-up email after a PDF import is processed.
-- A daily summary to every super admin after the demo family is refreshed, but only when **Enable daily demo family refresh** is on and a demo family has been selected. It is off by default.
+- A daily summary to every super admin after the demo family is refreshed, but only when **Enable daily demo family refresh** is on under Settings > Self-Hosting and a demo family has been selected for it. It is off by default.
 
-Invitations are never emailed on a self-hosted instance. After you add a member, copy the invitation link from Settings > Profile Info and send it to them directly.
+Invitations are never emailed on a self-hosted instance, even with SMTP set up. After you add a member, copy the invitation link from Settings > Profile Info and send it to them yourself.
 
 | Variable | What it does | Default when not set |
 |----------|--------------|----------------------|
@@ -69,7 +69,7 @@ Invitations are never emailed on a self-hosted instance. After you add a member,
 | `SMTP_PASSWORD` | Password for logging in to the SMTP server. | None |
 | `SMTP_TLS_ENABLED` | `true` uses TLS from the start of the connection (SMTPS, usually port 465). Any other value connects in plain text and switches to TLS with STARTTLS when the server offers it (usually port 587). | Off |
 | `SMTP_TLS_SKIP_VERIFY` | `true` turns off verification of the SMTP server's certificate. | Off (the certificate is verified) |
-| `SSL_CA_FILE` | Path inside the container to a CA certificate (PEM) for verifying a server with a self-signed or internal certificate. The file must be mounted into the containers. | None |
+| `SSL_CA_FILE` | Path inside the container to a CA certificate (PEM) for verifying a server with a self-signed or internal certificate. The file must be mounted into the containers; see **Using a custom CA certificate** below. | None |
 | `EMAIL_SENDER` | Address that emails are sent from, for example `sure@example.com`. | `sender@sure.local` |
 | `APP_DOMAIN` | Host name your instance is reached at, for example `sure.example.com`. Used to build links in emails. | None |
 
@@ -82,7 +82,7 @@ A few things to watch:
 
 Docker Compose uses `.env` to fill in the `${...}` values in `compose.yml`. It does not pass `.env` to the containers as a whole. A variable set only in `.env` does not reach the app unless `compose.yml` lists it.
 
-Both `web` and `worker` merge the shared `x-rails-env` anchor, so add the keys there once and both services get them. Add these to the anchor in `compose.yml`:
+Both `web` and `worker` merge the shared `x-rails-env` anchor, so add the keys there once and both services get them. If you run the AI setup from `compose.ai.yml`, that file has its own `x-rails-env` anchor with no SMTP keys, so add the same keys there instead:
 
 ```yaml
 x-rails-env: &rails_env
@@ -98,9 +98,9 @@ x-rails-env: &rails_env
   # SMTP_TLS_SKIP_VERIFY: ${SMTP_TLS_SKIP_VERIFY:-false}
 ```
 
-The `:-default` syntax means Compose uses the default when the `.env` value is unset or empty. Plain `${VAR}` keys (like `SMTP_USERNAME`) pass an empty value when the variable is not set — an empty `SMTP_USERNAME` still makes the app try to log in. If your server needs no login, leave those keys out of the anchor entirely.
+Any other variable from the table reaches the app only if you add it to the anchor the same way. `SMTP_TLS_SKIP_VERIFY` is shown commented out because turning off certificate checks is a last resort; prefer `SSL_CA_FILE` (see **Using a custom CA certificate** below).
 
-Then set the values in `.env`:
+The table above lists the app's own defaults. This snippet sets different ones for Compose: port 465 with TLS from the start of the connection (SMTPS), the same values `.env.example` ships with. For a server that uses STARTTLS on port 587, set `SMTP_PORT` and `SMTP_TLS_ENABLED` in `.env`:
 
 ```txt
 APP_DOMAIN="sure.example.com"
@@ -113,16 +113,9 @@ SMTP_PASSWORD="replacemewithyoursmtppassword"
 # SMTP_TLS_ENABLED="false"
 ```
 
-Run `docker compose up -d` after changing `compose.yml` or `.env`. `docker compose restart` keeps the old environment, so new settings do not take effect.
+Keys listed in the anchor with no default in the plain `${VAR}` form are passed as empty values when not set in `.env` — not as unset. An empty `EMAIL_SENDER` replaces the `sender@sure.local` fallback with an empty address, and an empty `SMTP_USERNAME` still makes the app try to log in. If your server needs no login, leave the `SMTP_USERNAME` and `SMTP_PASSWORD` lines out of the anchor. Keys written as `${VAR:-default}`, such as `SMTP_PORT` and `SMTP_TLS_ENABLED` above, fall back to the default when the `.env` value is unset or empty.
 
-To check what the worker sees, without printing the password:
-
-```bash
-docker compose exec worker bin/rails runner 'p ActionMailer::Base.smtp_settings.slice(:address, :port, :user_name, :tls)'
-docker compose exec worker printenv EMAIL_SENDER APP_DOMAIN
-```
-
-**Using a custom CA certificate for SMTP**
+#### Using a custom CA certificate
 
 If your SMTP server's certificate is signed by an internal CA or is self-signed, mount the CA certificate into the containers and point `SSL_CA_FILE` at it. Add `SSL_CA_FILE` to the anchor, and the volume to both `web` and `worker`:
 
@@ -142,7 +135,18 @@ services:
       - ./my-ca.crt:/certs/my-ca.crt:ro
 ```
 
-The worker is the service that sends email. The same `SSL_CA_FILE` setting is also used for other outbound HTTPS connections.
+The worker is the service that sends email, so it must have the file. The same setting is also used for other outbound HTTPS connections.
+
+**Applying changes**
+
+Run `docker compose up -d` after changing `compose.yml` or `.env`. It recreates the containers whose settings changed. `docker compose restart` keeps the old environment, so new settings do not take effect.
+
+To check what the worker sees, without printing the password:
+
+```bash
+docker compose exec worker bin/rails runner 'p ActionMailer::Base.smtp_settings.slice(:address, :port, :user_name, :tls)'
+docker compose exec worker printenv EMAIL_SENDER APP_DOMAIN
+```
 
 ### Create an environment file
 
@@ -483,6 +487,28 @@ ONCHAIN_MAX_TOKENS_PER_ADDRESS="200"
 
 To enable crypto pricing for on-chain wallets, include `binance_public` in `SECURITIES_PROVIDERS`. If your family currency is not USD, also set `EXCHANGE_RATE_PROVIDER` to a provider that needs no API key (e.g. `frankfurter`). See [on-chain wallets](/providers/onchain-wallets) for details.
 
+### Scheduled account sync
+
+Sure can automatically sync all families' bank connections on a recurring schedule. The schedule is configured in **Settings → Self-Hosting**. Environment variables supply defaults for settings that have not been saved in the application.
+
+```txt
+# Enable or disable the nightly scheduled sync (default: 1)
+AUTO_SYNC_ENABLED="1"
+
+# Wall-clock time to run the sync, in HH:MM 24-hour format (default: 02:22)
+AUTO_SYNC_TIME="02:22"
+
+# IANA timezone for the scheduled sync time (default: UTC)
+# Example: "America/New_York", "Europe/London", "Asia/Tokyo"
+AUTO_SYNC_TIMEZONE="UTC"
+```
+
+The scheduler uses the configured local wall-clock time and IANA timezone rather than a fixed UTC offset. For example, a sync set to `02:22 America/New_York` runs at 07:22 UTC in winter and 06:22 UTC in summer.
+
+When you change the sync time in the UI, Sure saves your family's current timezone alongside it (or UTC if none is set). Saved settings take precedence over the environment defaults. For an installation without a saved enabled setting, `AUTO_SYNC_ENABLED="0"` disables the schedule; otherwise turn off scheduled sync in the UI. Disabling it removes the scheduled job without clearing its time setting.
+
+With Docker Compose, ensure these variables reach the application and worker containers. Setting them only in Compose's `.env` file does not pass them into the containers.
+
 ### Redis Sentinel (high availability)
 
 By default Sure connects to Redis using `REDIS_URL`. For high-availability deployments that use Redis Sentinel, set `REDIS_SENTINEL_HOSTS` instead. When that variable is present it takes precedence over `REDIS_URL`.
@@ -802,51 +828,23 @@ To restore an older `backup_*.sql.gz` file, stop `web` and `worker`, then load i
 gunzip -c backup_<timestamp>.sql.gz | docker compose exec -T db psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 ```
 
+
 ## SSL certificate configuration
 
-For self-hosted environments using self-signed certificates or custom certificate authorities, Sure provides SSL configuration options.
+For outbound HTTPS connections that use Sure’s SSL configuration, `SSL_CA_FILE` adds trust for a custom certificate authority. Mount a readable PEM file into both `web` and `worker` and pass its container path through the shared `x-rails-env` anchor, as shown in [Using a custom CA certificate](#using-a-custom-ca-certificate) above.
 
-### Environment variables
+At boot, Sure validates the certificate file and normally writes a combined system-and-custom CA bundle to `tmp/ssl_ca_bundle.pem`. It sets `SSL_CERT_FILE` to that bundle for the Ruby process, so clients that use Ruby’s default certificate store can also trust the custom CA. If the combined bundle cannot be created, Sure logs a warning and uses the custom file alone; that fallback can lose trust in public certificate authorities.
 
-Add these variables to your `.env` file:
+These additional environment variables are read at boot:
 
-```txt
-SSL_CA_FILE=/path/to/ca-bundle.pem
-SSL_VERIFY=true
-# Optional: enable verbose SSL logging for debugging
-SSL_DEBUG=false
-```
+- `SSL_VERIFY` enables certificate verification by default. Values `0`, `false`, `no`, and `off` disable it, ignoring case and surrounding spaces. This does not replace the separate SMTP setting `SMTP_TLS_SKIP_VERIFY`.
+- `SSL_DEBUG=true` enables verbose SSL configuration logging, including the active CA file and combined bundle path. It does not change certificate verification.
 
-**SSL_CA_FILE**: Path to a custom CA certificate bundle (PEM format). Use this when:
-- Your environment uses self-signed certificates
-- You need to trust a custom certificate authority
-- Corporate proxies inject their own certificates
+Pass these keys through your Compose environment anchor if you use them. After changing the environment, use `docker compose up -d` to recreate the affected containers; a restart retains their old environment. For the separate AI Compose file, include `-f compose.ai.yml` in the command.
 
-**SSL_VERIFY**: Controls SSL certificate verification (default: `true`)
-- Set to `false` to disable SSL verification (not recommended for production)
-- Only disable verification in development or testing environments
-
-**SSL_DEBUG**: Set to `true` to enable verbose SSL logging at startup. Sure logs the active CA file, verification status, and the path of the combined CA bundle it writes to `tmp/ssl_ca_bundle.pem`. Use this to diagnose certificate trust issues in development or staging environments.
-
-If you're using a custom CA bundle, mount it into your containers in `compose.yml`:
-
-```yml
-services:
-  web:
-    volumes:
-      - /path/to/your/ca-bundle.pem:/path/to/your/ca-bundle.pem:ro
-  worker:
-    volumes:
-      - /path/to/your/ca-bundle.pem:/path/to/your/ca-bundle.pem:ro
-```
-
-Restart the application after updating your configuration:
-
-```bash
-docker compose restart web worker
-```
-
-
+<Warning>
+Disabling certificate verification removes protection against server impersonation. Prefer a valid CA certificate with verification enabled; use verification overrides only for controlled development or testing.
+</Warning>
 
 ## Monitoring system health
 
