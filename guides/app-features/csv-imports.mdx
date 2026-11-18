@@ -343,6 +343,18 @@ Sure will import all rows from your CSV. Review your data before importing to av
 
 If you imported a rules CSV with `transaction_tag` conditions on an older version of Sure (before the fix in [#3419](https://github.com/we-promise/sure/pull/3419)), the tag name was stored as-is instead of being resolved to the tag's ID. Rules with this problem match no transactions for the tag condition. To fix affected rules, delete and re-import them, or edit each rule manually in **Settings → Rules** to remove and re-add the tag condition.
 
+### Large Sure NDJSON file runs out of memory during import
+
+Single-file imports (via `POST /api/v1/imports`) process the entire file in one transaction. On workers with limited memory (around 1 GB), large exports can exhaust memory before the import completes.
+
+The supported path for large files is a chunked import session:
+
+1. Create an import session with `POST /api/v1/import_sessions`.
+2. Split your NDJSON file into chunks of up to 10 MB each and upload them with `POST /api/v1/import_sessions/{id}/chunks`.
+3. Publish the session with `POST /api/v1/import_sessions/{id}/publish`.
+
+Chunked imports process one chunk at a time, keeping peak worker memory bounded by the chunk size rather than the total file size.
+
 ### Sure NDJSON import fails with a null rule name
 
 Rules exported from Sure may have a `null` name field, which is valid. If a full `all.ndjson` export fails preflight with an error about a missing rule name, ensure you are using a current version of Sure — older versions incorrectly required the name field to be present.
