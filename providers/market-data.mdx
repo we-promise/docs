@@ -127,6 +127,12 @@ You can tune the throttle with these environment variables:
 | `TWELVE_DATA_MAX_REQUESTS_PER_MINUTE` | `7` | Maximum API credits consumed per minute |
 | `TWELVE_DATA_MIN_REQUEST_INTERVAL` | `1.0` | Minimum seconds between consecutive requests |
 
+#### Usage display
+
+**Settings > Self-Hosting** shows how many of your daily API credits you have consumed, along with a utilization percentage and progress bar. The percentage is computed as `used / daily_limit × 100`, rounded to one decimal place — so 400 credits used out of 800 displays as 50.0%.
+
+If the Twelve Data API response is missing usage figures, contains non-numeric values, or reports a daily limit of zero, the settings page shows an error instead of the usage bar. Re-check your API key if this happens.
+
 ### Tiingo
 
 Tiingo provides end-of-day and intraday price data for US and international equities.
