@@ -191,19 +191,41 @@ Sure tracks cost basis from three sources, in order of priority:
 | Priority | Source | Description |
 | --- | --- | --- |
 | 1 (Highest) | **Manual** | Values you enter directly |
-| 2 | **Calculated** | Computed from your trade history using weighted-average cost |
+| 2 | **Calculated** | Computed from your trade history (weighted-average or FIFO, depending on the account's cost basis method) |
 | 3 (Lowest) | **Provider** | Imported from your financial institution |
 
 This hierarchy ensures your manual entries always take precedence, calculated values override provider data, and provider data is used when nothing else is available.
 
-### How calculated cost basis works
+### Cost basis methods
 
-Sure uses the **weighted-average cost** method to compute your cost basis from trades:
+Each investment account uses one of two cost basis methods: **weighted-average** or **FIFO** (first in, first out). The method is set on the account and determines how sales consume your lots and how the average cost figure is calculated.
+
+### How weighted-average cost basis works
+
+Accounts set to the average method use a running weighted-average to track cost basis:
 
 - **Buys** update the running average: the new share cost is folded into the existing position at the average weighted by quantity. Any acquisition fee is included in the per-share cost — a $5 fee on 10 shares adds $0.50 to the cost of each newly acquired share before that lot is combined with any existing position.
 - **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain. A disposal fee does not affect the basis of the remaining shares.
 - **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
 - **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
+
+### How FIFO cost basis works
+
+Accounts set to the FIFO method consume the oldest lot first when you sell. Each purchase creates its own lot, and a sale depletes lots in acquisition order. The average cost shown for a FIFO position is the mean of its open lots (the lots you currently hold), not a weighted average of everything ever purchased.
+
+**Naming a specific lot on a sale**
+
+A sale in a FIFO account can optionally name the lot it sold from. When a lot is named, that lot is consumed first; any remaining quantity is taken from the oldest lots in order.
+
+To name a lot on a sale:
+
+1. Open the sale entry in the trade drawer.
+2. In the **Sold from lot** select, choose the lot you sold from. The list shows each eligible acquisition's date, quantity, and price.
+3. Save the trade. Sure replays the account from that point and updates realized gains accordingly.
+
+Eligible lots are acquisitions (buys or transfers-in) of the same security in the same account that occur before the sale date, excluding lots that earlier sales had already emptied. If a previously named lot is no longer open when the account is replayed, the sale falls back to oldest-first order automatically.
+
+The **Sold from lot** selector appears only for sales in FIFO accounts. Average-method accounts do not use per-lot tracking and the selector is not shown.
 
 Price and fee conversions for foreign-currency trades use a rate carried by the trade when available, otherwise the rate for the trade's date. If the required conversion rate is unavailable, the calculated basis is unknown rather than using today's rate or treating the currencies as equal.
 
