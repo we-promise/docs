@@ -204,8 +204,12 @@ Sure uses the **weighted-average cost** method to compute your cost basis from t
 - **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain. A disposal fee does not affect the basis of the remaining shares.
 - **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
 - **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
+- **Clamped positions** show an unknown cost basis. A position is clamped when the provider reports fewer units than your imported trades account for — for example, the provider says you hold 3 shares but your trades total 10. Because the trades' average cannot be applied to units the provider says are not there, Sure marks the cost basis as unknown rather than showing a misleading figure.
+- **User-set lot costs** are counted when calculating the average. If you manually set a cost on a lot — including a transfer-in lot — Sure uses that cost in place of the trade's price for that lot. This allows a linked account whose transfer-in lot you have costed to resolve its average cost.
 
 Price and fee conversions for foreign-currency trades use a rate carried by the trade when available, otherwise the rate for the trade's date. If the required conversion rate is unavailable, the calculated basis is unknown rather than using today's rate or treating the currencies as equal.
+
+A lot cost set before a later stock split is not used for the average cost calculation. The split restates share quantities but not lot costs, so applying a pre-split cost to post-split quantities would produce a wrong figure. Sure excludes those lots from the weighted average.
 
 This means `avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects only the cost of the shares you currently hold, not an average across every purchase the account ever made for that security.
 
