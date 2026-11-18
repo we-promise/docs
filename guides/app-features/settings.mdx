@@ -384,6 +384,14 @@ The export list page automatically polls for updates when exports are in progres
 
 This ensures you always see the current status without manually refreshing the page.
 
+### CSV export sanitization
+
+When you download a CSV export, Sure sanitizes text values to prevent spreadsheet formula injection. Any account name, transaction name, merchant name, category name, rule name, notes field, ticker, or subtype that starts with `=`, `+`, `-`, or `@` is prefixed with a single quote (`'`) in the exported file so spreadsheet apps treat it as text rather than a formula.
+
+Plain numbers — including negative amounts — are exported without modification and remain numeric in the spreadsheet. NDJSON exports are not affected and remain unchanged for lossless round-trip imports.
+
+If your data contains names that begin with one of those characters (for example, a merchant named `+44 Taxis`), the exported CSV shows `'+44 Taxis`. When you re-import that CSV into another application, remove the leading quote if the target app does not handle it automatically.
+
 ## Localization
 
 Sure supports multiple display languages. You can change the interface language from **Settings → Preferences**.

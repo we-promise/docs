@@ -10128,7 +10128,7 @@ paths:
       - name: search
         in: query
         required: false
-        description: Search by name, notes, or merchant name
+        description: Search by name, notes, or merchant name. The search term is treated as a literal string — special characters such as % and _ are matched literally, not as SQL wildcards.
         schema:
           type: string
       - name: account_ids
