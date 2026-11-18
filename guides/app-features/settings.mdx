@@ -7,6 +7,36 @@ description: "Configure Sure to match your preferences and needs"
 
 Sure provides various settings to customize your experience and control how the app behaves.
 
+## Searching settings
+
+A search field sits above the settings navigation on desktop and in the mobile settings nav. Use it to find settings pages or individual settings without scanning the full sidebar.
+
+**How to use it:**
+
+- Type any part of a page name or setting label. Results appear immediately, replacing the navigation while a query is active.
+- Results include both settings pages (for example, "Security") and individual settings found on those pages (for example, "Two-Factor Authentication" with the subtitle "Security").
+- Clearing the query brings the navigation back.
+
+**Keyboard shortcuts:**
+
+- Press `/` to focus the search field.
+- Use `Up` and `Down` to move between results.
+- Press `Enter` to open the highlighted result.
+- Press `Escape` to clear the query. Pressing `Escape` again when the field is empty leaves the field.
+
+**How results are ranked:**
+
+- Pages and settings whose name starts with your query rank above ones that merely contain it.
+- Diacritics and punctuation are ignored, so `two factor` matches "Two-Factor Authentication".
+
+**Navigating to a specific setting:**
+
+Choosing a setting result opens its page and scrolls directly to that setting. Browsers without text fragment support land at the top of the page instead.
+
+**What is searchable:**
+
+Headings, field labels, and primary-colored lines on the following pages are indexed: Preferences, Appearance, Profile Info, Security, Payment, AI Prompts, Classifier, API Keys, MCP, and Self-Hosting. Muted description text is not searchable. Any setting you add to one of those pages becomes searchable immediately — no registry update needed. The index is cached for five minutes.
+
 ## Security settings
 
 ### High-resolution logos
