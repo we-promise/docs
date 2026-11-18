@@ -54,6 +54,8 @@ The Insights button is only shown when preview features are enabled for your acc
 
 The insights feed is shared across the whole family. An insight that names a specific account — such as an idle cash nudge — appears in the feed only while every active family member can access that account. If account sharing is revoked, a member joins the family, or the account is hidden or deleted, the insight is hidden on the next feed read if the visibility condition no longer holds. Restoring access can make it visible again if it is still active or read, rather than dismissed or expired.
 
+Household aggregate insights — those whose figures are computed across every account all active members can open — are also hidden on read whenever the set of accessible accounts has changed since the figures were generated. This means a revoking a share, a member joining or leaving, or a member being deactivated causes the aggregate insight to disappear from the feed immediately, without waiting for the next nightly run. Restoring access brings the row back as it was; the next nightly run then rewrites it with fresh figures.
+
 The idle cash generator only considers accounts every active member can see. A private account is excluded when another active family member lacks access. In a family with only one active member, an account owned by that member can qualify without a share.
 
 ## Dashboard feed

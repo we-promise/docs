@@ -62,7 +62,7 @@ Family sharing respects privacy boundaries:
 - **Manual accounts after provider setup**: When provider setup or linking refreshes the Accounts page, its manual-account list includes only accounts the current user owns or that have been shared with them. This also applies to admins.
 - **Merchants**: Merchant data is shared across the family for consistency
 - **Personal budgets**: When personal budgets are enabled, each member's actual spending is scoped to their own accounts only
-- **Insights**: The shared insights feed only shows insights about accounts every active family member can access. Access is checked again when the feed is read, so revoking a required share hides the related insight on the next read.
+- **Insights**: The shared insights feed only shows insights about accounts every active family member can access. Access is checked on every read, so revoking a share, a member joining or leaving, or a member being deactivated hides the related insight immediately. Household aggregate insights — whose figures span all accessible accounts — are also hidden on read when the set of accessible accounts has changed since the figures were generated.
 - **Sync updates**: After an account sync, page refreshes use each browser’s own authenticated request. Automatic refresh can wait while the user is interacting with a form or dialog. Account names and balances are not pushed to family members who do not have access to that account.
 
 ## Managing Shared Accounts
