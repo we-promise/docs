@@ -131,7 +131,7 @@ These restrictions are enforced consistently across every access path:
 - **API**: Guest API credentials receive a `403 Forbidden` response on any write endpoint for categories, tags, merchants, and family-configuration import types (category, merchant, rule, and Sure imports). Read endpoints remain available.
 - **Imports**: Guests cannot create, publish, revert, or delete category, merchant, rule, or Sure imports. Guests also cannot publish any import — including transaction, Mint, QIF, or PDF imports — if publishing would create new categories or tags. Mapping an unmapped value to an existing category or tag, or leaving it empty, still works. For guests, reverting or deleting non-family-configuration imports requires write access to all affected accounts, including accounts created by the import; linked-statement permissions also apply.
 - **Import wizard**: Guests can edit pending or failed imports that are not category, merchant, rule, or Sure imports, subject to linked-statement access requirements.
-- **Assistant and MCP**: The `create_tag`, `update_tag`, `create_category`, and `update_category` tools are not available in a guest's tool registry for either the chat assistant or MCP.
+- **Assistant and MCP**: The `create_tag`, `update_tag`, `create_category`, `update_category`, `create_rule`, `update_rule`, `preview_rule`, and `apply_rule` tools are not available in a guest's tool registry for either the chat assistant or MCP.
 
 ## Use Cases
 
