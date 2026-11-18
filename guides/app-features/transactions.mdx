@@ -160,8 +160,19 @@ The activity feed on each account's detail page supports date, amount, category,
 - **Merchant** — including **No merchant** to show transactions without an assigned merchant
 - **Type** — income, expense, or transfer
 - **Status** — Confirmed or Pending
+- **Balances** — show or hide synced balance updates (available on linked cash and investment accounts that have balance updates; not shown on the global Transactions page)
 
 When a type filter is active, Sure excludes non-transaction entries (valuations and trades) from the activity list because those entry types do not have transaction types. The account selector is omitted because the feed is already scoped to one account. The AI-categorization filter is also not shown here.
+
+#### Synced balance updates in the activity feed
+
+On linked cash and investment accounts, Sure hides automatically synced balance updates from the activity feed by default. These entries are created by daily syncs to preserve balance history, but they are not transactions you entered, so they are hidden to keep the feed clean.
+
+When a synced balance update is visible — either because the preference is on or the filter is applied — it is labeled "Synced balance", "Synced value", or "Synced principal" depending on the account type, rather than "Manual balance update". A custom name you have set on the entry still takes priority.
+
+To show synced balance updates for a single view without changing your global preference, open the **Filter** menu and go to the **Balances** tab. Check **Show synced balance updates**. The filter applies only to that view and shows as a removable badge below the search field. Clearing the badge hides them again without affecting the preference.
+
+The Balances filter tab is only available on linked accounts that have balance updates. It does not appear on manual accounts or on the global Transactions page.
 
 Active filters appear as removable badges below the search field. Removing a badge clears only that filter and leaves all other active filters in place.
 
