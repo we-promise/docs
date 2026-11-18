@@ -196,18 +196,46 @@ Sure tracks cost basis from three sources, in order of priority:
 
 This hierarchy ensures your manual entries always take precedence, calculated values override provider data, and provider data is used when nothing else is available.
 
-### How calculated cost basis works
+### Choosing a cost basis method
 
-Sure uses the **weighted-average cost** method to compute your cost basis from trades:
+Each investment or crypto account that supports trades can use one of two methods for computing cost basis. You set the method on the account's edit form under **Cost basis method**.
+
+| Method | How it works |
+| --- | --- |
+| **Average cost** (default) | Tracks a running weighted average across all open lots. Every existing account uses this method unless you change it. |
+| **First in, first out (FIFO)** | Sells relieve the oldest open lot first. The realized gain for each sale is computed from the actual cost of those specific lots. |
+
+Changing the method triggers a full recalculation of the account's historical figures. If a sync is already running when you change the method, the recalculation runs again after that sync completes.
+
+### How average cost works
+
+Sure computes the weighted-average cost from your trade history:
 
 - **Buys** update the running average: the new share cost is folded into the existing position at the average weighted by quantity. Any acquisition fee is included in the per-share cost — a $5 fee on 10 shares adds $0.50 to the cost of each newly acquired share before that lot is combined with any existing position.
 - **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain. A disposal fee does not affect the basis of the remaining shares.
 - **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
 - **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
 
+### How FIFO works
+
+Under FIFO, Sure tracks individual purchase lots and matches sales to the oldest open lot first.
+
+- Each buy creates a new lot with its own quantity and per-share cost.
+- Each sell consumes the oldest available lot (or lots) first. If a sale spans multiple lots, Sure records the consumption from each one.
+- The realized gain for a FIFO sale is based on the actual cost of the lots consumed, not the blended average. This is the correct figure when lots have different costs — for example, 60 shares bought at $12 and 40 shares bought at $20, then 40 sold at $25: the FIFO basis is 40 × $12 = $480, giving a realized gain of $520.
+- If a sale exceeds the current position, the acquisition that fills the shortfall prices that portion of the sale. Shares from an inbound transfer that have since been fully sold no longer leave the position status unknown.
+
+**Gains and the partition guard.** Before reporting a realized gain for a FIFO sale, Sure checks that the stored lot record covers the full sale. If lots are out of sync with the account's current holdings — for example, after an account unlink followed by a forward sync — Sure marks the gain as unknown rather than showing a figure it cannot verify.
+
+**Reports card.** The investment sales report preloads FIFO lot data for each sale in a single query when any account uses FIFO. Accounts on average cost are unaffected.
+
+### How calculated cost basis works (general)
+
+Regardless of method:
+
 Price and fee conversions for foreign-currency trades use a rate carried by the trade when available, otherwise the rate for the trade's date. If the required conversion rate is unavailable, the calculated basis is unknown rather than using today's rate or treating the currencies as equal.
 
-This means `avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects only the cost of the shares you currently hold, not an average across every purchase the account ever made for that security.
+`avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects the cost of the shares you currently hold. Under average cost this is the weighted mean. Under FIFO it is the mean of the open lots.
 
 ### Transfers and cost basis
 
