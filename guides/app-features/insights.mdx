@@ -22,6 +22,9 @@ Insights appear in the dashboard feed.
 | `budget_at_risk` | Budget categories are near or over their monthly limit |
 | `budget_on_track` | All budget categories are on track (shown after the month is at least half over) |
 | `maintained_goal_depleted` | A reserve goal has fallen below its target balance |
+| `bank_fees` | A checking, card, or loan account has accumulated $10 or more in fees (from the Fees category and its subcategories) over the last 90 days, net of any refunds. Also fires when a fee appears on an account that had no fees in the previous 90 days. One card per account; reappears when a new fee arrives. |
+| `loan_payment_change` | A loan's scheduled payment amount will change by 3% or more within the next 60 days (for example, after a rate adjustment). Changes of 10% or more are high priority; drops are low priority. The card shows the old and new amounts and the effective date. |
+| `bill_not_covered` | A bill due within the next 14 days may not be covered by the paying account's projected balance. The card shows the shortfall amount. Only fires for bills paid from accounts in the family currency that are synced or have a manual entry in the last 5 days. |
 
 ## Priority
 

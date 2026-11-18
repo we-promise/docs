@@ -21,9 +21,18 @@ Every goal is one of two kinds:
 
 ## Progress basis
 
-For goals backed by **depository accounts** (checking, savings), Sure uses the account balance to measure progress.
+The progress basis controls what Sure counts when measuring how far a goal has come.
 
-For goals backed by **investment accounts**, Sure defaults to the **contributions basis**: the net amount deposited into the account, excluding market gains. This prevents a market decline from making a goal look behind even when you have kept up with savings.
+For goals backed by **depository accounts** (checking, savings), Sure always uses the account balance.
+
+For goals backed by **investment or crypto accounts**, you choose the basis when creating or editing the goal:
+
+- **Market value** (default) — counts what the linked accounts are worth today, including unrealised gains and losses.
+- **Contributions** — counts only the net amount deposited into the accounts, excluding market movement. Use this when you want your goal to reflect how much you have actually saved, not how the market has moved.
+
+The goal form presents these as a two-option choice. The goal detail page shows which basis is in use beneath the progress ring.
+
+You can change the basis at any time while the goal is active or paused. Once a goal is completed, the basis is locked to preserve the figure that was frozen at completion. To change it, reopen the goal first.
 
 ## Creating a goal
 

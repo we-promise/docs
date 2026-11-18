@@ -149,6 +149,23 @@ Checking both options together is the same as leaving both unchecked: no attachm
 
 For split transactions, Sure checks the parent transaction for attachments. A split child counts as attached when its parent has a file, so the filter behaves consistently whether you view splits individually or grouped.
 
+### Synced balance updates in linked account activity
+
+On linked accounts, Sure's daily sync creates a reconciliation entry each time it anchors the previous day's balance. These entries are useful for balance history but can clutter the activity feed.
+
+By default these entries are hidden from the account activity feed. The entries still exist and still drive the balance chart — only the display is affected.
+
+**To control visibility:**
+
+- **For one account:** Open the **Filter** menu on the account's activity page, go to the **Balances** tab, and check **Show synced balance updates**. This applies only to the current view and shows as a clearable filter badge.
+- **For all accounts:** Go to **Settings → Preferences** and toggle **Synced balance updates** on. This saves the preference per user.
+
+When the preference is on, the checkbox in the Filter menu is checked and disabled, with a link to Preferences.
+
+Where synced balance entries are shown, they are labelled **Synced balance** (or **Synced value** / **Synced principal**, depending on account type) instead of "Manual balance update".
+
+The Balances tab only appears on linked accounts that have synced balance entries. It is not available on the global Transactions page.
+
 ### Filter the account activity feed
 
 The activity feed on each account's detail page supports date, amount, category, tag, merchant, type and status filters, scoped to that account. Open the **Filter** popover next to the search field to filter by:
