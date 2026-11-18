@@ -478,6 +478,30 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Excluded-from-reports indicator shows the wrong icon on the accounts list
+
+On the accounts list, an account that is excluded from reports shows an indicator next to its name. In earlier versions the indicator rendered the wrong way round: the row showed a generic info icon as the trigger, and hovering it revealed the eye-off icon inside the tooltip panel instead of the "Excluded from reports" explanation text.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The indicator passed the eye-off icon as a plain block to `DS::Tooltip`. In `DS::Tooltip`, a plain block becomes the component's `content` — the tooltip panel text — so the trigger fell back to the default info icon and the eye-off icon appeared inside the panel instead.
+
+    The trigger was also rendered as a `<span>`, which only receives keyboard focus through a focusable ancestor such as `<a>` or `<summary>`. Because the account name link is a sibling rather than an ancestor, keyboard users could not reach the indicator at all.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The indicator now passes the eye-off icon as `trigger_content:` and uses the default `button` trigger element:
+
+    - The row shows the eye-off icon as the trigger.
+    - Hovering or focusing it reveals "Excluded from reports".
+    - The trigger is independently focusable and displays the standard focus ring.
+
+    `clickable-row` already ignores clicks on `<button>` elements, so clicking the indicator does not open the account.
+
+    This is fixed in builds containing [Sure PR #5275](https://github.com/we-promise/sure/pull/5275). As of November 18, 2026, the fix is on `main`. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Investment card not showing on the Reports page when the only brokerage account is closed
 
 If you sold securities during a period but the investment card on the Reports page does not appear, the most likely cause is that your only brokerage account is closed (disabled). Earlier versions gated the investment card on having an active (draft or active) investment account, so families whose only brokerage account was closed saw no investment card at all — even when the selected period contained a disposal that would have been listed there.
