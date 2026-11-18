@@ -51,6 +51,27 @@ You can enable multiple securities providers at the same time. When searching fo
 
 If you disable a provider that has securities assigned to it, those securities are marked offline until the provider is re-enabled.
 
+### Keyless fallback to Yahoo Finance
+
+On a fresh self-hosted install, Twelve Data is the default securities provider. Without a `TWELVE_DATA_API_KEY`, Twelve Data cannot be built and no security prices load. To prevent a silent no-price state, Sure automatically substitutes Yahoo Finance when the **first** enabled provider can't be built and Yahoo Finance is not already in the list.
+
+The substitution applies only to the first position. A provider further down the list that can't be built is dropped as usual, with no substitution. No substitution happens when Yahoo Finance is already enabled or the enabled list is explicitly empty.
+
+Securities found through the substitute are saved without an assigned price provider. Once you add an API key for the configured provider, those securities automatically switch to it on their next sync.
+
+The substitution is logged once per process (not once per security) so you can confirm it happened without log spam.
+
+**What stays unchanged under the fallback:**
+
+- The stored setting and the settings page continue to show the configured provider.
+- Configuration health still reports the configured provider as `:not_configured`.
+- Securities already assigned a specific provider (such as `twelve_data`) remain on that provider. They show as unavailable until a key is added, even under the fallback.
+
+**Side effects of the fallback:**
+
+- Installs with no securities key now send tickers to Yahoo Finance on every market data import and health-check cycle. This is an unofficial API and is the intended behavior, but it is a new outbound data flow compared to the previous no-prices state.
+- Unassigned securities are health-checked against Yahoo Finance. A ticker Yahoo can't price can go offline and recovers once a later health check succeeds, or once a key is added and the security moves to the configured provider.
+
 ## Provider details
 
 ### Yahoo Finance
