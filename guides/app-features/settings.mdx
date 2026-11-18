@@ -384,6 +384,16 @@ The export list page automatically polls for updates when exports are in progres
 
 This ensures you always see the current status without manually refreshing the page.
 
+### Investment lot data in exports
+
+The family export includes investment lot details so they survive a full export and re-import without loss:
+
+- **Manual lot cost** — if you have set a cost on an individual lot, the export carries that cost and the importer seeds the lot row with it on the next sync.
+- **Named lot on a sale** — if a FIFO sale names a specific lot to consume first (via `lot_source_trade_id`), the export records that link. The importer restores it after verifying that the named trade is an earlier acquisition of the same security in the same account and is not a transfer out.
+- **Account cost method** — the account's `cost_basis_method` (FIFO or average) is included in the export and restored on import.
+
+If an exported cost or lot reference cannot be applied during import — for example, if the named lot's trade is missing or the security does not match — the item is dropped and counted as skipped. The trade itself still imports. A re-import of a file without a lot cost or named lot clears those values from existing records.
+
 ## Localization
 
 Sure supports multiple display languages. You can change the interface language from **Settings → Preferences**.

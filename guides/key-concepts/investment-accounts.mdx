@@ -209,6 +209,24 @@ Price and fee conversions for foreign-currency trades use a rate carried by the 
 
 This means `avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects only the cost of the shares you currently hold, not an average across every purchase the account ever made for that security.
 
+### Open lots
+
+For accounts that sell by FIFO (first in, first out), Sure tracks individual lots — the distinct acquisition batches that make up a position. The `lots` field on a holding in the API lists those open lots, oldest first, when the lot totals add up to the current holding. Each lot includes:
+
+| Field | Description |
+| --- | --- |
+| `id` | Unique identifier for the lot |
+| `opening` | `true` if the lot represents units held before the first imported trade |
+| `acquired_on` | Acquisition date; `null` for the opening lot |
+| `qty` | Units of the lot still held |
+| `unit_cost` | Formatted cost per unit; `null` when unknown |
+| `manual_cost` | `true` if the cost was set manually |
+| `trade_id` | The acquiring trade; `null` for the opening lot |
+
+`lots` is `null` on historical rows and on any position where the lot quantities do not reconcile to the holding total. Accounts that use weighted-average cost do not carry individual lots; their holdings return `null` for `lots`.
+
+When a FIFO sale names a specific lot to sell from first, the trade carries a `lot_source_trade_id` — the UUID of the acquiring trade whose lot is consumed. For average-cost accounts the field is stored but the sale draws from the pooled average regardless.
+
 ### Transfers and cost basis
 
 When securities are transferred **into** an account, Sure cannot determine what those units originally cost. Because the purchase happened elsewhere — at a price nothing in this account recorded — any calculated cost basis for that position would be fabricated rather than real. Sure marks the position's cost basis as unknown so you are not shown a misleading figure.
