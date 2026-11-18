@@ -234,6 +234,32 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 </AccordionGroup>
 
+## Reports page amounts wrap onto multiple lines in narrow columns
+
+Currency amounts that use a space as a grouping separator (for example, `13 744,68 kr`) could break across two lines inside the Reports summary cards, trends, net worth, budget, and investment sections when any of those cards were narrow — such as when a side panel was open.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Space-grouped amounts are plain text with a standard space character between the thousands group and the rest of the number. Without an explicit no-wrap rule, the browser treats the space as a word-break opportunity and wraps the amount onto two lines inside narrow flex or grid cells.
+
+    A related issue affected the card grids themselves: they were sized by viewport width rather than container width. With side panels open, a wide window left a narrow column for the cards, but the viewport-based breakpoints still tried to fit four or five cards across it, compressing each card further.
+
+    The Monthly Breakdown, Top Holdings, and Net Worth tables had a width rule that pinned the table to the column width on wide windows, clipping its content rather than letting it scroll horizontally in a narrow column.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Every amount on the Reports page now uses `whitespace-nowrap` so the browser cannot break the number at an internal space. The budget's suggested-per-day sentence uses non-breaking spaces instead, since its translation key is not HTML.
+
+    Card grids are now sized by their container rather than the viewport, so the number of cards per row responds to the actual available width regardless of whether side panels are open.
+
+    The Monthly Breakdown, Top Holdings, and Net Worth tables now scroll horizontally inside a narrow column instead of being clipped, and their scroll areas are keyboard-accessible so arrow keys scroll them without changing the report period.
+
+    Investment account cards gained a gap so long names wrap clear of the balance, and the CSV and Google Sheets export buttons wrap inside their card when space is limited.
+
+    Upgrade to a build containing [Sure PR #4708](https://github.com/we-promise/sure/pull/4708). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Dragging a section on the reports page activates mid-scroll on mobile
 
 On mobile, a brief pause while scrolling the reports page could accidentally activate drag mode on a reorderable section, visibly shifting the section and interrupting the scroll.
