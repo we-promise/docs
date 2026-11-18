@@ -1,9 +1,9 @@
 ---
 title: Property valuations
-description: Automatically look up and refresh property values using RentCast, Realie, or Chimnie
+description: Automatically look up and refresh property values using RentCast, Realie, TerraScoutX, or Chimnie
 ---
 
-Sure can look up a property's estimated market value when you add a property account and refresh that estimate automatically on a recurring schedule. Three providers are supported: **RentCast** and **Realie** for US properties, and **Chimnie** for UK residential properties.
+Sure can look up a property's value when you add a property account and refresh that value automatically on a recurring schedule. Four providers are supported: **RentCast**, **Realie**, and **TerraScoutX** for US properties, and **Chimnie** for UK residential properties.
 
 ## How it works
 
@@ -22,7 +22,7 @@ After setup, Sure queues automatic valuation refreshes on the first of each mont
 Add the API key for the provider you want to use. You can do this in two ways:
 
 - **Settings UI** — go to **Settings → Self-Hosting** and enter the key in the provider's field
-- **Environment variable** — set `RENTCAST_API_KEY`, `REALIE_API_KEY`, or `CHIMNIE_API_KEY` in your environment
+- **Environment variable** — set `RENTCAST_API_KEY`, `REALIE_API_KEY`, `TERRASCOUTX_API_KEY`, or `CHIMNIE_API_KEY` in your environment
 
 Once a key is present, the provider appears as an option when you add a new property account.
 
@@ -63,6 +63,28 @@ Realie introduced a v3 response shape on 2026-08-19. The response shape is an ac
 
 Sure handles both shapes automatically. No configuration change is needed when your Realie account is on v3 or when you opt in later.
 
+### TerraScoutX
+
+[TerraScoutX](https://terrascoutx.com) is a US property data API that returns the county assessor's appraised value from the latest tax roll, not an automated market estimate. The free tier allows 2,000 requests per month. Keys are free and self-serve at [terrascoutx.com/developers](https://terrascoutx.com/developers).
+
+<Note>
+The value TerraScoutX returns is the county's assessed value from its latest tax roll. It is not a current market estimate. It can lag the market and, in states that cap assessments such as California under Prop 13, can sit well below what the property would sell for. Coverage varies by county; the API covers the US only.
+</Note>
+
+| Setting | Value |
+|---|---|
+| Free tier cap | 2,000 requests/month |
+| Coverage | United States (coverage varies by county) |
+| Valuation currency | USD |
+| Minimum automatic refresh interval | One day (the default job runs monthly) |
+| API key variable | `TERRASCOUTX_API_KEY` |
+| Base URL override | `TERRASCOUTX_URL` (must use `https://`) |
+| Monthly cap override | `TERRASCOUTX_MAX_REQUESTS_PER_MONTH` |
+
+TerraScoutX looks up properties by address. It performs a fuzzy search and then verifies that the returned record's house number and ZIP code match the address you entered. If no result matches, the lookup fails with a clear error rather than returning a near miss. City is not compared because county rolls often record the municipality rather than the mailing city.
+
+The `landUse` field on the county record is free-form text, so Sure matches it to known property subtypes by keyword. Unrecognized descriptions leave the subtype blank.
+
 ### Chimnie
 
 [Chimnie](https://chimnie.com) is a UK property valuation API. UPRN-based valuations are free and include an estimated value, value range, and confidence level. Sure caps requests at 1,000 per month by default.
@@ -101,6 +123,9 @@ RENTCAST_MAX_REQUESTS_PER_MONTH=500
 # Example: raise the Realie cap to 200 for a paid plan
 REALIE_MAX_REQUESTS_PER_MONTH=200
 
+# Example: raise the TerraScoutX cap above the default 2,000
+TERRASCOUTX_MAX_REQUESTS_PER_MONTH=5000
+
 # Example: raise the Chimnie cap above the default 1,000
 CHIMNIE_MAX_REQUESTS_PER_MONTH=2000
 ```
@@ -112,8 +137,8 @@ If you added a property manually (without using a valuation provider at creation
 A property is eligible to link when all of these are true:
 
 - No provider is already linked
-- The property has a complete address in the provider’s supported country. For RentCast and Realie, provide a US street address, city, state, ZIP code, and country
-- The property's account currency matches the provider's valuation currency (USD for RentCast and Realie; GBP for Chimnie)
+- The property has a complete address in the provider’s supported country. For RentCast, Realie, and TerraScoutX, provide a US street address, city, state, ZIP code, and country
+- The property's account currency matches the provider's valuation currency (USD for RentCast, Realie, and TerraScoutX; GBP for Chimnie)
 - The provider does not require an external identifier (Chimnie requires a UPRN, so it can only be linked at creation time, not after)
 - The provider's API key is configured
 
@@ -130,13 +155,13 @@ After linking, the Overview tab shows the last valuation date and a **Refresh va
 
 ## Adding a property using a valuation provider
 
-### US properties (RentCast or Realie)
+### US properties (RentCast, Realie, or TerraScoutX)
 
 1. Go to **Accounts → Add Account → Property**
-2. Select **Add via RentCast** or **Add via Realie** (these options appear only when the provider's API key is configured)
+2. Select **Add via RentCast**, **Add via Realie**, or **Add via TerraScoutX** (these options appear only when the provider's API key is configured)
 3. Enter the property name and its full US address
 4. Click **Look up property**
-5. Review what the provider found — the property type, estimated value, and other details are shown before anything is saved. If the address matched an area estimate rather than a specific record, a notice says so
+5. Review what the provider found — the property type, value, and other details are shown before anything is saved. For RentCast and Realie, if the address matched an area estimate rather than a specific record, a notice says so. For TerraScoutX, the value shown is the county's assessed value from its latest tax roll, not a current market estimate
 6. Click **Add property** to confirm, or **Back** to correct the address
 
 ### UK properties (Chimnie)
@@ -152,7 +177,7 @@ Nothing is created until you confirm. If the lookup fails (UPRN not found, rate 
 
 ## Automatic refresh
 
-The default background job runs monthly, on the first day of the month at 01:30 in the scheduler’s configured timezone. It considers active property accounts with a linked valuation provider. A provider’s minimum interval also applies: one day for RentCast and Realie, and one month for Chimnie.
+The default background job runs monthly, on the first day of the month at 01:30 in the scheduler’s configured timezone. It considers active property accounts with a linked valuation provider. A provider’s minimum interval also applies: one day for RentCast, Realie, and TerraScoutX, and one month for Chimnie.
 
 Properties are processed in order of their last refresh date, oldest first.
 
@@ -171,7 +196,7 @@ A **Refresh valuation** button on the property account bypasses the normal inter
 
 ## Troubleshooting
 
-**The valuation option is not showing when I add a property**: the provider's API key is not configured. Add the relevant key (`RENTCAST_API_KEY`, `REALIE_API_KEY`, or `CHIMNIE_API_KEY`) to your environment, or enter it in **Settings → Self-Hosting**.
+**The valuation option is not showing when I add a property**: the provider's API key is not configured. Add the relevant key (`RENTCAST_API_KEY`, `REALIE_API_KEY`, `TERRASCOUTX_API_KEY`, or `CHIMNIE_API_KEY`) to your environment, or enter it in **Settings → Self-Hosting**.
 
 **Chimnie sign-up was rejected**: check Chimnie’s current registration requirements or contact its support team.
 
@@ -181,8 +206,10 @@ A **Refresh valuation** button on the property account bypasses the normal inter
 
 **The value stopped updating**: the provider's monthly budget is likely exhausted. Check **Settings → Debug logs** filtered to the provider key, or check your provider dashboard. The budget resets at the start of the next calendar month, or you can raise the cap with the override variable if you are on a paid plan.
 
-**The property account's currency does not match the provider**: RentCast and Realie return values in USD; Chimnie returns values in GBP. If your property account was created or later changed to a different currency, the refresh job skips it to avoid writing the wrong currency. Change the account currency to match or manage the value manually.
+**The TerraScoutX lookup returned a location mismatch error**: TerraScoutX performs a fuzzy address search and verifies the returned record against your house number and ZIP code. If none of the results match both, the lookup fails. Check that the house number and ZIP code in the address are correct.
 
-**No link button appears on the Overview tab for an existing property**: check that the provider's API key is configured, the address includes every required field and a supported country, and the account currency matches the provider’s valuation currency. Chimnie cannot be linked after creation because it requires a UPRN that can only be supplied when the property is first added.
+**The property account's currency does not match the provider**: RentCast, Realie, and TerraScoutX return values in USD; Chimnie returns values in GBP. If your property account was created or later changed to a different currency, the refresh job skips it to avoid writing the wrong currency. Change the account currency to match or manage the value manually.
+
+**No link button appears on the Overview tab for an existing property**: check that the provider's API key is configured, the address includes every required field and a supported country, and the account currency matches the provider’s valuation currency. Chimnie cannot be linked after creation because it requires a UPRN that can only be supplied when the property is first added. TerraScoutX can be linked after creation as long as the property has a complete US address.
 
 **The link failed with an alert**: the first valuation did not succeed, so the link was not saved. The address may not be in the provider's database or the monthly budget may be exhausted. Correct the address or wait for the budget to reset, then try again.
