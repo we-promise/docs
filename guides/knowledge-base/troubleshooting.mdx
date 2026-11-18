@@ -3,6 +3,33 @@ title: "Troubleshooting"
 ---
 
 
+## Open redirect possible via crafted return_to on Kraken, Questrade, and Redbark
+
+Earlier versions of the Kraken, Questrade, and Redbark controllers validated the `return_to` parameter by checking that it starts with `/` and parses as a URI with no scheme or host. A value like `///evil.com` passed that check. On Questrade, it reached `redirect_to` and raised a 500 error. On Kraken and Redbark, it was forwarded into the account setup URL.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    The `return_to` query parameter accepted by the Kraken, Questrade, and Redbark item controllers during provider account setup. An attacker who could control the `return_to` value in a link — for example, in a phishing URL — could potentially redirect a user to an external site after completing the provider connection flow.
+
+    On Questrade, supplying a value like `///evil.com` triggered an `ActionController::Redirecting::OpenRedirectError` and produced a 500 response rather than a redirect.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    These three controllers now use the same strict validation already in place for the Akahu, CoinSpot, Fio, Monobank, and Up item controllers. The check rejects any `return_to` value that:
+
+    - starts with `//` or `/\`
+    - contains a backslash
+    - contains control characters
+    - contains encoded path separators (`%2f`, `%5c`, and similar)
+    - parses as a non-relative URI (has a scheme or host)
+    - does not match a recognized application route
+
+    A value that fails any of these checks is treated as absent, and the controller falls back to its default path. Valid paths such as `/accounts?tab=manual` continue to work normally.
+
+    Upgrade to a build containing [Sure PR #5284](https://github.com/we-promise/sure/pull/5284). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
