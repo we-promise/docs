@@ -347,6 +347,18 @@ This ensures that money moved into investment accounts doesn't disappear from yo
 
 This feature eliminates the "black hole" effect where investment contributions would seem to vanish from your financial overview.
 
+### How Sure prices holdings after unpriced movements
+
+Some trades add or move shares without recording a price — for example, stock dividends booked at $0, internal journal entries, on-chain or exchange deposits, sweeps, and reinvestments. Sure detects these and does not use $0 as that day's price. Instead, it looks up the nearest observed market price for the security:
+
+- It first checks for a price on or before the trade date.
+- If none exists, it checks the earliest available price after that date.
+- Either price is adjusted for any stock splits recorded between the price date and the trade date.
+
+A genuine zero — for example, a position your provider actually values at nothing, or an unlabelled or "Other" trade at $0 that may represent a split — is used as-is rather than skipped.
+
+This means holdings connected through SnapTrade, Questrade, Kraken, or on-chain wallets that receive share movements at no price should now show a correct value rather than dropping to $0 until the next sync.
+
 ## Dashboard
 
 The **Dashboard** gives you a live snapshot of your financial picture. Several widgets are available, and you can reorder and collapse them to suit your workflow.
