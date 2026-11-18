@@ -435,6 +435,33 @@ Rules run automatically during account syncs. You can also apply rules manually 
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 
+## Transaction API permissions
+
+The transactions API enforces account-share permission levels on write operations. The `GET /api/v1/transactions` and `GET /api/v1/transactions/:id` endpoints are available to any user with access to the account.
+
+For `PATCH /api/v1/transactions/:id` and `DELETE /api/v1/transactions/:id`, the following rules apply based on the caller's share level on the transaction's account:
+
+| Share level | PATCH (update) | DELETE |
+| --- | --- | --- |
+| Owner or Full control | All fields | Allowed |
+| Can annotate (`read_write`) | `notes`, `category_id`, `merchant_id`, `tag_ids` only | Returns 403 |
+| View only (`read_only`) | Returns 403 | Returns 403 |
+
+A `PATCH` request from a `read_write` member that includes fields outside the annotate set — such as `amount`, `name`, `description`, `date`, `currency`, or `nature` — returns HTTP 403 even if those fields are unchanged. Send only the fields you intend to change.
+
+A `PATCH` or `DELETE` request that the caller does not have permission to perform returns:
+
+```json
+{
+  "error": "forbidden",
+  "message": "You do not have permission to change this transaction"
+}
+```
+
+For `DELETE`, the message is "You do not have permission to delete this transaction".
+
+A `PATCH` request with no `transaction` body returns HTTP 400.
+
 ## Transaction splits API
 
 The API exposes a nested resource for managing transaction splits programmatically:
