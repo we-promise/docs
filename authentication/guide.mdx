@@ -576,6 +576,22 @@ This is a generic message that does not expose internal database index names or 
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 - If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
 
+### Session fixation prevention
+
+Every sign-in path — password, OIDC, passkey, desktop exchange, sign-up, and MFA — rotates the Rails session at the moment a session is created. The pre-authentication session is replaced with a fresh one, so a session identifier observed before sign-in cannot be used to hijack the authenticated session.
+
+The only values that survive the rotation are the OIDC federated-logout keys (`id_token_hint` and `sso_login_provider`), and only when the session being created comes from that same OIDC sign-in. A stale `id_token_hint` from an earlier OIDC session cannot carry into a locally authenticated session.
+
+Federated logout is skipped when the provider's discovery document advertises a non-HTTPS `end_session_endpoint`. This prevents logout redirects to insecure endpoints.
+
+### Password change and reset session revocation
+
+Changing a password immediately ends all other active sessions for that user. The session used to perform the change stays active so the user remains signed in.
+
+A password reset through the forgotten-password flow goes further: it destroys every session and revokes all OAuth access tokens (including the mobile app) and any unexchanged authorization grants.
+
+When a super admin sets a password for another user from the admin panel, every session for that user is destroyed. When a super admin changes their own password, their own session is preserved.
+
 ### MFA password re-authentication
 
 Enabling or disabling two-factor authentication requires the user's current password before the change is applied. This prevents anyone who reaches an unlocked browser from stripping or adding a second factor without knowing the password.
