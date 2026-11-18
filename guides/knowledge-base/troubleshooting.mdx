@@ -478,6 +478,36 @@ Self-hosted setups using a forward-auth proxy (Authelia, Authentik, Traefik forw
 
 </AccordionGroup>
 
+## Credit card Statement Balance and Since Last Statement show wrong amounts after a post-close payment
+
+If you paid your credit card after the statement closed but the **Statement Balance** card still shows the full original amount — or the **Since Last Statement** card includes that payment as if it reduced your new charges — the card may have been running an older version that applied post-close payments to the open cycle first.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Earlier versions applied post-close payments to the open (current) cycle before settling the closed statement. The correct order is to settle the closed bill first, then apply any surplus to the open cycle.
+
+    As a result, the **Statement Balance** card could over-report what you still owe on the closed statement, and the **Since Last Statement** card could under-report new charges (because it credited the payments against them instead of against the closed bill).
+
+    The two overview cards also used different data sources for the statement balance: one read from transaction history, the other from the account's balance records. When the two disagreed on a sync boundary, the cards showed inconsistent figures.
+
+    Both cards also displayed the statement close-date countdown differently. One showed `Due <date> (N days)` and the other showed `Statement closes <date> (N days)` using separate logic, which could leave them out of sync if viewed at the edge of a statement cycle.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Post-close payments now settle the closed bill first, up to its full amount. Only the surplus reduces new charges in the open cycle. This means:
+
+    - **Statement Balance** shows what is still owed on the closed statement after payments since the close date.
+    - **Since Last Statement** shows only the payments that actually reduced new charges — not the portion used to pay the closed bill.
+    - Together, the two cards always add up to the current balance shown in the account header.
+
+    Both cards now read the statement balance from the same source: the account's balance records, the same records used by the account header. This keeps the overview figures consistent with the balance everywhere else.
+
+    Both cards also use the same close-date countdown format: `Due <date> (N days)` on the Statement Balance card and `Statement closes <date> (N days)` on the Since Last Statement card.
+
+    This is fixed in builds containing [Sure PR #4662](https://github.com/we-promise/sure/pull/4662). As of November 18, 2026, the fix is on `main`. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Investment card not showing on the Reports page when the only brokerage account is closed
 
 If you sold securities during a period but the investment card on the Reports page does not appear, the most likely cause is that your only brokerage account is closed (disabled). Earlier versions gated the investment card on having an active (draft or active) investment account, so families whose only brokerage account was closed saw no investment card at all — even when the selected period contained a disposal that would have been listed there.
