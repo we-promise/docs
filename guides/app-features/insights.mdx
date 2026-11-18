@@ -22,6 +22,7 @@ Insights appear in the dashboard feed.
 | `budget_at_risk` | Budget categories are near or over their monthly limit |
 | `budget_on_track` | All budget categories are on track (shown after the month is at least half over) |
 | `maintained_goal_depleted` | A reserve goal has fallen below its target balance |
+| `bank_fees` | A checking, card, or loan account has accumulated 10 or more in fees over the last 90 days (refunds netted out), or was charged a fee for the first time after 90 days with none (only on accounts with enough history to confirm the gap). Brokerage and crypto accounts are excluded. |
 
 ## Priority
 
@@ -90,9 +91,12 @@ Insight bodies are filled from i18n templates in your family's locale. The templ
 
 ## API access
 
-You can read your family's insights via the API:
+You can read and act on your family's insights via the API:
 
 - `GET /api/v1/insights` — list all visible insights
+- `PATCH /api/v1/insights/{id}/acknowledge` — mark an insight read and acknowledged, removing it from the feed
+
+The acknowledge endpoint requires `read_write` scope and preview features enabled. It is idempotent: calling it on an already-acknowledged or expired insight returns `204 No Content` without changing timestamps. Guests cannot acknowledge insights. The insight must name only accounts visible to every active family member, or the request returns `404`.
 
 Push notification device tokens are managed separately:
 
