@@ -220,6 +220,14 @@ Once you sell all of the transferred shares and the position reaches zero, Sure 
 > [!NOTE]
 > Only a calculated cost basis is cleared on an inbound transfer. If you have set a manual cost basis, or your institution provided one, Sure keeps that value — it represents an explicit assertion about what the position cost, which the app respects.
 
+**Setting the cost of a transfer-in lot**
+
+If a position has an open lot from an inbound transfer, you can set that lot's cost directly instead of overriding the whole position. Open the holding drawer. When Sure can account for every share in the position using stored lots, it shows the lot list in the drawer. Click the transfer-in lot to open its editor, enter the total amount the parcel cost when it was acquired, and click **Save**. Sure stores the value and immediately restates the position's cost basis.
+
+To revert to the trade's original price, click **Use the trade's price** in the same editor.
+
+Your provider supplying the position's cost basis blocks lot-level editing for new entries, since provider cost restatement would ignore a lot override anyway. Any lot cost you set before the provider started supplying cost can still be cleared.
+
 ### Setting cost basis manually
 
 You can set cost basis from the holdings list or the holding drawer.
@@ -245,6 +253,32 @@ A stored cost basis of zero is shown as 0.00 in the editor so you can review it.
 
 > [!TIP]
 > Enter either the per-share cost or the total — Sure calculates the other in real time.
+
+### Editing individual lot costs
+
+When Sure can track every share in a position through individual lots (the stored lots sum to the position's quantity), it shows a **Lots** section in the holding drawer listing each open lot. Each lot shows its acquisition date, quantity, and current cost.
+
+For lots acquired by a trade you recorded (not an inbound transfer's opening lot), you can click the lot row to open a cost editor:
+
+1. Open the holding drawer for the position.
+2. In the **Lots** section, click the lot you want to edit.
+3. Enter the **total amount the parcel cost** at the time of acquisition in your account's currency.
+4. Click **Save**. Sure locks the lot's cost and immediately recalculates the position's cost basis.
+
+To return to using the trade's original price:
+
+1. Open the lot editor as above.
+2. Click **Use the trade's price**. Sure clears the manual cost and recalculates.
+
+**What the lot cost covers**
+
+The value you enter is the total paid for the entire parcel, not a per-share price. Sure divides it across the lot's quantity and carries it through splits and partial sales, so the per-share cost stays accurate after corporate actions.
+
+**When lot editing is not available**
+
+- Lots are only shown when Sure's stored lots account for all shares in the position. If the lots do not add up — for example, shortly after a sync that only partially imported history — the lot list is hidden and the position-level cost editor is used instead.
+- The opening lot (the lot holding units no recorded trade accounts for, such as shares from an inbound transfer) is read-only in the lot list. Use the position-level cost editor or the transfer-in lot instructions above to set cost for those units.
+- When your provider supplies the position's cost basis, the lot cost editor is unavailable for new entries. You can still clear a lot cost you set before the provider started supplying cost.
 
 ### Lock Protection
 
