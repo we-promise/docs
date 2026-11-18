@@ -807,6 +807,16 @@ docker compose logs backup
 docker compose run --rm backup list
 ```
 
+When a scheduled backup step fails (for example, `pg_dump` or `psql` exits with an error), the daemon stops that run before the bundle is finalized and before pruning older backups. It logs a warning:
+
+```
+[sure-backup] WARNING: scheduled backup failed; retrying at the next scheduled time
+```
+
+The daemon then waits for the next scheduled time and retries. Good backups from earlier runs are preserved. The incomplete bundle is discarded and never moved into the backup directory.
+
+If you see this warning in the backup service logs, check `docker compose logs backup` for the step that failed and confirm your database connection variables are set correctly.
+
 ### Without the backup service (any version, including 0.7.5 and older)
 
 You can run backups with the script on its own, without the `backup` service. Download it once next to `compose.yml`:
