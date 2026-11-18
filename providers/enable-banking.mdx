@@ -20,6 +20,8 @@ All authentication happens directly with your bank. Enable Banking and Sure neve
 
 The authorization flow is tied to your browser session. Sure generates a unique, random state value for each authorization attempt and stores it in your session. When your bank redirects back to Sure, the callback is matched against that stored state before proceeding. This means the authorization must complete in the same browser where you started it.
 
+When you start another connection to the same bank in the same browser — for example by going back and retrying, or after a failed start at the provider — Sure reuses the existing pending connection instead of creating a new empty one. A pending connection qualifies for reuse when it has no session, no linked accounts, and was started in the same browser with the same credentials. Only the most recently started flow on a reused connection can complete; if you have an older tab still open to the bank's authorization page, that older callback returns "Connection not found" instead of attaching to the wrong session. Connections started in a different browser each get their own connection as before.
+
 ## Supported regions
 
 Enable Banking supports banks across the European Union and EEA countries. You can query available banks by country code (e.g., "GB", "DE", "FR").
@@ -256,6 +258,7 @@ Sure could not resolve a pending authorization for your current browser session 
 - Opened the bank's authorization page in a different browser or profile than the one where you started the flow
 - Completed the bank's authorization after your Sure session expired
 - Navigated away from Sure and your session was cleared
+- Returned to an older browser tab after already retrying the same bank connection — when Sure reuses a pending connection and a newer flow starts, only the newest flow can complete
 
 Start the authorization again from **Settings > Bank sync > Enable Banking** and complete the bank's approval without switching browsers or letting your session time out.
 
