@@ -11,6 +11,12 @@ Investment accounts in Sure go beyond simple balance tracking. They help you und
 
 A **holding** represents your position in a specific security. For example, if you own 50 shares of Apple stock, that's one holding.
 
+### Negative position warnings
+
+If you record a sale without its matching purchase — or delete a purchase — the calculated position for that security can drop below zero. Sure detects this on the holdings tab of manual investment accounts and shows a warning for every affected security. The warning includes the first date the position went negative and the lowest quantity recorded, along with a hint that a purchase or transfer entry may be missing.
+
+The warning only appears for manual (non-linked) accounts and covers standard securities. Linked accounts are excluded because a negative quantity from a provider represents a real short position.
+
 Each holding tracks:
 
 - **Security** - What you own (stock, ETF, mutual fund, crypto)
