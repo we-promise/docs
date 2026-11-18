@@ -234,6 +234,21 @@ This re-keying only applies to booked (settled) transactions on both sides. Pend
 
 Transactions that already carry a provider ID are not affected by this logic.
 
+### Rotating transaction identifier handling
+
+Some banks re-issue `transaction_id` and `entry_reference` on every response, so two fetches of the same account window return the same movements under completely different identifiers. Without special handling, every sync would treat the new identifiers as new transactions and create duplicates.
+
+When Sure detects that a fetched row describes the same movement as a stored row — by comparing every field except `transaction_id` and `entry_reference` — it pairs the two rows and re-keys the stored entry to the identifier the bank now uses. Re-keying keeps any category, merchant, notes, or transfer links already attached to the original row.
+
+Pairing follows two rules to preserve correctness when multiple identical movements appear on the same day:
+
+- A stored row that still has the same identifier as its fetched counterpart is paired first, so a reordered response cannot accidentally move one movement's annotations to a different movement.
+- Remaining rows are paired by position within the content group, so three identical movements on one day map one-to-one onto the three that came back rather than collapsing into one.
+
+Only a fetched row that pairs with a stored row can replace it. A stored row the response omits is kept: it may lie outside the date window the bank actually served, or on a page that was not fetched.
+
+The re-keys and the snapshot update commit or roll back together under a lock on the account. If another sync updated the snapshot between when this sync read it and when it tries to write, the entire update — re-keys and snapshot — is skipped to prevent re-keying against stale data.
+
 ## Supported account types
 
 Enable Banking supports both personal and business accounts:
