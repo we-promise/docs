@@ -393,7 +393,8 @@
             "group": "Insights",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /api/v1/insights"
+              "GET /api/v1/insights",
+              "PATCH /api/v1/insights/{id}/acknowledge"
             ]
           },
           {
