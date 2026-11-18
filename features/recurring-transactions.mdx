@@ -366,6 +366,12 @@ From the bill drawer you can apply a payment to the current occurrence in severa
 - **Manual payment** — enter an amount and date directly, with no transaction linked.
 - **Partial payment** — enter a custom amount less than the full due amount to record a partial payment. You can add more payments until the occurrence is fully covered.
 
+**Actual-amount recording** — when you link a single transaction that is the only payment against that occurrence and that transaction, and its amount falls within the series' tolerance band, the bill records the transaction's real charge rather than the bill's estimated amount. For example, a bill expected at €40.00 that is settled by a single €46.80 payment inside the band will show €46.80 paid in history. Partial payments and accumulated payments keep the original capped behavior.
+
+The tolerance band grows if a manual link teaches it a wider range. When you first link a payment that sits slightly outside the existing band and that payment alone settles the occurrence, Sure widens the band to cover it. Subsequent payments and automatic matches use the wider band. The learned tolerance is rounded up so the payment that taught it always stays inside its own band.
+
+**Overpaid** — an occurrence is flagged as overpaid only when the total recorded is beyond the tolerance band. A payment inside the band is treated as the bill's real charge, not an overpayment.
+
 When the app cannot record a payment it shows an error message. Common reasons:
 
 - **Over-allocation** — the amount you entered would exceed the total of the linked transaction.
