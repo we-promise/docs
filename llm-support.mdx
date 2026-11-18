@@ -285,6 +285,7 @@ ANTHROPIC_MODEL=claude-sonnet-4-6
 Recommended models:
 
 - `claude-sonnet-4-6` - Default, best balance of speed and quality
+- `claude-fable-5-2` - Strong reasoning, mid-tier cost
 - `claude-haiku-4-5` - Fast and cost-effective
 
 Set `LLM_CONTEXT_WINDOW` to your model’s context size; the setting also applies to native Anthropic chat, even though its UI field is in the OpenAI panel. Values below 4096 collapse account and category rosters to counts. Larger values allow lists, but families with more than 25 visible accessible accounts or more than 60 categories still receive counts and use tools to retrieve the full lists.
@@ -315,7 +316,7 @@ ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
 Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via a single output tool whose `input_schema` mirrors the desired result. The `tool_choice` strategy depends on the model:
 
 - **Claude 3.x, 4.x, and Haiku 5.5** — uses `tool_choice: { type: "tool", disable_parallel_tool_use: true }` to force the model to call the tool.
-- **Claude 5 families (Opus 5.5, Sonnet 5.5, Fable 5.1, Mythos 5.1) and any model not in the forced list** — uses `tool_choice: { type: "auto", disable_parallel_tool_use: true }` and appends a fixed system prompt instruction telling the model to call the tool. This avoids forcing a tool choice on models outside Sure’s allowlist.
+- **Claude 5 families (Opus 5.5, Sonnet 5.5, Fable 5.1, Fable 5.2, Mythos 5.1) and any model not in the forced list** — uses `tool_choice: { type: "auto", disable_parallel_tool_use: true }` and appends a fixed system prompt instruction telling the model to call the tool. This avoids forcing a tool choice on models outside Sure’s allowlist.
 
 Both strategies request structured tool output without the OpenAI-compatible JSON-mode fallback. A model can still omit the tool call or return an invalid result; Sure raises an error when the expected tool output is missing or malformed.
 
