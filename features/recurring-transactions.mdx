@@ -377,6 +377,8 @@ To remove a payment, use the unlink action in the payment history section of the
 
 **Suggested payments** — the matching engine may automatically suggest a transaction for an open occurrence. You can confirm the suggestion to apply it or dismiss it. Dismissing a suggestion marks that transaction so it will not be suggested for the same bill again. Suggestions appear only for occurrences the overview currently lists; occurrences from ended bills or outside the visible window are not surfaced.
 
+**Split transactions** — when a charge is split into child transactions, the matching engine treats the split parent as a valid payment candidate even though the parent is excluded from totals. This means a bill is settled correctly whether the split happened before or after the matcher ran. The parent and its children represent the same money, so only one side of the split can pay any given bill: if the parent is applied to a bill, the children cannot be, and vice versa. Sibling parts of the same split are separate amounts and can each pay their own distinct bill.
+
 Recurring transfers are matched by their account pair: the engine looks for the outflow leg of a transfer from the series' source account into its destination account. This means a mortgage payment or card payment that you have marked as recurring will receive automatic payment suggestions the same way a regular bill does.
 
 All payment feedback messages — confirmations and errors — appear in your configured display language.
@@ -606,6 +608,7 @@ Identify recurring income like:
 - Requires at least 3 occurrences in the last 3 months for automatic detection
 - Last occurrence must be within 45 days for automatic detection
 - Transactions in Investment and Crypto accounts are excluded from bill and income detection
+- A split parent and any of its children cannot both be applied to bills; only one side of a split can pay a given bill at a time (siblings are independent and can each pay separate bills)
 - Amount variance for manual recurring entries is bounded to 2× the anchor amount; charges outside that range are treated as separate recurring entries
 - Bill amounts are stored to four decimal places; meaningful precision beyond that storage limit is rejected with a validation error
 - Projected transactions are hidden when filters are applied
