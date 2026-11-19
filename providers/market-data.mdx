@@ -200,6 +200,26 @@ Because the free tier has no historical endpoint, NGX holdings sync with today's
 
 See the [Mansa API provider page](/providers/mansa) for full setup instructions.
 
+## HTTP timeouts
+
+Each market-data provider client enforces explicit connection and read timeouts on every HTTP request. A stalled or slow provider endpoint will fail and be retried rather than holding a background worker indefinitely.
+
+Default timeouts for all providers:
+
+| Timeout | Value |
+| --- | --- |
+| Connection (`open_timeout`) | 5 seconds |
+| Read (`timeout`) | 20 seconds |
+
+Requests that are known to be slow to start use a higher read timeout:
+
+| Provider | Request type | Read timeout |
+| --- | --- | --- |
+| EODHD | Fundamentals lookup | 60 seconds |
+| Twelve Data | Historical `time_series` requests (prices, exchange-rate pairs) | 60 seconds |
+
+The retry middleware retries timed-out requests up to three additional times. With the 20-second default and four total attempts, a provider that stops responding entirely stalls a worker for roughly 107 seconds (4 × 25 s plus backoff) before the request gives up. Providers that charge quota on each attempt — EODHD, Mansa, and Alpha Vantage — consume quota on every retry, which is why the EODHD fundamentals read timeout remains at 60 seconds rather than 20.
+
 ## Price sync scope
 
 Sure only fetches prices for the date range each account actually needs for a given security. The range starts with the earliest trade or positive holding for that security. For provider-synced holdings, it can extend back to the account start date. Its end depends on whether you still hold the position:
