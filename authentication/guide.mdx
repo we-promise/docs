@@ -576,6 +576,14 @@ This is a generic message that does not expose internal database index names or 
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 - If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
 
+### OAuth token revocation on password change
+
+Every password change — from Settings, a reset-by-email link, an admin setting the password, or the console — revokes all of the user's OAuth access tokens and unexchanged authorization grants. The mobile app and any OAuth client (including MCP connections) must sign in again with the new password.
+
+The revocation runs inside the update's database transaction and again in a post-commit sweep to cover refresh tokens that raced the change. API keys are not revoked; they are created for integrations and do not depend on the password.
+
+A login or MFA step that checked the old password before the change cannot complete: Sure compares a fingerprint of the digest that was checked against the current digest under a row lock and rejects the attempt with HTTP 401 if the password changed in between.
+
 ### MFA password re-authentication
 
 Enabling or disabling two-factor authentication requires the user's current password before the change is applied. This prevents anyone who reaches an unlocked browser from stripping or adding a second factor without knowing the password.
