@@ -112,6 +112,24 @@ Fees are included in cost basis and gains calculations:
 - A purchase fee raises the cost of the lot, reducing unrealized gain while you hold the position.
 - A disposal fee is deducted from the sale proceeds before the realized gain is measured.
 
+## Tagging securities
+
+Each family can apply its own tags to a security independently. Tags on a security work the same way as tags on transactions — they are labels that belong to your family and are never visible to other families holding the same instrument.
+
+Because a security row is shared by every family that holds the instrument, Sure uses a family-scoped writer rather than a standard association. Only your family's tags are added, changed, or removed when you update a security's tags. Another family's tags on the same security are left untouched.
+
+**Key behaviors:**
+
+- Tags are per-family. Applying or removing a tag on a security only affects your household.
+- A tag that belongs to another family cannot be attached to a security you share.
+- When two duplicate securities are merged, Sure moves each family's tags onto the canonical security row. If the canonical row already carries a tag from the merge, that duplicate tagging is dropped rather than duplicated.
+- Deleting a security removes all its taggings. Deleting a tag removes that tag's taggings from all securities.
+- A family data reset removes that family's security tags and leaves every other family's tags on the same securities.
+
+<Note>
+Security tagging is available at the data layer. A UI to tag securities from the holdings view is coming in a future release.
+</Note>
+
 ## Securities types
 
 Sure supports various security types:
