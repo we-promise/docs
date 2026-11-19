@@ -196,6 +196,16 @@ Sure automatically maps your bank's account types to the appropriate Sure accoun
 - **Credit cards** (CARD, CRCD) map to credit card accounts
 - **Loans and mortgages** (LOAN, MORT) map to loan accounts
 
+#### Account setup modal
+
+When Enable Banking imports accounts that couldn't be mapped automatically, Sure shows a setup modal prompting you to assign an account type to each one. The modal displays account type options, subtype dropdowns, and guidance messages in your selected locale.
+
+For accounts you want to assign a subtype to, the modal shows a subtype dropdown for depository accounts (checking or savings), investment accounts, and loan accounts. Credit cards and other assets are set up automatically without a subtype selection.
+
+The available loan subtypes are: Mortgage, Student Loan, Auto Loan, Home Equity Loan, Line of Credit, Business Loan, and Other Loan.
+
+Accounts you skip are remembered. Sure stops re-importing them until you link them to an account manually.
+
 ### Automatic transfer detection
 
 When syncing transactions from Enable Banking, Sure automatically detects certain transfer types based on the destination account:
