@@ -88,6 +88,8 @@ This approach ensures all investment income is properly tracked while maintainin
 
 > [!NOTE]
 > Some providers — including Trading 212, Interactive Brokers, Questrade, SnapTrade, Indexa Capital, and Kraken (fiat staking and earn) — deliver dividend and interest income as labeled transactions rather than as qty:0 trades. Sure counts both forms when calculating the dividend and interest totals shown on your investment summary.
+>
+> Plaid reports cash dividends, qualified dividends, non-qualified dividends, and interest as subtypes of a broader transaction type. Sure reads that subtype and applies the correct label — **Dividend**, **Interest**, or **Reinvestment** — automatically. Dividend reinvestment (DRIP) trades are relabeled on every sync, so an existing row labeled Buy becomes Reinvestment the next time the account syncs. Cash dividend and interest rows already stored as **Other** keep that label until you relabel them by hand.
 
 ### Transaction Fees
 
