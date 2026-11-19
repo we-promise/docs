@@ -592,6 +592,12 @@ The time step is claimed atomically with a conditional database update, so two s
 
 Setting up or disabling two-factor authentication clears the recorded time step.
 
+### Repeat submission handling
+
+The MFA verification form disables its submit button the moment it is submitted, preventing a second request from being sent while the first is in flight. The button also displays a "Verifying..." label during this time.
+
+If a second form submission does reach the server after the first has already completed the sign-in (for example, from a stale page in another tab, a password manager submitting on top of the user, or a page restored from the browser's back/forward cache), Sure detects that no sign-in is pending and redirects to `root_path`. A signed-in browser lands on the app; a signed-out browser is sent to the sign-in page. No error is shown and no additional session is created.
+
 ### Issuer validation
 
 - OIDC identities store the issuer claim from ID token
