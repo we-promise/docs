@@ -230,7 +230,9 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 
   <Accordion title="How do I resolve the missing exchange rate?">
-    Go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured. Twelve Data is the default. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once rates are fetched, the previously skipped entries will be included in the next balance calculation.
+    On fresh installs where `EXCHANGE_RATE_PROVIDER` is set to `twelve_data` (the default) but no `TWELVE_DATA_API_KEY` is configured, Sure automatically falls back to Frankfurter to import exchange rates. No configuration change is required in that case.
+
+    If rates are still not being imported, go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured and, if the selected provider requires an API key, that the key is present. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once rates are fetched, the previously skipped entries will be included in the next balance calculation.
   </Accordion>
 </AccordionGroup>
 
