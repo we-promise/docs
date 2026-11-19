@@ -206,6 +206,14 @@ The inflow leg of the same transfer displays the outflow's category as a read-on
 
 This ownership is based on the Transfer record itself, not the leg's transaction kind. If a provider sync updates a leg's kind, the category assignment does not change.
 
+## Reconciling transfers
+
+When manual reconciliation is enabled, transfer legs on manual accounts can be reconciled individually. Each leg — the outflow and the inflow — holds its own reconciliation status. Changing the status on one leg does not automatically change the status on the other leg.
+
+To reconcile a transfer leg, click the reconciliation badge on the transaction row or open the transaction drawer. You can also select one or more transfer rows in the account activity feed and use the **Reconcile** quick action in the selection bar to set a status across the whole selection at once.
+
+The reconciliation filter on the account activity feed shows transfer legs alongside regular transactions. The filter is scoped to the account being viewed, so each leg is filtered independently on its own account's page.
+
 ## Transfer Summary Totals
 
 When viewing your transaction list filtered by transfers, Sure displays **Inflow** and **Outflow** totals instead of the standard Income and Expenses labels.

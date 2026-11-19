@@ -151,7 +151,7 @@ For split transactions, Sure checks the parent transaction for attachments. A sp
 
 ### Filter the account activity feed
 
-The activity feed on each account's detail page supports date, amount, category, tag, merchant, type and status filters, scoped to that account. Open the **Filter** popover next to the search field to filter by:
+The activity feed on each account's detail page supports date, amount, category, tag, merchant, type, status, and reconciliation filters, scoped to that account. Open the **Filter** popover next to the search field to filter by:
 
 - **Date** — start and end dates
 - **Amount** — equal-to, less-than or greater-than comparisons
@@ -160,8 +160,9 @@ The activity feed on each account's detail page supports date, amount, category,
 - **Merchant** — including **No merchant** to show transactions without an assigned merchant
 - **Type** — income, expense, or transfer
 - **Status** — Confirmed or Pending
+- **Reconciliation** — Unreconciled, Cleared, or Reconciled (manual accounts only)
 
-When a type filter is active, Sure excludes non-transaction entries (valuations and trades) from the activity list because those entry types do not have transaction types. The account selector is omitted because the feed is already scoped to one account. The AI-categorization filter is also not shown here.
+When a type filter is active, Sure excludes non-transaction entries (valuations and trades) from the activity list because those entry types do not have transaction types. The account selector is omitted because the feed is already scoped to one account. The AI-categorization filter is also not shown here. The reconciliation filter is hidden on synced accounts and when the family has no manual accounts.
 
 Active filters appear as removable badges below the search field. Removing a badge clears only that filter and leaves all other active filters in place.
 
@@ -202,9 +203,19 @@ Bulk editing can update:
 - Tags
 - Notes
 
+For transfer transactions, the bulk edit drawer hides the date and merchant fields. Category is shown only for transfer legs where the category is editable (for example, the outflow of a loan payment or investment contribution). Name, notes, tags, and reconciliation status remain editable for transfers.
+
 Before saving, review the selected transactions so you do not apply a cleanup change to unrelated activity.
 
 If your selection includes split transactions, Sure applies the bulk edit to the individual split entries rather than the parent transaction. The parent itself is not updated directly.
+
+### Bulk reconciliation
+
+When manual reconciliation is enabled, a **Reconcile** quick action appears in the selection bar. Select one or more transactions and choose a reconciliation status — Unreconciled, Cleared, or Reconciled — to apply it to the whole selection at once.
+
+Transfer transactions on manual accounts can be selected and bulk-reconciled. Each transfer leg is updated independently; changing the status on one leg does not change the status on the other leg.
+
+The Reconcile action is hidden when no transaction in the current selection is eligible for manual reconciliation (for example, when only valuations or trades are selected).
 
 ### Bulk edit and account permissions
 
@@ -215,6 +226,28 @@ Bulk edit respects the account share permissions of the user making the change:
 - **Read-only share or no access**: the transaction is skipped entirely and not updated.
 
 This means a bulk edit applied to a mixed selection may update different fields on different transactions depending on the account each transaction belongs to. The final notice shows how many transactions were actually updated.
+
+## Manual reconciliation
+
+Manual reconciliation lets you track whether transactions on manually-entered accounts have been checked against a bank statement. It is separate from statement-based reconciliation and only applies to accounts without a live provider connection.
+
+Each transaction on a manual account carries one of three reconciliation statuses:
+
+- **Unreconciled** — not yet checked against a statement (default)
+- **Cleared** — confirmed on a statement, but the period has not been fully reconciled
+- **Reconciled** — the statement period is fully reconciled; the transaction is treated as locked
+
+Click the reconciliation badge on a transaction row to cycle through the statuses. The badge appears only on manual accounts when the family has manual reconciliation enabled.
+
+### Mark all transactions in an account
+
+To set the reconciliation status for every transaction in a manual account at once, open the account menu (the three-dot icon on the account detail page) and choose **Mark all as unreconciled**, **Mark all as cleared**, or **Mark all as reconciled**. Sure asks for confirmation before updating. Split parents are skipped; statement reconciliation data is left unchanged.
+
+This action is available only on manual accounts with manual reconciliation enabled, and only for users with write access to the account.
+
+### Reconciliation indicator
+
+The reconciliation indicator showing unreconciled transaction counts appears on the account detail page header. It is not shown in the left sidebar, the accounts index, or the dashboard.
 
 ## Group split transactions
 
