@@ -1,0 +1,64 @@
+---
+title: Portfolio
+description: View your investment holdings and accounts in one place with the Portfolio page.
+keywords: ['portfolio', 'holdings', 'investments', 'securities', 'cost basis', 'unrealized gain']
+---
+
+The Portfolio page gives you a family-wide view of your investment accounts and what you hold across all of them. It is a preview feature — you must enable preview features in **Settings → Preferences** before the Portfolio entry appears in the navigation and `/portfolio` is accessible.
+
+## Holdings
+
+The Holdings section appears above Accounts when your family holds at least one security across your investment accounts. It shows one row per security, aggregated across every account that holds it.
+
+Each row shows:
+
+| Column | What it shows |
+|---|---|
+| Security | Name, ticker, and logo. Long names wrap rather than truncate. |
+| Accounts | The number of accounts holding this security. |
+| Qty | Total quantity across all accounts. Crypto quantities show full decimal precision; other securities show a rounded count. |
+| Avg cost | Weighted-average cost per share. A dash appears when no cost basis is known. |
+| Value | Total current value in your family currency. |
+| Weight | Share of your total investment portfolio. The weight ring is proportional to this percentage. |
+| Unrealized P&L | Gain or loss versus cost basis. Hidden when no cost basis is available. |
+| Day | Day-over-day change. A note appears on rows where only some positions have a prior-day snapshot. |
+
+### Missing cost basis
+
+When any position in a row has no known cost basis, a **No cost basis** pill appears next to the ticker. This indicates the average cost and unrealized return shown on that row cover only the positions that have a cost basis. Expand the row to see which specific position is missing it.
+
+### Expanding a row
+
+Click the chevron button on any row to reveal its per-account positions. Each position shows:
+
+- Account name
+- Quantity held in that account
+- Cost basis per share (computed from your trade history where available; a dash when unknown)
+- Current value
+- An **Open** link that opens the existing holding drawer for that position
+
+Click the chevron again to collapse.
+
+### Sorting
+
+Five columns are sortable: Security, Value, Weight, Unrealized P&L, and Day. Click a column header to sort by it. The active column flips direction on a second click. Any other column opens in its natural default direction (Security ascending, all numeric columns descending). The current sort is reflected in the URL as `?sort=` and `?dir=`, so you can bookmark or share a sorted view.
+
+The default sort is Value, descending.
+
+### Section preferences
+
+Holdings is a draggable, collapsible section — the same as Accounts. You can drag it above or below Accounts, or collapse it to save space. Your preference is saved per device.
+
+If you had a saved section order before the Holdings section was added, Holdings is appended after any existing sections automatically.
+
+## Accounts
+
+The Accounts section shows a card for each investment account your family holds. Cards are sorted by account name (case-insensitive) and then by ID as a tiebreaker.
+
+## Empty state
+
+When you have no investment accounts, the Portfolio page shows an empty state instead of the sections.
+
+## Preview gate
+
+Both the Holdings section and the entire Portfolio page require preview features to be enabled. With preview features off, `/portfolio` redirects and the navigation entry is hidden.
