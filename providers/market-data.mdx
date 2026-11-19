@@ -135,6 +135,8 @@ Tiingo provides end-of-day and intraday price data for US and international equi
 - **Coverage**: US stocks, international equities, ETFs, mutual funds
 - **API key**: Required — get one at [tiingo.com](https://www.tiingo.com)
 
+Sure tracks monthly symbol usage in the cache and displays it under **Settings > Self-Hosting**. This counter requires Redis — with `null_store`, the usage count is not retained between requests and always shows 0.
+
 ### EODHD
 
 EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global exchanges.
@@ -142,6 +144,8 @@ EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global 
 - **Rate limits**: 20 API requests per day (free tier)
 - **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
 - **API key**: Required — get one at [eodhd.com](https://eodhd.com)
+
+Sure tracks daily request usage in the cache and displays it under **Settings > Self-Hosting**. This counter requires Redis — with `null_store`, the usage count is not retained between requests and always shows 0.
 
 #### Warsaw Exchange (GPW) securities
 
@@ -155,6 +159,8 @@ Alpha Vantage provides free stock, ETF, and technical data for global markets.
 - **Coverage**: Global stocks, ETFs, technical indicators
 - **API key**: Required — get one at [alphavantage.co](https://www.alphavantage.co)
 - **History**: Free tier returns approximately 100 trading days of historical data
+
+Sure tracks daily request usage in the cache and displays it under **Settings > Self-Hosting**. This counter requires Redis — with `null_store`, the usage count is not retained between requests and always shows 0.
 
 ### MFAPI
 
@@ -193,6 +199,8 @@ Mansa API provides current quote data for securities listed on the Nigerian Exch
 - **Coverage**: NGX (Nigerian Exchange) only
 - **API key**: Required — get one at [mansaapi.com](https://mansaapi.com)
 - **History**: The free tier returns today's quote only. Historical OHLCV data requires a paid Mansa Pro plan.
+
+Sure tracks daily request usage in the cache and displays it under **Settings > Self-Hosting**. This counter requires Redis — with `null_store`, the usage count is not retained between requests and always shows 0.
 
 <Note>
 Because the free tier has no historical endpoint, NGX holdings sync with today's price rather than building full price history. A date range that doesn't include today will return an error rather than empty data.
