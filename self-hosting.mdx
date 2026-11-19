@@ -1291,7 +1291,7 @@ If you connect your own agent via MCP and want to remove the built-in chat UI en
 
    When `EXTERNAL_ASSISTANT_MODEL` is set, the dropdown in the UI is disabled and the environment value is always used.
 
-To use the bundled OpenClaw service instead of a separately hosted agent, start the `external-assistant` profile. This profile starts OpenClaw without the local Ollama or Open WebUI services:
+To use the bundled [OpenClaw](https://github.com/openclaw/openclaw) service instead of a separately hosted agent, start the `external-assistant` profile. This profile starts OpenClaw without the local Ollama or Open WebUI services:
 
 ```bash
 docker compose -f compose.ai.yml --profile external-assistant up -d
