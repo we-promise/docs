@@ -77,6 +77,12 @@ Example: you can keep one Enable Banking provider config in Sure, then add one c
 - **Multiple accounts**: Connect multiple accounts from different banks
 - **Duplicate detection**: Automatic deduplication of transactions with different entry reference IDs
 
+### Data security
+
+Sure encrypts the linked bank account IBAN at rest using Active Record encryption, alongside the raw API payloads. The IBAN is never looked up by value, so non-deterministic encryption is used. Only the last four characters are shown in the setup and account selection views.
+
+If you are running a self-hosted instance and enabled Active Record encryption after the initial setup, run the backfill task to encrypt any IBANs stored before encryption was configured. See [Turning on Active Record encryption after first boot](/self-hosting#turning-on-active-record-encryption-after-first-boot) for instructions.
+
 ### Session management
 
 Enable Banking uses sessions to maintain access to your accounts:

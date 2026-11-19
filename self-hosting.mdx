@@ -1199,6 +1199,8 @@ If you add those keys after your instance already has data, the normal app start
 - New writes use encryption after the app boots with the keys.
 - Existing rows are not automatically re-encrypted.
 
+The backfill task covers all encrypted columns, including provider credentials, raw API payloads, and linked bank account IBANs (such as those stored by Enable Banking and Fio).
+
 Run the backfill task once after the app is up:
 
 ```bash
