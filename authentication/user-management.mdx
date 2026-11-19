@@ -70,6 +70,8 @@ For users who authenticate with a local password, super admins can set a new pas
 
 **SSO-only mode:** When `AUTH_LOCAL_LOGIN_ENABLED=false`, the admin panel rejects password changes for users with an existing local password who are not allowed to sign in locally. Super admins with a local password remain eligible when `AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED=true`. The admin panel does not add a local password to an SSO-only account that has none.
 
+**Token revocation:** Setting a user's password from the admin panel revokes all of their OAuth access tokens and unexchanged authorization grants. The user's mobile app and OAuth clients must sign in again after the change. API keys are not affected.
+
 ### Deleting a family
 
 Empty families (no members) can be deleted from the admin user list. Families with active users cannot be deleted.
