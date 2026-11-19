@@ -416,6 +416,25 @@ Each rule has a **Stop processing further rules** toggle. When a transaction mat
 
 When a rule with stop processing is enabled, a **Stop** badge appears next to it in the list as a visual reminder.
 
+### Apply immediately
+
+Each rule has an **Apply immediately to new and changed transactions** toggle (off by default). When enabled, the rule also runs right after a transaction is created or edited — not just during the nightly run.
+
+The immediate run is triggered when you:
+
+- Create or edit a transaction by hand in the web app
+- Use bulk edit or the Quick Categorize flow
+- Create or update a transaction via the API
+- Create or update a transaction through the assistant
+
+When the toggle is on, the rule runs only against the transactions that just changed. All active rules ranked above it in the list run first on those same transactions, in order, so the result matches the rule's position in the nightly run. Fields the user has locked by saving are respected. The nightly and sync runs continue to run every active rule as usual.
+
+Splits, transfers, and conversions to trades are not an immediate trigger. Those transaction types wait for the nightly run regardless of the toggle.
+
+If a rule with this setting has an AI action (such as auto-categorize or auto-detect merchants), each matching transaction in the immediate run consumes one AI request. Email notification actions on rules ranked above a rule set to immediate still send from the nightly run, not the immediate run.
+
+When a rule is set to apply immediately, an **Immediately** pill appears next to it in the rules list.
+
 ### Built-in classifier rules
 
 Two built-in rules appear at the top of your rules list and run the Classifier without an AI provider:
@@ -429,7 +448,11 @@ You can tune how these rules behave from **Settings → Classifier**: adjust the
 
 ### Applying rules
 
-Rules run automatically during account syncs. You can also apply rules manually from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run all rules against your existing transactions.
+Rules run in three ways:
+
+- **Nightly and sync runs** — every active rule runs against all transactions during the overnight job and after a provider sync or import.
+- **Immediate runs** — when a rule has **Apply immediately** turned on, it also runs right after a transaction is created or changed. See [Apply immediately](#apply-immediately) for details.
+- **Manual runs** — you can apply rules on demand from **Settings → Rules** using **Re-apply** on an individual rule or **Apply All** to run all rules against your existing transactions.
 
 **Apply All** runs every rule in the family — including inactive ones — so their transaction changes (category, merchant, tags, and so on) take effect. Inactive rules skip the email notification action only: matches seen while a rule is off are not recorded and no digest email is sent. When you switch a rule back on, those unrecorded matches are picked up on the next run.
 
