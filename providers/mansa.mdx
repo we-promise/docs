@@ -47,7 +47,7 @@ A date range entirely in the past cannot be fulfilled on the free tier. Sure rep
 
 ### Rate limits
 
-The free tier allows 100 requests per day. Sure tracks usage in its cache and blocks requests once the daily limit is reached to avoid API errors mid-sync.
+The free tier allows 100 requests per day. Sure tracks usage in its cache and blocks requests once the daily limit is reached to avoid API errors mid-sync. The usage counter requires Redis — with `null_store`, the count is not retained between requests and always shows 0.
 
 You can override the default limit with an environment variable if your plan allows more requests:
 
