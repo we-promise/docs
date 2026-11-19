@@ -656,6 +656,17 @@ docker compose up -d
 
 For older deployments without the backup service, take a backup using the [host-script method](#without-the-backup-service-any-version-including-0-7-5-and-older) before pulling the new image.
 
+### Database performance: index cleanup migration
+
+When you upgrade to a build from November 19, 2026 or later (commit `77347cc`), a migration drops 66 redundant single-column indexes that are already covered by multi-column indexes with the same leading column. The migration uses `algorithm: :concurrently`, so all indexes are dropped without acquiring a table lock. Your instance stays writable throughout.
+
+The expected outcomes after the migration runs:
+
+- Database size decreases by approximately 5%.
+- Write overhead on the `holdings` and `balances` tables decreases by approximately 15–25%.
+
+No action is required from you. The migration runs automatically when the new image starts. Back up before upgrading as usual.
+
 ### Change update channel
 
 Set `SURE_IMAGE_TAG` in your `.env` file to the channel or version you want:
