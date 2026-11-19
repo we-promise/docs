@@ -1160,6 +1160,46 @@ MARKET_DATA_SYNC_TIMEZONE=UTC     # IANA name such as Europe/Berlin; unknown nam
 Upgrading from an earlier version: the import used to be a fixed entry in `config/schedule.yml`. It is now created by the worker when it starts, from the settings above. Without any change on your side it keeps running at 22:00 UTC, Monday to Friday. If prices stop updating after an upgrade, open `/sidekiq` (see [Monitoring system health](#monitoring-system-health)), check that the **Cron** tab lists `import_market_data`, and look for `[MarketDataScheduler]` lines in the worker log (`docker compose logs worker`). Saving the import time once on the settings page recreates the job.
 </Note>
 
+## Clear data cache
+
+Family admins can clear their family's data cache from **Settings → Self-Hosting** in the danger zone section. This is useful when balances, net-worth totals, or holdings look wrong and a full recalculation is needed.
+
+### What clearing the cache does
+
+When a family admin clicks **Clear data cache**, Sure runs a background job that:
+
+1. Refreshes the exchange rates and security prices the family's accounts use. Each currency pair and security is fetched once, over the widest date window any account requires. Stored values are overwritten in place, not deleted, so other families' data is not removed.
+2. Deletes the family's account balances and holdings.
+3. Enqueues a sync for the family so balances and holdings are rebuilt from the refreshed market data.
+
+If a sync is already running when the job starts, it reschedules itself one minute later and tries again. The check is repeated under a database lock just before the delete, so a sync that starts between the check and the delete is also caught.
+
+The job runs in the background and may take a few minutes. Progress is not shown in the UI.
+
+### What is and is not deleted
+
+| Data | What happens |
+| --- | --- |
+| Account balances | Deleted for this family and rebuilt by the following sync |
+| Holdings | Deleted for this family and rebuilt by the following sync |
+| Exchange rates | Refreshed (overwritten) in place for the currency pairs this family uses |
+| Security prices | Refreshed (overwritten) in place for the securities this family holds |
+| Transactions, accounts, categories | Not touched |
+
+Because exchange rates and security prices are shared across all families on an instance, refreshing them updates the data for other families too. Only this family's balances and holdings are deleted.
+
+### When no market data provider is configured
+
+If no exchange rate or security price provider is configured, the market data refresh step is skipped and stored rates and prices are kept. The job still deletes this family's balances and holdings and enqueues a sync.
+
+### Reset market data for all families (super admin only)
+
+Super admins see an additional **Reset market data for all families** button in the same section. This deletes the shared exchange rates and security prices for the entire instance and re-imports them. All families' accounts then sync against the freshly imported data. Foreign-currency totals may show unconverted amounts until the import finishes.
+
+<Warning>
+The reset market data action affects every family on the instance. Use it only when you need to clear and re-import market data instance-wide, not just for one family.
+</Warning>
+
 ## Troubleshooting
 
 ### Database connection errors
