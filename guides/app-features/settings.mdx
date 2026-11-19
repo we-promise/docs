@@ -375,6 +375,19 @@ Sure allows you to export your financial data for backup or analysis purposes. W
 
 Only family admins can create and download exports. The web export feature redirects non-admins, while the API returns 403. Direct export-attachment requests without admin access to the owning family return 404.
 
+### What a backup export and import preserves
+
+A Sure export captures your full financial data, including account details for each account type. When you import an export into a new family (or a new account), Sure restores these fields:
+
+- **Vehicle accounts**: make, model, year, mileage value, and mileage unit. If the export is from an older version and those fields are absent or null, the account's defaults are kept (for example, the default mileage unit `mi` is preserved).
+- **Property accounts**: year built, area value, and area unit.
+- **Loan accounts**: interest rate, rate type, term, start date, and related loan details.
+- **Credit card accounts**: APR, annual fee, minimum payment, available credit, and due dates.
+
+Account details are only applied when the import creates the account. If you import into a family that already has a matching account, Sure does not overwrite its existing details.
+
+Purchase price and purchase date for vehicle accounts are not set directly by the import. They are restored via the account's valuations, which the export and import also include.
+
 ### Export status tracking
 
 The export list page automatically polls for updates when exports are in progress:
