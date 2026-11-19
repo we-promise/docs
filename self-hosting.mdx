@@ -1377,6 +1377,58 @@ The button is disabled when there is no current registration, APNs is unconfigur
 | **Could not enqueue** | Check Sidekiq and Redis availability, then retry after the 30-second cooldown |
 | **Expired without final result** | The request outlived the send window; check worker connectivity and request a fresh test |
 
+## Browser push notifications
+
+Browser Web Push is a preview feature available on both self-hosted and managed instances. It does not require an Apple Developer account or any change to the hosted-only native APNs restrictions. It reuses existing insights and does not introduce additional financial analysis or thresholds.
+
+### Configure Web Push
+
+Run the included database migrations, then set these variables in your secret store for both the `web` and `worker` services:
+
+| Variable | Description |
+| --- | --- |
+| `WEB_PUSH_VAPID_PUBLIC_KEY` | URL-safe Base64 public VAPID key; shared with browsers |
+| `WEB_PUSH_VAPID_PRIVATE_KEY` | Matching URL-safe Base64 private VAPID key; server-side only |
+| `WEB_PUSH_VAPID_SUBJECT` | Operator contact URI, such as `mailto:operator@example.com` or an HTTPS URL |
+
+Generate the key pair once from your deployment's Rails console:
+
+```ruby
+WebPush.generate_key
+```
+
+Store the returned `public_key` and `private_key` in your secret store. Keep the same pair on web and worker processes and across deploys. Never commit the private key. Rotating the pair requires re-enabling each browser device.
+
+The app must be served over HTTPS. Workers must consume the `high_priority` and `scheduled` queues and reach the browser push services over outbound TLS on port 443: `fcm.googleapis.com`, `updates.push.services.mozilla.com`, subdomains of `push.apple.com`, and subdomains of `notify.windows.com`. Registration only accepts HTTPS endpoints without user info, fragments, or non-standard ports. The `web-push` gem handles encryption and VAPID signing.
+
+### Enable and verify a device
+
+1. Sign in and turn on **Settings → Preferences → Enable preview features**, then select **Enable this device** in **Browser notifications**. Each browser profile or installed app must opt in separately.
+2. On iPhone and iPad, use Safari's **Share → Add to Home Screen**, open the installed app, sign in, and enable notifications there. Web Push requires iOS/iPadOS 16.4 or later.
+3. Select **Test this device**. The test is limited to the registration bound to the current browser session, once per 30 seconds per registration and twice per minute across the signed-in user's devices.
+4. Wait for the displayed result. **Accepted by the push service** confirms provider acceptance; it does not prove that the OS displayed it. Browser permission, Focus/Do Not Disturb, and OS settings affect display.
+
+Each user can have up to 20 browser subscriptions. Renewing an existing device or moving it to a new session does not consume another slot. Remove unused devices in Security settings before adding more. Registration requests are limited to 10 per minute per user.
+
+Delivery stops when the Sure session expires after **30 days of inactivity**. Open Sure regularly to refresh the existing session; after expiry, sign in and re-enable the device.
+
+### Delivery behavior
+
+An enabled device receives new or materially resurfaced, high-priority active insights visible to the family, including over-budget `budget_at_risk` warnings. **Budget warnings** is an opt-in per-user preference (off by default) that also adds medium-priority near-limit `budget_at_risk` insights on all of that user's push devices, browser and iOS.
+
+Lock-screen payloads contain the product name and generic localized text with no balances, categories, accounts, or insight prose. They link to `/insights#insight_<id>` on the same origin.
+
+A durable delivery ledger records eligible subscriptions with their insight version in the same database transaction; recipients are fixed at event time. `RecoverPushDeliveriesJob` runs every 15 minutes to re-enqueue interrupted deliveries. Each subscription receives at most five provider attempts with bounded backoff. HTTP 404/410 from the push service removes the invalid subscription automatically.
+
+### Troubleshooting
+
+| Outcome | What to check |
+| --- | --- |
+| **Queued** | Background job queued; wait for the worker to process it |
+| **Accepted by the push service** | Provider accepted delivery; check OS notification settings and permissions if the notification did not appear |
+| **Subscription invalid** | The push service returned 404/410; the subscription was removed. Re-enable the device |
+| **Connection / provider error** | Temporary failure; the job will retry up to five times. Check worker logs and outbound TLS access to the push service hosts |
+
 ## Getting help
 
 If you find bugs or have feature requests:
