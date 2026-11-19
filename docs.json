@@ -133,7 +133,17 @@
               "POST /api/v1/auth/refresh",
               "POST /api/v1/auth/sso_link",
               "POST /api/v1/auth/sso_create_account",
-              "PATCH /api/v1/auth/enable_ai"
+              "PATCH /api/v1/auth/enable_ai",
+              "GET /api/v1/auth/sso_providers"
+            ]
+          },
+          {
+            "group": "Account Statements",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/account_statements",
+              "POST /api/v1/account_statements",
+              "GET /api/v1/account_statements/{id}"
             ]
           },
           {
@@ -393,7 +403,8 @@
             "group": "Insights",
             "openapi": "/openapi.yaml",
             "pages": [
-              "GET /api/v1/insights"
+              "GET /api/v1/insights",
+              "PATCH /api/v1/insights/{id}/acknowledge"
             ]
           },
           {
@@ -429,6 +440,13 @@
               "GET /api/v1/financekit/publishers/{publisher_id}/batches/{batch_id}",
               "GET /api/v1/financekit/connections/{connection_id}/conflicts",
               "PATCH /api/v1/financekit/connections/{connection_id}/conflicts/{id}"
+            ]
+          },
+          {
+            "group": "Version",
+            "openapi": "/openapi.yaml",
+            "pages": [
+              "GET /api/v1/version"
             ]
           }
         ]
