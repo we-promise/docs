@@ -7733,7 +7733,8 @@ paths:
               schema:
                 "$ref": "#/components/schemas/ImportResponse"
         '403':
-          description: guest users cannot import family configuration
+          description: guest users cannot import family configuration, or the account
+            is shared without write access
           content:
             application/json:
               schema:
@@ -7784,7 +7785,8 @@ paths:
                 account_id:
                   type: string
                   format: uuid
-                  description: Account ID to import into
+                  description: Account ID to import into. Must be an account
+                    the API user can write to
                 publish:
                   type: string
                   description: Set to "true" to automatically queue for processing
@@ -7895,7 +7897,8 @@ paths:
                 account_id:
                   type: string
                   format: uuid
-                  description: Account ID to import into
+                  description: Account ID to import into. Must be an account
+                    the API user can write to
                 publish:
                   type: string
                   description: Set to "true" to automatically queue for processing
