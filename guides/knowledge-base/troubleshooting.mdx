@@ -3,6 +3,18 @@ title: "Troubleshooting"
 ---
 
 
+## Duplicate tags removed after upgrading
+
+When you upgrade to a build containing [Sure PR #5293](https://github.com/we-promise/sure/pull/5293), a database migration runs automatically and removes any duplicate tag associations that existed before the fix. For each transaction that had the same tag stored more than once, Sure keeps the oldest association and deletes the rest. No tag name, transaction, or user-visible data is otherwise changed.
+
+After the migration, each tag can appear on a transaction only once. Submitting the same tag twice — through the web form, the API, or an import file — now stores it once instead of twice. A `RecordNotUnique` error is returned to concurrent writers that race to add the same new tag at the same moment.
+
+The migration takes a brief write lock on the `taggings` table while removing duplicates and creating the index. On large databases with many taggings, the lock window is short (measured in seconds for millions of rows with 1 % duplicates). Reads are not blocked.
+
+The migration is reversible. Rolling back drops the index; deleted duplicate rows are not restored.
+
+No configuration change is required. Upgrade to the latest release to get this fix.
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
