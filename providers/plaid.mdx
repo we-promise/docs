@@ -383,6 +383,24 @@ Entries imported before the `ProviderImportAdapter` was introduced were stored w
 
 This is now fixed. Sure looks up retracted transactions by `external_id` and source first, then falls back to `plaid_id` for older entries that predate the adapter. If you have transactions that should have been removed by a Plaid retraction, trigger a manual sync from the account page — Sure will process any pending removals during that sync.
 
+### Plaid investment dividends, interest, or reinvestments labeled as Other or Buy
+
+If cash dividends or interest payments from a Plaid investment account were imported with the label **Other** instead of **Dividend** or **Interest**, or if dividend reinvestment (DRIP) trades were labeled **Buy** instead of **Reinvestment**, the cause was a labeling bug that is now fixed.
+
+Plaid reports dividends, qualified dividends, non-qualified dividends, and interest as subtypes of a broader type (for example, a cash dividend has `type: cash`, not `type: dividend`). The old lookup matched only on the top-level type, so the subtype was ignored. A real cash dividend was stored as Other, keeping it out of investment income and causing `Portfolio::FlowClassifier` to count it as an external inflow. A DRIP trade was stored as Buy.
+
+The label lookup now checks a subtype map first, keyed by both type and subtype, then falls back to the type map. The subtype map covers:
+
+- `cash` / `dividend`, `qualified dividend`, `non-qualified dividend` → **Dividend**
+- `cash` / `interest` → **Interest**
+- `buy` / `dividend reinvestment` → **Reinvestment**
+
+**What to expect after upgrading:**
+
+- New cash dividends and interest imports receive the correct label automatically.
+- DRIP trades stored as Buy are relabeled **Reinvestment** on their next sync, because trade labels are rewritten on every sync.
+- Cash dividends and interest rows already stored as **Other** keep that label. Sure only writes an investment activity label onto a blank entry, so existing rows are not changed automatically. Relabel them by hand from the activity detail view, or wait for the next full re-import.
+
 ### Investment holdings not showing for accounts with no investment transactions
 
 If a Plaid investment account has holdings but you have never made any trades or investment transactions through that institution, the holdings may not have appeared even though the sync completed without errors.
