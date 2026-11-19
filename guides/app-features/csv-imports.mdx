@@ -379,6 +379,12 @@ Exports taken before provider-merchant support was added (before version contain
 
 If you import from a newer export and still see this warning, it may mean some merchant records were not exported. Re-export from the source instance and retry the import.
 
+### Sure NDJSON import restores accounts with a missing subtype
+
+When an export line provides an account's subtype only inside the `accountable` block — and not at the top level — older versions of the importer overwrote that subtype with `nil`, causing the restored account to lose its type classification (for example, a 401(k) imported as a plain investment account).
+
+The importer now reads the subtype from the nested `accountable` block first and falls back to the top-level value. Accounts imported on an affected version will need to be corrected manually: open each account, choose the correct subtype, and save.
+
 ### Unnamed recurring transactions are skipped when their merchant is missing
 
 A recurring transaction series requires either a name or a merchant to import. If a series has neither — because its merchant could not be resolved and it has no name — Sure skips it and reports the count on the confirm screen. Named series without a merchant import normally.
