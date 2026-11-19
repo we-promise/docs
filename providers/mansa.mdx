@@ -49,6 +49,8 @@ A date range entirely in the past cannot be fulfilled on the free tier. Sure rep
 
 The free tier allows 100 requests per day. Sure tracks usage in its cache and blocks requests once the daily limit is reached to avoid API errors mid-sync.
 
+Every HTTP attempt counts against the daily quota, including automatic retries on transient failures. The quota check runs before the per-request throttle, so an over-quota attempt fails immediately rather than sleeping first.
+
 You can override the default limit with an environment variable if your plan allows more requests:
 
 ```bash

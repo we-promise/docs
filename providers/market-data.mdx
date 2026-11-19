@@ -143,6 +143,18 @@ EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global 
 - **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
 - **API key**: Required — get one at [eodhd.com](https://eodhd.com)
 
+#### Daily quota counting
+
+Every HTTP attempt — including automatic retries — counts against the daily quota. If a request is retried due to a transient network error, each attempt is debited separately. The quota check runs before the per-request throttle, so an over-quota attempt fails immediately rather than sleeping first.
+
+Fundamentals requests are billed at 10 calls each against the daily allowance, matching EODHD's own billing. If a fundamentals request fails because Sure's own quota is exhausted (HTTP 403), the 10 calls are refunded. If EODHD returns a payment-required response (HTTP 402), the full 10 calls are also refunded. In both cases the ticker is not marked as permanently failed, so it retries once quota is available again.
+
+You can raise the daily limit to match a paid EODHD plan with an environment variable:
+
+```bash
+EODHD_MAX_REQUESTS_PER_DAY=500
+```
+
 #### Warsaw Exchange (GPW) securities
 
 Securities listed on the Warsaw Stock Exchange (XWAR/GPW) are priced in PLN. If you added Polish securities before this fix was released, their historical prices may have been stored as USD. Sure automatically corrects mis-tagged Warsaw prices on upgrade: USD prices are relabeled to PLN, duplicates are removed, and any affected accounts are queued for a sync so holdings revalue at the correct exchange rate.
@@ -155,6 +167,12 @@ Alpha Vantage provides free stock, ETF, and technical data for global markets.
 - **Coverage**: Global stocks, ETFs, technical indicators
 - **API key**: Required — get one at [alphavantage.co](https://www.alphavantage.co)
 - **History**: Free tier returns approximately 100 trading days of historical data
+
+Every HTTP attempt, including retries, counts against the daily quota. The quota is checked before the interval throttle, so an over-quota attempt fails immediately rather than waiting. You can raise the daily limit with an environment variable:
+
+```bash
+ALPHA_VANTAGE_MAX_REQUESTS_PER_DAY=500
+```
 
 ### MFAPI
 
