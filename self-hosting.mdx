@@ -363,6 +363,9 @@ Sure supports multiple securities pricing providers. You can configure them thro
 SECURITIES_PROVIDERS="yahoo_finance"
 
 # Exchange rate provider (default: twelve_data)
+# If twelve_data is configured but no TWELVE_DATA_API_KEY is set, Sure falls
+# back to frankfurter automatically so rates are always imported. Set this
+# explicitly to use a different provider.
 EXCHANGE_RATE_PROVIDER="twelve_data"
 
 # API keys (only needed for providers that require them)

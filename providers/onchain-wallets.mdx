@@ -35,9 +35,9 @@ The settings panel and the linking modal both warn you before you link anything,
 
 ### Exchange rates for non-USD families
 
-The crypto provider quotes in USD, so valuing a wallet in any other family currency needs one conversion — and Sure's default exchange rate provider (`twelve_data`) requires an API key. With no key and a non-USD family, there is no FX at all and every on-chain wallet is valued at zero for that second, separate reason.
+The crypto provider quotes in USD, so valuing a wallet in any other family currency needs one conversion. Sure's default exchange rate provider is `twelve_data`, which requires an API key. When no key is configured, Sure falls back to Frankfurter automatically, so rates are imported and wallets are valued correctly without any extra setup.
 
-Set `EXCHANGE_RATE_PROVIDER` (or **Settings → Self hosting**) to a provider you can actually use; `frankfurter` needs no API key. The linking UI warns about this gap specifically, naming your currency, and a USD family never sees the warning because it needs no conversion.
+If your instance uses a provider that is unavailable for other reasons, the linking UI warns about the gap specifically, naming your currency. A USD family never sees the warning because it needs no conversion. Set `EXCHANGE_RATE_PROVIDER` (or **Settings → Self hosting**) to a different provider if you want to use one explicitly; `frankfurter` needs no API key.
 
 When an asset ends up valued at zero for either reason, it is recorded in **Settings → Debug logs** under the `onchain_wallet` provider, with the reasons listed.
 
