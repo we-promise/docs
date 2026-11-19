@@ -39,15 +39,7 @@ The API also accepts OAuth2 bearer tokens for registered OAuth clients. See the 
 
 ## Rate limits
 
-Rate limits apply to API key requests. Limits reset at the top of each hour.
-
-| Tier | Requests per hour |
-| --- | --- |
-| Standard | 100 |
-| Premium | 1,000 |
-| Enterprise | 10,000 |
-
-All keys start on the standard tier. The current tier is shown on the key's detail page in settings.
+Rate limits apply to API key requests on hosted instances. Limits reset at the top of each hour. The current limit is 100 requests per hour per key.
 
 When a key exceeds its limit, the API returns HTTP `429 Too Many Requests`. The response includes:
 
