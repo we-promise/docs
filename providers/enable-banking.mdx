@@ -34,7 +34,7 @@ Enable Banking supports banks across the European Union and EEA countries. You c
 
 To connect your European bank accounts:
 
-1. Obtain an Enable Banking application ID and client certificate from [Enable Banking](https://enablebanking.com/)
+1. Obtain an Enable Banking application ID and private key from [Enable Banking](https://enablebanking.com/)
 2. Register Sure's callback URL in your Enable Banking application settings
 3. In Enable Banking, link your bank account to the application
 4. In Sure, configure your Enable Banking credentials
@@ -46,7 +46,7 @@ If you want to connect another bank, or connect the same bank with a different l
 
 ### Updating credentials
 
-When you update an existing Enable Banking connection, the **Application ID** and **Client Certificate** fields are empty. Leave either field blank to keep the stored value. Enter a new value only when you need to replace a credential.
+When you update an existing Enable Banking connection, the **Application ID** and **Private Key** fields are empty. Leave either field blank to keep the stored value. Enter a new value only when you need to replace a credential.
 
 For existing provider configurations, both credential fields are disabled while any Enable Banking connection in your family has a stored session. This applies across configurations, rather than depending only on the status of the connection being edited. Remove the connections with stored sessions before changing credentials.
 
@@ -54,7 +54,7 @@ For existing provider configurations, both credential fields are disabled while 
 
 You do **not** need to create a separate Enable Banking provider configuration for each country.
 
-Use one shared Enable Banking configuration with your application ID and client certificate, then use **Add Connection** for each additional bank you want to link.
+Use one shared Enable Banking configuration with your application ID and private key, then use **Add Connection** for each additional bank you want to link.
 
 When adding each bank connection:
 
