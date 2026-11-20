@@ -61,6 +61,12 @@ Yahoo Finance is the default provider and requires no API key. It offers broad g
 - **Coverage**: Global stocks, ETFs, mutual funds, indices, crypto
 - **API key**: Not required
 
+#### Xetra (Germany) securities
+
+Yahoo Finance returns `exchange: "GER"` for securities listed on Xetra. Sure maps this code to the standard MIC `XETR` so that `.DE` listings resolve correctly instead of falling back to another venue such as Amsterdam (`.AS`).
+
+Securities already stored with the legacy `GER` exchange code are upgraded to `XETR` automatically the next time they are looked up. Holdings, trades, and prices stay on the same security record — no duplicate is created. If both a `GER` row and an `XETR` row exist for the same ticker, the `XETR` row takes precedence and the `GER` row is left as-is until you merge them manually.
+
 #### How price fetching works
 
 Sure fetches chart and price data from Yahoo Finance without sending authentication cookies or a crumb token. Yahoo rate-limits authenticated chart requests far more aggressively than anonymous ones, so skipping authentication reduces 429 rate-limit errors on price syncs.
