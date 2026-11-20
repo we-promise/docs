@@ -15,7 +15,7 @@ Sure has two separate AI systems that operate independently. Understanding this 
 
 - **Builtin** (default): uses the LLM provider selected by `LLM_PROVIDER` (OpenAI-compatible or native Anthropic). Calls Sure's function tools directly.
 - **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
-- **MCP only**: disables the in-app assistant entirely — no chat sidebar, no chat API, no bills AI shortcuts, no Dig in with AI on insight cards. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
+- **MCP only**: removes the in-app chat and the buttons that open it, including the bills AI review shortcut and **Dig in with AI** on insight cards. Smart fill and smart configuration are not affected because they do not start a chat. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
 
 **Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync:
 

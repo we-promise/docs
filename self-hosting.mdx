@@ -997,6 +997,14 @@ On self-hosted instances, the securities and exchange-rate checks link super-adm
 
 An optional service can report **Incomplete configuration** when required settings are missing and either some settings are present or configuration signals an intent to enable it. For example, a nonblank `SKYLIGHT_ENABLED` other than `false` can trigger this status even with no authentication key; Stripe price IDs can also signal intent. The tab lists missing setting names without displaying their values.
 
+### Keep web and worker AI variables in sync
+
+The `web` and `worker` containers each read their own environment. The web container uses AI settings to decide which buttons and actions to show; the worker uses them to run the AI jobs. When those environments differ, a feature can appear in the UI that the worker cannot run, or be hidden when it would work.
+
+Settings saved through **Settings → Self-Hosting** are stored in the database and shared by both processes automatically. Environment variables are fixed at container start and require restarting both `web` and `worker` to take effect.
+
+AI feature availability — buttons, rule actions, MCP tool list, and PDF import — is determined from one unified configuration. For example, the **Enhance merchants** button appears on an Anthropic-only install because merchant enhancement runs on Anthropic. Chat and the buttons that open it (the bills AI review, **Review with AI**, and **Dig in with AI**) keep their own separate check: the user's AI switch and a configured provider.
+
 ### Verifying worker configuration
 
 The checks above all run from the `web` process. Most AI work — assistant responses, PDF processing, embeddings, auto-categorization, and merchant detection — actually executes in a Sidekiq `worker` process, which can differ from `web` in network access, DNS, proxy rules, or the credentials it loaded. This is most common in Kubernetes deployments using workload-specific environment overrides or a Secret updated without a pod restart. A passing web check does not prove a worker can reach the same provider.
