@@ -1,0 +1,82 @@
+---
+title: TrueLayer
+description: Connect UK bank accounts using TrueLayer open banking
+keywords: ['truelayer', 'uk', 'open banking', 'bank sync']
+---
+
+TrueLayer is a UK open banking provider. Sure connects to it via OAuth 2.0, syncing bank and credit card account balances and transactions automatically.
+
+See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
+## How it works
+
+1. Register a TrueLayer application and obtain a client ID and client secret
+2. Enter those credentials in Sure
+3. Authorize your bank through TrueLayer's consent dialog
+4. Sure discovers your accounts and syncs balances and transactions
+
+## Prerequisites
+
+- A [TrueLayer](https://truelayer.com/) developer account with a registered application
+- A client ID and client secret from the TrueLayer console
+- Sure's callback URL registered in your TrueLayer application
+
+## Setting up TrueLayer
+
+### Register your application
+
+1. Sign in to the [TrueLayer console](https://console.truelayer.com/)
+2. Create an application and copy the **client ID** and **client secret**
+3. Add Sure's callback URL to the allowed redirect URIs in your TrueLayer application settings
+
+The callback URL is shown in **Settings > Bank sync > TrueLayer** inside Sure. Register this exact URL before completing the authorization flow.
+
+### Connect TrueLayer in Sure
+
+1. In Sure, go to **Settings > Bank sync**
+2. Find the **TrueLayer** panel and enter your client ID and client secret
+3. Click **Save**, then click **Connect** to open TrueLayer's authorization dialog
+4. Select your bank and complete the consent flow
+5. Sure returns you to the Accounts page and begins syncing
+
+### Set up discovered accounts
+
+After authorization, Sure shows the accounts returned by TrueLayer that are not yet linked. For each one, choose an account type or link it to an existing Sure account.
+
+## Transaction history
+
+UK banks release more than 90 days of history only while you are present in the browser, immediately after granting consent. Sure uses the few minutes after authorization to fetch your full history. Outside that window, syncs are limited to the last 89 days.
+
+If the initial backfill did not complete — for example if you navigated away before it finished — reconnect the bank from the connection card to open a new consent window and retry the full-history fetch.
+
+## Token management
+
+TrueLayer uses short-lived access tokens (valid about one hour) backed by a refresh token. Sure refreshes the access token automatically before it expires. TrueLayer rotates the refresh token on every refresh, so Sure stores the new one immediately. Do not authorize the same connection from two places at once, as concurrent refreshes can invalidate one of the tokens.
+
+## Consent expiry
+
+Bank consent has an expiry date set by each bank, visible on the connection card. Sure alerts you when consent is expiring in the next 14 days. When consent expires, the connection card shows a **Reconnect** prompt. Click it to re-authorize your bank and resume syncing.
+
+## Sandbox mode
+
+If your client ID begins with `sandbox-`, Sure routes all requests to TrueLayer's sandbox environment, which provides a Mock Bank for testing. Use a production client ID when you are ready to connect real accounts.
+
+## Supported regions
+
+TrueLayer supports UK current accounts, savings accounts, and credit cards. Supported banks include those accessible via UK Open Banking and UK OAuth providers.
+
+## Troubleshooting
+
+### Callback fails with "invalid callback"
+
+The OAuth state did not match a pending authorization for your session. This can happen if you completed the bank authorization in a different browser tab or after your Sure session expired. Start the authorization again from **Settings > Bank sync > TrueLayer**.
+
+### Connection shows "requires update"
+
+The bank consent has expired or was revoked. Click **Reconnect** on the connection card and complete the authorization flow again.
+
+### Authorization error from the bank
+
+TrueLayer returns a descriptive error message when the bank rejects authorization (for example, the user denied access or the bank requires a different authentication method). The error is shown on the providers page. Check the TrueLayer console for details, then try connecting again.
+
+For TrueLayer API documentation, see [docs.truelayer.com](https://docs.truelayer.com/).
