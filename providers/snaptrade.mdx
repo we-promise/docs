@@ -123,6 +123,10 @@ If the fallback (step 3) applies and more than one candidate exists, Sure record
 
 If a later sync determines an activity should be classified differently (for example, a CORP_ACTION that previously had units is re-fetched without units), Sure reclassifies the entry automatically. Entries that have been manually edited or locked by an import are protected and will not be reclassified; these cases are recorded in the debug log at **Settings > Debug**.
 
+### Short positions
+
+Short positions (positions with a negative quantity reported by SnapTrade) are skipped during import. They do not appear in the holdings view and do not block other positions in the same account from being imported or cleared correctly.
+
 ### Option contract support
 
 Sure imports option trades from SnapTrade, including standard and mini-option contracts.
@@ -197,6 +201,19 @@ The task processes records in batches and prints a JSON summary of results when 
 ### Holdings show as empty after connecting a brokerage
 
 SnapTrade deprecated the `/positions` endpoint for apps registered after their 2026 cutoff. Sure now uses the `/positions/all` replacement endpoint, so holdings should import correctly for all new and existing connections. If you connected a brokerage before this fix and see no holdings, run a manual sync from the account card to refresh.
+
+### A sold position still appears in the portfolio
+
+When SnapTrade reports that a position is gone — either because you sold everything or because a position closed between two same-day syncs — Sure writes a zero-quantity closing row so the holding no longer appears as current.
+
+If a sold position still shows up, run a manual sync. The position should clear as soon as Sure receives and processes an updated snapshot from SnapTrade.
+
+In some cases Sure holds back the clearing for up to three days:
+
+- If SnapTrade's account total still shows non-cash value and Sure cannot attribute that value to the positions it imported, Sure treats the empty list with caution rather than immediately zeroing the position. This prevents a temporary data gap at the brokerage from erasing a position you still hold.
+- Accounts that SnapTrade marks as `holdings_unavailable` are never cleared from an empty list, because SnapTrade documents that those accounts can return an empty position list without meaning the account is actually empty.
+
+After the three-day window, Sure trusts the empty list regardless of the account total. If the position is still showing after three days and you believe it should be gone, contact support.
 
 ### No accounts appear after connecting a brokerage
 
