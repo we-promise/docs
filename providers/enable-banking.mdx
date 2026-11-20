@@ -213,6 +213,8 @@ Sure strips payment wallet prefixes (Apple Pay, Google Pay, Samsung Pay) from re
 
 Sure also strips known small-merchant payment-processor prefixes (SumUp, Square, iZettle, PayPal) from the selected line, and matches the transaction against your family's known merchants for a cleaner display name.
 
+When matching against known merchants, Sure excludes the account holder's name. Some banks append the cardholder's name to a card payment's remittance text, and a transfer between the holder's own accounts can make that name appear in the family's known-merchant list. Because the holder is never the payee of a card purchase, skipping their name prevents it from overriding the actual merchant. If the entire remittance consists only of the holder's name, the transaction is not matched to any merchant.
+
 ### Duplicate transaction handling
 
 Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
