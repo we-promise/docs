@@ -312,6 +312,27 @@ Behavior:
 - `/password/edit` (self-service password change) is blocked — users are redirected away and cannot set a local password while local login is disabled
 - Users must authenticate via SSO
 
+### Mobile SSO provider discovery
+
+The mobile app calls `GET /api/v1/auth/sso_providers` to discover which SSO providers are configured on the server. This lets the login screen render one button per provider instead of hardcoding a Google-only button, and hides SSO entirely when no providers are configured.
+
+The endpoint requires no authentication and returns only display fields — client secrets are never included.
+
+**Response:**
+
+```json
+{
+  "providers": [
+    { "name": "authentik", "strategy": "openid_connect", "label": "Sign in with Authentik" },
+    { "name": "google",    "strategy": "google_oauth2",   "label": "Sign in with Google" }
+  ]
+}
+```
+
+Each provider's `name` corresponds to the `:provider` segment of `GET /auth/mobile/:provider`, which begins the mobile SSO flow. Labels fall back to the same translated strings used on the web sign-in page ("Sign in with OpenID Connect", "Sign in with Google", and so on) when no custom label is set.
+
+The app falls back to a plain Google button when the server does not expose this endpoint (older instances).
+
 ### Mobile API enforcement
 
 The mobile API enforces the same login restrictions as the web interface:
