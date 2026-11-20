@@ -184,6 +184,14 @@ During a sync, Sure uses a tolerance band around the exchange rate to find cross
 
 There is one exception: if those two accounts already have a confirmed transfer in the same direction, including when one or both accounts are manual, Sure treats that as a known route and will auto-match future transfers along it. The prior confirmed route need not itself have used different currencies. Future cross-currency candidates must still meet the normal matching checks and are created as pending suggestions; an unconfirmed suggestion cannot establish a route.
 
+A second exception applies to category compatibility. On the automatic path, Sure skips a cross-currency pair when both legs are categorized and their categories differ. For example, a fuel purchase will not be auto-matched against a credit-card repayment categorized as income. A pair where either leg has no category still matches normally, as does a pair where both legs share the same category. Confirmed routes are also exempt from this check: a route you previously confirmed can still auto-match cross-currency pairs regardless of category.
+
+Same-currency exact matches and the manual match dialog are not affected — you can still confirm any cross-currency pair with different categories by hand.
+
+<Note>
+  If you have existing auto-match suggestions that were created before this change, those suggestions are not automatically cleared. To rescan under the new rule, go to **Settings → Auto Matches**, turn Auto Match off, then turn it back on. Turning it off removes pending suggestions without recording them as rejected.
+</Note>
+
 Manual accounts still participate in same-currency matching, where amounts must be exactly equal and no FX approximation is involved.
 
 If you have a real cross-currency transfer that involves a manual account, you can still confirm it yourself. Open either transaction, choose **Match as transfer**, and select the counterpart from the dialog. The manual match dialog uses a wider tolerance (up to 10%) and shows manual account candidates so you can find and confirm the match by hand.
