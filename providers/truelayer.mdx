@@ -1,0 +1,93 @@
+---
+title: TrueLayer
+description: Connect UK bank accounts using TrueLayer open banking
+---
+
+TrueLayer is a UK open banking provider that lets Sure connect to your bank accounts using OAuth 2.0. It supports current accounts, savings accounts, credit cards, and loan accounts at UK banks. You set up a TrueLayer developer app once, then connect as many banks as you need.
+
+See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
+## What gets imported
+
+Sure imports the following for each connected bank account:
+
+- Account balances
+- Transactions (current accounts and savings accounts)
+- Card transactions (credit cards)
+
+Supported account types: checking and savings accounts, credit cards, and loans or mortgages.
+
+## Setting up TrueLayer
+
+### Step 1: Create a TrueLayer app
+
+1. Sign in to the [TrueLayer Console](https://console.truelayer.com/).
+2. Create a new application.
+3. Copy the **Client ID** and **Client Secret** from the application settings.
+4. Add Sure's callback URL to the application's **Allowed redirect URIs**. The exact URL is shown in **Settings → Providers → TrueLayer** inside Sure.
+
+### Step 2: Save your credentials in Sure
+
+1. In Sure, go to **Settings → Providers**.
+2. Find the **TrueLayer** section and expand it.
+3. Enter your **Client ID** and **Client Secret**.
+4. Click **Save credentials**.
+
+### Step 3: Connect a bank
+
+1. In the TrueLayer panel, click **Connect a bank**.
+2. Sure redirects you to TrueLayer's consent dialog. Select your bank and approve access.
+3. After authorization, Sure begins importing your accounts. Set them up once the first sync finishes.
+
+### Step 4: Set up your accounts
+
+After the first sync, click **Set up new accounts** in the TrueLayer panel. For each imported account, choose the correct account type:
+
+- **Checking or savings account** — for current accounts and savings accounts
+- **Credit card** — for credit card accounts (set up automatically)
+- **Loan or mortgage** — for loan and mortgage accounts
+- **Skip this account** — to leave an account out
+
+You can also set an **Import transactions from** date to limit how far back transactions are pulled. Leave it blank to keep everything the bank provided.
+
+If you already have a manual account in Sure, link the imported TrueLayer account to it instead of creating a new one.
+
+## Reconnecting after 90 days
+
+UK banks require you to reauthorize every 90 days. Sure shows a **Reconnect** button before your access expires. Clicking it starts a re-authorization flow that keeps your existing accounts and history intact.
+
+If your access expires before you reconnect, the connection is marked as requiring an update. Reconnect from **Settings → Providers → TrueLayer** to resume syncing.
+
+## Sandbox mode
+
+TrueLayer provides a sandbox environment for testing. To use it, create an application with a client ID that starts with `sandbox-`. Sure detects the prefix and routes all requests to TrueLayer's sandbox, which serves the **Mock Bank** provider.
+
+## Troubleshooting
+
+### Credentials required before connecting
+
+You must save your TrueLayer client ID and secret before connecting a bank. Go to **Settings → Providers → TrueLayer**, enter your credentials, and save them first.
+
+### Reconnect required
+
+If the connection is marked as requiring reconnection, the refresh token has expired or the bank has revoked access. Click **Reconnect** in the TrueLayer panel and complete the bank authorization flow again.
+
+### Older history was not imported
+
+Sure fetches full transaction history only in the few minutes immediately after you approve access. If the initial import started after that window closed, some older transactions may be missing. Reconnecting opens a new window and allows Sure to fetch the complete history.
+
+### Authorization callback failed
+
+If the authorization callback shows an error, it usually means the redirect URI registered in your TrueLayer app does not match the one Sure used. Copy the exact callback URL from **Settings → Providers → TrueLayer** in Sure and add it to your TrueLayer app's **Allowed redirect URIs**.
+
+### Authorization expired or session mismatch
+
+If Sure reports that the TrueLayer sign-in expired or did not match the session, start the connection flow again from **Settings → Providers → TrueLayer**. The OAuth state Sure generates is tied to your browser session and expires after a short time.
+
+## Limitations
+
+- **UK only**: TrueLayer's open banking integration covers UK banks only.
+- **OAuth required**: Each bank connection requires a user-initiated OAuth consent flow. Automated reconnection is not possible.
+- **90-day consent window**: UK banks limit open banking consents to 90 days. You must reconnect periodically.
+- **Read-only access**: Sure uses only read permissions. No transactions or account changes can be made through Sure.
+- **Single app credentials**: All bank connections in a family share the same TrueLayer client ID and secret.
