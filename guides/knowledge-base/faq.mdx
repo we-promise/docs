@@ -39,17 +39,19 @@ title: "FAQ"
 
     - The outgoing transaction uses the source account's currency and amount.
     - The incoming transaction is converted to the destination account's currency using the rate for that date.
-    - If no exchange rate is available, the transfer falls back to a 1:1 rate. The amount may be incorrect until rates are synced.
+    - If no exchange rate is available for the transfer date, Sure raises a conversion error rather than falling back to a 1:1 rate. Make sure an exchange rate provider is configured before creating cross-currency transfers.
     - Foreign exchange metadata is recorded for auditing purposes.
 
     For best results, make sure an exchange rate provider is configured in **Settings → Self-Hosting** and rates are current.
   </Accordion>
 
   <Accordion title="What happens when an account has transactions in a currency with no exchange rate?">
-    If an exchange rate is missing for a specific currency pair and date, Sure skips that transaction when calculating balances rather than marking the entire account as errored. The skipped entry is logged in **Settings → Debug** under the `sync` category so you can identify which rate is absent.
+    When Sure has no stored rate at all for a currency pair, it leaves the affected amounts out of totals rather than counting them at a 1:1 rate. A warning appears at the top of the dashboard, Reports, and Transactions pages naming the currency so you know which totals are incomplete.
 
-    Once rates are available — after configuring or re-enabling an exchange rate provider and triggering a sync — the previously skipped entries are included in the next balance calculation.
+    When a rate exists but the newest stored rate is more than five days old, Sure uses that stored rate and shows an info notice with the currency name and the date of the rate being used.
 
-    Holdings without a rate are still counted at a 1:1 rate to prevent phantom cash from appearing, and the occurrence is logged alongside the entry warning.
+    When a rate is missing only for a specific date but other stored rates exist for that pair, Sure uses the nearest stored rate — the latest one before that date, or the earliest one after it — rather than leaving the amount out.
+
+    Once a current rate is available — after configuring or re-enabling an exchange rate provider and triggering a sync — the previously excluded amounts are included in the next calculation.
   </Accordion>
 </AccordionGroup>
