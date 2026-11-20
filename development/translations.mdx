@@ -1,0 +1,103 @@
+---
+title: Contributing translations
+description: Add or update Sure's locale files to support a new language or fill in missing strings
+keywords: ['i18n', 'translations', 'localization', 'locale', 'l10n', 'language']
+---
+
+Sure uses Rails I18n for all user-facing strings. Every locale is stored as YAML files under `config/locales/`, organized by feature area. You can contribute translations for a new language or fill in strings that are missing from an existing one.
+
+## Locale file structure
+
+Locale files are split by category rather than kept in a single file per language:
+
+| Directory | What it covers |
+| --- | --- |
+| `config/locales/defaults/` | Date formats, number formats, ActiveRecord errors, and global UI strings |
+| `config/locales/breadcrumbs/` | Navigation breadcrumb labels |
+| `config/locales/models/<model>/` | ActiveRecord attribute names and model-level error messages |
+| `config/locales/mailers/<mailer>/` | Email subject lines and body copy |
+| `config/locales/views/<controller>/` | View-level strings grouped by controller |
+| `config/locales/doorkeeper.<locale>.yml` | OAuth authorization screen copy |
+
+Each file uses the locale code as the top-level YAML key (for example, `zh-CN`) and follows the same key hierarchy as the English source file in that directory.
+
+## Finding missing translations
+
+The fastest way to see what is missing for a locale is to compare its files with the English ones. For Chinese Simplified (`zh-CN`) as an example:
+
+```bash
+diff <(find config/locales -name "en.yml" | sort) \
+     <(find config/locales -name "zh-CN.yml" | sort)
+```
+
+Any file present in English but absent in `zh-CN` needs to be created. For files that exist in both, look for keys present in the English version that are absent in the translated one.
+
+## Adding strings to an existing locale
+
+1. Find the English source file for the area you want to translate. For example, the admin users view:
+
+   ```
+   config/locales/views/admin/users/en.yml
+   ```
+
+2. Open or create the matching file for your locale:
+
+   ```
+   config/locales/views/admin/users/zh-CN.yml
+   ```
+
+3. Copy the English key structure and replace the string values with your translation. Keep interpolation placeholders (`%{name}`) and pluralization keys (`one:`, `other:`) exactly as they appear in the English source.
+
+   ```yaml
+   ---
+   zh-CN:
+     admin:
+       users:
+         update:
+           last_super_admin_error: 无法移除系统中的最后一位超级管理员。
+   ```
+
+4. Do not translate the key names themselves — only the string values.
+
+## Creating a new locale
+
+To add a language that Sure does not yet support:
+
+1. Pick the correct [IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag) for the locale (for example, `pt-BR` for Brazilian Portuguese).
+
+2. Create locale files for each directory under `config/locales/`. Start with the highest-priority areas:
+   - `config/locales/defaults/<locale>.yml` — required for date and number formatting
+   - `config/locales/breadcrumbs/<locale>.yml` — navigation labels
+   - `config/locales/views/sessions/<locale>.yml` — sign-in and sign-up screens
+
+3. Follow the structure of the matching English file in each directory. You do not need to create every file at once — partial coverage is accepted and merged iteratively.
+
+4. Add a `doorkeeper.<locale>.yml` file in `config/locales/` for OAuth screens. Use an existing file such as `config/locales/doorkeeper.en.yml` as your template.
+
+## Translation guidelines
+
+- Use natural, idiomatic phrasing rather than literal word-for-word translation.
+- Keep interpolation placeholders (`%{brand_name}`, `%{count}`) unchanged and in the correct grammatical position for the target language.
+- Preserve pluralization keys (`zero:`, `one:`, `other:`, `few:`, `many:`) as needed by the locale's plural rules. Add keys that English omits when your language requires them.
+- Product and brand names such as `%{product_name}` and `%{brand_name}` are interpolated at runtime and should not be translated directly.
+- Provider names (Plaid, SimpleFIN, Binance, and so on) are proper nouns and should not be translated.
+
+## Testing your translations
+
+Run the test suite after adding locale files to catch any YAML syntax errors or missing interpolation arguments:
+
+```bash
+bin/rails test
+```
+
+To verify a specific locale renders correctly in the UI, start the development server with the locale set:
+
+```bash
+RAILS_LOCALE=zh-CN bin/dev
+```
+
+Then navigate to the area you translated and confirm the strings appear as expected.
+
+## Submitting a pull request
+
+Follow the standard [contributing process](https://github.com/we-promise/sure/blob/main/CONTRIBUTING.md). Target the `main` branch and include a brief description of which locale and which areas you updated. If you are filling gaps in an existing locale, note the key paths you added so reviewers can check coverage quickly.
