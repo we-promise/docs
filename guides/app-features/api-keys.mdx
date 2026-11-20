@@ -102,6 +102,10 @@ To revoke a key, go to **Settings → API Keys**, find the key, and click **Revo
 
 Removing a user from a family also revokes all of their API keys.
 
+## Audit logging
+
+Sure writes a security audit log entry every time an API key is created or revoked. Each entry records the event type, the user, the key name, and the IP address and user agent of the request. The log is console-only. See [audit logging](/authentication/audit-logging) for details.
+
 ## Security considerations
 
 - Store API keys as secrets, not in source code or version control.

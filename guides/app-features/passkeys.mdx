@@ -61,6 +61,10 @@ If you also have authenticator-app 2FA configured, you can still use a one-time 
 
 Removing a key only removes it from Sure. If the passkey is stored in your browser, operating system, password manager, or hardware key, manage that copy in the tool where it was created.
 
+## Audit logging
+
+Sure writes a security audit log entry when a passkey or security key is added or removed. Each entry records the credential nickname, the user, and the IP address and user agent of the request. See [audit logging](/authentication/audit-logging) for details.
+
 ## Self-hosting configuration
 
 For self-hosted deployments, set stable WebAuthn relying party values before people register passkeys:
