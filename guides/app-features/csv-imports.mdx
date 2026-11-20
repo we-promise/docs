@@ -343,6 +343,20 @@ Sure will import all rows from your CSV. Review your data before importing to av
 
 If you imported a rules CSV with `transaction_tag` conditions on an older version of Sure (before the fix in [#3419](https://github.com/we-promise/sure/pull/3419)), the tag name was stored as-is instead of being resolved to the tag's ID. Rules with this problem match no transactions for the tag condition. To fix affected rules, delete and re-import them, or edit each rule manually in **Settings → Rules** to remove and re-add the tag condition.
 
+### Monarch import fails with a destination no longer supported error
+
+Monarch import destinations are checked when you save your account choices. If a destination account gains holdings or trades between that point and when the import job runs, it no longer qualifies as a destination. The import fails with an error message that names the affected accounts.
+
+To resolve this, select **Try again** on the failed import page. Sure sends you back to the account selection step with the error displayed. Choose a different destination for each account listed in the error, or create a new account to import into, then proceed through the remaining steps and publish again.
+
+The import job also checks accounts that have moved to a different family since the choices were saved. Those accounts fail the same check and appear in the same error message.
+
+### Monarch import retry raises "Import is not publishable"
+
+On older versions, selecting **Try again** on a failed Monarch import whose destination was no longer valid raised an "Import is not publishable" server error instead of returning to account selection. This was fixed so that **Try again** on a failed, non-publishable Monarch import now redirects to the accounts step and displays the reason the import can no longer be published.
+
+If you see this error on a current version, the import's status may not be `failed`. Check the import detail page: if the status is complete or reverting, the import finished and no retry is needed.
+
 ### Sure NDJSON import fails with a null rule name
 
 Rules exported from Sure may have a `null` name field, which is valid. If a full `all.ndjson` export fails preflight with an error about a missing rule name, ensure you are using a current version of Sure — older versions incorrectly required the name field to be present.
