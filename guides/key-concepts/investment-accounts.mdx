@@ -25,7 +25,11 @@ The holdings list shows a rounded share count for readability. When you open the
 
 The Investments panel on the dashboard and in reports aggregates your holdings by security across all investment accounts. If you hold the same security in multiple accounts — for example, Apple shares split between a brokerage and an IRA — Sure sums those positions into a single row rather than listing each account separately.
 
-Portfolio weight shown in the top holdings table and in the allocation view is calculated as a percentage of your total portfolio value (including cash). Both views share the same denominator, so the same security always shows the same weight in both places.
+Portfolio weight in the top holdings table and in the allocation view is calculated against the same denominator — your total holdings value plus any positive account cash — so a security always shows the same weight in both places.
+
+The allocation view appends a **Cash** row when any account holds a positive cash balance not already represented by a security holding. The cash row uses the ticker `CASH` and its weight brings the allocation total to 100%. A portfolio invested entirely in cash appears as a single cash row rather than an empty list.
+
+If you open the allocation view without selecting a grouping, Sure defaults to the security roll-up instead of returning an empty result.
 
 ### Provider-synced holdings
 
@@ -127,6 +131,10 @@ Sure supports various security types:
 ### Asset classification
 
 Each security can be classified by asset class, sub-class, sector, industry, and region. This classification data will power allocation breakdowns — letting you see how your portfolio is distributed across equities, fixed income, real estate, and other categories.
+
+**Allocation groupings**
+
+The allocation view can be grouped by: `security` (default), `account`, `currency`, `kind`, `asset_class`, `asset_sub_class`, `sector`, and `region`. Selecting a grouping that is unknown or omitting the `?by=` parameter falls back to the security roll-up. Each grouping includes account cash in a cash segment positioned according to that grouping's rules.
 
 **Asset classes**
 
