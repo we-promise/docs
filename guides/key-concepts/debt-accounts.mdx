@@ -274,3 +274,42 @@ The projection runs only to the original contracted maturity date. It does not e
 
 > [!NOTE]
 > The projection is not shown when the loan has no amortization schedule (for example, if the interest rate, term, or original balance is missing), or when the current balance is zero.
+
+## Extra repayments
+
+The **Extra repayments** tab on a loan account lets you model what paying more than the contracted amount would do. Enter an extra amount and select a frequency to see how much sooner the loan would be paid off and how much interest you would save.
+
+### How to use it
+
+Open a loan account, select the **Extra repayments** tab, enter an amount in the field, choose a frequency (weekly, fortnightly, or monthly), and select **Apply**. The tab updates to show:
+
+| Figure | Description |
+| --- | --- |
+| Payoff date with extra | The projected date the loan pays off when the extra amount is applied each period |
+| Months sooner | How many months earlier that is compared to paying no extra at all |
+| Interest saved | How much less interest you would pay compared to paying no extra at all |
+
+Leaving the amount blank or entering zero removes the extra and returns to the base projection.
+
+> [!NOTE]
+> The savings figures compare your extra-repayment projection against paying no extra — not against the original contract. This means the months sooner and interest saved figures measure the pure effect of the extra amount you enter, independent of how far ahead or behind the loan currently is.
+
+### Frequencies
+
+| Frequency | How it works |
+| --- | --- |
+| Monthly | One extra payment is added to each scheduled repayment period |
+| Fortnightly | Extra payments fall on their own dates, every 14 days from the day after the current date. Each repayment period is credited with all fortnightly extras dated within it |
+| Weekly | Extra payments fall on their own dates, every 7 days from the day after the current date. Each repayment period is credited with all weekly extras dated within it |
+
+A month with five weekly extras credits all five; nothing is averaged.
+
+### Payoff chart with an extra
+
+When you apply an extra amount, the loan balance chart gains a fourth series:
+
+| Series | What it shows |
+| --- | --- |
+| Extra (dashed) | Where the balance is heading if you keep paying the contracted amount plus the extra |
+
+The extra series appears alongside the existing actual, scheduled, and projected series. The chart legend labels it so each line is identifiable. Removing the extra amount from the tab hides the series again.
