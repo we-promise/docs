@@ -213,7 +213,7 @@ If a position shows no price or an incorrect value:
 - Private market positions without a live quote are valued at their average cost basis
 - Other positions without a live price display a price-unavailable indicator
 
-**Bond values were previously inflated 100x.** Trade Republic quotes bond prices as percentages of par while position sizes represent nominal amounts. Older syncs could multiply the two directly. Current syncs divide bond quotes by 100. An upgrade migration rescales eligible historical provider snapshots and cached positions. **Repair** reprocesses stored provider data but does not rerun that migration. If older values remain inflated after upgrading and syncing, report the affected holdings for investigation.
+**Bond values were previously inflated 100x.** Trade Republic quotes bond prices as percentages of par while position sizes represent nominal amounts. Older syncs could multiply the two directly. Current syncs divide bond quotes by 100. An upgrade migration rescales eligible historical provider snapshots and cached positions. The migration reads account identifiers through the provider link rather than loading the Account model directly, so it runs safely regardless of the order in which other database migrations are applied. **Repair** reprocesses stored provider data but does not rerun that migration. If older values remain inflated after upgrading and syncing, report the affected holdings for investigation.
 
 ### Deposits showing as transfers or investment contributions
 
