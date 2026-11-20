@@ -67,6 +67,14 @@ Sure fetches chart and price data from Yahoo Finance without sending authenticat
 
 If Yahoo returns a 401 for a specific symbol (either a hard HTTP 401 or a 200 response with an `Unauthorized` error code), Sure automatically retries that request once with a fresh cookie and crumb. If the retry also fails with a 401, Sure raises an authentication error and stops retrying. Cookie and crumb authentication is still used for security detail lookups (the `quoteSummary` endpoint), which require it.
 
+#### Exchange rate currency validation
+
+When Yahoo Finance is used as an exchange rate provider, Sure validates the `currency` field in each quote's metadata before accepting it. A quote is only used when its reported currency matches the expected quote currency of the pair being fetched.
+
+Some currency pairs return a quote with a blank or unexpected currency field. For example, Yahoo quotes `RUBGEL=X` as GEL per 100 RUB but leaves the currency field blank, which would make the GEL→RUB rate (derived from the inverse pair) come out 100 times too small. Sure rejects any quote whose currency does not match, and falls back to a USD cross-rate pair instead.
+
+Rejected quotes are recorded as `warn`-level entries in the debug log under **Settings → Debug**, in the `exchange_rates` category. Each entry includes the symbol, the expected currency, and the currency Yahoo actually reported. If you see unexpected exchange rate values for a currency pair, checking the debug log for `exchange_rates` warnings can help identify whether a quote was rejected.
+
 #### European and other non-US exchanges
 
 Sure automatically appends Yahoo Finance's required exchange suffix when fetching prices for securities listed on European and other international exchanges. The following venues are supported:
