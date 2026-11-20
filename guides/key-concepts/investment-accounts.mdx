@@ -126,7 +126,7 @@ Sure supports various security types:
 
 ### Asset classification
 
-Each security can be classified by asset class, sub-class, sector, industry, and region. This classification data will power allocation breakdowns — letting you see how your portfolio is distributed across equities, fixed income, real estate, and other categories.
+Each security can be classified by asset class, sub-class, sector, industry, and region. Sure uses this data to power the portfolio allocation breakdown, letting you see how your holdings are distributed across equities, fixed income, real estate, and other categories.
 
 **Asset classes**
 
@@ -157,6 +157,23 @@ Each security can be classified by asset class, sub-class, sector, industry, and
 | `default` | Applied as a fallback |
 
 **Classification locked** is a boolean flag. When `true`, no automated source — provider, AI, or default — can overwrite the classification. Sure sets this automatically when you change a security's classification manually.
+
+### Allocation groupings
+
+Sure can group your portfolio by four classification columns:
+
+| Grouping | Column used | Cash placement |
+| --- | --- | --- |
+| Asset class | `asset_class` | Filed under `liquidity` |
+| Asset sub-class | `asset_sub_class` | Filed under `cash` |
+| Sector | `sector` | Filed under `unclassified` |
+| Region | `region` | Filed under `unclassified` |
+
+Each grouping shows every segment as a share of the total portfolio, including cash. Account cash — each account's balance less its allocatable holdings — is placed in the bucket the grouping says cash belongs to, so percentages always add up to 100.
+
+Securities with an empty classification column fall into an **Unclassified** segment rather than disappearing from the chart.
+
+When you drill into an asset class, Sure shows its sub-classes. Drilling into a sub-class shows the individual positions, with one row per security summed across all accounts. Account cash appears as a single "Cash" row under Liquidity → Cash.
 
 ## Stock splits
 
