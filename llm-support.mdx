@@ -739,6 +739,35 @@ The categorizer and merchant parsers expect a specific JSON structure (`{"catego
 
 Smaller local models tend to follow the system prompt over the per-request instruction. For that reason, the editor warns when a custom OpenAI override removes the example JSON block, even though the request-level fallback usually covers it.
 
+## Cloud costs
+
+Pricing estimates shown on the LLM usage screen come from `config/llm_pricing.yml` in the Sure repository. The file lists USD-per-million-token rates for every supported OpenAI, Google, and Anthropic model, including long-context tiers and Anthropic cache-read rates.
+
+### How pricing is kept current
+
+A **Refresh LLM pricing** GitHub Actions workflow runs on every `v*` release tag and on demand. It runs `bin/update_llm_pricing`, which reads [LiteLLM's published price list](https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json) and rewrites changed rows in place. When prices differ from the config file, the workflow opens a pull request with a summary of changes. While that pull request is open, later workflow runs skip so an in-progress review is never overwritten.
+
+The pull request also adds newly listed Claude and GPT tier releases (for example `claude-opus-6` or `gpt-6.2-sol`). The `verified_on` date in the file is updated only after a maintainer reviews every row against the official provider pricing pages.
+
+### How estimates work
+
+Rates are USD per million tokens at the Standard tier. Sure estimates individual request costs using these rates. A few points to be aware of:
+
+- **Long-context tiers** — Several models charge more above a token threshold. For OpenAI GPT-6 and GPT-5 models, input doubles and output increases by 50% for the entire request above 272,000 input tokens. Gemini 2.5 Pro and Gemini 3.1 Pro change rates above 200,000 tokens.
+- **Anthropic cache reads** — Five-minute cache write and read costs are included when reported. The cache-read rate is 0.1× input for most models; Opus 5.5 and Sonnet 5.5 are 0.05×, and Fable 5.1 is 0.025×.
+- **Family fallbacks** — A model released after the last review (for example `claude-opus-6`) is estimated at the newest listed rate for its family (Fable, Opus, Sonnet, or Haiku for Claude; Astra, Sol, Terra, or Luna for GPT) until the table is updated.
+- **OpenRouter** — Cost estimates work for OpenRouter model names. Sure strips the `provider/` prefix (for example `google/gemini-3.8-flash` is priced as `gemini-3.8-flash`). Models not in the pricing table show no estimated cost.
+- **Saved costs** — For [OpenRouter's official API endpoints](https://openrouter.ai/docs/cookbook/administration/usage-accounting), Sure uses a provider-reported `usage.cost` in USD when it is a valid non-negative number, including zero. All other endpoints use the bundled token-price estimates. Saved costs are not recalculated.
+- **What is not modeled** — Regional premiums, alternative service tiers, tool charges, audio-specific rates, and OpenAI or Gemini cache-write and storage charges.
+
+### Source coverage
+
+| Models | Official pricing source |
+| --- | --- |
+| GPT-6 Astra, GPT-6/6.1 Sol, GPT-6.1 Terra, GPT-6 Luna, GPT-5.6 and variants, GPT-5.5/5.4/5.3/5.2/5.1/5, GPT-4.1, GPT-4o, o1/o1-pro, o3, o4-mini, chat-latest | [OpenAI pricing](https://developers.openai.com/api/docs/pricing) |
+| Gemini 4 Argon, 3.8/3.7/3.6/3.5 Flash, 3.5/3.1 Flash-Lite, 3.1 Pro, 3 Flash, 2.5 Pro/Flash | [Google pricing](https://ai.google.dev/gemini-api/docs/pricing) |
+| Claude Fable 5/5.1, Opus 4/4.1/4.5/4.6/4.7/4.8/5/5.5, Sonnet 4/4.5/4.6/5/5.5, Haiku 4.5/5.5 | [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
+
 ## External AI assistant
 
 Instead of using the built-in LLM, you can delegate chat to an external AI agent. The agent receives the conversation, can call back to Sure's financial data via MCP, and streams a response back.
