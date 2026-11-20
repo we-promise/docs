@@ -274,3 +274,30 @@ The projection runs only to the original contracted maturity date. It does not e
 
 > [!NOTE]
 > The projection is not shown when the loan has no amortization schedule (for example, if the interest rate, term, or original balance is missing), or when the current balance is zero.
+
+## Extra repayments
+
+The **Extra repayments** tab lets you model paying more than your contracted repayment each period and see the effect on your payoff date and total interest.
+
+Open a loan account, select the **Extra repayments** tab, enter an amount and how often you would pay it (weekly, fortnightly, or monthly), and click **Apply**. The tab shows:
+
+| Figure | Description |
+| --- | --- |
+| Payoff with extra | The date the loan would be paid off if you added the extra amount each period |
+| Months sooner | How many months earlier the payoff date falls compared with making no extra payments |
+| Interest saved | The total interest saved compared with making no extra payments |
+| Total cost from today | Total principal and interest from today's balance with the extra included |
+
+All comparisons are against paying only the contracted repayment from today's balance — not against the original contract. This means the figures show the benefit of the extra alone, independently of any head-start or shortfall already built up.
+
+Weekly and fortnightly extras are applied at the next repayment date after each one falls due. Interest saved is, if anything, slightly understated as a result.
+
+The payoff chart draws the extra-repayment scenario as a fourth line alongside the actual, projected, and scheduled series.
+
+A few cases where the tab notes a limitation rather than a figure:
+
+- **Loan not yet cleared on the current repayment** — if the contracted repayment alone does not pay off the loan by the original maturity date, the tab shows what balloon balance would remain, and the extra-repayment comparison is based on clearing that instead.
+- **Extra too small** — if the extra is not large enough to pay off the loan by the original maturity date, the tab prompts you to try a larger amount.
+- **Variable-rate loans** — the figures apply any rate changes already recorded. A future rate change that has not yet been entered will shift the result once it is recorded.
+
+The tab is not shown when the loan has no amortization schedule or when no scheduled repayments remain.

@@ -79,12 +79,19 @@ The Coinbase integration supports:
 
 ### Transaction syncing
 
-Sure automatically syncs:
+Sure imports the full transaction history for each Coinbase wallet, covering all activity types:
 
 - Trades (buy/sell)
 - Deposits and withdrawals
 - Transfers between accounts
+- Staking rewards and interest
+- Sends and receives
+- Exchange deposits and withdrawals
+- Asset migrations
+- Staking and unstaking transfers
 - Fees
+
+Wallets funded primarily by staking rewards or other high-frequency activity (such as daily staking payouts) are fully covered. Where Coinbase reports one real transfer as two records in the same batch (for example, a "send" paired with a corresponding exchange deposit), Sure deduplicates them automatically.
 
 ### Holdings tracking
 
