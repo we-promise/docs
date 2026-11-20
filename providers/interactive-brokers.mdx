@@ -13,7 +13,12 @@ Sure imports the following data from an IBKR Flex report:
 
 - Holdings with current prices and quantities
 - Cost basis per position
-- Trades (with commissions folded into the trade fee), dividends, and cash deposits or withdrawals
+- Trades (with commissions folded into the trade fee)
+- Dividends and payments in lieu of dividends
+- Withholding tax (netted into dividend or interest income, so income reads net of tax)
+- Broker and bond interest received or paid
+- Fees and commission adjustments
+- Cash deposits and withdrawals
 
 Historical activity is limited to the date range configured in your Flex Query. Sure imports full current holdings plus up to the last 365 days of activity.
 
@@ -33,7 +38,7 @@ Historical activity is limited to the date range configured in your Flex Query. 
 - Fields: Currency, Ending Cash
 
 **Cash Transactions:**
-- Options: Dividends, Deposits & Withdrawals, Detail
+- Options: Deposits & Withdrawals, Dividends, Payment In Lieu Of Dividends, Withholding Tax, Broker Interest Paid, Broker Interest Received, Bond Interest Paid, Bond Interest Received, Other Fees, Commission Adjustments, Detail
 - Fields: Amount, Conid, Currency, FX Rate To Base, Report Date, Transaction ID, Type
 
 **Change In Position Value Summary:** Currency, End Of Period Value
@@ -100,6 +105,22 @@ A commission stays as a separate transaction in these cases:
 If a commission was imported as a separate transaction before this change, Sure removes the old transaction and moves it onto the trade as a fee during the next sync.
 
 **User edits are preserved.** If you edited a trade's fee directly, Sure keeps the fee you set and does not overwrite it on subsequent syncs. Likewise, a separate commission transaction that you have edited, locked, or attached a receipt to is treated as yours and left in place.
+
+## How cash transaction signs work
+
+Sure keeps the sign that IBKR reports for every cash transaction. Negative amounts are money out; positive amounts are money in. This means:
+
+- A dividend reversal (IBKR reports a negative amount) is imported as money out and reduces your dividend total.
+- A withholding tax refund (a positive amount) adds back to the dividend it relates to.
+- Interest charged on a margin loan (a negative amount) reduces your interest income total.
+
+## How withholding tax is imported
+
+Withholding tax is booked under the same label as the income it was withheld from. Tax on a dividend is labelled Dividend; tax on credit interest is labelled Interest. This means dividend and interest income in Sure already reads net of tax, the same way Trade Republic reports it.
+
+Each withholding tax row keeps its own transaction ID so it re-syncs cleanly. If a tax row arrives in a later Flex report than the dividend it belongs to, no special action is needed — Sure imports it on the date of that later report.
+
+If you need to see gross income and a separate tax line, you can manually re-categorise the withholding tax transactions after import.
 
 ## Limitations
 
