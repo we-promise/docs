@@ -1,0 +1,71 @@
+---
+title: "Monarch import"
+description: "Migrate your financial history from Monarch Money into Sure"
+keywords: ["monarch", "import", "migrate", "monarch money"]
+---
+
+Sure can import both of Monarch's CSV exports — daily account balances and transactions — bringing your complete history across with accounts, categories, merchants, and tags intact.
+
+## Before you start
+
+Export two files from Monarch:
+
+1. **Account balances** (required) — a CSV with daily balances for every account
+2. **Transactions** (optional) — a CSV with your transaction history
+
+Both exports are available from Monarch's Settings page under Data Export. The balances file is required; the transactions file is optional but recommended if you want your history in Sure.
+
+## Import steps
+
+<Steps>
+  <Step title="Start a new import">
+    Go to **Settings → Imports** and select **Monarch** from the list of import types.
+  </Step>
+  <Step title="Upload your exports">
+    Upload the balances CSV. If you also exported transactions, upload that file too. Sure validates both files before proceeding.
+  </Step>
+  <Step title="Configure each account">
+    Sure reads every account from your exports and shows them in a table, most recently active first. For each account, choose:
+
+    - **Import** — whether to bring this account into Sure at all
+    - **Account name** — the name to use in Sure (pre-filled from Monarch)
+    - **Destination** — create a new account, or import into an existing manual account
+    - **Type** — Sure's account type (Depository, Credit Card, Loan, Investment, etc.). Sure suggests a type based on the balance pattern.
+    - **Status** — Open or Closed. Accounts with no activity in the last 180 days are suggested as Closed.
+    - **Include transactions** — whether to bring in the transaction history (shown only when transactions were uploaded)
+    - **Balance today** — the current balance Sure should start from, pre-filled from Monarch's latest balance
+
+    When you import into an existing account, Sure moves that account's opening balance to the start of your Monarch history if the opening balance falls within the imported date range.
+  </Step>
+  <Step title="Review and publish">
+    The confirmation screen shows how many accounts, transactions, and balance valuations will be created, along with any notes about overlapping transactions or moved opening balances. Publish to bring the data in.
+  </Step>
+</Steps>
+
+## How the import works
+
+**Deduplication.** If you have already imported from Monarch before, or used the Monarch-to-Sure API tool, Sure recognises those transactions by their Monarch IDs and skips them instead of creating duplicates. For first-time imports into an existing account, Sure also runs its standard duplicate matcher (same date, amount, and currency) and skips matches.
+
+**Balance history.** Sure adds balance reconciliation entries wherever your transactions alone do not explain Monarch's reported balance. This keeps Sure's calculated history aligned with what Monarch showed.
+
+**Categories and merchants.** Sure reuses any categories and merchants that already exist in your family with the same name, preserving their colors, icons, and other settings.
+
+**Provider sync after import.** Transactions brought in from Monarch are marked so that linking the account to a bank provider later (via Plaid, SimpleFIN, or another connection) will match and claim the imported entries rather than duplicate them.
+
+## Reverting an import
+
+To undo a Monarch import, go to **Settings → Imports**, find the import, and select **Revert**. Sure removes all accounts and entries created by the import. If the import moved an existing account's opening balance, Sure restores it — unless the balance was edited after the import, in which case Sure leaves the edit in place and reports the account name on the revert confirmation.
+
+## Troubleshooting
+
+**"The exports don't contain any accounts"** — Check that you uploaded the balances file (not just the transactions file). The balances export is required.
+
+**"Missing columns"** — Make sure the file is a Monarch export, not a CSV from another app. The balances file must have Date, Balance, and Account columns; the transactions file must have Date, Merchant, Category, Account, Amount, and Id columns.
+
+**"A transaction has no Id"** — The transactions export is missing the Id column, which Monarch includes in current exports. Try re-exporting from Monarch.
+
+**"[Account] is already the destination of another Monarch account"** — Two of your Monarch accounts are mapped to the same Sure account. Choose a different destination for one of them, or import it as a new account instead.
+
+**"The opening balance of [account] changed while importing"** — Another change landed on the account's opening balance entry at the same moment the import was running. Go back to the confirmation step and publish again.
+
+**Overlapping transactions.** The confirmation screen reports how many transactions already in Sure fall within the date range of your Monarch export. Review these after publishing to check for duplicates that the matcher could not identify automatically (for example, transactions with slightly different amounts or dates).
