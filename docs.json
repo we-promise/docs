@@ -24,6 +24,7 @@
               "self-hosting-hostim",
               "self-hosting-pethost",
               "self-hosting-helm",
+              "self-hosting-pipelock",
               "roadmap"
             ]
           },
