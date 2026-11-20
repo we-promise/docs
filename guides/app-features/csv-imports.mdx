@@ -26,6 +26,7 @@ You can import the following types of data via CSV:
 - **Accounts**: Create multiple accounts with opening balances
 - **Actual Budget transactions**: Import transaction history exported from Actual Budget
 - **Mint transactions**: Import transaction history exported from Mint
+- **Monarch Money**: Import your accounts, transactions, and balance history from Monarch Money
 - **Merchants**: Create merchant records in bulk
 - **Transactions**: Import transaction history
 - **Trades**: Import investment trades
@@ -295,6 +296,55 @@ name,resource_type*,active,effective_date,conditions*,actions*
 Categorize groceries,transaction,true,2024-01-01,"[{""condition_type"":""transaction_name"",""operator"":""like"",""value"":""grocery""}]","[{""action_type"":""set_transaction_category"",""value"":""Groceries""}]"
 Tag coffee runs,transaction,true,,"[{""condition_type"":""transaction_name"",""operator"":""like"",""value"":""coffee""}]","[{""action_type"":""set_transaction_tags"",""value"":""Coffee,Personal""}]"
 ```
+
+## Importing from Monarch Money
+
+Sure provides a dedicated importer for Monarch Money that brings over your accounts, transaction history, and balance history in one step.
+
+### What you need
+
+You need two CSV exports from Monarch Money:
+
+- **Balances export** — your account balance history (required)
+- **Transactions export** — your transaction history (optional; leave it out to import balance history only)
+
+To download them, log in to Monarch Money on the web and open **Settings → Data**, then download each file.
+
+### How to import
+
+<Steps>
+  <Step title="Start a Monarch import">
+    Go to **Settings → Imports** and select **Import from Monarch**.
+  </Step>
+  <Step title="Upload your exports">
+    Upload the balances CSV and, optionally, the transactions CSV, then click **Upload exports**.
+  </Step>
+  <Step title="Configure each account">
+    For each account found in your Monarch export, choose:
+    - **Account name** — keep the Monarch name or enter a new one
+    - **Destination** — import into a new account or map to an existing manual account
+    - **Type** — the account type (checking, savings, credit card, etc.)
+    - **Status** — set to Closed for accounts you have closed; closed accounts drop to zero the day after their last Monarch balance and are hidden from current balances but kept in net worth history
+    - **Import transactions** — whether to include this account's transactions
+    - **Balance today** — starts at Monarch's latest balance; adjust it if that figure is out of date
+
+    You can also deselect accounts you do not want to import at all.
+  </Step>
+  <Step title="Review and publish">
+    Review the import summary. Sure shows notices for any conflicts, duplicates, or opening balance changes, then publish when ready.
+  </Step>
+</Steps>
+
+### Account mapping notes
+
+- You can import into an existing manual account that has no holdings or trades. Sure merges the Monarch history into it and moves the opening balance to the start of the Monarch history when the Monarch history starts before the existing opening balance.
+- Each existing account can only be used as the destination for one Monarch account. If you try to map two Monarch accounts to the same destination, Sure asks you to choose a different target.
+- Accounts with holdings or trades cannot be used as import destinations.
+
+### What Sure skips
+
+- Transactions already present in the destination account (by earlier import or matching date and amount) are skipped automatically.
+- If your balances export contains no accounts, the import stops with an error. Check that you downloaded the correct file from Monarch.
 
 ## Tips for successful imports
 
