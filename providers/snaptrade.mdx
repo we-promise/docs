@@ -147,6 +147,12 @@ When a trade cannot be imported — for example because SnapTrade omitted both q
 
 Fresh brokerage connections may take a little longer to finish importing activity history. Sure continues fetching account activity in the background after the initial connection when needed.
 
+### Full activity history retrieval
+
+The SnapTrade per-account activity endpoint returns at most 1,000 rows per request. Sure pages through all results automatically, advancing the offset by the number of rows received on each request until `pagination.total` is reached or the response is exhausted.
+
+A 100-page safety cap applies per account per fetch (at most 100,000 rows). If the cap is reached, or if a later page is malformed or returns a repeated result while rows are still missing, Sure raises an error rather than saving a partial history. This keeps the sync cursor from advancing past the missing rows, so the next sync retries the full fetch instead of silently dropping activities. If a fetch fails, existing stored activities and the last-sync timestamp are left unchanged.
+
 ## Security
 
 Sure encrypts sensitive SnapTrade data at rest using ActiveRecord Encryption when encryption keys are configured in your deployment. Configure `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`, or the corresponding Rails encryption credentials, before connecting a SnapTrade integration in a production environment. Without encryption configuration, the fields below are stored in plaintext.
@@ -183,6 +189,7 @@ The task processes records in batches and prints a JSON summary of results when 
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
 - **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
+- **Activity page cap**: Accounts with more than 100,000 activities in the requested date range will fail their sync until `sync_start_date` is set to narrow the range below the cap
 - **Options in holdings**: Option positions are not shown in the holdings view; only options activity (trades) is imported
 
 ## Troubleshooting
