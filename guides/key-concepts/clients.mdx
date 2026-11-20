@@ -47,6 +47,8 @@ The app supports servers hosted under a sub-path. If your self-hosted instance i
 
 The mobile app is a Flutter companion app for iOS and Android. It connects to a Sure server through the API and currently focuses on core mobile flows such as authentication and viewing account balances. The app is available in English and Swedish, selected automatically based on the device locale.
 
+On iOS 18 and later, the app icon supports dark and tinted home screen modes. The dark variant uses a transparent background, and the tinted variant is a grayscale image on black. Both are generated from dedicated source files in `mobile/assets/icon/` by `flutter_launcher_icons` during the build.
+
 Use it when someone needs phone access and the feature set they need is available in the mobile client. For the full application surface, use the web app.
 
 ## LLM agents and MCP clients
