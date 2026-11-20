@@ -41,6 +41,14 @@ Once a key is present, the provider appears as an option when you add a new prop
 | API key variable | `RENTCAST_API_KEY` |
 | Monthly cap override | `RENTCAST_MAX_REQUESTS_PER_MONTH` |
 
+#### Living area on RentCast refreshes
+
+RentCast values a property based on the living area in its own database. If you correct the living area in Sure, that correction is sent to RentCast on every automatic or manual refresh, so the valuation reflects your figure rather than RentCast's record.
+
+Sure sends the living area only when you have explicitly set it. An area that was copied from RentCast when the property was first added is not sent back, so RentCast's later corrections to its own record still take effect. An area entered during the manual property creation wizard is treated as user-set and is sent.
+
+If the area is stored in square meters, Sure converts it to square feet before sending it to RentCast.
+
 ### Realie
 
 [Realie](https://realie.ai) is a US property data and AVM API. The free tier allows 25 requests per month.
@@ -164,6 +172,8 @@ A property is skipped if:
 - Its currency does not match the provider's valuation currency
 - The provider's monthly request budget is exhausted
 - The provider's API key has been removed since the property was added
+
+For RentCast, if you have explicitly set the property's living area, that value is included in the refresh request so the valuation reflects your figure. See [Living area on RentCast refreshes](#living-area-on-rentcast-refreshes).
 
 Address, provider-configuration, and currency failures are recorded in **Settings → Debug logs** under the provider key. Routine interval and exhausted-budget skips may not create a log entry.
 
