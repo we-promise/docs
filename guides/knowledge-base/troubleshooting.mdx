@@ -3,6 +3,29 @@ title: "Troubleshooting"
 ---
 
 
+## Charts stutter or redraw repeatedly during sidebar animations
+
+Opening, closing, or dragging a sidebar animates its width. In older builds, the time-series, Sankey, bar, and spending charts each redraws fully on every animation frame — up to 7 redraws per chart for a single sidebar toggle — causing the animation to stutter on pages with multiple charts.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Each chart controller used its own `ResizeObserver` and triggered a full d3 teardown and redraw on every callback. Because a sidebar width animation emits a resize event on every rendered frame, a single sidebar toggle triggered 6–7 full redraws per chart. On a dashboard with four charts, that was 28 full redraws per toggle.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    A shared `SettledResize` utility replaces the per-chart `ResizeObserver`. When a resize starts, the chart's existing SVG is stretched to the new size immediately using `viewBox` and `preserveAspectRatio`. The chart redraws exactly once, when the size settles: either when the CSS width transitions that caused the resize end, or after 150 ms with no further size change (for drags and window resizes).
+
+    Additional improvements included with this fix:
+
+    - Text labels scale back to their correct shape while the SVG is stretched, so they do not appear squashed or widened during the animation.
+    - Sankey and bar charts redraw immediately when a resize crosses a layout breakpoint (640 px for the Sankey's subcategory column; label-step widths for the bar chart), so the correct layout appears as the width crosses the threshold rather than snapping in at the end.
+    - Shapes keep their proportions while stretched: lines keep their stroke width, dots stay round, and Sankey bars keep their width.
+    - If the size returns to its drawn value before settling (a quick drag back and forth), the stretch is removed without an extra redraw.
+
+    Upgrade to a build containing [Sure PR #4930](https://github.com/we-promise/sure/pull/4930). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
