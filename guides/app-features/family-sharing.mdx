@@ -117,6 +117,20 @@ Family admins have additional privileges:
 - Manage all third-party provider connections
 - Access all family accounts (if shared)
 
+#### Inviting members
+
+Admins can invite new members from **Settings → Profile**.
+
+**Single invite**: Enter one email address and choose the role (member, guest, or admin). Sure sends an invitation email, or generates a shareable link on self-hosted instances where no mail is configured.
+
+**Bulk invite**: To invite multiple people at once, use the bulk invite option from the same page. Paste or type up to 50 email addresses separated by commas, semicolons, or line breaks. Sure parses, normalizes, and de-duplicates the list before processing.
+
+- Each address receives its own invitation. Existing accounts are never moved — addresses that already have a pending invitation or other issue are marked invalid in the report.
+- You can assign the **member** or **guest** role to bulk invitees. The admin role is not available for bulk invites; invite admins one at a time through the single-invite flow.
+- After processing, a per-email report shows which invitations were sent, which generated a link only (self-hosted), and which were invalid. You can download the report as a text file.
+
+Pending invitations can be cancelled from the same settings page.
+
 ### Member Role
 
 Members can connect and manage their own Plaid bank connections. This is the only provider integration a non-admin can manage — all other providers require admin access. A member can re-authenticate, sync, and delete the Plaid connections they created, but cannot modify connections created by other members or by an admin. If a member is demoted to guest, an admin must manage their connections.
