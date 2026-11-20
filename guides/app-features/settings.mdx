@@ -384,6 +384,27 @@ The export list page automatically polls for updates when exports are in progres
 
 This ensures you always see the current status without manually refreshing the page.
 
+### Loan and credit card details through backup and restore
+
+When you restore a backup that includes loan or credit card accounts, Sure now preserves the account-specific details that you originally configured in the account form.
+
+For **loan accounts**, the following fields are restored:
+
+- Interest rate, rate type, and variable rate schedule
+- Loan term (months) and start date
+- Down payment and initial balance
+- Insurance rate and insurance rate type
+- Day count convention and principal-only transfers setting
+
+For **credit card accounts**, the following fields are restored:
+
+- APR and annual fee
+- Minimum payment and available credit
+- Payment due day and statement close day
+- Expiration date
+
+Backups created before this change still import without errors. Any field not present in the export keeps its default value. Details are only applied when the import creates the account. Importing into an account that already exists does not overwrite its current values.
+
 ## Localization
 
 Sure supports multiple display languages. You can change the interface language from **Settings → Preferences**.
