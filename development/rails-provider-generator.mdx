@@ -588,6 +588,26 @@ Example — adding a hint to the API key field:
 
 Fields rendered without a label (`label: false` or `inline: true`) receive the hint directly after the input, without a wrapper, so their layout stays unchanged.
 
+### 4. Add locale strings
+
+User-facing strings referenced with `t()` in your view and controller must have entries in the locale files. Settings pages use a per-page folder structure under `config/locales/views/settings/`.
+
+Create `config/locales/views/settings/providers/en.yml` (or add to it if it already exists) with your provider's keys:
+
+```yaml
+en:
+  settings:
+    providers:
+      my_bank_panel:
+        title: "My Bank"
+        api_key_label: "API Key"
+        api_key_hint: "Find your API key at https://mybank.com/settings"
+      my_bank_items_controller:
+        success: "My Bank connection saved."
+```
+
+Each settings page has its own folder. Shared navigation labels and section titles live in `config/locales/views/settings/en.yml`. Add translations for other supported locales in the same folder (for example, `config/locales/views/settings/providers/fr.yml`).
+
 ## Examples
 
 ### Example 1: Simple API key provider
