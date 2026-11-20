@@ -375,6 +375,19 @@ Sure allows you to export your financial data for backup or analysis purposes. W
 
 Only family admins can create and download exports. The web export feature redirects non-admins, while the API returns 403. Direct export-attachment requests without admin access to the owning family return 404.
 
+### What is included in an export
+
+The export ZIP contains several files. The `all.ndjson` file is the full backup used for restoring into another instance. It includes:
+
+- Accounts and their account-specific details
+- Transactions, trades, and balances
+- Categories, tags, merchants, and rules
+- For property accounts: subtype (single family home, condo, etc.), year built, area value, area unit, and street address (line 1, line 2, locality, region, county, postal code, country)
+
+Street addresses for property accounts are included in every export, including inactive-family archives.
+
+Provider links for property accounts (AVM valuation providers) are not exported. After restoring, you must reconnect your valuation provider.
+
 ### Export status tracking
 
 The export list page automatically polls for updates when exports are in progress:
