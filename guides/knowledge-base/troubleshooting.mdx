@@ -3,6 +3,26 @@ title: "Troubleshooting"
 ---
 
 
+## Provider connection and credentials retained after a financial data reset
+
+In versions before the fix in [Sure PR #4927](https://github.com/we-promise/sure/pull/4927), a financial data reset could leave a provider connection intact — including its stored credentials — if that provider was not listed in a hand-maintained constant inside the reset model. Any provider added to the sync list but inadvertently omitted from the reset list would survive the reset.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    The `Family::FinancialDataReset` model maintained a separate `PROVIDER_ITEM_ASSOCIATIONS` constant that listed the provider associations to wipe during a reset. If a new provider was added to the family sync but its association was not also added to this constant, the reset skipped that provider — leaving its connection and stored credentials on the family.
+
+    Issue [#4914](https://github.com/we-promise/sure/issues/4914) tracked a specific provider that kept its connection after a reset for this reason.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The reset model no longer maintains its own list. `FinancialDataReset.provider_item_associations` now delegates directly to `Family::Syncer.syncable_item_associations` — the same reflection the nightly family sync uses. Any provider that is synced is therefore also cleared on reset, automatically, without requiring a second manual entry.
+
+    Both lists held the same 28 associations before this change, so the set of providers cleared by a reset is unchanged. Going forward, adding a new provider to the sync automatically includes it in the reset scope.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
