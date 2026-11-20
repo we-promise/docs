@@ -132,6 +132,40 @@ The same toggle appears in the Dashboard balance sheet header, where it controls
 
 You can configure which groups start expanded by default under **Settings → Appearance → Dashboard**. Groups you mark there open automatically on every page load across the sidebar and the dashboard.
 
+### Account institution icons
+
+Each account can show an icon for its institution. Sure picks one automatically when you enter an institution domain, and you can also choose, upload, or remove an icon yourself.
+
+**How automatic icons work:**
+
+When you save an account with an institution domain, Sure fetches an icon in the background from app stores and favicon services. A nightly job also fills in icons for accounts that don't have one yet. When Brandfetch is configured on your instance, Sure can use the Brandfetch logo for the domain instead.
+
+**Picking an icon manually:**
+
+1. Open an account and click **Edit** (or create a new account).
+2. Expand **Additional details**.
+3. Enter an institution domain (bare host such as `tbank.ru` — pasting a full URL like `https://www.tbank.ru/` is fine, Sure normalizes it automatically).
+4. Click **Pick icon**. The button stays inactive until you enter a valid domain. Sure searches app stores and favicon services and shows candidates.
+5. Click a candidate to preview it. The icon updates in place; it is saved when you click **Save**.
+
+To upload your own icon, use the file input in the icon block. Raster images (PNG, JPEG, GIF, WebP) up to 1 MB are accepted.
+
+To go back to the automatic icon, click **Remove**. Sure restores the automatically fetched icon for the domain.
+
+<Note>
+**Pick icon** requires a domain. If the button appears inactive, enter a domain in the institution domain field first.
+</Note>
+
+<Note>
+If your self-hosted instance does not have a Brandfetch client ID configured, icons load from app stores and favicon services only. Admins can add the client ID under **Settings → Self-Hosting**. Adding it updates icons immediately.
+</Note>
+
+**Brandfetch:**
+
+When Brandfetch is configured and an account's domain resolves to a Brandfetch logo, that logo is used by default. If the automatic Brandfetch logo shows the wrong image, use **Pick icon** to choose a different candidate, or upload your own.
+
+When an account's stored icon fails to load (for example, a deleted upload or a stale favicon URL), Sure falls back to the account's initials on a colored background automatically.
+
 ### Account order in the sidebar
 
 By default, accounts within each group are sorted alphabetically by name. You can change this under **Settings → Appearance → Default account order** to sort by name (A-Z or Z-A) or by balance (high to low or low to high).
