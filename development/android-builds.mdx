@@ -1,0 +1,66 @@
+---
+title: 'Android builds'
+description: 'How Android version codes are generated and how concurrent builds are queued'
+keywords: ['android', 'build', 'version code', 'flutter', 'CI', 'mobile']
+---
+
+The Android build pipeline generates version codes at build time and serialises concurrent build attempts so that each run gets a unique, monotonically increasing code without manual coordination.
+
+## Version codes
+
+Android requires every release uploaded to Google Play to have a version code that is strictly greater than the previous one. The build pipeline derives this value automatically from the current UTC timestamp rather than storing or incrementing a counter.
+
+The formula used is:
+
+```
+version_code = current_unix_timestamp - 1577836800
+```
+
+`1577836800` is the Unix timestamp for 2020-01-01 00:00:00 UTC. Subtracting it keeps the number well below Google Play's signed 32-bit integer limit (2 147 483 647) while still being newer than any code from the legacy scheme. The range is valid until approximately 2086.
+
+The computed value is written to the `SURE_BUILD_NUMBER` environment variable and passed to Flutter as the `--build-number` flag:
+
+```yaml
+- name: Resolve Android build number
+  shell: bash
+  run: |
+    set -euo pipefail
+    build_number=$(( $(date -u +%s) - 1577836800 ))
+    if (( build_number <= 20260402 || build_number > 2100000000 )); then
+      echo "::error::Android build number outside the supported range: $build_number"
+      exit 1
+    fi
+    echo "SURE_BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
+```
+
+The step rejects a computed value that falls outside the expected range — this guards against clock skew and keeps old legacy codes from slipping through.
+
+## Queued concurrency
+
+Because the version code is derived from wall-clock time, two builds that start within the same second would receive the same code. The `build-android` job uses a shared concurrency group to prevent this:
+
+```yaml
+concurrency:
+  group: android-build-number
+  cancel-in-progress: false
+  queue: max
+```
+
+Key properties of this configuration:
+
+- **Shared across callers.** The group name `android-build-number` is not scoped to a tag or a specific caller workflow, so it applies regardless of whether the build was triggered by a release, a manual dispatch, or any other workflow that calls `flutter-build.yml`.
+- **Queued, not cancelled.** `cancel-in-progress: false` means a new build waits for the current one to finish instead of cancelling it. This ensures every build that reaches the job gets its own timestamp-derived version code.
+- **No upper bound on queue depth.** `queue: max` allows an unlimited number of builds to queue behind the active one.
+
+A build that is waiting in the queue does not consume a runner until the preceding build completes, at which point the next queued build starts and samples the timestamp for itself.
+
+## Build name vs build number
+
+Flutter distinguishes between two version fields:
+
+| Field | Flutter flag | Source |
+|---|---|---|
+| Build name | `--build-name` | `SURE_BUILD_NAME`, derived from the `app_version` input or the `pubspec.yaml` version field |
+| Build number | `--build-number` | `SURE_BUILD_NUMBER`, derived from the current timestamp |
+
+The build name is the human-readable version string (for example, `1.4.2`). The build number is the integer code Google Play uses to order releases. They are resolved in separate steps and are independent of each other.
