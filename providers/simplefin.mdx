@@ -201,6 +201,20 @@ If a credit card or loan balance looks wrong after syncing:
 2. If the balance is still incorrect, check whether the account type is set to **Credit Card** or **Loan** in your account settings. An incorrect account type can cause the wrong normalization to be applied.
 3. For credit cards connected through SimpleFIN, set **SimpleFIN balance meaning** to **Debt** or **Credit** in the account's edit form if the automatic detection is wrong for your institution.
 
+### Duplicate transactions after reconnecting or syncing
+
+Some SimpleFIN bridges re-issue transaction IDs for transactions they have already served. This can happen on every reconnect (which also issues new account IDs) or for live accounts where the bridge re-serves whole date blocks under new IDs. When IDs are re-issued, each sync used to create a second entry alongside the original, and deleting either one did not help because the next sync rebuilt both from the stored payload.
+
+Sure now detects these re-issued IDs automatically. Before saving updated transaction data, Sure compares stored transactions against incoming ones, grouped by their content (date, amount, description, payee, and pending status). When a stored row's ID is no longer being served but an incoming row with the same content appears under a new ID, Sure moves the existing entry to the new ID and removes the outdated stored row. This means your edits, categories, and notes on an existing transaction are carried forward rather than orphaned under the old ID.
+
+A few rules govern how pairing works:
+
+- Identical transactions (same date, amount, and description) that appear more than once are paired by position, so repeated charges on the same day stay as separate entries.
+- If a group of matching transactions receives no incoming rows at all, the stored rows are left untouched. A partial or short response from the bridge cannot remove historical entries.
+- Rows without an ID are never paired.
+
+If you still see duplicates after a reconnect, re-syncing from **Settings → Providers → SimpleFIN** will trigger the ID-rotation check against the latest data from your bridge. If duplicates persist, check **Settings → Debug** for any entries related to SimpleFIN sync failures that might indicate the bridge is returning an unexpected format.
+
 ### Duplicate accounts with the same name
 
 If you have two accounts at the same institution with identical display names (for example, two accounts both named "CHECKING (0001)"), Sure uses the upstream account ID to distinguish them during sync. Only accounts whose ID is genuinely absent from the upstream response are treated as stale and eligible for re-linking. Ambiguous cases where multiple local accounts share a name are skipped rather than resolved automatically, preventing one account from silently inheriting another's transaction history.
