@@ -54,7 +54,24 @@ The Insights button is only shown when preview features are enabled for your acc
 
 The insights feed is shared across the whole family. An insight that names a specific account — such as an idle cash nudge — appears in the feed only while every active family member can access that account. If account sharing is revoked, a member joins the family, or the account is hidden or deleted, the insight is hidden on the next feed read if the visibility condition no longer holds. Restoring access can make it visible again if it is still active or read, rather than dismissed or expired.
 
-The idle cash generator only considers accounts every active member can see. A private account is excluded when another active family member lacks access. In a family with only one active member, an account owned by that member can qualify without a share.
+Every insight generator computes its figures only from accounts that every active family member can open — owned or shared. Private accounts are excluded from spending totals, cash balances, net worth series, recurring bill checks, and budget figures that appear in the shared feed. Families with one active member, or where every account is already shared with everyone, see no difference.
+
+The table below shows how each generator applies this rule:
+
+| Generator | What is scoped to shared accounts |
+|---|---|
+| `spending_anomaly` | Category spend and income used to compute anomaly and baseline |
+| `savings_rate_change` | Income and spending used to compute savings rate |
+| `cash_flow_warning` | Starting cash balance and recurring bills projected forward |
+| `subscription_audit` | Recurring transaction series checked for missed payments |
+| `net_worth_milestone` | Net worth series used to detect milestone crossings |
+| `budget_at_risk` / `budget_on_track` | Household budget only; personal budgets are excluded from the shared feed |
+| `idle_cash` | Cash accounts evaluated for idle balances |
+| `maintained_goal_depleted` | Goals and their balances (unchanged; goals are already visible to all members) |
+
+When no accounts are shared across all active family members, generators that require spending or balance data produce no insight rather than reporting misleading zero figures.
+
+Inactive family members do not count when determining which accounts every member can see.
 
 ## Dashboard feed
 
