@@ -40,8 +40,12 @@ To use the Coinbase integration, you need:
 4. Save your API key and API secret securely
 
 <Warning>
-Your API secret is only shown once. Store it securely - you'll need both the API key and secret to connect Sure.
+Your API secret is only shown once. Store it securely — you'll need both the API key and secret to connect Sure.
 </Warning>
+
+<Note>
+Coinbase CDP creates **Ed25519 keys** by default for new API keys. Sure supports both Ed25519 keys (a base64 secret string) and the older ECDSA keys (a PEM EC private key starting with `-----BEGIN EC PRIVATE KEY-----`). Paste the secret exactly as shown in the Coinbase portal — Sure detects the key type automatically.
+</Note>
 
 ## Connecting Coinbase to Sure
 
@@ -142,6 +146,7 @@ If you encounter connection errors:
 1. Verify your API credentials are correct
 2. Check that your API key has the required permissions
 3. Ensure your API key hasn't expired
+4. If your key was generated before Coinbase CDP switched to Ed25519 by default, you may have an older ECDSA key (PEM format). Both formats are supported — paste the secret as-is and Sure detects the format automatically.
 
 ### Missing transactions
 
