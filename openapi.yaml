@@ -9864,6 +9864,7 @@ paths:
                         interest, fee)
                     fee:
                       type: number
+                      minimum: 0
                       description: Optional fee (buy/sell/sweep_in/sweep_out/reinvestment)
                     type:
                       type: string
@@ -9967,13 +9968,21 @@ paths:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
         '403':
-          description: forbidden - api key missing read_write scope
+          description: forbidden - api key missing read_write scope, or the account
+            is shared with you without write access
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorResponse"
         '404':
           description: trade not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: qty or price is not a positive number, or nature is not inflow
+            or outflow
           content:
             application/json:
               schema:
@@ -9992,8 +10001,13 @@ paths:
                       format: date
                     qty:
                       type: number
+                      description: Positive quantity. Sending qty, price, type or
+                        nature recomputes the entry amount as signed qty * price +
+                        fee, where qty is negative on a sell; what the request leaves
+                        out is taken from the trade.
                     price:
                       type: number
+                      description: Positive price per unit
                     type:
                       type: string
                       enum:
@@ -10002,11 +10016,13 @@ paths:
                       - sweep_in
                       - sweep_out
                       - reinvestment
+                      description: Side of the trade; takes precedence over nature
                     nature:
                       type: string
                       enum:
                       - inflow
                       - outflow
+                      description: inflow is a sell, outflow a buy
                     name:
                       type: string
                     notes:
@@ -10015,9 +10031,6 @@ paths:
                       type: string
                     investment_activity_label:
                       type: string
-                    category_id:
-                      type: string
-                      format: uuid
         required: true
     delete:
       summary: Delete trade
@@ -10312,8 +10325,23 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Transaction"
+        '403':
+          description: account is shared with you without permission to change this
+            transaction
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
         '404':
           description: transaction not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '422':
+          description: validation error - unknown nature, an amount or nature change
+            on a transfer, malformed tag_ids, or a tag, category or merchant id the
+            family cannot use
           content:
             application/json:
               schema:
@@ -10355,6 +10383,8 @@ paths:
                       - expense
                       - inflow
                       - outflow
+                      description: Sign of the amount. Without amount, applies to
+                        the stored amount.
                     tag_ids:
                       type: array
                       items:
@@ -10380,6 +10410,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/DeleteResponse"
+        '403':
+          description: account is shared with you without full control
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
         '404':
           description: transaction not found
           content:
