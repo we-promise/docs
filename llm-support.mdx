@@ -170,13 +170,16 @@ OPENAI_ACCESS_TOKEN=sk-proj-...
 Recommended models:
 
 - `gpt-4.1` - Default, best balance of speed and quality
-- `gpt-5` - Highest quality
+- `gpt-5` - High quality, strong reasoning
 - `gpt-6-sol` - GPT-6 Sol, vision and PDF capable
 - `gpt-6.1-sol` - GPT-6.1 Sol, vision and PDF capable
+- `gpt-6-astra` - GPT-6 Astra, highest capability tier
+- `gpt-6.1-terra` - GPT-6.1 Terra, mid-tier GPT-6 capability
+- `gpt-6-luna` - GPT-6 Luna, lightweight and cost-effective
 - `gpt-4o-mini` - Cheaper, good quality
 
 <Note>
-  `gpt-6-sol` and `gpt-6.1-sol` are vision-capable and use the `max_completion_tokens` request parameter for PDF processing, matching the behavior of `o1` and `o3`.
+  `gpt-6-sol`, `gpt-6.1-sol`, `gpt-6-astra`, `gpt-6.1-terra`, and `gpt-6-luna` are vision-capable and use the `max_completion_tokens` request parameter for PDF processing, matching the behavior of `o1` and `o3`. All GPT-6 models have a 272K-token long-context tier.
 </Note>
 
 ### Ollama (local)
@@ -284,8 +287,12 @@ ANTHROPIC_MODEL=claude-sonnet-4-6
 
 Recommended models:
 
-- `claude-sonnet-4-6` - Default, best balance of speed and quality
-- `claude-haiku-4-5` - Fast and cost-effective
+- `claude-sonnet-5-5` - Latest Sonnet, best balance of speed and quality
+- `claude-sonnet-4-6` - Previous-generation default, reliable and fast
+- `claude-haiku-5-5` - Fast and cost-effective (long-context tier at 100K tokens)
+- `claude-haiku-4-5` - Previous-generation, fast and cost-effective
+- `claude-opus-5-5` - Highest quality, lower cost than older Opus 4
+- `claude-fable-5-1` - Creative and instruction-following tasks
 
 Set `LLM_CONTEXT_WINDOW` to your model’s context size; the setting also applies to native Anthropic chat, even though its UI field is in the OpenAI panel. Values below 4096 collapse account and category rosters to counts. Larger values allow lists, but families with more than 25 visible accessible accounts or more than 60 categories still receive counts and use tools to retrieve the full lists.
 
@@ -315,7 +322,7 @@ ANTHROPIC_MODEL=anthropic.claude-sonnet-4-5-20250929-v1:0
 Auto-categorization, merchant detection, and provider-merchant enhancement are implemented on Anthropic via a single output tool whose `input_schema` mirrors the desired result. The `tool_choice` strategy depends on the model:
 
 - **Claude 3.x, 4.x, and Haiku 5.5** — uses `tool_choice: { type: "tool", disable_parallel_tool_use: true }` to force the model to call the tool.
-- **Claude 5 families (Opus 5.5, Sonnet 5.5, Fable 5.1, Mythos 5.1) and any model not in the forced list** — uses `tool_choice: { type: "auto", disable_parallel_tool_use: true }` and appends a fixed system prompt instruction telling the model to call the tool. This avoids forcing a tool choice on models outside Sure’s allowlist.
+- **Claude 5 families (Opus 5.5, Sonnet 5.5, Fable 5.1, Mythos 5.1) and any model not in either list** — uses `tool_choice: { type: "auto", disable_parallel_tool_use: true }` and appends a fixed system prompt instruction telling the model to call the tool. Forcing a tool choice on these models is not supported and returns an error.
 
 Both strategies request structured tool output without the OpenAI-compatible JSON-mode fallback. A model can still omit the tool call or return an invalid result; Sure raises an error when the expected tool output is missing or malformed.
 
@@ -357,6 +364,7 @@ Environment variables take precedence over the settings UI.
 | Ollama / small local models | `2048` (default) | `512` (default) | `25` (default) |
 | Cloud OpenAI (gpt-4.1, gpt-5) | `16384` or higher | `4096` | `50` |
 | Cloud OpenAI (gpt-6-sol, gpt-6.1-sol) | `131072` or higher | `8192` | `50` |
+| Cloud OpenAI GPT-6 Astra/Terra/Luna | `131072` or higher | `8192` | `50` |
 | Large-context local models | `8192` | `2048` | `50` |
 
 ## Responses API routing
