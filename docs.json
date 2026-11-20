@@ -41,6 +41,7 @@
           {
             "group": "App features",
             "pages": [
+              "guides/app-features/dashboard",
               "guides/app-features/assistant-sidebar",
               "guides/app-features/transactions",
               "guides/app-features/budgets",
