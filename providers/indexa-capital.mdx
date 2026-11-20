@@ -30,6 +30,14 @@ After saving, Sure begins syncing your Indexa Capital accounts. Go to the **Acco
 
 After the first sync, your Indexa Capital accounts appear in the setup queue. Click **Set up accounts** to assign each account an account type and a transaction history start date before it appears in your account list.
 
+## Skipping accounts
+
+A single set of Indexa Capital credentials can expose accounts you do not want to track in Sure — for example, an account that belongs to someone else. During setup, leave any such account unchecked to skip it.
+
+Skipped accounts are remembered. Sure stops fetching their balance and data, and they no longer appear in the setup queue or outstanding-setup counts. The account row is kept so the choice survives future syncs and the account does not reappear as "needs setup".
+
+To start syncing a skipped account later, link it to a Sure account from **Settings → Providers → Indexa Capital**. Linking clears the skipped flag, and the next sync begins fetching its data.
+
 ## Troubleshooting
 
 ### Provider not configured
