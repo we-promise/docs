@@ -34,6 +34,14 @@ title: "FAQ"
 ## Transfers and Currencies
 
 <AccordionGroup>
+  <Accordion title="What currency codes does Sure accept?">
+    Sure accepts any currency code recognized by the ISO 4217 standard — for example `USD`, `EUR`, `GBP`, or `JPY`. Blank values and unrecognized codes are rejected when you try to change the currency in Settings → Preferences.
+
+    Codes entered in lowercase are automatically normalized to uppercase when the setting is saved, so `usd` becomes `USD`.
+
+    If your account was created with an invalid currency, you can still update other preferences without correcting it first. The validation only runs when the currency field itself is changed.
+  </Accordion>
+
   <Accordion title="Can I have a transfer between accounts with different currencies (exchange rate)?">
     Yes, you can make transfers between accounts with different currencies. Sure automatically applies the exchange rate for the transfer date:
 
