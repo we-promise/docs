@@ -14,7 +14,8 @@ Sure imports one combined Crypto exchange account per Kraken connection, contain
 - Current crypto holdings and balances — staked and bonded wallet balances (such as ETH.B or DOT28.S) are combined with their spot balance into a single holding per asset, valued at their balance-weighted average price
 - Spot trade fills (buy/sell history)
 - Deposits and withdrawals — each imported as two entries: the principal and a separate fee entry, so the transfer can be matched to your receiving account
-- Staking rewards and Earn income
+- Staking rewards and Earn income — reward payouts recorded as ledger entries
+- Kraken Earn allocated balances — locked principal in staking/bonding strategies, imported as separate holdings alongside spot balances of the same asset
 - Dust sweeps ("convert small balances") as paired Sweep In / Sweep Out entries
 - Standalone fiat fees
 
@@ -23,6 +24,8 @@ Crypto ledger entries (deposits, withdrawals, staking rewards, and so on) are re
 Fiat balances held at the exchange (EUR, USD, and other supported currencies) are treated as cash, not as holdings. This prevents them from being valued twice alongside the cash your ledger already tracks.
 
 Staked and bonded asset variants — for example, ETH2.S or DOT28.S — are treated as the same position as their underlying asset. A staked ETH balance and a spot ETH balance appear together as one holding.
+
+Kraken Earn allocated balances (locked principal in staking and bonding strategies) are imported as distinct holdings from spot balances of the same asset. If you hold both spot BTC and BTC bonded through Earn, they appear as two separate entries in your account. Earn balances require the **Access Earn** API key permission. If that permission is absent or Earn is temporarily unavailable during a sync, Sure carries forward the last known Earn balances rather than dropping them from your account.
 
 For spot trades, Sure reads the filled quantity and cash movement from the Kraken ledger rather than from TradesHistory. The ledger nets each side of a trade against its fee — including fees charged in the base asset, which TradesHistory does not expose — so the recorded quantity and cash reflect what actually moved. Quantity and cash are resolved independently: if one ledger side is unavailable, that value falls back to TradesHistory. When the missing ledger side arrives, Sure can correct that value on an unprotected trade.
 
@@ -35,6 +38,7 @@ For spot trades, Sure reads the filled quantity and cash movement from the Krake
    - **Query Funds**
    - **Query Closed Orders & Trades**
    - **Query Ledger Entries**
+   - **Access Earn** (optional — required to import your Kraken Earn allocated balances; without this permission, Earn locked principal is skipped and only spot holdings and reward payouts are imported)
 
 <Warning>
 Do not grant trading, cancellation, withdrawal, export, or transfer permissions. Sure only needs read access. Granting write permissions is unnecessary and a security risk.
@@ -79,6 +83,10 @@ Sure uses separate pacing for repeated history requests during a paginated backf
 If either variable is set to an invalid value (non-numeric, zero, negative, or infinite), Sure raises a configuration error on the first request using that interval rather than silently disabling the throttle.
 
 ## Troubleshooting
+
+### Earn balances not showing
+
+If holdings from Kraken Earn (staked or bonded balances) are missing, your API key may not have the **Access Earn** permission. Generate a new API key with that permission enabled and update the connection in **Settings → Providers → Kraken**. Earn reward payouts recorded in the ledger are unaffected by this permission.
 
 ### Credentials need updating
 
