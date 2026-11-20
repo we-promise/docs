@@ -224,6 +224,23 @@ Enable Banking includes robust content-based deduplication to prevent API-level 
 
 This keeps your transaction history clean and accurate even when the API returns duplicate data.
 
+### Shared transaction IDs
+
+Enable Banking documents `transaction_id` as not guaranteed to be unique. Some banks return multiple booked rows with the same `transaction_id` but different `entry_reference` values — each representing a distinct movement (for example, a split payment reported as two line items).
+
+Sure treats each distinct `entry_reference` as a separate transaction and assigns each row a stable, unique ID:
+
+- The first matching row keeps the plain ID `enable_banking_<transaction_id>`, preserving any existing entry without changing its ID.
+- Additional rows with different `entry_reference` values receive a suffixed ID: `enable_banking_<transaction_id>_<MD5 of entry_reference>`.
+
+Which row keeps the plain ID is determined by matching against the entry already stored under that ID (by signed amount, currency, and date), so a pending transaction that settles under a shared `transaction_id` stays with the movement it represents regardless of sync order.
+
+Rows without a `transaction_id`, pending rows, and rows without an `entry_reference` are not affected by this logic and continue to use the standard ID calculation.
+
+<Note>
+Existing entries retain their current IDs after upgrading. No re-import or manual action is needed.
+</Note>
+
 ### ID-less transaction handling
 
 Some banks (ASPSPs) omit both `transaction_id` and `entry_reference` from their responses, which are both optional under PSD2. For these transactions, Sure generates a deterministic ID based on date, amount, currency, direction, creditor, debtor, and remittance information.
