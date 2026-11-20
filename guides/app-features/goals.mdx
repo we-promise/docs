@@ -58,6 +58,20 @@ The contribution figure uses goal-linked depository accounts in the family’s p
 
 **Goals on track** shows how many active, deadline-bearing goals are saving at or above their required monthly pace, out of the total being tracked. Maintained goals, goals without a deadline, paused goals, and goals already reached are not counted in either the numerator or denominator.
 
+## Projection chart
+
+The projection chart on a goal's detail page shows your savings history alongside a dashed projection line from today to the target date. The projection is green when your current pace puts you on track to hit the target, and yellow when you are falling short.
+
+**Y-axis scaling:** The chart fits its vertical range to your recent saved values rather than always starting at zero. It looks at the last 90 days of saved balances (including today's balance and the target amount) and sets the floor just below the recent minimum, rounded to a labeled tick. This keeps small but steady progress visible — a chart anchored at zero would flatten that movement into a nearly horizontal line.
+
+The zero-based axis is kept when:
+
+- The goal is new and has no meaningful recent balance history.
+- The calculated floor would land within one tick step of zero (the difference would not be meaningful).
+- The chart is in a narrow layout that hides the y-axis labels.
+
+Hovering over the chart shows a tooltip with the saved amount or projected amount at that date, and how that figure compares with the goal's target.
+
 ## Tracking progress
 
 Each goal card shows:
