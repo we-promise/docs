@@ -90,9 +90,14 @@ Insight bodies are filled from i18n templates in your family's locale. The templ
 
 ## API access
 
-You can read your family's insights via the API:
+You can read and manage your family's insights via the API:
 
 - `GET /api/v1/insights` — list all visible insights
+- `PATCH /api/v1/insights/{id}/acknowledge` — acknowledge an insight
+
+The acknowledge endpoint requires write scope. Guest users cannot acknowledge insights. Shared-account visibility is re-checked at request time, so the request returns 404 if the insight is no longer visible to every active family member. Acknowledging an already-acknowledged or expired insight is a no-op that returns 204.
+
+Both endpoints require preview features to be enabled for your account.
 
 Push notification device tokens are managed separately:
 
