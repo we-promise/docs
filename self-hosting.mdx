@@ -334,6 +334,8 @@ BRAND_FETCH_HIGH_RES_LOGOS=false
 
 When `BRAND_FETCH_CLIENT_ID` is not set, Bank Sync cards and Accounts fall back to each provider's initials on a colored background. You can also toggle high-resolution logos from **Settings → Self-Hosting** in the UI.
 
+If you change `BRAND_FETCH_CLIENT_ID` after logos have already been generated, merchant and security logos continue to load. Sure rewrites the stored `?c=` query parameter to the current client ID on every render, so existing rows do not need a migration or backfill. Account logos are not affected because they are built at render time and already use the current ID.
+
 Merchant logo discovery works as follows:
 
 - When Brandfetch is configured, Sure generates a logo from the website domain when a provider merchant is saved with a website but no logo. This includes Akahu or Plaid merchants when a website is supplied, and merchants whose website comes from the AI detector.
