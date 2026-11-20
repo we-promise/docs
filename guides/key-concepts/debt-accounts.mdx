@@ -94,6 +94,7 @@ Loan accounts support additional fields:
 | Insurance rate | Annual insurance premium rate, charged monthly alongside the repayment. |
 | Insurance type | How the premium is calculated: **Level term** charges the rate on the original balance each month (constant premium); **Decreasing** charges it on the outstanding balance (falls as you repay). |
 | Interest basis | How each monthly period is measured against a year. **30/360** charges a flat one-twelfth each month and is the default. **Actual/365** charges by the actual number of days in the month divided by 365 — standard for UK and Australian mortgages. **Actual/actual** charges by actual days divided by the number of days in the calendar year, splitting periods that cross a year boundary. |
+| Linked transfers are principal only | Turn this on when linked transfers cover only the principal portion of a payment and you record the interest separately. Leave it off when the linked transfer represents the full payment (principal plus interest). |
 | Monthly Payment | Calculated from loan details (fixed-rate only) |
 
 > [!NOTE]
@@ -274,3 +275,22 @@ The projection runs only to the original contracted maturity date. It does not e
 
 > [!NOTE]
 > The projection is not shown when the loan has no amortization schedule (for example, if the interest rate, term, or original balance is missing), or when the current balance is zero.
+
+## Extra repayments
+
+The **Extra repayments** tab lets you model the effect of paying an additional amount on top of your contracted repayment. Enter an amount and choose how often to pay it — weekly, fortnightly, or monthly — then click **Apply** to see updated figures.
+
+The tab shows three summary cards:
+
+| Card | Description |
+| --- | --- |
+| Payoff with extra | The date the loan is paid off when the extra is applied from today |
+| Interest saved | How much less interest you pay compared with making no extra payments |
+| Total cost from today | Total remaining principal plus interest, including the extra payments |
+
+All figures are compared against paying the contracted repayment and nothing extra, starting from today's balance. Any extra payments already reflected in your current balance are already in the baseline — this tab models what happens from here if you pay more.
+
+For weekly and fortnightly extras, each extra reduces the balance from the next repayment date after it falls due, so the interest saving may be slightly understated.
+
+> [!NOTE]
+> The Extra repayments tab only appears when the loan has an amortization schedule, a positive balance, and at least one remaining scheduled payment.
