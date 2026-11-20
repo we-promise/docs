@@ -139,9 +139,26 @@ Tiingo provides end-of-day and intraday price data for US and international equi
 
 EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global exchanges.
 
-- **Rate limits**: 20 API requests per day (free tier)
+- **Rate limits**: 20 API requests per day (free tier); override with `EODHD_MAX_REQUESTS_PER_DAY`
 - **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
 - **API key**: Required — get one at [eodhd.com](https://eodhd.com)
+
+#### Request costs and daily limit
+
+Not all EODHD requests cost the same. Price and search requests each consume 1 of the daily allowance. A fundamentals request (used to fetch security details such as name, description, and logo) costs 10. On the free plan of 20 requests per day, Sure can make at most 2 fundamentals lookups before the allowance is exhausted.
+
+If a fundamentals request is refused because fewer than 10 requests remain, the cost is not charged — the daily count stays where it was so price requests can still go through. The refund behavior depends on the response code EODHD returns:
+
+| Response | Counted as |
+| --- | --- |
+| Success or error in a 200 response | 10 requests |
+| 404 (unknown ticker) | 10 requests |
+| 403 (plan does not include fundamentals) | 1 request |
+| 402 (daily limit reached) | 0 requests (full refund) |
+
+To avoid retrying lookups that will never succeed, Sure caches fundamentals failures (403, 404, or errors returned in a 200 answer) for 7 days per ticker. A ticker that failed recently is skipped until the cache entry expires.
+
+You can raise the daily limit for a paid EODHD key with the `EODHD_MAX_REQUESTS_PER_DAY` environment variable. Setting it above the default of 20 also unlocks more than 1 year of historical price data (paid plans extend to 30+ years).
 
 #### Warsaw Exchange (GPW) securities
 
