@@ -109,6 +109,13 @@ Call `DELETE /api/v1/push_subscriptions/{id}` before the user signs out so the o
 
 ### Delivery behavior
 
-Push notifications for high-priority insights are delivered only on the hosted version of Sure. The server retries on transient APNs errors (HTTP 429 and 5xx responses) with exponential back-off up to five attempts. A 410 response from APNs means the token is permanently unregistered; Sure removes the subscription only if the token has not been re-registered since the APNs invalidation timestamp, so a prompt re-registration from the device is never incorrectly removed.
+Push notifications for high-priority insights are delivered only on the hosted version of Sure. The server retries on transient APNs errors (HTTP 429 and 5xx responses) with exponential back-off up to five attempts.
+
+A 410 response from APNs means the token is permanently unregistered. Sure applies a two-step check before removing the subscription:
+
+1. **APNs timestamp check** — if APNs supplies an invalidation timestamp, Sure compares it against when the device last registered. A device that re-registered after the APNs invalidation time keeps its subscription.
+2. **Race-condition guard** — the subscription is only removed if it has not changed between when the delivery was claimed and when the 410 came back. A re-registration that races the in-flight delivery preserves the new subscription.
+
+Both checks pass through the delivery ledger so the removal is durable and can be audited.
 
 Subscriptions inactive for more than 90 days are excluded from all deliveries.
