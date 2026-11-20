@@ -3,6 +3,39 @@ title: "Troubleshooting"
 ---
 
 
+## Account health alerts on the account page
+
+Sure shows data-quality alerts directly on an account's page, under the account header where the sync state appears. These alerts highlight problems that need your attention without requiring you to dig through settings or logs.
+
+**Sync failure or stale sync**
+
+When an account's last sync failed, went stale, or its job was lost while pending, Sure shows an alert under the account header. The alert describes what happened and includes a hint for resolving it.
+
+- A **failed sync** shows an error-level alert (red).
+- A **stale sync** — one that did not complete or whose job disappeared before it finished — shows a warning-level alert (yellow).
+
+A later successful sync clears the alert automatically.
+
+**Investment positions below zero**
+
+If an investment account has positions with a negative quantity, Sure shows a warning on the account page and links to the Holdings tab where you can review the affected securities. The alert includes the security name, ticker, the date the position first went negative, and the lowest quantity recorded.
+
+This warning previously appeared on the Holdings tab itself. It now appears on the account page so you see it without navigating to Holdings first.
+
+**Who sees these alerts**
+
+Health alerts are only visible to the person who opened the account page. Private accounts show their status only to users with access; no alert is broadcast to other family members.
+
+<AccordionGroup>
+  <Accordion title="Why is my sync alert still showing after a successful sync?">
+    The alert clears when a later sync completes successfully. If a newer sync has completed and the alert remains, trigger a manual sync on the account from **Settings → Providers**. If the account has no provider connection, the sync state shown is from the last automatic sync — check whether the provider connection is still active.
+  </Accordion>
+
+  <Accordion title="What causes positions to go below zero?">
+    Negative positions usually result from a provider importing sells before the corresponding buys, missing trade data, or a split adjustment that was not applied correctly. Open the Holdings tab to review the affected securities and correct any missing trades.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
