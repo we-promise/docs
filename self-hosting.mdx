@@ -1213,6 +1213,8 @@ The task is idempotent, so it is safe to rerun if needed.
 
 If login started failing immediately after changing encryption settings, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first. After the app can read the existing data again, run the backfill task if you are intentionally moving to dedicated keys.
 
+If your `SECRET_KEY_BASE` is a publicly known value — for example, a placeholder from an example file or a hosting guide — or your encryption keys have been compromised, follow the full [encryption key rotation guide](/self-hosting-encryption) to safely rotate all keys.
+
 ### Sure NDJSON import file size limit
 
 By default, Sure NDJSON imports are limited to a fixed maximum file size. Self-hosted admins can raise this limit with an environment variable:

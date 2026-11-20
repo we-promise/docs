@@ -575,6 +575,7 @@ This is a generic message that does not expose internal database index names or 
 - For additional security, set custom encryption keys via `ACTIVE_RECORD_ENCRYPTION_*` variables
 - If you enable custom keys on an existing self-hosted instance, run `bin/rails security:backfill_encryption` once to rewrite older plaintext values
 - If users suddenly see "invalid username or password" after encryption changes, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first, then rerun the backfill task if you intentionally moved to dedicated keys.
+- If your `SECRET_KEY_BASE` is a publicly known value or your keys were compromised, follow the [encryption key rotation guide](/self-hosting-encryption) to safely rotate all keys without data loss.
 
 ### MFA password re-authentication
 
