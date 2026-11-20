@@ -201,7 +201,8 @@ This hierarchy ensures your manual entries always take precedence, calculated va
 Sure uses the **weighted-average cost** method to compute your cost basis from trades:
 
 - **Buys** update the running average: the new share cost is folded into the existing position at the average weighted by quantity. Any acquisition fee is included in the per-share cost — a $5 fee on 10 shares adds $0.50 to the cost of each newly acquired share before that lot is combined with any existing position.
-- **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain. A disposal fee does not affect the basis of the remaining shares.
+- **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain. A disposal fee does not affect the basis of the remaining shares. Each lot's quantity is reduced pro rata, rounded to 18 decimal places; any rounding residual is applied to the last open lot so the total always matches your position.
+- **Shortfall.** If a sale exceeds the open lot quantities — which can happen when provider-reported data doesn't cover every acquisition — the excess becomes a shortfall. Subsequent acquisitions fill that shortfall before opening a new lot, keeping the sum of open lot quantities equal to the position at all times.
 - **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
 - **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
 
@@ -278,6 +279,8 @@ If you have remapped a holding to a different security and want to restore the p
 5. Confirm the action in the dialog that appears
 
 After resetting, the holding returns to the security your provider originally sent. The security lock is removed and future syncs will use the provider's value.
+
+When you remap or reset a security, Sure moves the associated acquisition lots alongside the trades in a single transaction. This keeps each lot tied to the correct security so cost basis and position history remain consistent after the change.
 
 ## Recording Trades
 
