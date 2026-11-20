@@ -143,6 +143,28 @@ EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global 
 - **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
 - **API key**: Required — get one at [eodhd.com](https://eodhd.com)
 
+#### Paid plans and extended history
+
+The free EODHD tier is limited to 20 requests per day and roughly one year of price history. Paid plans include 30+ years of history and a much higher daily request allowance.
+
+To use a paid key, set `EODHD_MAX_REQUESTS_PER_DAY` to your plan's daily request limit:
+
+```bash
+EODHD_MAX_REQUESTS_PER_DAY=100000
+```
+
+When this value is above the free-tier default of `20`, Sure removes the one-year history clamp and fetches as far back as the provider returns data. Free keys are unaffected — the clamp stays in place unless you raise this variable.
+
+<Note>
+Securities that were first priced under the one-year clamp have their fetch start date set to approximately one year ago. Normal syncs will not automatically backfill older history for those holdings. To fetch the full history, go to **Settings > Self-Hosting** and run **Reset market data**. The truncated-history warning on the holding page will clear on the next sync after the reset.
+</Note>
+
+#### Fundamentals caching
+
+EODHD's `/api/fundamentals` endpoint is used to fetch security names and logos. When a lookup fails permanently — for example, because your plan does not include the Fundamentals feed, or because the ticker has no fundamentals data — Sure caches that failure for 7 days per API key and ticker. During that window, subsequent syncs return the cached error without spending an API request.
+
+Transient failures (timeouts, server errors, quota responses) are not cached and are retried on the next sync. The cache key includes a short digest of your API key, so switching to a new key with Fundamentals access starts fresh immediately.
+
 #### Warsaw Exchange (GPW) securities
 
 Securities listed on the Warsaw Stock Exchange (XWAR/GPW) are priced in PLN. If you added Polish securities before this fix was released, their historical prices may have been stored as USD. Sure automatically corrects mis-tagged Warsaw prices on upgrade: USD prices are relabeled to PLN, duplicates are removed, and any affected accounts are queued for a sync so holdings revalue at the correct exchange rate.
