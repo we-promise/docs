@@ -17,7 +17,7 @@ Three templates are available depending on how you want to use AI features. Each
 | **Sure - External AI** | Sure with external assistant settings plus AlphaClaw, which manages the OpenClaw gateway on Render. | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-external-ai-latest) | [Deploy to Render](https://render.com/deploy?repo=https://github.com/we-promise/sure-render-templates/tree/sure-external-ai) |
 
 <Note>
-Use `latest` for the most recent alpha release and `stable` for the latest stable release. If you are new to Sure, start with `stable`. Each alpha tag is automatically deployed to the Sure Render demo site, so the demo always reflects the latest `latest` release.
+Use `latest` for the most recent alpha release and `stable` for the latest stable release. If you are new to Sure, start with `stable`. Each alpha tag is automatically deployed to the Sure Render demo site when the required deploy hook secrets are configured; if any are missing, the CI pipeline skips the Render deployment and records a notice instead of failing.
 </Note>
 
 ## How it works
@@ -31,6 +31,27 @@ Render expects the Blueprint file at the repository root of the target branch. T
 - **No AI** — suitable for users who want core budgeting and account tracking without LLM features. No API key is required.
 - **Simple AI** — adds the assistant, auto-categorization, and merchant detection backed by OpenAI. Render prompts for your `OPENAI_API_KEY` during setup. The Postgres database includes the `pgvector` extension for embeddings.
 - **External AI** — routes AI calls through an external agent (OpenClaw via AlphaClaw) instead of calling OpenAI directly. Choose this if you want to use an external AI provider or self-manage the gateway.
+
+## Automated Render deployments (fork maintainers)
+
+If you maintain a fork and want CI to automatically deploy to your own Render services, configure the following GitHub Actions secrets and variables in your repository settings:
+
+**Alpha (latest) deployment:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `RENDER_DEMO_URL` | Variable | Public URL of your Render demo web service |
+| `RENDER_DEMO_WEB_DEPLOY_HOOK_URL` | Secret | Deploy hook URL for the web service |
+| `RENDER_DEMO_WORKER_DEPLOY_HOOK_URL` | Secret | Deploy hook URL for the Sidekiq worker service |
+
+**Stable deployment:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `RENDER_APP_WEB_DEPLOY_HOOK_URL` | Secret | Deploy hook URL for the web service |
+| `RENDER_APP_WORKER_DEPLOY_HOOK_URL` | Secret | Deploy hook URL for the Sidekiq worker service |
+
+If any required value is absent, the CI pipeline skips that deployment step and records a notice — it does not fail the build. You can find deploy hook URLs in your Render service's **Settings** page.
 
 ## After deploying
 
