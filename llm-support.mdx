@@ -126,7 +126,7 @@ The form contains the following fields, grouped by function:
 | **Base URL** | Custom endpoint URL for Bedrock / Vertex proxies (maps to `ANTHROPIC_BASE_URL`) |
 | **Model** | Model name — required when Base URL is set (maps to `ANTHROPIC_MODEL`, default `claude-sonnet-4-6`) |
 
-Environment variables take precedence over UI settings when set to a non-blank value. A blank environment variable (e.g. `OPENAI_MODEL=`) is treated as unset and the UI setting is used instead. If an environment variable is set to a non-blank value, the corresponding field is disabled in the UI.
+Environment variables take precedence over UI settings when set to a non-blank value. A blank environment variable (e.g. `OPENAI_MODEL=`) is treated as unset and the UI setting is used instead. This applies to string settings and to the integer AI settings (`LLM_CONTEXT_WINDOW`, `LLM_MAX_RESPONSE_TOKENS`, `LLM_MAX_ITEMS_PER_CALL`, `OPENAI_REQUEST_TIMEOUT`, `AI_RESPONSE_TIMEOUT`, `AI_HEALTH_PROBE_TIMEOUT`): a blank or missing value leaves the field empty in the Settings UI rather than showing `0`, so the form can be saved normally. If an environment variable is set to a non-blank value, the corresponding field is disabled in the UI.
 
 ## Choosing a provider
 
@@ -537,8 +537,8 @@ These optional variables fine-tune provider selection and the behavior of the Op
 | `OPENAI_ACCESS_TOKEN` | API key for the provider | — |
 | `OPENAI_URI_BASE` | Custom endpoint URL (leave blank for OpenAI) | — |
 | `OPENAI_MODEL` | Model name (required for custom endpoints). A blank value is treated as unset and falls through to the UI setting, then `gpt-4.1` | `gpt-4.1` |
-| `OPENAI_REQUEST_TIMEOUT` | HTTP timeout in seconds for each individual HTTP call to the model | `60` |
-| `AI_RESPONSE_TIMEOUT` | Whole-turn watchdog timeout in seconds. See [Chat response timeout](#chat-response-timeout) for sizing guidance | `90` |
+| `OPENAI_REQUEST_TIMEOUT` | HTTP timeout in seconds for each individual HTTP call to the model. A blank value is treated as unset; the Settings UI shows an empty field rather than `0` | `60` |
+| `AI_RESPONSE_TIMEOUT` | Whole-turn watchdog timeout in seconds. A blank value is treated as unset; the Settings UI shows an empty field rather than `0`. See [Chat response timeout](#chat-response-timeout) for sizing guidance | `90` |
 | `ASSISTANT_MAX_TOOL_CALL_ITERATIONS` | Maximum number of tool-call rounds per chat turn | `8` |
 | `OPENAI_SUPPORTS_PDF_PROCESSING` | Set to `false` for endpoints without vision support | `true` |
 | `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` | Override Responses API vs Chat Completions routing | Auto-detected |
