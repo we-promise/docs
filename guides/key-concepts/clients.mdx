@@ -29,6 +29,18 @@ Then open `http://localhost:3000` in your browser.
 
 The web app also serves as the surface rendered by the macOS desktop app.
 
+### Installing as a PWA
+
+The Sure web app ships a web app manifest and service worker, so any modern browser can install it as a Progressive Web App (PWA). Once installed, Sure opens without browser chrome, in its own window at launch.
+
+**Android (Chrome or other Chromium-based browsers):** Open Sure in Chrome, tap the three-dot menu, and choose **Add to Home screen**. The app then appears on your home screen and opens in standalone mode.
+
+**iOS (Safari, iOS 15.4+):** Open Sure in Safari, tap the Share button, and choose **Add to Home Screen**. Safari reads the manifest for the icon and name.
+
+**Desktop (Chrome, Edge):** An install icon appears in the address bar when the manifest is detected. Click it to install Sure as a desktop app.
+
+The service worker caches an offline page so Sure can show a branded screen when the network is unavailable rather than a browser error.
+
 ## macOS desktop app
 
 The macOS desktop app is a Tauri 2 shell that renders the full Sure web app in a native Mac window. On first launch, it asks for the Sure server URL, checks the server health endpoint, and then loads the normal sign-in flow.
