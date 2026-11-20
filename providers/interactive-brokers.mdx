@@ -5,7 +5,7 @@ description: Connect Interactive Brokers investment accounts to Sure using Flex 
 
 Interactive Brokers (IBKR) is a brokerage platform supporting stocks, options, futures, currencies, bonds, and funds. Sure connects to IBKR using its Flex Web Service, which lets you export account data through a configured Flex Query.
 
-See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+Sure automatically backfills up to four years of IBKR trade and cash transaction history across multiple syncs. See [Transaction history and import limits](/providers/transaction-history) for how the backfill works and what to expect from the first few syncs.
 
 ## What is imported
 
@@ -15,7 +15,7 @@ Sure imports the following data from an IBKR Flex report:
 - Cost basis per position
 - Trades (with commissions folded into the trade fee), dividends, and cash deposits or withdrawals
 
-Historical activity is limited to the date range configured in your Flex Query. Sure imports full current holdings plus up to the last 365 days of activity.
+Sure imports full current holdings and the activity in your Flex Query's configured period on every sync. It then automatically backfills older trade and cash transaction history by fetching one additional 365-day window per sync, walking back up to the start of the fourth previous calendar year. The backfill runs in the background across multiple syncs; it does not block or slow down normal syncs once it completes.
 
 ## Setting up Interactive Brokers
 
@@ -103,7 +103,10 @@ If a commission was imported as a separate transaction before this change, Sure 
 
 ## Limitations
 
-- Historical activity is limited to the report window of your Flex Query. Sure imports up to 365 days of activity based on the query's configured period.
+- The automatic backfill covers trades and cash transactions only. Balances before your Flex Query's own period are reconstructed from the imported trades and market prices; IBKR's daily NAV anchors only the query's current period, as before.
+- The backfill walks back to the start of the fourth previous calendar year. Activity before that point is not fetched automatically.
+- Each 365-day history window takes roughly one additional sync to fetch. A four-year backfill typically completes after two syncs.
+- If you previously imported older IBKR activity by CSV, the backfill will import those same trades and cash transactions again because it uses IBKR's own trade and cash IDs rather than the CSV rows. Revert the CSV import (Imports → Revert) before or after the first sync. If the CSV also covers years older than four years back, delete only the overlapping entries instead.
 - Only investment (brokerage) accounts are supported. Cash accounts and other account types are not imported from IBKR.
 
 ## Troubleshooting
