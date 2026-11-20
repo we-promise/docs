@@ -54,7 +54,7 @@ For testing, Wise provides a sandbox environment at `https://api.wise-sandbox.co
 
 ### Multiple profiles
 
-If your Wise account has both personal and business profiles, you can connect several profiles from the same token at once. Each profile is a separate connection that can be synced, updated, or disconnected independently.
+If your Wise account has both personal and business profiles, you can connect several profiles from the same token at once. Each profile is a separate connection that can be synced, updated, or disconnected independently. All profiles the token can read are listed in the profile picker, including business profiles that have no company role set.
 
 ## Strong Customer Authentication (SCA)
 
@@ -95,7 +95,7 @@ Generating a new keypair does not automatically revoke the previous public key i
 
 **Invalid token / connection requires update**: your API token was revoked, is invalid, or lacks permissions (Wise personal API tokens don't expire on their own). When Wise rejects the token with a 401 or 403, Sure marks the connection as requiring an update and the sync fails — the connection card shows a **Reconnect** prompt instead of a green "Connected" status. Create a new personal token in Wise and update it in the Wise provider panel.
 
-**No profiles found**: the token doesn't have access to any Wise profile. Check the token's permissions in Wise and try again.
+**No profiles found**: the token doesn't have access to any Wise profile. Check the token's permissions in Wise and try again. If you have a business profile that was previously not showing up in the profile picker, this was a known issue where business accounts with no company role set were omitted — it is now resolved and all profiles are listed correctly.
 
 **A currency balance is missing**: run a sync, then check **Set Up Accounts** on the connection — new balances only become Sure accounts once you link them.
 
