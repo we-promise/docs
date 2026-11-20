@@ -299,7 +299,7 @@ Tag coffee runs,transaction,true,,"[{""condition_type"":""transaction_name"",""o
 ## Tips for successful imports
 
 1. **Use templates**: Download CSV templates from the import screen for the correct format
-2. **Check encoding**: Ensure your CSV file is UTF-8 encoded
+2. **Check encoding**: Sure automatically detects the encoding of uploaded CSV files. Files that are already valid UTF-8 are preserved as UTF-8, so special characters such as `®` and accented letters import correctly without any manual conversion.
 3. **Validate dates**: Make sure dates match your selected format
 4. **Test with small files**: Try importing a few rows first to verify the format
 5. **Clean your data**: Remove any extra columns or formatting before importing
@@ -313,6 +313,14 @@ On iOS (Safari and Chrome for iOS), tapping the file picker to upload a Sure exp
 The affected Sure upload forms used native form submission. They now submit through Turbo using `requestSubmit()`, allowing Turbo to send the selected file in its fetch request.
 
 If you are on an older version and see a "We didn't receive your file. Please try uploading it again." alert on iOS, upgrade to the latest release and retry the upload.
+
+### Special characters appear corrupted after import
+
+If you imported a CSV on an older version of Sure and found that special characters such as `®`, `é`, or `ü` were replaced with garbled text (for example, `Platinum Card®` became `Platinum Card速`), this was caused by Sure misdetecting the file's encoding.
+
+Sure now checks whether an uploaded CSV is valid UTF-8 before running encoding detection. Files that are already UTF-8 are kept as UTF-8, preserving all special characters. Single-byte encodings such as Windows-1250 and Windows-1252 still go through detection and are converted correctly.
+
+If you are on an older version and see corrupted characters, upgrade to the latest release and re-import the file.
 
 ### Import fails with date errors
 
