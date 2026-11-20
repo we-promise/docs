@@ -99,6 +99,12 @@ London-listed securities are quoted in pence (GBp) by Yahoo Finance. Sure conver
 
 If a security's exchange is not in the table above, its ticker is sent to Yahoo Finance without a suffix. You can still find and add such securities by searching with the full suffixed symbol as shown on Yahoo Finance's quote page URL.
 
+#### Xetra (XETR) securities
+
+Yahoo Finance's search API returns the exchange code `GER` for Xetra-listed securities (`.DE` tickers). Sure maps `GER` to the standard MIC `XETR`, so Xetra holdings resolve correctly and are stored with the right exchange.
+
+If you added German securities before this mapping was introduced, those holdings may be stored with the legacy `GER` exchange code. Sure upgrades them automatically: the next time a `.DE` security is looked up, it finds and updates the existing `GER` row in place rather than creating a duplicate. No manual action or migration is needed.
+
 #### Searching for securities with exchange suffixes
 
 Yahoo Finance's search index has gaps for some instruments — notably non-US managed funds such as Australian APIR-coded funds (e.g. `VAN0111AU.AX`). When the search index returns no results for a query that looks like a fully qualified symbol (contains a `.` exchange suffix, such as `.AX` for ASX or `.L` for LSE), Sure retries the query directly against the Yahoo Finance chart endpoint and synthesizes a result from the returned metadata.
