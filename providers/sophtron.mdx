@@ -39,7 +39,7 @@ To connect your accounts:
 
 Sophtron credentials are stored per-family. Each family configures their own User ID and Access Key. Credentials are encrypted at rest when ActiveRecord Encryption is enabled.
 
-You can optionally configure a custom **base URL** if you use a non-production Sophtron environment. The default base URL is `https://api.sophtron.com/api`.
+The default base URL is `https://api.sophtron.com/api`. Sure also accepts `https://api.sophtron.com/api/` (trailing slash) and `https://api.sophtron.com/api/v2` as variants — all three are normalized to the root URL on save. Any other value is rejected. If a row in the database holds a URL outside this list, Sure uses the default when syncing. Requests to Sophtron no longer follow redirects to other hosts.
 
 When you save your credentials, Sure automatically creates or reuses a Sophtron **Customer ID** for your family by calling the Sophtron Customer API. You do not need to provision the customer manually.
 
