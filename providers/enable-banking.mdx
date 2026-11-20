@@ -75,7 +75,7 @@ Example: you can keep one Enable Banking provider config in Sure, then add one c
 - **Balance information**: Balance data fetched from your bank using a priority order that prefers reconciled booked figures
 - **Transaction history**: Import historical transactions with date range filtering
 - **Multiple accounts**: Connect multiple accounts from different banks
-- **Duplicate detection**: Automatic deduplication of transactions with different entry reference IDs
+- **Duplicate detection**: Content-based deduplication that preserves distinct booked operations and collapses true duplicates
 
 ### Session management
 
@@ -215,14 +215,18 @@ Sure also strips known small-merchant payment-processor prefixes (SumUp, Square,
 
 ### Duplicate transaction handling
 
-Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
+Sure deduplicates transactions returned by Enable Banking using a content-based key (date, amount, currency, creditor and debtor information, remittance information, and credit/debit indicator, plus `transaction_id` when present). The `credit_debit_indicator` is included so that a payment and a same-day refund of the same amount produce distinct keys.
 
-- The API sometimes returns the same logical transaction multiple times with different `entry_reference` IDs
-- Sure uses a composite key based on transaction content, including `transaction_id` when present, plus date, amount, currency, creditor and debtor information, remittance information, status, and credit/debit indicator
-- When multiple transactions have identical content, only the first occurrence is kept
-- The `credit_debit_indicator` helps distinguish between payments and refunds of the same amount on the same day
+**Booked transactions with distinct `entry_reference` values are always kept as separate entries**, even when every other content field matches. Enable Banking documents `entry_reference` as the per-account identifier of a booked entry that is immutable across sessions, so two booked rows sharing a `transaction_id`-less response but carrying different references represent two real operations and must both reach your ledger.
 
-This keeps your transaction history clean and accurate even when the API returns duplicate data.
+What still collapses to a single entry:
+
+- The same `entry_reference` repeated (including across overlapping sync pages)
+- Pending or reference-less copies of a booked row's content — the booked row is kept and the pending copy is dropped
+- Rows with neither `transaction_id` nor `entry_reference` that share identical content (content-fallback deduplication, unchanged)
+- Rows that share a `transaction_id` (unchanged)
+
+Existing entries, notes, and categories are unaffected by this logic — no external IDs change format and nothing is backfilled. If a transaction was silently dropped before this fix and falls within the currently fetched window, it reappears on the next sync.
 
 ### ID-less transaction handling
 
