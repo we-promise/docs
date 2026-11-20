@@ -250,6 +250,22 @@ On mobile, a brief pause while scrolling the reports page could accidentally act
   </Accordion>
 </AccordionGroup>
 
+## Reports page returns a 500 error when filtering by category
+
+Navigating to the Reports page with a category filter applied — for example, by clicking a category row in the breakdown — previously returned a 500 error (`PG::UndefinedColumn`).
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The `category_id` column was removed from the `trades` table in a database migration. The Reports breakdown query applied category filters to both transactions and trades using `WHERE category_id = …`. Because trades no longer have that column, the query raised `PG::UndefinedColumn` and returned a 500 for any Reports URL that included a `filter_category_id` parameter.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The category filter now skips trades entirely, since a trade has no category. Transactions are still filtered by the selected category and its subcategories as before. CSV and Sheets exports read only transactions, so they stay consistent with the filtered breakdown.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Every click on the reports page navigates to a transaction drill-down in Safari
 
 In Safari, clicking anywhere on the reports page — including the period picker or other controls — could unexpectedly navigate to a category's transactions drill-down instead of performing the intended action. On iOS Safari, the same layout also caused scrolling to freeze for the entire page.
