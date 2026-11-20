@@ -1,0 +1,64 @@
+---
+title: "Reports"
+description: "Understand your income, expenses, and financial trends over any date range."
+---
+
+## Overview
+
+The Reports page gives you a detailed view of your finances across any period you choose. It shows income and expense totals, month-by-month trends, net worth, biggest expenses, and investment flows — all in one place.
+
+## Period selection
+
+Use the period picker at the top of the page to set the date range for your report. The available presets are:
+
+| Preset | Date range |
+|---|---|
+| Monthly | The current calendar month |
+| Quarterly | The current calendar quarter |
+| Year to date | January 1 through today |
+| Last 6 months | The six most recent complete months through the end of the current month |
+| Custom | Any start and end date you choose |
+
+If you enter a date range where the end date is before the start date, Sure swaps the dates automatically.
+
+## Summary metrics
+
+At the top of the report, four summary figures describe the selected period:
+
+- **Income** — total income for the period, with a percentage change versus the equivalent prior period
+- **Expenses** — total expenses, with a percentage change versus the prior period
+- **Net savings** — income minus expenses
+- **Budget** — how much of your monthly budget allocation has been spent (shown only when the period is the current calendar month and a budget exists)
+
+## Trends chart
+
+The trends chart plots income and expenses for each calendar month within your selected period. Months with no activity show zero values. The current month is highlighted so you can distinguish it from completed months.
+
+When you filter by tag, the chart fetches totals per month individually, respecting both the tag filter and the end date boundary of the period. Without a tag filter, all monthly totals are retrieved in a single query.
+
+## Sections
+
+The report is divided into collapsible sections. You can collapse and expand each section independently, and drag them into any order. Your layout preferences are saved per user.
+
+| Section | What it shows |
+|---|---|
+| Net worth | Your total net worth at the end of the period, with an asset/liability breakdown |
+| Trends | Month-by-month income and expense chart for the selected period |
+| Spending vs normal | How your spending compares to the same period in the prior year (preview feature) |
+| Biggest expenses | Your top transactions by amount for the period |
+| Transactions | A categorized breakdown of all transactions |
+| Investments | Investment contributions and withdrawals |
+
+The **Spending vs normal** section only appears when preview features are enabled for your account.
+
+## Tag filtering
+
+You can filter the entire report by one or more tags using the tag selector. When a tag filter is active, only transactions carrying that tag are included in all totals, the trends chart, and the category breakdown.
+
+## Exporting
+
+You can export the transactions breakdown as a CSV file. The exported file is named with the period start and end dates (for example, `transactions_breakdown_20260101_to_20260630.csv`).
+
+## Reports and account access
+
+Report totals reflect only the accounts your user can access. Family members with restricted account access see a subset of the family's total activity. If a family member's account access changes, the figures on the report update on the next page load.
