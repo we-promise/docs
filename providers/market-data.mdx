@@ -143,6 +143,31 @@ EODHD (End of Day Historical Data) provides end-of-day prices across 70+ global 
 - **Coverage**: 70+ exchanges worldwide, stocks, ETFs, mutual funds, bonds
 - **API key**: Required — get one at [eodhd.com](https://eodhd.com)
 
+#### US exchange coverage
+
+EODHD uses a composite `US` exchange code that covers all American venues. Sure maps every US MIC to this code, so securities traded on NYSE Arca, Cboe, IEX, MEMX, regional exchanges, OTC markets, and all NASDAQ segments resolve correctly. Previously only `XNYS` (NYSE), `XNAS` (NASDAQ), and `XASE` (NYSE American) were mapped; securities with any other US MIC such as `ARCX`, `BATS`, or `OTCM` were requested with the raw MIC code and failed.
+
+The following US MICs all map to EODHD's composite `US` code:
+
+| MIC | Venue |
+| --- | --- |
+| `XNYS` | NYSE |
+| `XNAS` | NASDAQ |
+| `XASE` | NYSE American |
+| `ARCX` | NYSE Arca |
+| `BATS` | Cboe BZX (BATS) |
+| `OTCM` | OTC Markets |
+| `XNGS`, `XNMS`, `XNCM` | NASDAQ Global Select, Global Market, Capital Market |
+| `XARC` | NYSE Arca (alternate MIC) |
+| `XOTC` | OTC Bulletin Board / Pink Sheets |
+| `PINX`, `OTCQ`, `OTCB`, `PSGM` | OTC tiers |
+| `XCHI`, `XCIS` | Chicago, National Stock Exchange |
+| `EDGX` | Cboe EDGX |
+| `IEXG` | IEX |
+| `MEMX` | MEMX |
+
+Search results are unaffected: EODHD returns `US` for all these venues, which Sure maps back to `XNYS` for display purposes.
+
 #### Warsaw Exchange (GPW) securities
 
 Securities listed on the Warsaw Stock Exchange (XWAR/GPW) are priced in PLN. If you added Polish securities before this fix was released, their historical prices may have been stored as USD. Sure automatically corrects mis-tagged Warsaw prices on upgrade: USD prices are relabeled to PLN, duplicates are removed, and any affected accounts are queued for a sync so holdings revalue at the correct exchange rate.
