@@ -75,6 +75,12 @@ After adding a connection, wait for the first sync to complete. If no accounts a
 
 When the exact exchange rate for a given date is unavailable, Sure shows the balance as approximate. The balance updates to the exact figure on the next sync when rate data becomes available.
 
+### Historical account value looks wrong after a buy or sell
+
+If your CoinSpot account was connected before November 2026, trade entries may have been recorded with their cash flow direction inverted: a buy was recorded as money arriving and a sell as money leaving, rather than the reverse. This caused the historical balance series to show incorrect values, sometimes by a large amount on accounts with significant trading activity.
+
+Existing entries are corrected automatically when their order is processed again on the next sync. The balance series then rebuilds; no re-import is needed. Entries marked as manually modified are left unchanged.
+
 ### Missing order history
 
 If older orders are missing, check that your sync start date is set to a date that covers the period you want. CoinSpot's order history is fetched starting from that date.
