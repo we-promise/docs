@@ -91,6 +91,7 @@ Until you link the Crypto provider account to a Sure account, crypto positions a
 - Stock Bonus shares (ACQUISITION_TRADE_PERK events, recorded as portfolio trades; no cash leg, because Trade Republic pays for the shares)
 - Private Markets bonus units — the 1 % bonus units Trade Republic adds to a Private Markets order are recorded as a portfolio trade with no cash leg; no cash outflow is created for them
 - Round Up investments (recorded as portfolio trades)
+- Securities transfers in and out from another broker (Depotübertrag, `SSP_SECURITIES_TRANSFER_INCOMING` and `SSP_SECURITIES_TRANSFER_OUTGOING` events): imported as zero-amount trades labeled Transfer with the signed quantity from Trade Republic. No cash entry is created because no cash changes hands. Incoming transfers carry a positive quantity and outgoing transfers carry a negative quantity.
 
 ### Cash account
 
