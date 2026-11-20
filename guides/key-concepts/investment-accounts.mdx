@@ -27,6 +27,28 @@ The Investments panel on the dashboard and in reports aggregates your holdings b
 
 Portfolio weight shown in the top holdings table and in the allocation view is calculated as a percentage of your total portfolio value (including cash). Both views share the same denominator, so the same security always shows the same weight in both places.
 
+### Holdings table
+
+The holdings table shows every security you hold as one row, rolled up across all accounts. Each row includes:
+
+| Column | Description |
+| --- | --- |
+| **Name / ticker** | The security's name and ticker symbol |
+| **Quantity** | Total shares or units held across all accounts |
+| **Average cost** | Weighted average cost per share, calculated from the positions whose cost basis is known |
+| **Value** | Total current market value across all accounts |
+| **Weight** | Percentage of your total portfolio value (including cash) |
+| **Unrealized return** | Gain or loss against cost basis, covering only the positions with a known cost basis |
+| **Day change** | Change in value since the previous provider snapshot |
+
+When one or more positions in a row have no cost basis, the row is flagged to indicate the unrealized return is a partial figure.
+
+**Sorting**
+
+You can sort the table by value, weight, return, day change, or name, in ascending or descending order. Rows that have no figure for the selected column — for example, a holding with no cost basis when sorting by return — always go last regardless of direction. Ties within a column break by security name and then by security ID, so the order is consistent across requests.
+
+If an unrecognised sort key or direction is supplied (for example, from a hand-edited URL), each falls back independently: an unknown key defaults to value descending, while an unknown direction keeps the valid key you specified.
+
 ### Provider-synced holdings
 
 When a provider (such as SimpleFIN, SnapTrade, or CoinStats) imports your holdings, it delivers a snapshot of your positions on a specific day. Sure tracks which day each snapshot came from and only shows holdings from the **most recent provider import day** in investment views. Holdings from earlier snapshots are excluded so that stale positions do not appear alongside your current portfolio.
