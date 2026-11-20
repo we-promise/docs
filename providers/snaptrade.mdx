@@ -147,6 +147,54 @@ When a trade cannot be imported — for example because SnapTrade omitted both q
 
 Fresh brokerage connections may take a little longer to finish importing activity history. Sure continues fetching account activity in the background after the initial connection when needed.
 
+On a fresh account with no existing activities, the importer sets the `activities_fetch_pending` flag on the SnapTrade account before queueing the background job, so the job never starts without the flag set. If the enqueue fails, the flag is cleared immediately (or after six hours by `SyncCleanerJob` for cases where the failure cannot be caught synchronously). The flag state is visible in the debug log at **Settings > Debug** alongside other SnapTrade sync diagnostics.
+
+## Repairing split security rows
+
+Before a fix introduced in an earlier release, a SnapTrade position's holdings and trades could land on different `Security` rows for the same ticker. When that happens, the holding shows no cost basis because cost-basis readers filter by `security_id`.
+
+The `snaptrade:repair_split_securities` rake task moves an account's trades and its SnapTrade or provider-less holdings onto the single security row that the next sync would resolve to, and then re-materializes balances. It never destroys a `Security` row and never moves a price.
+
+### Running the task
+
+```bash
+# Dry run — reports what would change, writes nothing (default)
+bin/rails snaptrade:repair_split_securities
+
+# Dry run for one account
+bin/rails "snaptrade:repair_split_securities[ACCOUNT_ID]"
+
+# Apply repairs for all accounts
+DRY_RUN=false bin/rails snaptrade:repair_split_securities
+
+# Apply repairs for one account
+DRY_RUN=false bin/rails "snaptrade:repair_split_securities[ACCOUNT_ID]"
+```
+
+The task exits non-zero when any account was refused or failed.
+
+### Refusals (nothing is written)
+
+A live run refuses an account and writes nothing when:
+
+- **Unmatched split history** — a source row has a `Security::Split` the target row lacks. There is no override for this condition.
+- **Price gaps** — the moved history would have dates priced on a source row but not on the target. Pass `ALLOW_PRICE_GAPS=true` with a single account ID to override: `DRY_RUN=false ALLOW_PRICE_GAPS=true bin/rails "snaptrade:repair_split_securities[ACCOUNT_ID]"`. `ALLOW_PRICE_GAPS` without an account ID aborts immediately.
+- **Sync in progress** — a SnapTrade connection sync, account sync, or activities fetch is pending or running. Run the task again once the sync has finished.
+
+### Skipped tickers
+
+A ticker whose rows name more than one exchange represents two separate listings (for example, SHOP on XNYS and XTSE). The task skips those tickers and lists them in the output for manual review.
+
+### What the output reports
+
+For each account and ticker the task processes, the output includes:
+
+- The target security row and its source (holding or deterministic lookup)
+- The number of trades moved, holdings moved, holdings dropped (because the target already had that date), and holdings replaced by a SnapTrade snapshot
+- SnapTrade snapshots dropped when both the target and a source row held a snapshot for the same date and currency — the target's snapshot is kept; dropped snapshots are listed with their date and cost basis
+- Source splits the target lacks (`unmatched_split_dates`)
+- Price gap dates (up to 10 shown; remaining count noted)
+
 ## Security
 
 Sure encrypts sensitive SnapTrade data at rest using ActiveRecord Encryption when encryption keys are configured in your deployment. Configure `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`, or the corresponding Rails encryption credentials, before connecting a SnapTrade integration in a production environment. Without encryption configuration, the fields below are stored in plaintext.
