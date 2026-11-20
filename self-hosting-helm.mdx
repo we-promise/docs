@@ -515,12 +515,12 @@ kubectl delete pvc -n sure <sure-pvc-name>
 ```
 ## Pipelock (AI agent security proxy)
 
-[Pipelock](https://github.com/luckyPipewrench/pipelock) is an optional security proxy that scans AI agent traffic for secret exfiltration, prompt injection, tool poisoning, and SSRF. It runs as a separate Deployment with two listeners:
+[Pipelock](https://github.com/pipelab-org/pipelock) is an optional security proxy that scans AI agent traffic for secret exfiltration, prompt injection, tool poisoning, and SSRF. It runs as a separate Deployment with two listeners:
 
 - **Forward proxy** (port 8888): Applies destination, SSRF, rate, budget, CONNECT-header DLP, and receipt controls to HTTPS tunnels from clients that honor the proxy variables. The chart does not configure TLS interception, so encrypted bodies stay opaque.
 - **MCP reverse proxy** (port 8889): Scans inbound MCP traffic from external AI assistants.
 
-The chart pins Pipelock 3.4.0 by tag and multi-architecture image digest. Read the [Pipelock release notes](https://github.com/luckyPipewrench/pipelock/releases/tag/v3.4.0) before overriding that pin.
+The chart pins Pipelock 3.8.0 by tag and multi-architecture image digest. Read the [Pipelock release notes](https://github.com/pipelab-org/pipelock/releases/tag/v3.8.0) before overriding that pin.
 
 ### Enabling Pipelock
 
@@ -528,11 +528,13 @@ The chart pins Pipelock 3.4.0 by tag and multi-architecture image digest. Read t
 pipelock:
   enabled: true
   image:
-    tag: "3.4.0@sha256:2e6caa43967a5ef19cacbce00188d829c1b5de1eb0ad304a51d2085f32c5694c"
+    tag: "3.8.0@sha256:9ac2bdf26ca104a5b2f5dfe4e90f0396ec9feb554152d50aac42f75ec268197f"
   mode: balanced   # strict, balanced, or audit
 ```
 
 This creates a separate Deployment, Service, and ConfigMap. The chart auto-injects `HTTPS_PROXY`, `HTTP_PROXY`, and `NO_PROXY` into web and worker pods.
+
+Pipelock seals its signed receipt chain on shutdown. The chart gives it 10 minutes to finish (`terminationGracePeriodSeconds: 600`). A pod killed before shutdown completes keeps its receipts but leaves the run unsealed.
 
 ### Request body scanning
 
@@ -562,6 +564,23 @@ pipelock:
     exposeSubsystems: true
 ```
 
+### Monitoring
+
+Pipelock 3.8 and later serve `/metrics` and `/stats` only on a dedicated listener, never on the proxy port (8888). The listener has no authentication, so it stays off unless you enable it explicitly or through the ServiceMonitor.
+
+Enable the ServiceMonitor for Prometheus scraping (this also turns on the metrics listener at port 9091):
+
+```yaml
+pipelock:
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    additionalLabels:
+      release: prometheus
+```
+
+To expose the metrics listener without a ServiceMonitor, set `pipelock.metrics.enabled: true`. Restrict access with a NetworkPolicy because the listener has no authentication.
+
 ### Signed action receipts
 
 Pipelock can write hash-chained, Ed25519-signed receipts for proxied decisions. Recording is inert until you mount both a storage volume and a signing key.
@@ -579,7 +598,7 @@ kubectl create secret generic sure-pipelock-receipts \
 If you do not have the `pipelock` binary installed, generate the key with the pinned image:
 
 ```bash
-docker run --rm -v "$PWD:/out" ghcr.io/luckypipewrench/pipelock:3.4.0@sha256:2e6caa43967a5ef19cacbce00188d829c1b5de1eb0ad304a51d2085f32c5694c \
+docker run --rm -v "$PWD:/out" ghcr.io/pipelab-org/pipelock:3.8.0@sha256:9ac2bdf26ca104a5b2f5dfe4e90f0396ec9feb554152d50aac42f75ec268197f \
   signing key generate --purpose receipt-signing --out /out/flight-recorder-signing.key --id sure-k8s
 ```
 
