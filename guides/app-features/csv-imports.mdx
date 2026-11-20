@@ -219,9 +219,20 @@ Sure automatically detects the date format used in your QIF file by sampling the
 
 QIF files support several date styles including:
 - `MM/DD/YYYY` and `MM/DD/YY` (Quicken US)
+- `MM.DD.YYYY` (month-first dot-separated, QIF only)
 - `DD.MM.YYYY` (European dot-separated)
 - `DD-MM-YYYY` (dash-separated)
 - `DD MMM YYYY` (e.g. `26 Jan 2026`, Amex-style)
+
+**Declared date order (`!Option:MDY` and `!Option:DMY`)**
+
+Some QIF exporters (such as Lexware FinanzManager) include a `!Option:MDY` or `!Option:DMY` line that declares whether numeric dates are month-first or day-first. Sure now reads this declaration and uses it to guide auto-detection:
+
+- When `!Option:MDY` is present, detection considers only month-first formats (and unambiguous year-first formats). The detected format is accepted only if it successfully parses every date in the file.
+- When `!Option:DMY` is present, the same logic applies for day-first formats.
+- When no option is declared, detection runs across all formats as before. On a tie between `DD.MM.YYYY` and `MM.DD.YYYY`, `DD.MM.YYYY` wins.
+
+If the declared order does not fit the dates in the file, detection falls back to considering all formats. You can always review and override the detected format on the Select step.
 
 ### Investment transactions
 
