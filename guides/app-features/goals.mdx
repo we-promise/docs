@@ -56,7 +56,7 @@ The contribution figure uses goal-linked depository accounts in the family’s p
 
 **Needs this month** shows the total monthly amount required across all goals that are behind pace. Zero means no goals are currently behind their target rate.
 
-**Goals on track** shows how many active, deadline-bearing goals are saving at or above their required monthly pace, out of the total being tracked. Maintained goals, goals without a deadline, paused goals, and goals already reached are not counted in either the numerator or denominator.
+**Goals on track** shows how many active, deadline-bearing goals are saving at or above their required monthly pace, out of the total being tracked. Maintained goals, goals without a deadline, paused goals, goals already reached, and goals with **Pace unknown** status are not counted in either the numerator or denominator. The tile's subline shows how many goals have an unknown pace.
 
 ## Tracking progress
 
@@ -65,7 +65,7 @@ Each goal card shows:
 - **Progress amount** — the total counting money still held in the linked accounts plus any amount already spent on the goal. This is the same figure the progress ring is drawn from, so the ring and the number always agree.
 - Progress percentage
 - Monthly saving rate needed to reach a deadline (one-off goals with a target date)
-- Current pace (rolling 90-day average net inflow into the linked accounts, divided by three months)
+- Current pace — how Sure calculates this depends on each linked account (see [How pace is measured](#how-pace-is-measured))
 - Status pill
 
 When you have recorded spending from a goal, a secondary line reads **"Including X already used"** beneath the progress amount. This tells you how much of the total has been consumed, so you do not need to subtract it yourself. Goals backed by a reserve (maintained goals) never show this line because reserves do not support spending.
@@ -76,12 +76,26 @@ When you have recorded spending from a goal, a secondary line reads **"Including
 | --- | --- |
 | On track | You are saving at or above the required monthly rate |
 | Behind | Your pace is below what you need to hit the deadline |
+| Pace unknown | The goal has a deadline but Sure cannot measure pace on at least one linked account (see below) |
 | Reached | The balance meets or exceeds the target (one-off) |
 | No target date | Open-ended goal, no deadline |
 | Funded | The reserve is at or above its target balance (maintained) |
 | Depleted | The reserve has fallen below its target balance (maintained) |
 
 Paused goals show a **Paused** badge instead of a status, because the pace clock is intentionally stopped.
+
+### How pace is measured
+
+Pace is the rolling average monthly net inflow across the goal's linked accounts. For each linked account, Sure takes the first path that applies:
+
+1. **Transactions** — if the account had at least one counted transaction in the last 90 days, pace is the net inflow for that period divided by three. Pending and excluded transactions are not counted.
+2. **Balance change** — otherwise, if the account had a balance update (a reconciliation or current-anchor valuation) within the last year and a recorded balance from a year ago, pace is the year-over-year balance change divided by twelve. Market gains are subtracted so this measures the same thing as contribution-basis progress.
+3. **Dormant** — otherwise, if the account has had any non-excluded, non-pending transaction at any point in the past, pace is a measured zero. A savings account nobody has contributed to is honestly behind pace.
+4. **Unmeasured** — anything else: an account with only an opening balance, fewer than a year of balance history, or balance updates all older than a year. Sure cannot tell how this account moves without more data.
+
+A goal is **Pace unknown** when at least one linked account is unmeasured (path 4). This is common for valuation-tracked accounts — a manually entered super fund, pension, or property — in their first year. Once the account accumulates a year of balance history, Sure can use path 2 and the status resolves.
+
+When pace is unknown, the projection chart shows no projection line. The required-pace line still appears.
 
 ## Pledges
 
