@@ -516,6 +516,30 @@ When an investment account holds a large number of securities, opening the holdi
   </Accordion>
 </AccordionGroup>
 
+## Reports, transactions, and account pages are slow for families with long investment histories
+
+On families with a large number of trades and entries, the Reports month view could take 3–5 seconds to render, and transactions and account pages could take around 1 second. No data was incorrect — only the speed was affected.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Three queries were responsible:
+
+    - **Realized gains by tax treatment** preloaded every holding of each account that had a sale in the selected period. This produced a row per security per day, including hundreds of thousands of zero-quantity rows for positions sold long ago — around 1.9 seconds per render on a large family.
+    - **Investment flows** joined entries and accounts twice under different aliases, so the date filter hit only one copy. Postgres paired every Contribution and Withdrawal with every entry of the family, adding around 547 ms for a one-row total.
+    - **"Transfer?" hints** compared every inflow with every outflow of the family before applying the page's id filter, producing around 22 million pairs and adding around 0.6 seconds to every transactions and account page.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Each query was rewritten independently. No data or visible behavior changed — only performance:
+
+    - `Trade.preload_basis_holdings` loads, in one index-backed LATERAL query, only the holding each sale is measured against. Monthly gains preload drops from 1.9 s to 22 ms; all-time from 22.4 s to 1.0 s.
+    - `InvestmentFlowStatement` now starts from `Transaction` with the family's accounts as an entry filter, so each join appears once and the date filter applies correctly to all entries. Investment flow totals drop from 547 ms to 4 ms.
+    - `transfer_match_candidates` now bounds both legs by the page's date span widened by the match window before pairing, so the id filter never drops a valid pair. A composite index on `entries (entryable_type, entryable_id)` backs the entry lookups the narrowing adds. Transactions and account pages drop from ~1.1 s to ~0.4 s; Reports month view from 3–5 s to 0.4 s.
+
+    Upgrade to a build containing [Sure PR #5377](https://github.com/we-promise/sure/pull/5377). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Rule prompt disappears after changing category from the transaction drawer
 
 In older versions, changing a transaction's category from the transaction detail drawer did not show the "create a rule?" prompt. The prompt was delivered while the drawer was still open, which placed it behind the drawer in the browser's rendering stack where it could not be seen or clicked. A sync completing shortly after then refreshed the page and removed it entirely.
