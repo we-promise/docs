@@ -11,9 +11,15 @@ See [Transaction history and import limits](/providers/transaction-history) for 
 
 ## How it works
 
-Sure uses your SnapTrade **Client ID** from an OAuth app to create a per-family SnapTrade user and sync the accounts you authorize. Personal API keys are not supported because they do not use SnapTrade's Register User flow.
+Sure supports two ways to connect SnapTrade, and you only need one of them.
 
-Sure supports two ways to authorize a brokerage connection, and the setup steps differ slightly between them.
+**OAuth app** — creates a per-family SnapTrade user and authorizes brokerages through a device code or browser redirect flow. Requires a [Commercial SnapTrade account](https://docs.snaptrade.com/docs/personal-vs-commercial) and an OAuth app registered at dashboard.snaptrade.com.
+
+**Personal API key** — signs requests directly with a `clientId` and `consumerKey` tied to your own SnapTrade account. No OAuth app or user registration is required. This is the right choice if you want to connect your own brokerage accounts as a self-hoster and do not have a Commercial SnapTrade account.
+
+If `SNAPTRADE_OAUTH_CLIENT_ID` is set, Sure uses the OAuth path and the Personal API key form is hidden. If the variable is not set, Sure shows the Personal API key form instead.
+
+Sure supports two ways to authorize a brokerage connection with an OAuth app, and the setup steps differ slightly between them.
 
 ### Device code flow
 
@@ -29,7 +35,27 @@ Both flows produce the same access and refresh tokens and result in the same ong
 
 ## Setting up SnapTrade
 
-To connect your brokerage accounts:
+### Using a Personal API key (no OAuth app required)
+
+A SnapTrade [Personal API key](https://docs.snaptrade.com/docs/personal-vs-commercial) lets you connect your own brokerage accounts without registering a Commercial OAuth app. This is the simplest path for self-hosters.
+
+Leave `SNAPTRADE_OAUTH_CLIENT_ID` and `SNAPTRADE_OAUTH_CLIENT_SECRET` unset in your environment.
+
+Then:
+
+1. Sign up at [snaptrade.com](https://snaptrade.com/) to get a free Personal API key (a **Client ID** and a **Consumer Key**)
+2. In Sure, go to **Settings > Providers > SnapTrade** as an admin
+3. Enter your **Client ID** and **Consumer Key** and save
+4. Click **Connect Brokerage** and complete the connection flow
+5. After the sync finishes, open the account setup screen and link the discovered accounts
+
+<Note>
+The Personal API key is scoped to your own SnapTrade account. It cannot be used to manage other users' brokerage connections. If you need multi-user brokerage connectivity, use an OAuth app instead.
+</Note>
+
+### Using an OAuth app
+
+To connect brokerage accounts through a Commercial SnapTrade OAuth app:
 
 1. Create an account at [dashboard.snaptrade.com](https://dashboard.snaptrade.com/)
 2. Create or open a SnapTrade OAuth app and copy its **Client ID**
@@ -49,10 +75,10 @@ If you already have an unlinked investment or crypto account in Sure, you can li
 
 | Variable | Required | Description |
 |---|---|---|
-| `SNAPTRADE_OAUTH_CLIENT_ID` | Yes | Client ID from your SnapTrade OAuth app. Enables the device code flow on its own. |
+| `SNAPTRADE_OAUTH_CLIENT_ID` | No | Client ID from your SnapTrade OAuth app. Enables the device code flow on its own. When unset, the Personal API key form is shown instead. |
 | `SNAPTRADE_OAUTH_CLIENT_SECRET` | No | Client Secret from your SnapTrade OAuth app. Required only for the browser redirect flow. |
 
-Setting only `SNAPTRADE_OAUTH_CLIENT_ID` enables the device code flow. Setting both variables enables the browser redirect flow as the default, with the device code flow available as a fallback where shown.
+Leave both variables unset to use Personal API keys. Setting only `SNAPTRADE_OAUTH_CLIENT_ID` enables the OAuth device code flow and hides the Personal API key form. Setting both variables enables the browser redirect flow as the default, with the device code flow as a fallback.
 
 ## Managing connections
 
@@ -184,8 +210,22 @@ The task processes records in batches and prints a JSON summary of results when 
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
 - **Activity timing**: Activity availability depends on SnapTrade's data timing and the connected brokerage
 - **Options in holdings**: Option positions are not shown in the holdings view; only options activity (trades) is imported
+- **Personal key rate limits**: SnapTrade allows 10 requests per minute per account for Personal keys. If the limit is hit during a sync, Sure stops further requests for that account and fails the sync with "Rate limit exceeded" so stale data is not silently kept. The next scheduled sync resumes normally. Accounts with very large activity histories (roughly more than 10,000 rows) may not complete a full initial import in one sync window; subsequent syncs will continue from where they left off.
+- **Personal key scope**: A Personal API key is bound to your own SnapTrade account and cannot create or manage other users' brokerage connections. Use an OAuth app for multi-user deployments.
 
 ## Troubleshooting
+
+### Personal API key form is not visible
+
+The Personal API key form only appears when `SNAPTRADE_OAUTH_CLIENT_ID` is not set. If the OAuth client ID is configured in your environment, Sure uses the OAuth path and the Personal key form is hidden. Leave both `SNAPTRADE_OAUTH_CLIENT_ID` and `SNAPTRADE_OAUTH_CLIENT_SECRET` unset to use Personal keys.
+
+### Personal API key: sync fails with "Rate limit exceeded"
+
+SnapTrade allows 10 requests per minute per account for Personal keys. When the limit is hit, Sure stops requests for the affected account and marks the sync as failed so stale balances and positions are not kept. Wait a minute and trigger a manual sync from the account card. Each sync resumes from the beginning of the activity fetch for that account.
+
+### Personal API key: sync fails with "requires update"
+
+A 401 or 403 response from SnapTrade means the key was rejected. Re-enter your **Client ID** and **Consumer Key** in **Settings > Providers > SnapTrade** to replace them.
 
 ### Credentials save, but brokerage connection does not start
 
