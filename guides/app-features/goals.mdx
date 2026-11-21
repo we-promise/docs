@@ -83,6 +83,27 @@ When you have recorded spending from a goal, a secondary line reads **"Including
 
 Paused goals show a **Paused** badge instead of a status, because the pace clock is intentionally stopped.
 
+## Projection chart
+
+One-off goals with a target date show a projection chart on the goal detail page. The chart visualizes your savings history alongside a forward-looking projection so you can see at a glance whether you are on pace to reach your target.
+
+The chart draws four things:
+
+- **Saved (solid line and shaded area)** — your recorded balance from the goal's start date through today.
+- **Projection (dashed line, green or yellow)** — where your balance is heading at your current pace. Green means you are on track to meet or exceed the target; yellow means you will fall short.
+- **Required path (light dashed line)** — the pace you need to hit the deadline, shown only when you are behind.
+- **Target line (horizontal dashed)** — the goal's target amount, labeled at the right edge of the chart.
+
+**Today marker** — a vertical dashed line marks today. A "Today" label sits above it. When a goal is overdue the Today marker sits at the right edge, and the target label shifts left so the two labels do not overlap.
+
+**Projection endpoint label** — when the chart is wide enough, a label appears near the projection dot at the goal's end date. If the projection hits the target, the label shows the projected amount. If it falls short, the label shows how much you will be short. When the endpoint label would overlap the target label, the endpoint label is dropped (on-track goals) or moved below its dot (shortfall goals).
+
+**X-axis date labels** — the axis shows up to five date labels in "Mon YYYY" format. Duplicate labels are removed first. If the remaining labels are still too close together, the axis thins to every other label (or every third, and so on), keeping the goal's end-date label. The chart redraws when the page finishes loading fonts so label measurements are accurate.
+
+**Hover tooltip** — moving the pointer over the chart snaps a crosshair to the nearest saved or projected data point and shows the date, balance, and how that balance compares with the target.
+
+The chart does not appear for goals with no target date, maintained (reserve) goals, or goals whose linked accounts give no measurable pace.
+
 ## Pledges
 
 A pledge is a recorded intent to add money toward a goal. Use it when you want to track a specific deposit you plan to make.
