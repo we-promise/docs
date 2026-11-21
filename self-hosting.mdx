@@ -282,6 +282,14 @@ When using the macOS desktop app with a sub-path deployment, enter the full moun
 The `RAILS_RELATIVE_URL_ROOT` environment variable tells Rails that it is mounted under a prefix. Set it to the path portion if your reverse proxy strips the prefix before forwarding, or configure the proxy to preserve the path and leave the variable unset.
 </Note>
 
+### Response compression
+
+Sure compresses HTTP responses with gzip in production when the client sends an `Accept-Encoding: gzip` header. This applies to HTML, CSS, JavaScript, JSON, XML, SVG, and plain text. Binary formats such as images and PDFs are not compressed because they are already compressed. Partial-content (206) responses are also excluded, since their `Content-Range` header counts bytes of the uncompressed file.
+
+Compression is handled inside the app, so it works even when the Docker image serves Puma directly with no reverse proxy in front. If your reverse proxy already compresses responses, it leaves an already-encoded response alone.
+
+Compression is not applied in development mode.
+
 ### Import size variables
 
 By default, Sure NDJSON imports are limited to a fixed maximum file size. Self-hosted admins can raise this limit with:
