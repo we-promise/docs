@@ -67,6 +67,18 @@ Sure fetches chart and price data from Yahoo Finance without sending authenticat
 
 If Yahoo returns a 401 for a specific symbol (either a hard HTTP 401 or a 200 response with an `Unauthorized` error code), Sure automatically retries that request once with a fresh cookie and crumb. If the retry also fails with a 401, Sure raises an authentication error and stops retrying. Cookie and crumb authentication is still used for security detail lookups (the `quoteSummary` endpoint), which require it.
 
+#### How daily bars are dated
+
+Yahoo Finance stamps each daily bar with the time its trading session opens. For markets east of UTC or those observing summer time, that opening time can fall on the previous calendar day in UTC — for example, the ASX opens at 10:00 Sydney time (23:00 UTC the day before), and London FX sessions open at midnight local time (23:00 UTC during British Summer Time).
+
+Sure dates each daily bar using the exchange's own timezone, taken from the `exchangeTimezoneName` field in the Yahoo Finance chart response. It falls back to UTC when that field is missing or unrecognised. The result is then trimmed to your requested date range so only bars that belong within the range are stored.
+
+This applies to both security prices and exchange rates. US and Tokyo bars, whose sessions open during the UTC day, are unaffected.
+
+<Note>
+Prices already stored before this fix was introduced keep their original dates. Newly fetched bars are dated correctly. If you need to correct historical data for ASX, NZX, or summer-time London FX, delete the affected rows and let the importers refetch them.
+</Note>
+
 #### European and other non-US exchanges
 
 Sure automatically appends Yahoo Finance's required exchange suffix when fetching prices for securities listed on European and other international exchanges. The following venues are supported:
