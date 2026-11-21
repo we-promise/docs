@@ -53,6 +53,14 @@ bin/rails test
 
 The suite should report zero failures and zero errors. If you are using the devcontainer, the PostgreSQL connection is configured with `username:` (the Rails-documented key), so no authentication errors should appear.
 
+To run system tests in the devcontainer:
+
+```bash
+DISABLE_PARALLELIZATION=true bin/rails test:system
+```
+
+The devcontainer's Selenium node runs Chrome headless by default, matching CI behavior. To watch the browser live over VNC, add `E2E_BROWSER=chrome` and open `http://localhost:7900` or `http://localhost:4444` (password: `secret`). Keep watched runs serial — headed sessions share the node's display, and one session's window can interrupt hovers in another.
+
 The devcontainer runs `pgvector/pgvector:pg16-trixie` as its database image rather than plain `postgres:16`. This is a drop-in replacement that ships the `vector` extension, which supplies the vector-storage prerequisite for document import. You still need to configure the chosen vector-store and embedding provider; PDF statement processing also requires a suitable AI provider.
 
 After running `bin/setup`, you can optionally load demo data with:
