@@ -15,6 +15,7 @@ Sure uses market data providers to fetch security prices, search for securities,
 | **EODHD** | Yes | 20 requests/day | 70+ global exchanges |
 | **Alpha Vantage** | Yes | 25 requests/day | Global stocks, ETFs |
 | **MFAPI** | No | Unlimited | Indian mutual funds |
+| **Binance (public)** | No | Unlimited | Cryptocurrency pricing via Binance's public market data API |
 | **MOEX** | No | Unlimited | Russian stocks, funds, and bonds (MOEX), including RUB forex |
 | **T-Invest (T-Bank)** | Yes (read-only token) | N/A | Russian stocks, funds, and bonds; brand logos for all securities |
 | **Mansa API** | Yes | 100 requests/day | NGX (Nigerian Exchange) securities |
@@ -163,6 +164,16 @@ MFAPI is a free, open-source API for Indian mutual fund NAV (Net Asset Value) da
 - **Rate limits**: No strict limits
 - **Coverage**: Indian mutual funds only (BSE-listed schemes)
 - **API key**: Not required
+
+### Binance (public)
+
+Binance public is a free provider for cryptocurrency pricing via Binance's public market data API. It requires no API key.
+
+- **Rate limits**: No strict limits; Sure applies a 100ms minimum interval between requests
+- **Coverage**: Cryptocurrency pairs quoted in USDT (reported as USD), EUR, JPY, BRL, and TRY; USD-pegged stablecoins (USDT, USDC, BUSD, DAI, and others) are priced at a flat 1.0 USD
+- **API key**: Not required
+
+This provider is primarily used to price on-chain crypto holdings. It is added automatically when you use the **Enable crypto prices** shortcut on the on-chain wallets settings panel. You can also enable it manually under **Settings → Self-Hosting → Market data providers**, or by including `binance_public` in `SECURITIES_PROVIDERS`. See [on-chain wallets](/providers/onchain-wallets) for details.
 
 ### MOEX
 
