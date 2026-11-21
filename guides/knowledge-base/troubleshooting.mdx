@@ -500,6 +500,30 @@ If you sold securities during a period but the investment card on the Reports pa
   </Accordion>
 </AccordionGroup>
 
+## Investment holdings counted twice for the same security
+
+If a security from a provider like SimpleFIN appears with inflated quantities or if past holdings seem double-counted, the cause may be two internal rows existing for the same ticker — a pending placeholder created when a provider search failed, and a listed security created when the search later succeeded.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    When Sure cannot reach a price provider for a security (for example, during a temporary network failure), it stores a blank-exchange placeholder marked `resolution_pending` so a later sync can retry. When a subsequent sync succeeds, Sure previously created a second, fully listed row for the ticker instead of promoting the placeholder. After that, each sync wrote holdings to whichever row it resolved to — the listed row on success, the placeholder on failure — and each row built its own history independently. Because holdings history is summed across rows, past holdings could appear counted twice.
+
+    This most commonly affects investment accounts connected through SimpleFIN, where securities often have no exchange code.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now detects the pending placeholder when a provider search succeeds and either promotes it in place (setting the exchange, name, and provider on the existing row) or merges the placeholder into the listed row when both already exist. Holdings, trades, prices, splits, and tags are all moved to the surviving row, and accounts that referenced the placeholder are re-synced so their balances and holdings are rebuilt on a single row.
+
+    For the lookup fast path, Sure also skips the cached row while a pending placeholder exists for the same ticker and no exchange, so a successful search always settles the placeholder regardless of UUID ordering.
+
+    This is fixed in builds containing [Sure PR #5436](https://github.com/we-promise/sure/pull/5436). No configuration change is required. Triggering a manual sync from **Settings → Providers** will re-resolve affected securities and consolidate any duplicate rows.
+  </Accordion>
+
+  <Accordion title="What should I do if holdings still look wrong after upgrading?">
+    Trigger a manual sync for the affected account from **Settings → Providers**. The sync re-runs security resolution, which will settle any remaining placeholder rows. If a past date still shows a doubled quantity, check **Settings → Debug** under the `security_resolution` category for any entries that show the placeholder was not settled. If the problem persists, contact support with the debug log entries.
+  </Accordion>
+</AccordionGroup>
+
 ## Holdings list is slow with many securities
 
 When an investment account holds a large number of securities, opening the holdings list in the web app could be noticeably slow in earlier versions.
