@@ -3,6 +3,26 @@ title: "Troubleshooting"
 ---
 
 
+## Clearing a note on a balance value had no effect
+
+When you opened a manual balance value (for a property, vehicle, or other asset account) and cleared its note field, the note reappeared the next time you opened the value. The cleared note was not saved.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The note field auto-submits `notes: ""` when it loses focus. `ValuationsController#update` previously saved notes only when the submitted value was present, so an empty string was ignored and the existing note stayed in the database. The next time you opened the value, the old note came back.
+
+    Transactions and transfers did not share this problem: their controllers already saved notes whenever the field was included in the request.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now saves the notes field on a balance value whenever it is present in the submitted request, matching the behavior of transfer and transaction updates. A cleared note is stored as nil, the same as a value that never had a note. A notes "is empty" rule condition treats a cleared note as empty.
+
+    The balance confirmation form (which sends only the date and amount) does not include the notes field, so confirming a balance still leaves the note untouched.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
