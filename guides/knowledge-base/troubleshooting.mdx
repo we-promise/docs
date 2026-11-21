@@ -1183,6 +1183,34 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Income and expense totals show wrong values or a TypeError after upgrading
+
+After upgrading Sure, the income and expense totals on the dashboard and reports pages may display incorrect values, or the worker log may contain a `TypeError: struct IncomeStatement::Totals::TotalsRow not compatible (struct size differs)` error. This happens when cached totals written by an older version are read by a newer one that expects a different row shape.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    Sure caches computed income statement totals (income, expenses, and transaction counts) to avoid rerunning expensive queries on every page load. The cached rows are Ruby `Data` structs serialized to the cache store. When a new release adds or removes a field on the struct — for example, the `month` field added in [PR #2561](https://github.com/we-promise/sure/pull/2561) — deserializing a row written by the old code raises `TypeError: struct IncomeStatement::Totals::TotalsRow not compatible (struct size differs)`.
+
+    The dashboard and reports pages may show zeroed-out or missing totals until the stale cache entries expire or are cleared.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    A shared `Totals::CACHE_VERSION` constant was introduced and both the income statement totals and daily expense totals caches were bumped to `v3`. Old cache entries stored under the previous key are ignored automatically, so Sure recomputes fresh totals under the new key on the next request. No manual cache clearing or database migration is needed.
+
+    Upgrade to a build containing [Sure PR #5434](https://github.com/we-promise/sure/pull/5434). No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What if I still see wrong totals after upgrading?">
+    If you have an external cache store (Redis, Memcached) and totals still look wrong after upgrading, flush the cache manually:
+
+    ```bash
+    bin/rails runner "Rails.cache.clear"
+    ```
+
+    Sure recomputes all totals on the next request. The operation is safe to run while the app is live.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
