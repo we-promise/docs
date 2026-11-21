@@ -391,6 +391,10 @@ The account-scoped investments data previously only passed securities to the hol
 
 This is fixed in builds containing [Sure PR #4256](https://github.com/we-promise/sure/pull/4256): securities are included whenever the account has either holdings or investment transactions. As of October 21, 2026, the fix is on `main` but is not in the latest stable release, `v0.7.5-hotfix.2`. After upgrading to a build containing the fix, trigger a manual sync from the account page to import the missing holdings.
 
+### Plaid credentials missing after upgrading
+
+If Plaid stops working after upgrading and your credentials are no longer shown in Settings, the mandatory database migration that moves Plaid and Plaid EU instance secrets to encrypted storage may not have run. See [Upgrading Plaid instance credentials](/self-hosting#upgrading-plaid-instance-credentials) in the self-hosting guide for the required steps. You will need to re-enter any credential the migration reports under `not_decryptable`.
+
 ### Investment holdings not syncing with encryption enabled
 
 If your Sure instance has Active Record encryption configured and Plaid investment account syncs are failing with a `NoMethodError`, you were affected by a bug that is now fixed.

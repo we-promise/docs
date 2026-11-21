@@ -1213,6 +1213,20 @@ The task is idempotent, so it is safe to rerun if needed.
 
 If login started failing immediately after changing encryption settings, restore the previous `SECRET_KEY_BASE` or previous `ACTIVE_RECORD_ENCRYPTION_*` values first. After the app can read the existing data again, run the backfill task if you are intentionally moving to dedicated keys.
 
+### Upgrading Plaid instance credentials
+
+Plaid and Plaid EU instance secrets now use the same declared encrypted settings as AI and market-data keys. Their provider forms and environment variables are unchanged. The required database migration moves existing stored Plaid credentials to the declared setting names and encrypts their values with the existing settings key derived from `SECRET_KEY_BASE`.
+
+<Warning>
+  This conversion is mandatory, not an optional backfill. Stop old web and worker processes before upgrading, keep `SECRET_KEY_BASE` unchanged, and take a database backup. Run normal database migrations before starting the new web and worker processes. The default Docker web entrypoint runs `db:prepare`; custom deployments must include that step too.
+</Warning>
+
+A conflict between legacy and declared rows, an unexpected legacy format, or an encryption failure stops the migration and preserves the original rows. Resolve the reported issue before retrying; do not skip the migration. Missing or empty credentials remain empty, and ENV-only credentials are not copied to the database.
+
+After conversion, the existing `security:rotate_setting_secrets` task covers both Plaid secrets automatically. The migration is irreversible: it does not recreate plaintext credentials for a downgrade.
+
+If the task reports any credential under `not_decryptable`, re-enter it on the Settings page. Then start the app (web and worker) and check a login and a provider sync.
+
 ### Sure NDJSON import file size limit
 
 By default, Sure NDJSON imports are limited to a fixed maximum file size. Self-hosted admins can raise this limit with an environment variable:
