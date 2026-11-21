@@ -1183,6 +1183,24 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Clearing a note on a balance value had no effect
+
+When you opened a balance value entry, cleared the note field, and moved focus away, the note reappeared the next time you opened that value. The cleared note was not saved.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The note field auto-submits `notes: ""` when it loses focus. The `ValuationsController#update` action only saved notes when a non-blank value was present, so a blank submission was silently ignored and the previous note remained in the database.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The controller now saves notes whenever the request submits the notes field, regardless of its value. A cleared note is stored as nil, the same as an entry that never had one. A notes "is empty" rule condition continues to treat nil notes as empty.
+
+    The balance confirmation form (which only sends date and amount) does not submit the notes field, so confirming a balance update still leaves the note untouched.
+
+    Upgrade to a build containing [Sure PR #4806](https://github.com/we-promise/sure/pull/4806). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
