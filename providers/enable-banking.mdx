@@ -215,14 +215,18 @@ Sure also strips known small-merchant payment-processor prefixes (SumUp, Square,
 
 ### Duplicate transaction handling
 
-Enable Banking includes robust content-based deduplication to prevent API-level duplicate transactions:
+Enable Banking includes robust deduplication to prevent duplicate transactions and to apply bank-issued corrections:
 
 - The API sometimes returns the same logical transaction multiple times with different `entry_reference` IDs
 - Sure uses a composite key based on transaction content, including `transaction_id` when present, plus date, amount, currency, creditor and debtor information, remittance information, status, and credit/debit indicator
 - When multiple transactions have identical content, only the first occurrence is kept
 - The `credit_debit_indicator` helps distinguish between payments and refunds of the same amount on the same day
 
-This keeps your transaction history clean and accurate even when the API returns duplicate data.
+**Corrected transactions:** Some banks redeliver a transaction with the same ID but updated data — for example, a corrected amount, remittance text, or counterparty. When a fetched row's ID matches a stored row's ID, the fetched version replaces the stored one. Stored rows keep their original position in the history; new rows are appended. The snapshot is only rewritten when something actually changed.
+
+Rows that share a `transaction_id` are still told apart by `entry_reference`. For rows without an `entry_reference`, Sure matches by `transaction_id` and booking date. If a bank reuses a `transaction_id` for a different payment on the same day without an entry reference, the stored row is replaced — this edge case is a known limitation when banks omit entry references.
+
+This keeps your transaction history clean and accurate even when the API returns duplicate data or corrected entries.
 
 ### ID-less transaction handling
 
