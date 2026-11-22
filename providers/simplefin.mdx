@@ -46,6 +46,7 @@ If the claim URL decodes to an address that is not permitted (see [URL security 
 - **Pending transactions**: Included by default. Not all institutions return pending transactions even when requested — this is a limitation of the institution's data feed.
 - **Multiple accounts**: Connect multiple bank accounts from different institutions
 - **Localized status messages**: Sync status summaries (such as "2 accounts synced" or "1 account needs setup") display in your chosen language
+- **Snapshot ordering**: Each account and holdings snapshot is timestamped. An older snapshot arriving out of order does not overwrite a newer one that has already been applied. This prevents a delayed API response from rolling back balances or positions that a more recent sync already recorded.
 
 ### Date range filtering
 
@@ -150,6 +151,20 @@ SimpleFIN reports one record per lot, so a single position can arrive as several
 Sure combines these lots into a single position per security before storing the holding. Quantity and market value are summed across all lots. Cost basis is stored per share, so lots are combined into a share-weighted average — but only when every lot reported a basis. If any lot omits its cost basis, the entire position's cost basis is left unknown rather than averaging over partial data, which would invent cost and produce incorrect gain/loss figures.
 
 If your investment account shows a total value that matches your institution's balance but individual holdings appear at less than their full value, a manual sync from **Settings → Providers → SimpleFIN** will re-import the combined positions correctly.
+
+### Holdings snapshot behavior
+
+When SimpleFIN returns a snapshot for an investment or crypto account, Sure applies it using these rules:
+
+| What SimpleFIN sends | What Sure does |
+|---|---|
+| Holdings with positions | Applies the latest snapshot, replacing the current day’s holdings row |
+| Empty holdings list | Closes all open positions by recording zero-quantity rows for the current date |
+| Holdings field omitted | Retains the last explicitly received snapshot; no positions are changed |
+
+This means a sync that returns no holdings field will never silently wipe your positions. Only an explicit empty list signals that the institution reports no open positions.
+
+If you disconnect a SimpleFIN connection while another SimpleFIN connection covers the same account, the closed connection’s empty snapshots no longer hide the active connection’s positions.
 
 ### Holdings history
 
