@@ -203,6 +203,15 @@ QIF files can contain split transactions — single entries that are broken into
 
 Split categories are shown separately on the Select step so you can choose which ones to include. If the split amounts do not sum to the parent total, Sure skips the split lines and imports the transaction as a single entry.
 
+### Opening balance recognition
+
+QIF files mark an account's starting balance with a special record whose payee field identifies it as an opening balance entry rather than a real transaction. Sure recognizes the following payee names:
+
+- `Opening Balance` — used by Quicken and most English-language exports
+- `Eröffnungssaldo` — used by German exports such as Lexware FinanzManager
+
+When Sure finds a record with one of these payees, it sets the account's opening balance to the amount and date in that record and excludes the record from the imported transactions. If the file uses a different language's label and Sure does not recognize it, the entry is imported as an ordinary transaction instead.
+
 ### Multi-account QIF files
 
 A QIF file exported from Quicken can contain multiple accounts in a single file (identified by `!Account` sections). When Sure detects account metadata in the file:
