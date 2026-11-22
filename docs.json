@@ -98,6 +98,7 @@
               "providers/mercury",
               "providers/monobank",
               "providers/questrade",
+              "providers/sharesight",
               "providers/wise",
               "providers/simplefin",
               "providers/plaid",
