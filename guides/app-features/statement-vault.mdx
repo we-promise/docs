@@ -62,6 +62,21 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published. You can target any account — including provider-synced accounts — because Sure reconciles extracted transactions against what the account already holds before presenting them for review.
 
+### How AI-extracted balances are applied
+
+The AI may extract an opening balance and a closing balance from the PDF. How those values are applied depends on whether the statement text already supplied the same figure with a CR or DR marker:
+
+- If the statement text contains a balance reading marked as CR or DR, that reading is considered detected and takes the sign derived from the linked account's classification. The AI's figure is ignored for that balance field.
+- If the statement text contains a balance figure with no CR or DR marker, it is not considered detected. Sure uses the AI's value, including the sign the AI assigned.
+
+This means that a negative closing balance reported by the AI is preserved when the PDF prints the figure without a debit/credit marker, rather than being overwritten by the unsigned text reading.
+
+**Balances you edit manually** are recorded as edited and are never overwritten by the AI or by re-derivation, unless you re-link the statement to a different account or change its currency.
+
+**Balances from a failed save** are not treated as edits. If a save fails validation and you resubmit the form, the balances in the resubmitted form are compared against what the derivation would produce. A value that matches the derivation is not recorded as edited, so a later link to a credit card can still apply the correct sign.
+
+**Currency changes** are handled before balances are written. If the AI extracts a balance in a currency that cannot be matched to the statement's target currency, the balance is skipped rather than saved as nil.
+
 ### Reconciliation
 
 When you assign an account to a PDF import, Sure matches each extracted transaction against the account's existing entries by amount and date (with a small date window to account for posting-date differences). Transactions that are already on file are marked reconciled and excluded from the import; only genuinely new transactions are offered for review.
