@@ -496,10 +496,22 @@ VECTOR_STORE_PROVIDER=pgvector
 EMBEDDING_MODEL=mxbai-embed-large           # Default: mxbai-embed-large
 EMBEDDING_DIMENSIONS=1024                   # Must match your embedding model (default: 1024)
 EMBEDDING_URI_BASE=http://ollama:11434/v1   # Falls back to OPENAI_URI_BASE if not set
-EMBEDDING_ACCESS_TOKEN=                     # Optional; falls back to OPENAI_ACCESS_TOKEN
+EMBEDDING_ACCESS_TOKEN=                     # Key for the embedding endpoint (see note below)
 ```
 
 The LLM and embedding endpoints are independent. A common fully local setup uses an OpenAI-compatible chat model via `OPENAI_URI_BASE`, pgvector for storage, and a separate embedding model via `EMBEDDING_URI_BASE`.
+
+**Key routing for embedding requests**
+
+When `EMBEDDING_URI_BASE` points to a separate server (not OpenAI), Sure sends the key in this order of priority:
+
+1. `EMBEDDING_ACCESS_TOKEN` environment variable
+2. `OPENAI_ACCESS_TOKEN` environment variable
+3. No key (for endpoints that don't require one, such as a local Ollama instance)
+
+The OpenAI API key saved in **Settings → Self-Hosting** is never sent to a custom embedding endpoint. It is only used when `EMBEDDING_URI_BASE` is not set, or when `EMBEDDING_URI_BASE` resolves to the same server as the OpenAI URL saved in Settings.
+
+If you previously relied on the Settings key to authenticate a custom embedding gateway (such as an OpenAI-compatible proxy), set `EMBEDDING_ACCESS_TOKEN` explicitly and restart Sure.
 
 Sure enables the `vector` extension automatically when it first provisions the chunks table, provided the database user has permission. If the AI status page reports the extension is available but not enabled, connect as the PostgreSQL superuser and run:
 
