@@ -62,6 +62,18 @@ When you upload a PDF through the import flow, Sure first stores it as an unmatc
 
 After transactions are extracted, the import still needs an account before it can be published. You can target any account — including provider-synced accounts — because Sure reconciles extracted transactions against what the account already holds before presenting them for review.
 
+### Opening and closing balance detection
+
+When Sure reads a PDF statement, it looks for opening and closing balance figures in the text. A balance on a credit card statement often carries a CR or DR marker — for example, `Closing balance $435.88 CR`. Sure reads that marker and applies the correct sign based on the account type:
+
+- CR on a liability account (such as a credit card) means the card is in credit, so the balance is stored as a negative amount.
+- DR on an asset account (such as a current account) means money has left, so the balance is stored as a negative amount.
+- CR on an asset account and DR on a liability account are stored as positive amounts.
+
+If a statement summary table is present, Sure uses it only when it adds up correctly for the linked account type (opening + in - out = closing). Tables that add up for one account type but not the other are excluded.
+
+Balances are re-evaluated each time you link, unlink, or relink an account, or change the statement currency. If you edit a balance manually or the AI extraction fills one in, Sure treats that value as final and does not re-derive it.
+
 ### Reconciliation
 
 When you assign an account to a PDF import, Sure matches each extracted transaction against the account's existing entries by amount and date (with a small date window to account for posting-date differences). Transactions that are already on file are marked reconciled and excluded from the import; only genuinely new transactions are offered for review.
