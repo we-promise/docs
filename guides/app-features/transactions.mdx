@@ -452,6 +452,35 @@ Amounts use the same sign convention as the transaction endpoints: positive for 
 
 Read requests need read scope and access to the account. Split writes need `read_write` scope and owner or full-control permission on the account. Use `amount_decimal` from the split response for exact amounts; inputs are rounded to four decimal places before checking their sum. See the [OpenAPI spec](https://docs.sure.am/openapi.yaml) for full request and response schemas.
 
+## Reconciliation
+
+Reconciliation lets you confirm that the transactions in Sure match your statements. It applies to manually entered accounts (accounts with no bank sync). Provider-synced accounts use a separate statement-based reconciliation flow through the Statements tab.
+
+### Reconciliation statuses
+
+Each transaction in a manual account can carry one of three statuses:
+
+| Status | Meaning |
+|---|---|
+| Unreconciled | Not yet checked against a statement. |
+| Cleared | Confirmed on a statement, but the period is not fully reconciled. |
+| Reconciled | Statement period fully reconciled. |
+
+Clicking the reconciliation badge on a transaction cycles through the statuses in order: Unreconciled → Cleared → Reconciled → Unreconciled.
+
+### Reconciling from the transaction list
+
+1. Open the account's activity feed or the Transactions page, filtered to the manual account.
+2. Click the reconciliation badge on each transaction to mark it as Cleared or Reconciled.
+
+For bulk operations, select multiple transactions and choose **Reconcile** from the selection bar to set the same status across all of them at once.
+
+You can also mark all transactions in an account at once from the account menu. Choose **Mark all as cleared**, **Mark all as reconciled**, or **Mark all as unreconciled**. Bulk reconciliation is only available for manually entered accounts.
+
+### Reconciliation indicator
+
+The account list shows a reconciliation indicator next to each manual account with transactions. A green checkmark means all transactions are reconciled; an amber indicator means some need attention. The indicator also appears on provider-synced accounts when a statement has been uploaded — in that case it reflects whether all transactions through the statement's period end date have been reconciled.
+
 ## Bill allocations
 
 When a transaction has been applied to one or more bill occurrences, an **Applied to** section appears at the bottom of the transaction detail view. Each entry shows the bill name (linked to the bill's detail page), the amount applied, and the due date of the occurrence.

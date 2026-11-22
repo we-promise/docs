@@ -105,6 +105,8 @@
               "providers/up-bank",
               "providers/snaptrade",
               "providers/sophtron",
+              "providers/sharesight",
+              "providers/truelayer",
               "providers/trade-republic",
               "providers/trading212",
               "providers/financekit",
