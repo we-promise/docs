@@ -172,8 +172,8 @@ You can keep your bank's statements alongside an account and let Sure check bala
 
 Sure needs each statement's **period** to show which months are covered and to compare balances. It finds the period in this order:
 
-1. **Inside the PDF** — when the statement includes its period as a date range (e.g. `01 Apr 2026 - 30 Apr 2026`) or as the dates next to the opening and closing balance (e.g. "Saldo iniziale al 01.07.2025"). Sure also reads opening and closing balances from a summary table or next to labels such as "Opening balance" and "Closing balance". Month names and labels are recognized in English, Italian, German, French, Spanish, Dutch, and Portuguese.
-2. **Dates in the filename** — for everything else, e.g. `2026-04`, `2026-04-30`, or `Apr 2026`.
+1. **Inside the PDF** — when the statement includes its period as a date range (e.g. `01 Apr 2026 - 30 Apr 2026` or `3 Sep 21 - 1 Oct 21`) or as the dates next to the opening and closing balance (e.g. "Saldo iniziale al 01.07.2025"). Date ranges with two-digit years are read as 20yy; a four-digit year period in the same document takes precedence. Sure also reads opening and closing balances from a summary table or next to labels such as "Opening balance" and "Closing balance". Month names and labels are recognized in English, Italian, German, French, Spanish, Dutch, and Portuguese.
+2. **Dates in the filename** — for everything else, e.g. `2026-04`, `2026-04-30`, or `Apr 2026`. A period detected inside the PDF takes precedence over a date in the filename.
 3. **Dates inside a CSV** — if the filename did not supply the period, Sure samples up to 250 date values from a recognized date column to fill missing period boundaries. Review the result, since a sample may not cover the whole statement.
 4. **Manually** — open the statement and enter the period and balances yourself.
 
