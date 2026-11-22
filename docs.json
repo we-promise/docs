@@ -44,6 +44,7 @@
               "guides/app-features/assistant-sidebar",
               "guides/app-features/transactions",
               "guides/app-features/budgets",
+              "guides/app-features/reports",
               "guides/app-features/csv-imports",
               "guides/app-features/statement-vault",
               "features/recurring-transactions",
