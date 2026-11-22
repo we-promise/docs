@@ -223,6 +223,14 @@ QIF files support several date styles including:
 - `DD-MM-YYYY` (dash-separated)
 - `DD MMM YYYY` (e.g. `26 Jan 2026`, Amex-style)
 
+#### Changing the date format updates the category and tag lists
+
+When you pick a different date format on the Select step, Sure re-parses your QIF file with the new format. Some transactions that the previous format could not read may become valid, introducing categories and tags that were not present before.
+
+If the category or tag lists change after a format switch, Sure returns you to the Select step and shows a notice. All entries are pre-selected so you can review and adjust them before continuing. If the lists stay the same, the selection you made is applied immediately and you proceed to the next step.
+
+Your previous category and tag selection is cleared whenever the date format changes, because it was based on the rows the old format produced.
+
 ### Investment transactions
 
 QIF `!Type:Invst` sections are imported as investment activity. Trade actions (Buy, Sell, Cover, ShtSell, ReinvDiv) create Trade records. Non-trade actions (Div, IntInc, CGLong, CGShort, XIn, XOut, MiscInc, MiscExp) create Transaction records with appropriate labels.
