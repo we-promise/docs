@@ -107,7 +107,21 @@ Use the play/pause icon to manually activate or deactivate a recurring transacti
 
 Use the trash icon to permanently remove a recurring transaction record.
 
-#### Renaming a bill
+#### Bank reference matching
+
+You can set a bank reference on a bill to improve payment matching for bills whose amounts vary — such as utilities or insurance with changing premiums — or whose payee name does not appear reliably in the transaction data.
+
+**Bank reference** — a stable token from the bank's payment note (also called Verwendungszweck in some countries), such as a contract number or customer number. When a bank reference is set, any payment on the bill's account whose note contains that reference is linked to the bill, regardless of amount, payee, or date. The reference must be at least 3 and at most 100 characters. Setting a bank reference requires the bill to have an associated account; it is not available for income series.
+
+**Match by reference only** — when this toggle is on, the bill's name and merchant are ignored entirely and only the bank reference determines whether a payment matches. This is useful when the payee name in the note is inconsistent or shared with unrelated transactions. The toggle has no effect unless a bank reference is also set.
+
+To set these fields, open the bill drawer and choose **Edit**. Both fields appear in the edit form.
+
+The reference match is case- and whitespace-insensitive. If the payment's note also contains a reference belonging to a different active bill on the same account, that payment is excluded from this bill and directed to the one whose reference it carries.
+
+When you enable match by reference only on a bill that already has confirmed automatic payment links, Sure re-examines those existing links on the next background run and releases any that no longer qualify under the new rule — specifically, confirmed auto-matched payments whose note lacks the reference. Only auto-matched links are touched; payments you confirmed manually are left as-is.
+
+### Renaming a bill
 
 You can rename a bill from the bill drawer (Edit → name field). Renaming updates its display name without changing its matching identity. For bills matched by transaction name, Sure preserves the original detected name separately and shows it in the "How this bill is matched" section of the drawer as "Matches transactions named {name}". This hint only appears when the detected name differs from the bill's current display name, and is hidden for merchant-backed bills (which match by merchant ID regardless of transaction name). Bills linked to a merchant continue to match by merchant ID. Renaming alone does not cause a bill to be suggested again.
 
@@ -494,9 +508,9 @@ Only manually declared income series (bill type `income`) define pay periods. Au
 
 All write tools confirm their arguments strictly and return a clear error rather than guessing at ambiguous input.
 
-**`create_bill`** — creates a bill, subscription, installment plan, or income schedule. Required fields: `name`, `amount` (always a positive magnitude), and `first_due_on` (seeds the due-day anchor). Optional fields include `frequency`, `is_income`, `bill_type`, `account_name`, `category_name`, `autopay`, `payment_url`, and `notes`. The `frequency` field accepts the named preset cadences only (`monthly`, `weekly`, `biweekly`, `semimonthly`, `quarterly`, `semiannual`, `annual`). Custom intervals cannot be set through this tool. Unrecognized frequency values are rejected with the list of valid cadences rather than silently defaulting to monthly.
+**`create_bill`** — creates a bill, subscription, installment plan, or income schedule. Required fields: `name`, `amount` (always a positive magnitude), and `first_due_on` (seeds the due-day anchor). Optional fields include `frequency`, `is_income`, `bill_type`, `account_name`, `category_name`, `autopay`, `payment_url`, `notes`, `bank_reference`, and `reference_only`. The `frequency` field accepts the named preset cadences only (`monthly`, `weekly`, `biweekly`, `semimonthly`, `quarterly`, `semiannual`, `annual`). Custom intervals cannot be set through this tool. Unrecognized frequency values are rejected with the list of valid cadences rather than silently defaulting to monthly. `bank_reference` and `reference_only` are not available for income series.
 
-**`update_bill`** — updates one bill's configuration. Pass only the fields being changed. Amount changes apply forward only; occurrences already due keep their original figure. Changing the frequency pins the schedule so automatic detection respects it as the user's intent. `status` accepts `active` or `paused`.
+**`update_bill`** — updates one bill's configuration. Pass only the fields being changed. Amount changes apply forward only; occurrences already due keep their original figure. Changing the frequency pins the schedule so automatic detection respects it as the user's intent. `status` accepts `active` or `paused`. Pass an empty string for `bank_reference` to clear it.
 
 **`record_bill_payment`** — records a payment against a bill's open occurrence. Omit `amount` to settle in full; pass `amount` for a partial payment. The tool rejects an amount that exceeds the remaining balance on the occurrence. Linking to a specific bank transaction is not possible here; the app's matching engine owns that flow.
 
@@ -603,6 +617,9 @@ Identify recurring income like:
 
 ## Limitations
 
+- Bank references must be between 3 and 100 characters; shorter or longer values are rejected
+- Bank reference matching requires the bill to have an associated account; it is not available for income series
+- The match by reference only toggle has no effect unless a bank reference is set
 - Requires at least 3 occurrences in the last 3 months for automatic detection
 - Last occurrence must be within 45 days for automatic detection
 - Transactions in Investment and Crypto accounts are excluded from bill and income detection
