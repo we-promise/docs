@@ -509,6 +509,34 @@ When you change the sync time in the UI, Sure saves your family's current timezo
 
 With Docker Compose, ensure these variables reach the application and worker containers. Setting them only in Compose's `.env` file does not pass them into the containers.
 
+### Reports cache
+
+Sure caches each member's report body after a family sync and serves a stale build while a newer one is generated in the background. The five standard periods (this month, this quarter, Year to Date, Last 6 Months, and All time) are built automatically after each sync. A page that has never been built, or for which a member clicks **Refresh**, is built while the member waits; all other visits are served from the cache immediately.
+
+Three settings control the cache. Each can be set in **Settings → Self-Hosting → Sync Settings**, or overridden by an environment variable. An environment variable takes precedence over the saved value.
+
+| Setting | Default | Env |
+|---|---|---|
+| Keep cached pages for (days) | 7 | `PAGE_CACHE_DAYS` |
+| Rebuild cached pages at most every (minutes) | 60 | `PAGE_CACHE_COOLDOWN_MINUTES` |
+| Max cache size (MB) | 100 | `PAGE_CACHE_MAX_MB` |
+
+```txt
+# Keep cached report pages for this many days (default: 7, range: 1–365)
+PAGE_CACHE_DAYS=7
+
+# Minimum minutes between background rebuilds of the same page (default: 60, range: 0–10080)
+PAGE_CACHE_COOLDOWN_MINUTES=60
+
+# Maximum total size of the report cache in MB (default: 100)
+# The settings page shows current usage alongside this limit.
+PAGE_CACHE_MAX_MB=100
+```
+
+Pages are stored compressed and encrypted per family. When the cache would exceed `PAGE_CACHE_MAX_MB`, the least-recently-served pages are dropped first. A page larger than the whole limit is served but not kept. Setting `PAGE_CACHE_COOLDOWN_MINUTES` to `0` lets a background rebuild start immediately after the previous one finished.
+
+Rotating `SECRET_KEY_BASE` invalidates all cached pages. Pages are rebuilt on the next visit or after the next sync.
+
 ### Redis Sentinel (high availability)
 
 By default Sure connects to Redis using `REDIS_URL`. For high-availability deployments that use Redis Sentinel, set `REDIS_SENTINEL_HOSTS` instead. When that variable is present it takes precedence over `REDIS_URL`.
