@@ -1,0 +1,99 @@
+---
+title: Reports
+description: Comprehensive financial reports covering spending, net worth, investments, and trends.
+keywords: ["reports", "spending", "net worth", "investments", "trends", "biggest expenses"]
+---
+
+## Overview
+
+The Reports page gives you a comprehensive view of your financial health across several sections: a summary dashboard, spending vs normal, activity breakdown, net worth, trends, investment performance, investment flows, budget performance, and biggest expenses. Each section can be reordered by dragging to match how you prefer to review your finances.
+
+## Choosing a time period
+
+A period picker at the top of the page controls the date range every section reports against. The available periods are:
+
+| Period | What it covers |
+|---|---|
+| Monthly | A single calendar month |
+| Quarterly | A single calendar quarter (Q1–Q4) |
+| Yearly | Year to date for the selected year |
+| Last 6 months | A rolling six-month window |
+| All time | From your earliest transaction to today |
+| Custom range | A start and end date you pick |
+
+Use the previous and next arrows to move between periods. Keyboard shortcuts are shown in tooltips next to each arrow.
+
+## Filtering by tag
+
+A tag filter above the report lets you narrow every section to transactions tagged with one or more of your tags. Select **All tags** to see unfiltered data, or choose specific tags and click **Apply**. When a selection is active, the picker shows a count like "2 tags selected".
+
+## Report sections
+
+### Summary
+
+A top-level summary card shows total income, total expenses, and net savings for the selected period, alongside a comparison to the previous period. If you have budgets set up, it also shows overall budget performance.
+
+### Spending vs normal
+
+This section compares your spending for the selected period against what is typical for a period of the same length, based on your historical data. Each spending category is shown in a treemap coloured by how far above or below normal it is:
+
+| Colour | Meaning |
+|---|---|
+| Dark green | 50–100% less than normal |
+| Light green | 15–50% less than normal |
+| Neutral | About normal |
+| Light red | 15–50% more than normal |
+| Red | 50–100% more than normal |
+| Dark red | More than 100% above normal |
+
+Clicking a category in the treemap opens the matching transactions. A "What changed" list below the treemap summarises categories that deviated from normal.
+
+If there is not enough earlier history to establish a baseline, the section says so rather than showing a comparison.
+
+### Activity breakdown
+
+A filterable, sortable table of all transactions in the period, grouped by category. You can filter by category, account, tag, and amount range. Sort by date (newest first), amount high to low, or amount low to high. Transactions can be exported as CSV.
+
+### Net worth
+
+Shows your current net worth alongside total assets and total liabilities. A chart tracks net worth over the selected period, and an assets vs liabilities breakdown lets you see where your wealth is held.
+
+### Trends
+
+A monthly breakdown table with income, expenses, net, and savings rate for each month in the period. Average figures for each column appear at the bottom. A weekday vs weekend spending analysis shows whether your per-transaction spending differs between weekdays and weekends.
+
+### Budget performance
+
+If you have budgets configured, this section lists each category with the amount spent, amount budgeted, and what remains (or how much you are over). Categories are colour-coded as on track, near limit, or over budget. A suggested daily spending figure helps you pace the rest of the month.
+
+### Biggest expenses
+
+A table of your largest individual transactions in the period. You can control how many are shown using the segmented control above the table. One-time transactions are labelled separately so you can tell a regular large expense from an unusual one.
+
+### Investment performance
+
+For accounts with investment holdings, this section shows portfolio value, total return, period return, contributions, and withdrawals. A top holdings table lists each holding with its weight, value, and return. Realised gains are broken out separately with a note that they may be subject to taxes.
+
+If a gain cannot be converted to your currency because no exchange rate is available, it is listed as excluded rather than silently dropped.
+
+### Investment flows
+
+Tracks money flowing into and out of your investment accounts through contributions and withdrawals, with a net flow figure for the period.
+
+## Exporting
+
+A **Export CSV** button at the top of the Reports page downloads a CSV of the transactions in the current period and filter. If you use Google Sheets, you can use the export URL with the `=IMPORTDATA()` function. The page shows instructions for adding your API key to the URL — go to **Settings → API Keys** to create a key with read permission first.
+
+## Printing
+
+**Print Report** at the top of the page opens a print-formatted version of the report. The printed report includes a summary, net worth, monthly trends, investment section, spending by category, and biggest expenses.
+
+## Localization
+
+Reports are available in all languages supported by Sure. Labels, period names, and number formats follow your configured locale.
+
+## API access
+
+The spending vs normal data is available via the API:
+
+- `GET /api/v1/spending_vs_normal` — returns spending vs normal data for a given period
