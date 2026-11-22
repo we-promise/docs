@@ -1,0 +1,92 @@
+---
+title: Sharesight
+description: Connect your Sharesight portfolios to Sure via the Sharesight API
+---
+
+Sharesight is a portfolio tracking service focused on investment performance and reporting. Sure connects to it using a Sharesight API client, syncing your portfolio holdings, trades, dividends, and cash activity.
+
+See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
+## How it works
+
+1. Create a Sharesight API client on the Sharesight developer portal
+2. Enter the client ID and secret into Sure
+3. Sure discovers your Sharesight portfolios and begins syncing holdings and activity
+4. Link each discovered portfolio to a Sure investment account and configure how cash and dividends are handled
+
+## Prerequisites
+
+- A [Sharesight](https://www.sharesight.com) account
+- A Sharesight API client (client ID and client secret) obtained from the [Sharesight API](https://portfolio.sharesight.com/oauth_consumers)
+
+## Setting up Sharesight
+
+### Create an API client
+
+1. Go to your [Sharesight API consumers page](https://portfolio.sharesight.com/oauth_consumers)
+2. Create a new API consumer and note the **client ID** and **client secret**
+
+### Connect Sharesight in Sure
+
+1. In Sure, go to **Settings > Bank sync**
+2. Find the **Sharesight** panel
+3. Enter your **client ID** and **client secret**
+4. Click **Save Configuration** — Sure initiates a sync to discover your portfolios
+5. Once discovery finishes, click **Set up portfolios** and link each portfolio to a Sure account
+
+### Set up discovered portfolios
+
+After the first sync, link each Sharesight portfolio to a Sure investment account:
+
+- Choose an existing manual investment account to link, or let Sure create a new one
+- Portfolios that are already linked appear in the **Already linked** section
+
+## Cash and dividends
+
+Each portfolio has cash and dividend settings that tell Sure where the money actually lives, so it is not counted twice.
+
+### Cash mode
+
+| Mode | Description |
+|---|---|
+| Held by the broker | Cash stays inside Sharesight; Sure tracks it here |
+| Settled through another account | Each trade's cash offsets to another Sure account via a transfer |
+| Not tracked (shares only) | Only share positions are imported; cash is ignored |
+
+When cash is settled through another account, Sure matches each buy, sell, and dividend against a transaction in that account by amount and links them as a transfer. A manual account gets a booked transaction. Before the configured start date, the broker is assumed to hold the cash.
+
+### Funding account
+
+For top-ups and withdrawals, you can configure a funding account and a list of matching text terms (comma-separated). Transactions in that account whose name or notes contain any of those terms are mirrored in the portfolio account and linked as transfers.
+
+### Cash at the broker
+
+For cash Sharesight cannot see directly, enter a known balance and the date you observed it. Sure rolls it forward through all activity recorded since that date. Update it whenever you check the broker.
+
+### Dividends and distributions
+
+| Mode | Description |
+|---|---|
+| Wherever the cash is | Dividends follow the cash mode setting |
+| Paid to another account | Dividends are linked as deposits in a separate Sure account |
+| Don't import | Another connection already shows them; Sure skips import |
+
+## Supported data
+
+- Portfolio holdings (positions, quantities, and current prices)
+- Buys, sells, opening balances, capital returns, and dividends (including reinvested)
+- Deposits, withdrawals, interest, and fees from Sharesight cash accounts
+
+## Managing the connection
+
+To trigger a manual sync, open the Sharesight provider panel in **Settings > Providers** and use the sync option. To disconnect, use the **Delete** option, which removes the connection and schedules the linked Sure accounts for cleanup.
+
+## Troubleshooting
+
+**Status shows "API client needs attention"**: The client credentials are invalid or expired. Update the client ID and secret in **Settings > Bank sync > Sharesight**.
+
+**No portfolios found after saving credentials**: Trigger a manual sync from the Sharesight panel. Confirm the API client has access to your portfolios on the Sharesight site.
+
+**Transfers not matching**: Check the settlement account and date configuration for the portfolio. If the settlement start date is set too early or too late, unmatched activity appears in the wrong account.
+
+**Units drift warning**: If Sure reports that Sharesight holds a different quantity than the trades add up to, check for any corporate actions (splits, mergers) that may not have been imported correctly.
