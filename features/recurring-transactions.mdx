@@ -119,6 +119,8 @@ The **Mark as recurring** button is disabled, and the corresponding POST is refu
 
 Two manual recurring entries for the same payee are allowed as long as their amounts differ (for example, a $3.00 fee and a $19.68 charge from the same merchant). An exact duplicate — same account, payee, currency, and amount — is still blocked.
 
+For recurring transfers, two series between the same accounts with the same amount are allowed when they fall on different days of the month (for example, a 2000 EUR transfer on the 1st and another on the 28th). When you mark a transfer as recurring, Sure matches it to the existing series whose scheduled day is closest to the transfer's date, so a standing order due on a Saturday and posted the following Monday is still recognised as the same series. Marking the same series twice returns "already exists" without creating a duplicate. Changing a recurring transfer's expected day is blocked if another series between the same accounts and amount already holds that day.
+
 #### Create a bill from a transaction
 
 With preview features enabled, **Create a bill** appears alongside **Mark as Recurring** in the detail view for a transaction that is not a split child. It opens the declaration dialog with the merchant name (or transaction name when there is no merchant name), absolute amount, account, currency, category (for expense transactions), and a projected next due date filled in. These fields can be adjusted before saving. An income transaction opens an income declaration instead of a bill, and income declarations do not prefill a category.
@@ -528,7 +530,7 @@ Recurring transactions are automatically marked inactive when no matching transa
 
 This means a quarterly bill is not retired after two months of silence — it is allowed two full quarters of inactivity before being considered stale. An annual bill is given two full years.
 
-For recurring transfers, matching uses transfer-pair detection (an outflow on the source account paired with an inflow on the destination account, within the usual amount and day-of-month tolerance) so transfers stay active while the pair recurs and are retired only when the pair stops.
+For recurring transfers, matching uses transfer-pair detection (an outflow on the source account paired with an inflow on the destination account, within the usual amount and day-of-month tolerance) so transfers stay active while the pair recurs and are retired only when the pair stops. When multiple series exist between the same accounts and amount (for example, one on the 1st and one on the 28th), the cleaner ignores a transfer whose confirmed payment allocation belongs to a different series, so a stopped series is not kept alive by its neighbour's transfers.
 
 ### Data storage
 
