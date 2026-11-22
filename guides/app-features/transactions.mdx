@@ -216,6 +216,16 @@ Bulk edit respects the account share permissions of the user making the change:
 
 This means a bulk edit applied to a mixed selection may update different fields on different transactions depending on the account each transaction belongs to. The final notice shows how many transactions were actually updated.
 
+## Edit a split row's category and merchant
+
+You can change the category and merchant on a split row directly from its detail drawer, without reopening the full split editor.
+
+Open the detail drawer for a split child transaction. The category and merchant pickers are enabled and work the same way as on any other transaction. Both follow the usual annotate permission.
+
+The name, date, and amount of a split row remain read-only in the drawer. To change those fields, open the split editor from the link shown in the drawer.
+
+A category or merchant you set this way is locked against automatic changes by later rules. The parent transaction and the other split rows are not affected.
+
 ## Group split transactions
 
 When a transaction is split into multiple entries, Sure can display the child entries grouped under their parent row with an indented layout. This applies to both the Transactions page and the Activity tab on individual account pages.
