@@ -162,6 +162,16 @@ Each security can be classified by asset class, sub-class, sector, industry, and
 
 A stock split changes a security's share count without a trade. A 2-for-1 split turns 10 shares into 20; a 1-for-10 reverse split turns 100 into 10. The money invested does not change, so the cost per share moves by the inverse of the ratio.
 
+<Note>
+**You can't record a stock split in Sure yet.** The sections below describe how Sure applies a split once a split record exists, but nothing creates one today:
+
+- **Manual entry:** there is no split transaction type and no screen to enter a split. Manual entry is planned.
+- **Connected providers:** no provider import creates a split record. Importing provider splits as split records is planned.
+- **SnapTrade:** a split arrives as an ordinary trade labelled **Other** at a price of 0, a buy of the extra shares for a forward split or a sell for a reverse split. It changes your share count like any other trade, so the split handling below does not apply to it.
+
+Progress is tracked in [we-promise/sure#4322](https://github.com/we-promise/sure/issues/4322) (manual entry) and [we-promise/sure#4323](https://github.com/we-promise/sure/issues/4323) (provider import).
+</Note>
+
 ### How splits are applied
 
 Sure applies a split at the open of its ex-date, before that day's trades. If you hold a security on the ex-date, your share count is scaled up (or down for a reverse split) and the per-share cost is adjusted by the inverse ratio so that your total cost basis does not change.
