@@ -1,0 +1,84 @@
+---
+title: TrueLayer
+description: Connect UK bank accounts via TrueLayer Open Banking
+---
+
+TrueLayer is a UK Open Banking provider. Its Data API reads current accounts, savings accounts, and credit cards from most UK banks and card issuers. You bring your own TrueLayer app, so Sure talks to TrueLayer directly with your credentials.
+
+See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
+
+## Prerequisites
+
+- A publicly accessible Sure instance with HTTPS. TrueLayer accepts plain `http` only for `localhost`.
+- A TrueLayer account with an app. Sign up at [console.truelayer.com](https://console.truelayer.com).
+
+## Setting up TrueLayer
+
+### Step 1: Create a TrueLayer app
+
+1. Sign up at [console.truelayer.com](https://console.truelayer.com) and create an app.
+2. Copy its **client ID** and **client secret**.
+3. Under **Allowed redirect URIs**, add the callback URL shown in Sure's TrueLayer panel. It is `https://<your-sure-host>/truelayer_items/callback` and must match exactly.
+
+A client ID starting with `sandbox-` uses TrueLayer's sandbox, which offers a **Mock Bank** provider for testing without a real account.
+
+### Step 2: Save your credentials in Sure
+
+1. In Sure, go to **Settings → Providers** and open the **TrueLayer** panel.
+2. Enter your client ID and client secret.
+3. Click **Save**.
+
+### Step 3: Connect a bank
+
+1. Click **Connect a bank** in the TrueLayer panel.
+2. Pick your bank from TrueLayer's bank picker and approve access in your bank's app or website.
+3. After authorization, Sure imports the bank's accounts and cards.
+4. Go to the Accounts page and click **Set Up New Accounts** to choose an account type for each imported account. You can also link one to an existing manual account from that account's page.
+
+Each bank you connect is a separate connection with its own consent. Connect more banks by clicking **Connect a bank** again.
+
+## History and syncing
+
+UK banks release more than 90 days of history only while you are present — in practice, the few minutes after you approve access. Straight after connecting a bank, Sure fetches history a year at a time, back to `TRUELAYER_BACKFILL_YEARS` (default 7 years), until the bank refuses an older range.
+
+Set up the imported accounts within a few minutes of approving access to get the full history. If the first import runs after that window, the connection card says so and offers **Reconnect** to open a new consent and fetch the older history.
+
+The setup dialog has an **Import transactions from** date. Leave it blank to keep everything the bank provided. Set a date to exclude older transactions; later syncs and backfills will not fetch before that date either.
+
+After the initial backfill, syncs read the linked accounts from a week before the last sync, never more than 89 days back. Unattended access is rate limited (often about four requests per endpoint per day), so rate-limited requests are not retried.
+
+Transactions are matched by TrueLayer's stable transaction ID, so re-syncing never creates duplicates. Card charges are imported as spending and refunds as income. Pending transactions are not imported — they appear once they are booked.
+
+## Reconnecting
+
+UK Open Banking consent lasts 90 days. Sure shows the expiry date in the TrueLayer panel and a **Reconnect** button from two weeks before the consent lapses, or immediately if the bank revokes access early. Reconnecting keeps the same TrueLayer account IDs, so your linked accounts keep their history.
+
+## Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `TRUELAYER_REDIRECT_URI` | Derived from the request | Callback URL sent to TrueLayer. Set this when a proxy does not forward the public host and scheme. |
+| `TRUELAYER_BACKFILL_YEARS` | `7` | Years of history fetched straight after a bank is connected (1–20). |
+
+## Troubleshooting
+
+### Callback URL mismatch
+
+If TrueLayer refuses the connection with a redirect URI error, check that the **Allowed redirect URIs** in your TrueLayer app exactly matches `https://<your-sure-host>/truelayer_items/callback`. Even a trailing slash difference will cause a mismatch.
+
+If you are behind a proxy that changes the host or scheme, set `TRUELAYER_REDIRECT_URI` to the correct public URL.
+
+### Older history not imported
+
+If the connection card says older history was not imported, your account was not set up during the initial history window. Click **Reconnect** to start a new consent session. Sure will attempt the backfill again straight after the new connection is authorized.
+
+### Requires update
+
+The bank revoked access or the consent expired. Click **Reconnect** in the TrueLayer panel to re-authorize. Your existing history is preserved.
+
+## Limitations
+
+- **UK-focused**: TrueLayer's Data API covers UK banks and card issuers. Coverage for other regions varies.
+- **90-day consent window**: UK Open Banking consent expires every 90 days. You will need to reconnect periodically.
+- **Rate limits on unattended access**: After the initial backfill, syncs are limited to about four requests per endpoint per day for unattended access.
+- **HTTPS required**: Your Sure instance must be publicly accessible with a valid SSL certificate.

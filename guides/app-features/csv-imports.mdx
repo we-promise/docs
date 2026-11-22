@@ -26,6 +26,7 @@ You can import the following types of data via CSV:
 - **Accounts**: Create multiple accounts with opening balances
 - **Actual Budget transactions**: Import transaction history exported from Actual Budget
 - **Mint transactions**: Import transaction history exported from Mint
+- **Monarch**: Import accounts and transactions exported from Monarch Money
 - **Merchants**: Create merchant records in bulk
 - **Transactions**: Import transaction history
 - **Trades**: Import investment trades
@@ -181,6 +182,45 @@ The Map step only appears when your data requires column or account mapping; it 
 5. **Clean**: Fix any invalid rows flagged in the table
 6. **Map** (when needed): Assign imported accounts, categories, or tags to existing ones in Sure
 7. **Confirm**: Review the import summary and publish
+
+## Monarch import
+
+Sure can import your complete financial history from Monarch Money using Monarch's CSV exports. The Monarch importer brings in both balance history and transactions, letting you migrate your accounts without manual column mapping.
+
+### What you need from Monarch
+
+Export the following files from Monarch under **Settings → Data**:
+
+- **Balances** (required) — your account balance history
+- **Transactions** (optional) — your transaction history
+
+### Import steps
+
+<Steps>
+  <Step title="Start the import">
+    Go to **Settings → Imports** and select **Monarch import**. Upload your balances CSV. You can optionally attach the transactions CSV at the same step.
+  </Step>
+  <Step title="Configure each account">
+    Sure shows a table of every Monarch account found in your export. For each account, choose:
+
+    - **Import** — toggle on to include this account, off to skip it.
+    - **Account name** — the name the account will have in Sure. Defaults to the Monarch account name.
+    - **Import into** — create a new account, or import into an existing manual account. Existing accounts keep their own entries; the opening balance moves to match the Monarch history.
+    - **Type** — the account type (checking, savings, credit card, investment, etc.).
+    - **Status** — set to Closed if the account is no longer active. Closed accounts drop to a zero balance the day after their last Monarch balance and are hidden from current totals but remain in historical net worth.
+    - **Transactions** — toggle on to include the account's transactions, off to import balance history only.
+    - **Balance today** — starts at Monarch's latest reported balance. Update it if that balance is out of date. Enter amounts owed on cards and loans as positive numbers.
+  </Step>
+  <Step title="Review and publish">
+    Click **Review import** to see the full summary, then publish to apply the import to your accounts.
+  </Step>
+</Steps>
+
+### Notes
+
+- Accounts marked inactive in Monarch (no activity in the last 90 days) are flagged with an **Inactive** badge. This does not necessarily mean they are closed — check before setting status to Closed.
+- Accounts with holdings or trades cannot be used as import destinations. Create a new account for those instead.
+- You can revert a published Monarch import from the import detail page. Reverting removes the imported entries and restores any opening balances that were moved.
 
 ## QIF imports
 
