@@ -197,6 +197,10 @@ QIF (Quicken Interchange Format) files are exported from Quicken and similar per
 | Oth A | Other Asset |
 | Oth L | Other Liability |
 
+Account type matching is case-insensitive, so `!Type:BANK`, `!Type:ccard`, and other mixed-case variants are treated the same as their standard equivalents.
+
+If your QIF file contains account sections with a type that Sure does not recognize — for example, `Oth T` from Lexware FinanzManager — Sure reads those sections as bank accounts rather than skipping them silently. The Select step shows a warning that lists the unrecognized types so you can confirm the fallback behavior before proceeding. Sections that hold list data (Tag, Cat, Class, Security, Prices, Memorized) are still skipped.
+
 ### Split transactions
 
 QIF files can contain split transactions — single entries that are broken into multiple line items with individual categories, amounts, and notes. When your file contains splits, Sure imports each split line as a child entry under the parent transaction, preserving the original breakdown.
