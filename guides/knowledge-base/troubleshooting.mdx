@@ -3,6 +3,26 @@ title: "Troubleshooting"
 ---
 
 
+## Account sidebar blinks or redraws when switching between accounts
+
+When you click from one account to another, the account sidebar sparklines and account logos briefly flash or show placeholders before redrawing — even though the data has not changed.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Each Turbo page visit replaced the entire page body, including the sidebar. Every sparkline frame restarted from its placeholder and re-fetched its chart data (most requests were answered from the browser cache, but each chart still went through placeholder → chart on every click). Each account logo was a new `<img>` element, so logos showed their initials placeholder until the image loaded.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sparkline frames and account logo images now sit in `data-turbo-permanent` wrappers. On a Turbo visit, elements with this attribute are moved into the new page instead of replaced, so anything already drawn stays as-is. Only sparklines whose data version changed, or logos whose image changed, fetch fresh content; everything else is kept without any placeholder flash.
+
+    A `kept-element` controller handles cleanup: wrappers that a morph refresh no longer needs are removed before the morph runs, so stale charts do not stack up after a sync. Sparklines that timed out and logos that failed to load drop their permanence so the next page retries them. Same-origin logos that fail once are retried at a fresh URL before falling back to the initials placeholder.
+
+    Stored logo URLs now round their expiry to the end of the day, keeping them stable in the browser cache across a full day's worth of page visits. iOS Safari, which sometimes drops cached images on back/forward navigation, is handled by sending `private, max-age=<expiry>, immutable` headers for account logos so the browser keeps them without revalidating.
+
+    Upgrade to a build containing [Sure PR #4827](https://github.com/we-promise/sure/pull/4827). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
