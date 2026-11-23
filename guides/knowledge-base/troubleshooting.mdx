@@ -1183,6 +1183,26 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Pagination hidden behind the bottom navigation bar on iOS after a cold launch
+
+On an iPhone with Sure installed as a web app, pagination controls and the rows-per-page menu at the bottom of an account page stayed hidden behind the fixed bottom navigation bar immediately after a cold launch. Scrolling away and back, or backgrounding and reopening the app, made the content reachable again.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The main scroll container (`#main`) uses bottom padding to leave room for the fixed bottom navigation bar, sized as `5rem + env(safe-area-inset-bottom)`. Safari on iOS can leave a scroll container's bottom padding out of its scrollable range on first load, so the padding that was meant to let the end of the page scroll clear of the nav was not counted. The scroll range was 114 px shorter than expected, leaving the last row of pagination controls hidden behind the bar.
+
+    The gap closed when Safari recalculated the layout — for example, after a background-and-foreground cycle — which is why the problem disappeared once the app had been to the background and back.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    An empty `::after` spacer is added to `#main`, sized to match the bottom padding (`calc(5rem + env(safe-area-inset-bottom))`). The spacer carries an equal negative bottom margin so it adds no room to the layout but its box always reaches the end of the padding. Because Safari always includes element boxes in the scroll range (even when it drops padding), the full scroll distance is available from the first load.
+
+    The existing bottom padding is kept so that full-height pages (such as the AI assistant chat) continue to size correctly to the area above the nav. Both the padding and the spacer are phone-only and have no effect on desktop (`lg:pb-0`, `lg:after:hidden`).
+
+    Upgrade to a build containing [Sure PR #4965](https://github.com/we-promise/sure/pull/4965). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
