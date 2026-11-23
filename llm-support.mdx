@@ -17,12 +17,12 @@ Sure has two separate AI systems that operate independently. Understanding this 
 - **External**: delegates the entire conversation to a remote AI agent. The agent calls back to Sure via MCP to access financial data. Set `ASSISTANT_TYPE=external` as a global override, or configure it per family in Settings.
 - **MCP only**: disables the in-app assistant entirely — no chat sidebar, no chat API, no bills AI shortcuts, no Dig in with AI on insight cards. The `/mcp` endpoint stays active so external agents can still connect. Background auto-categorization also continues. Use this when you bring your own agent over MCP and want to remove the built-in chat UI. Set `ASSISTANT_TYPE=mcp_only` as a global override, or choose "None in app (connect your own agent via MCP)" in Settings → Self-Hosting.
 
-**Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync:
+**Auto-categorization (background)** — a two-step pipeline that classifies uncategorized transactions on every sync. Requires family consent (see [AI consent](#ai-consent) below).
 
 1. **Naive Bayes pass** — trains a multinomial Bayes model on the family's existing categorized transactions and classifies new ones locally. No provider or API key is needed. Only transactions that clear a 70% confidence threshold are categorized; the rest fall through to step 2. The Bayes pass requires at least 20 categorized transactions across at least 2 categories before it activates. If Bayes categorizes every transaction in a batch, the LLM step is skipped entirely.
 2. **LLM pass** — sends the remaining uncategorized transactions to the provider selected by `LLM_PROVIDER`. This step is skipped when Bayes covers the full batch.
 
-**Merchant detection (background)** — uses the preferred configured LLM provider (OpenAI-compatible or native Anthropic). Selecting Jev for categorization does not route merchant detection to Jev.
+**Merchant detection (background)** — uses the preferred configured LLM provider (OpenAI-compatible or native Anthropic). Selecting Jev for categorization does not route merchant detection to Jev. Requires family consent (see [AI consent](#ai-consent) below).
 
 | Setting | Chat assistant | Auto-categorization | Merchant detection |
 | --- | --- | --- | --- |
@@ -31,6 +31,28 @@ Sure has two separate AI systems that operate independently. Understanding this 
 | `ASSISTANT_TYPE=mcp_only` | Disabled (in-app chat off) | Bayes first, then LLM provider or Jev | Uses the configured LLM provider |
 
 If you use an external agent for chat, auto-categorization and merchant detection still use the configured LLM provider. Set `OPENAI_ACCESS_TOKEN` (for the OpenAI-compatible provider) or `ANTHROPIC_ACCESS_TOKEN` / `ANTHROPIC_API_KEY` (for the native Anthropic provider), or configure [Jev](/providers/jev) as the categorization provider. Families with at least 20 categorized transactions across 2 or more categories will see Bayes reduce or eliminate LLM calls for categorization.
+
+## AI consent
+
+Sure checks consent before sending any data to an AI provider. Each feature has a consent level, and the right person’s setting is checked before the feature runs.
+
+**User-level features** run in direct response to a user action and send that user’s data. The user must have AI enabled in their account. These features are:
+
+- Chat
+- Bills (AI setup)
+- Document search
+- PDF import (uploading a PDF is itself the request; no extra switch is checked)
+
+**Family-level features** run in the background without any single user starting them. They process the whole family’s transactions, so they require a family admin to have AI enabled. These features are:
+
+- Auto-categorization
+- Merchant detection
+- Merchant enhancement
+- AI rule actions (categorization and merchant detection triggered by rules)
+
+If no family admin has AI enabled, background categorization, merchant detection, and related rule actions do not run. The Enhance button on merchant pages is also hidden until an admin enables AI. A member’s own AI switch covers only what that member starts directly. Members cannot grant family-level consent on their own.
+
+To grant family consent, a family admin opens the AI assistant, reviews the consent screen, and enables AI. The screen explains which data each feature sends and that it is sent as-is. As an admin, the screen also notes that enabling AI activates background categorization and merchant detection for the whole family.
 
 ## Where AI jobs run (Sidekiq lanes)
 
