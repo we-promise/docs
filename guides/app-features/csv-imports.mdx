@@ -84,6 +84,45 @@ The date format should match your import settings. Common formats include MM/DD/
 - Other Asset
 - Other Liability
 
+## Importing from Mint
+
+Sure provides a dedicated Mint importer for CSV exports from the Mint personal finance app. It reads the `Transaction Type` column to determine whether each row is income or an expense, so you do not need to adjust amount signs before uploading.
+
+### CSV format
+
+| Column | Required | Description | Example |
+|--------|----------|-------------|---------|
+| Date | Yes | Transaction date (MM/DD/YYYY) | 01/01/2024 |
+| Amount | Yes | Transaction amount (magnitude; sign is ignored) | 8.55 or -8.55 |
+| Account Name | Yes | Account name | Checking |
+| Description | Yes | Transaction description | Starbucks |
+| Transaction Type | Yes | `debit` for expenses, anything else is treated as a debit | debit |
+| Category | No | Category name | Food & Drink |
+| Labels | No | Pipe-separated tags | Coffee\|Breakfast |
+| Currency | No | Currency code (defaults to family currency) | USD |
+| Notes | No | Additional notes | Morning coffee |
+
+### How amounts are signed
+
+The `Transaction Type` column carries the direction for each row. Sure reads the amount as a magnitude and applies the sign based on the type:
+
+- `credit` rows import as positive (income)
+- Anything else (including `debit`) imports as negative (expense)
+
+The sign written in the Amount column itself is ignored. A `-8.55` debit and an `8.55` debit both import as `-8.55`.
+
+Currency-formatted amounts such as `$1,234.56` and amounts without a leading zero such as `.50` are parsed correctly.
+
+### Example CSV
+
+```csv
+Date,Amount,Account Name,Description,Category,Labels,Currency,Notes,Transaction Type
+01/01/2024,-8.55,Checking,Starbucks,Food & Drink,Coffee|Breakfast,USD,Morning coffee,debit
+04/15/2024,2000,Savings,Paycheck,Income,,USD,Bi-weekly salary,credit
+```
+
+You can also download a pre-filled sample CSV from the Mint import screen inside Sure.
+
 ## Importing transactions
 
 Transaction imports let you add historical transaction data to your accounts.
@@ -342,6 +381,15 @@ Sure will import all rows from your CSV. Review your data before importing to av
 ### Rule import with tag conditions produces broken rules
 
 If you imported a rules CSV with `transaction_tag` conditions on an older version of Sure (before the fix in [#3419](https://github.com/we-promise/sure/pull/3419)), the tag name was stored as-is instead of being resolved to the tag's ID. Rules with this problem match no transactions for the tag condition. To fix affected rules, delete and re-import them, or edit each rule manually in **Settings → Rules** to remove and re-add the tag condition.
+
+### Mint import shows reversed amounts or zero amounts
+
+On versions of Sure before [#5690](https://github.com/we-promise/sure/pull/5690), the Mint importer had two bugs:
+
+- Debit rows imported as income and credit rows imported as expenses — the direction was reversed.
+- Currency-formatted amounts such as `$1,234.56` imported as `0`, and amounts without a leading zero such as `.50` also imported as `0`.
+
+Both issues are fixed. If you imported a Mint CSV on an older version and see backwards amounts or unexpected zeros, revert the import and re-import using an up-to-date version of Sure.
 
 ### Sure NDJSON import fails with a null rule name
 
