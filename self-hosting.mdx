@@ -1337,6 +1337,60 @@ The Codespaces initializer also re-declares the cookie store with `SameSite=None
 
 If you cannot log in through a Codespaces preview URL, confirm that the three environment variables above are present in your Codespace environment and that the app is running with `CODESPACES=true`.
 
+## Browser push notifications
+
+Sure can deliver high-priority insight notifications directly to browsers and installed PWAs on any platform that supports the Web Push API, including iOS Safari (16.4+) when Sure is added to the home screen.
+
+### Environment variables
+
+Set the following variables for both the `web` and `worker` services:
+
+| Variable | Description |
+| --- | --- |
+| `WEB_PUSH_VAPID_PUBLIC_KEY` | VAPID public key (URL-safe Base64, uncompressed P-256 point) |
+| `WEB_PUSH_VAPID_PRIVATE_KEY` | VAPID private key (URL-safe Base64) |
+| `WEB_PUSH_VAPID_SUBJECT` | Contact URI — either `mailto:you@example.com` or `https://your-domain.com` |
+
+When all three variables are present and valid, browser push is enabled automatically. When any variable is missing or invalid, the browser push settings panel in Sure shows "This server has not configured browser notifications".
+
+### Generating VAPID keys
+
+Generate a key pair once and store it securely. With the `webpush` gem (included in Sure's bundle):
+
+```bash
+docker compose run --rm web bundle exec ruby -r "web_push" -e "
+  keypair = WebPush.generate_key
+  puts 'WEB_PUSH_VAPID_PUBLIC_KEY=' + keypair.public_key
+  puts 'WEB_PUSH_VAPID_PRIVATE_KEY=' + keypair.private_key
+"
+```
+
+Add the output to your `.env` file and to the `x-rails-env` anchor in `compose.yml` so both `web` and `worker` receive the variables:
+
+```yaml
+x-rails-env: &rails_env
+  WEB_PUSH_VAPID_PUBLIC_KEY: ${WEB_PUSH_VAPID_PUBLIC_KEY}
+  WEB_PUSH_VAPID_PRIVATE_KEY: ${WEB_PUSH_VAPID_PRIVATE_KEY}
+  WEB_PUSH_VAPID_SUBJECT: ${WEB_PUSH_VAPID_SUBJECT}
+```
+
+<Warning>
+  Regenerating VAPID keys invalidates all existing browser subscriptions. Users must re-enable browser notifications after a key rotation.
+</Warning>
+
+### How users enable notifications
+
+1. Open Sure in a supported browser over HTTPS.
+2. Go to **Settings → Notifications** (or the notifications panel in Insights).
+3. Click **Enable this device**. The browser prompts for permission.
+4. For iOS, Sure must first be added to the home screen via Safari's **Share → Add to Home Screen**. iOS 16.4 or iPadOS 16.4 or later is required.
+
+Sessions that expire after 30 days of inactivity stop receiving notifications. Users should open Sure periodically to keep their session alive.
+
+### Testing
+
+After enabling a device, click **Test this device** in the notifications panel. Sure queues a test push; the status updates to show whether the push service accepted the message. A successful acceptance confirms delivery to the push service, not guaranteed display on the device.
+
 ## iOS push notifications
 
 Push notifications are available in hosted mode only. When `SELF_HOSTED=true` or `SELF_HOSTING_ENABLED=true` is set, push registration and delivery are disabled.
