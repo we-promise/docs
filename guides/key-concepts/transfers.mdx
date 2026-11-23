@@ -136,6 +136,8 @@ Go to **Settings → Auto Matches** to see pending suggestions for which you can
 
 Pending suggestions show a **Match?** badge alongside confirm (✓) and reject (✕) buttons in the transaction list on current development builds. In stable v0.7.6-hotfix.1, the badge reads **Auto-matched** on wider screens and **Auto** on smaller screens. You can act on a suggestion without opening the transaction. On smaller screens the controls appear below the amount; on wider screens they appear beside it. The transaction drawer opens a separate transfer matcher.
 
+Clicking the **Match?** badge opens the transfer drawer for that suggested match. The drawer shows each side of the transfer — From and To — with its account, transaction name, date, and amount. The transaction name appears just above the amount for each side, so you can tell candidates apart at a glance without leaving the drawer. Long names wrap rather than being cut off, so the full name is readable on mobile too. If you can only see one side's account, the transaction name for the other side is omitted.
+
 **What changes at confirmation:**
 
 - Sure assigns the appropriate transfer kind (funds movement, CC payment, investment contribution, etc.) to both legs at the moment you confirm — not when the suggestion first appears.
