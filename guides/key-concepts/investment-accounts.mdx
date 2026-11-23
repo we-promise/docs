@@ -35,6 +35,12 @@ If a provider reports prices for individual securities on different dates within
 
 For accounts that have no provider connection, Sure shows the most recent holding per security in the account's currency from your manually entered or calculated data. Holdings recorded in a different currency than the account's base currency are excluded from the current portfolio view.
 
+#### Same-ticker holdings on different exchanges
+
+If your broker trades on multiple exchanges and reports two positions with the same ticker — for example, a security listed on NYSE and a different company sharing that ticker on Euronext Paris — Sure keeps them as separate holdings. The ticker-based fallback matching used during import only merges two positions when their reported exchange agrees (using MIC codes, with legacy aliases treated as the same venue and comparisons done case-insensitively). A position whose provider does not supply an exchange still matches a row stored without one, but only when no other candidate is an equally good match. Two rows on the same exchange, or two without one, are both left unmatched rather than one overwriting the other.
+
+This applies to any provider that uses external IDs for holdings (such as SimpleFIN and SnapTrade). If a previous sync merged holdings incorrectly, trigger a manual sync from **Settings → Providers** to re-import the positions with the corrected matching logic.
+
 #### How locks carry forward across syncs
 
 When a provider creates a new daily snapshot row for a holding you have previously locked — either a security remap lock or a cost basis lock — Sure copies those locks onto the new row automatically. This applies to all providers, including those that do not supply a per-holding unique identifier (such as Plaid, Indexa Capital, and SnapTrade securities). Without this carry-forward, a new sync would silently drop your manual corrections and replace them with the provider's values.
