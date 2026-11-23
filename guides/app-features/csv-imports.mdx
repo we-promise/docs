@@ -32,6 +32,47 @@ You can import the following types of data via CSV:
 - **Categories**: Set up your category structure
 - **Rules**: Import transaction rules
 
+## Importing Mint transactions
+
+Mint imports let you bring transaction history exported from Mint into Sure. The Mint CSV uses a `Transaction Type` column to record direction, so the amount column is always a magnitude — the sign in the Amount column is ignored.
+
+### CSV format
+
+| Column | Required | Description | Example |
+|--------|----------|-------------|---------|
+| Date | Yes | Transaction date | 01/01/2024 |
+| Amount | Yes | Transaction magnitude — sign is ignored; direction comes from Transaction Type | 8.55 |
+| Account Name | No | Account name | Checking |
+| Description | No | Transaction description | Starbucks |
+| Category | No | Category name | Food & Drink |
+| Labels | No | Pipe-separated tags | Coffee\|Breakfast |
+| Currency | No | Currency code | USD |
+| Notes | No | Additional notes | Morning coffee |
+| Transaction Type | Yes | `credit` for inflows; anything else is treated as a debit (expense) | debit |
+
+### Example CSV
+
+```csv
+Date,Amount,Account Name,Description,Category,Labels,Currency,Notes,Transaction Type
+01/01/2024,-8.55,Checking,Starbucks,Food & Drink,Coffee|Breakfast,USD,Morning coffee,debit
+04/15/2024,2000,Savings,Paycheck,Income,,USD,Bi-weekly salary,credit
+```
+
+### How amounts are parsed
+
+The importer reads the Amount column as a magnitude and determines direction from `Transaction Type`:
+
+- `credit` → positive amount (inflow/income)
+- Any other value, including `debit` → negative amount (expense)
+
+The sign written in the Amount column is ignored. A `-8.55` debit and an `8.55` debit both import as `-8.55`.
+
+Currency-formatted values such as `$1,234.56` are accepted. Amounts without a leading zero, such as `.50`, are also accepted and import correctly.
+
+### Downloading a sample file
+
+A sample Mint CSV is available from the import screen in Sure. Download it to verify the expected format before preparing your own export.
+
 ## Importing accounts
 
 Account imports let you quickly set up multiple accounts with their opening balances.
