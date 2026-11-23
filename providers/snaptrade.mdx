@@ -107,7 +107,13 @@ When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers th
 
 **Unit-dependent activities** (ADJUSTMENT, STOCK_MERGER, MERGER, CORP_ACTION): imported as trades when SnapTrade reports a non-zero share quantity, and as cash entries when the quantity is absent or zero. This lets zero-cash corporate actions (splits, mergers with no cash consideration) record correctly as unit-only trades while still capturing any cash component when it is present.
 
-**Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.
+**Share-movement activities** (JOURNAL, OTHER, TRANSFER, TRANSFER_IN, TRANSFER_OUT): imported as zero-cash trades labelled Transfer when SnapTrade reports a share quantity but no cash amount or net amount. This covers events such as a stock plan vest deposit that arrives with units and a price of zero — the shares are recorded as a Transfer trade so they appear correctly in holdings and investment history. When a cash amount is present alongside units (for example, a 401(k) payroll contribution reported as TRANSFER), the row follows the cash path instead. TRANSFER_IN and TRANSFER_OUT sign the quantity by their type; TRANSFER, JOURNAL, and OTHER preserve SnapTrade's reported sign.
+
+Two equal and opposite share movements of the same ticker on the same exchange with matching trade and settlement dates cancel each other out and are not imported. If one leg was already imported from an earlier sync, Sure removes it once its counterpart arrives, unless that trade is protected from sync.
+
+Shares arriving are dated by the earlier of the trade and settlement dates; shares leaving are dated by the later. This prevents a deposit from being booked after a later sale of the same shares.
+
+**Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND. TRANSFER, TRANSFER_IN, TRANSFER_OUT, JOURNAL, and OTHER also follow the cash path when they carry a cash amount alongside their units.
 
 ### Security row disambiguation
 
