@@ -78,6 +78,48 @@ When adding a property, you can look up the estimated market value automatically
 
 If you added a property manually without a provider, you can link one later from the property's Overview tab, when you have write access, the full address is in the provider’s supported country, and the account currency matches. This later-linking option supports configured RentCast or Realie connections; Chimnie requires its identifier during property creation. See [property valuations](/providers/property-valuations) for setup and configuration details.
 
+#### Tracking purchase costs with a cost tag
+
+You can assign an optional **cost tag** to a property to count related transactions — such as notary fees, transfer taxes, and registration costs — as purchase costs. When a cost tag is set, the property's Overview tab shows three additional cards, all in the family currency:
+
+| Card | Description |
+| --- | --- |
+| **Purchase costs** | The sum of all tagged transactions, with a link to view them in your transaction list |
+| **Cost basis** | The purchase price plus the purchase costs |
+| **Gain after costs** | The current market value compared against the cost basis |
+
+For a property valued in a different currency than your family's currency, the card titles include the family currency name (for example, "Cost basis in EUR").
+
+**Setting the cost tag**
+
+Open the property's edit form and choose a tag from the **Cost tag** picker. The picker lists all tags in your family. Once set, any transaction with that tag counts toward the purchase costs, regardless of which account it was paid from.
+
+You can tag transactions using the transaction drawer, bulk edit, or a rule with the "set tags" action — which lets you tag imported bank transactions automatically.
+
+**What counts as a purchase cost**
+
+A tagged transaction is counted when all of the following are true:
+
+- It is in an account the viewer can access (owned or shared), including closed accounts
+- It is not excluded, pending, future-dated (until its date arrives), or a split parent
+- It is not a transfer or loan payment
+
+Outflows add to the costs and refunds reduce them.
+
+**Currency conversion**
+
+Costs are summed in the family currency. Each transaction converts at the stored exchange rate on its own date. If a currency has no stored rate, the card shows "Exchange rate unavailable" rather than a number.
+
+<Note>
+A cost tag can be assigned to more than one property, in which case each property counts the same tagged transactions. For accurate per-property tracking, use a separate tag for each property.
+
+If you split a tagged transaction without tagging the individual parts, the parent is excluded from the costs. Tag the parts instead.
+</Note>
+
+**Visibility**
+
+Only transactions in accounts the viewer can access are counted. Two family members with different account sharing configurations may see different cost bases for the same property.
+
 ### Vehicle
 
 Cars, trucks, motorcycles, and other vehicles you own. Vehicle accounts can track make, model, year, and mileage.
