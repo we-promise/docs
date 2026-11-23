@@ -469,6 +469,17 @@ See the [evaluation framework](/evals) documentation for details on:
 
 Sure's AI assistant can search documents uploaded to a family's vault. Documents are indexed in a vector store, and the assistant retrieves relevant passages when answering questions.
 
+### Access control for document search
+
+The `search_family_files` tool enforces per-user visibility before returning results. Each document in the vector store is classified into one of two categories:
+
+- **Statement documents** — PDFs processed by `ProcessPdfJob` are linked to their `AccountStatement`. A family member can only retrieve excerpts from a statement document if they can see the linked statement. A linked statement follows its account (the member must have access to that account). An unlinked statement is visible to statement managers (admins and members with the manager role). This check runs on every query, so relinking a statement or changing account sharing takes effect immediately.
+- **Directly uploaded files** — files added to the family vault outside the PDF import flow carry no linked statement and are visible to all members of the family.
+
+Documents processed before statements existed, or whose statement could not be matched during migration, are hidden from all members until they are linked to a statement.
+
+The vector store backends do not filter on Sure's records. `search_family_files` retrieves a larger candidate pool from the store and drops any excerpts the requesting user may not see before returning results.
+
 ### Supported backends
 
 | Backend | Status | Best for | Requirements |
