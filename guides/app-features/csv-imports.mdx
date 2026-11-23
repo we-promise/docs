@@ -339,6 +339,16 @@ When importing transactions, ensure the account names in your CSV exactly match 
 
 Sure will import all rows from your CSV. Review your data before importing to avoid duplicates.
 
+### Revert fails with "Failed to destroy Entry" when transactions are split
+
+Reverting an import that contains split transactions previously failed with an error similar to "Failed to destroy Entry with id=…", leaving the import stuck in **Revert failed** and making **Try again** fail the same way.
+
+This affected QIF files with split lines and any import where a transaction was split after publishing — either manually or by a rule — because split parts inherit their parent's import reference.
+
+The fix is included in the release containing [#5676](https://github.com/we-promise/sure/pull/5676). After upgrading, the **Try again** button on the affected import will complete the revert. The revert now removes only parent entries and lets the split parts be deleted through their parent, which is the only supported path.
+
+Imports that created their own accounts are not affected by this issue because those accounts — and all their entries — are removed first during the revert.
+
 ### Rule import with tag conditions produces broken rules
 
 If you imported a rules CSV with `transaction_tag` conditions on an older version of Sure (before the fix in [#3419](https://github.com/we-promise/sure/pull/3419)), the tag name was stored as-is instead of being resolved to the tag's ID. Rules with this problem match no transactions for the tag condition. To fix affected rules, delete and re-import them, or edit each rule manually in **Settings → Rules** to remove and re-add the tag condition.
