@@ -85,6 +85,16 @@ Open the transfer's outflow transaction and look for the **Investment contributi
 
 The same change can also be made by the AI assistant or an MCP agent using the `update_transfer` tool.
 
+#### How the Investment Contributions category is cleared on plain transfers
+
+When a transfer leg changes kind to `funds_movement` or `cc_payment` — whether through the toggle above, a provider re-sync, or a reconciliation — Sure automatically removes the Investment Contributions category from that leg, unless you have explicitly locked a category on it yourself. This applies in the following situations:
+
+- Turning off the **Investment contribution** toggle on a confirmed transfer.
+- A provider sync or reconciliation that determines a leg's kind should be `funds_movement` or `cc_payment`.
+- A broker deposit that is imported with a "Contribution" label but then matched to a bank transfer — the leg is left uncategorized rather than keeping the Investment Contributions category.
+
+A category you have chosen yourself in the transfer editor, or one set by a rule you own, is treated as locked and is never removed by this cleanup. If you want Sure to remove a stale category, clear the category lock on that leg first.
+
 ## Creating Transfers Manually
 
 To create a transfer:
@@ -139,7 +149,7 @@ Pending suggestions show a **Match?** badge alongside confirm (✓) and reject (
 **What changes at confirmation:**
 
 - Sure assigns the appropriate transfer kind (funds movement, CC payment, investment contribution, etc.) to both legs at the moment you confirm — not when the suggestion first appears.
-- If the outflow has no category, the destination is an investment or crypto account, and the source is neither an investment nor a crypto account, Sure assigns the Investment Contributions category automatically.
+- If the outflow has no category, the destination is an investment or crypto account, the source is neither an investment nor a crypto account, and the leg's kind is `investment_contribution`, Sure assigns the Investment Contributions category automatically. If the leg is instead classified as a `funds_movement` (for example, a broker deposit matched to a bank transfer), no category is assigned.
 - Any notes on the transfer are preserved when you confirm from the transaction list.
 
 **What stays the same while a match is pending:**
