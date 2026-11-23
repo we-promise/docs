@@ -416,6 +416,23 @@ The spending trend chart shows cumulative daily expenses for a selected month pl
 
 The **Reports** page gives you a breakdown of your income and expenses by category for any date range.
 
+### Report periods
+
+The period picker lets you choose the date range the report covers. Available presets include:
+
+| Period | What it covers |
+|---|---|
+| This month | The current calendar month |
+| Last month | The previous calendar month |
+| Last 3 months | The most recent complete quarter |
+| Last 6 months | A rolling 6-month window ending at the end of the current month |
+| Last 12 months | A rolling 12-month window ending at the end of the current month |
+| Year to date | January 1 of the current year through today |
+| All time | The earliest transaction or trade in your accounts through today |
+| Custom | A date range you specify |
+
+**Last 12 months** covers the 12 calendar months ending at the end of the current month. Navigating to the previous or next period shifts the window by 12 months. The arrow key shortcuts and the chevron buttons work with this period the same way they do with Last 6 months.
+
 ### Navigating periods with the keyboard
 
 On the Reports page, press the **Left Arrow** key to go to the previous period and the **Right Arrow** key to go to the next period. Right Arrow does nothing when you are already on the current period. The custom date range mode has no preset period to step through, so neither arrow key navigates when a custom range is active.
@@ -441,6 +458,36 @@ If you navigate away while holding a section with the keyboard, Sure saves the m
 Income and expense category rows in the breakdown are clickable. Clicking a category row takes you directly to your transaction list filtered to that category, so you can see exactly which transactions make up the total.
 
 Investment-only rows (such as **Other Investments**) are not clickable because those entries are trade records rather than regular transactions and cannot be shown in the transaction list.
+
+### Category trends chart
+
+<Note>
+The category trends chart is a preview feature. Enable preview features in **Settings → Family** to use it.
+</Note>
+
+The **Trends & Insights** section in Reports includes an interactive category trend chart that plots net activity per category over the report period, broken down by month or year.
+
+**Selecting categories**
+
+Use the category selector in the chart card to choose which categories to plot. The selector reuses the same parent/subcategory cascade as other filters in Sure. Each selected category appears as its own line, drawn in the category's color, with a legend and a tooltip that lists all selected categories at any point you hover.
+
+When a parent category is selected, its subcategories are included in its total and not plotted separately. Only the chart is scoped to the selection. The report summary totals and the Monthly Breakdown table always show unfiltered data.
+
+**Granularity**
+
+The chart defaults to monthly buckets. For report periods longer than 24 months it defaults to yearly. You can override the granularity with the Month / Year toggle on the chart card. The selection persists as you navigate between periods or change the custom date range.
+
+**Chart values**
+
+Each point shows the net activity for that category in the bucket: expenses minus income. A refund lowers the category's value rather than adding to it. A bucket where refunds exceed purchases plots below zero. Income and expense categories can be mixed on the same chart, but their values are not netted against each other.
+
+A period with only one bucket (for example, a year-granularity chart on a one-year range) shows a dot per category instead of a line.
+
+Year bands and a dashed boundary mark where monthly points cross into a new year, so repeated month-name labels are unambiguous.
+
+**URL state**
+
+The selected categories and the granularity are saved in the URL, so they persist when you change the period, adjust a custom date range, or share the link.
 
 ### Spending vs normal
 
