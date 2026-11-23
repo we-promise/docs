@@ -149,6 +149,22 @@ Because provider merchant rows are shared across families, a crafted merchant na
   </Accordion>
 </AccordionGroup>
 
+## Letter-based currency symbols run into amounts in dashboard charts
+
+In the cash flow Sankey chart and the spending donut chart, currency symbols made entirely of letters or ending in a period — such as `Lei` (RON), `CHF`, `kr`, and `Bs.` — were displayed immediately adjacent to the number, producing hard-to-read labels like `Lei14,575.90` or `CHF100.00`.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The chart formatters applied the currency symbol directly before the amount without checking whether a space was needed. Symbols made of non-letter characters, like `$` or `€`, read clearly even when attached. Symbols made of letters or ending in a period do not, because the boundary between symbol and digits is not visually obvious.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The formatter now checks whether the currency symbol ends in a letter or a period. When it does, Sure inserts a non-breaking space between the symbol and the amount. Symbols that end in other punctuation characters — `$`, `€`, `£`, `¥`, `₹`, `C$`, `R$`, and similar — are not affected and remain attached to the number.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## MXN amounts show wrong number separators in Spanish
 
 When the interface language is set to Spanish, Mexican peso (MXN) amounts were formatted using European-style separators — a comma as the decimal separator and a dot as the thousands separator. This produced values like `1.234,56 MXN` instead of the correct `1,234.56 MXN`.
