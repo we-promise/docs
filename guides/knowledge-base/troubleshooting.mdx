@@ -1183,6 +1183,22 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Selecting text inside a drawer closes it when the mouse is released outside
+
+When you selected text inside a drawer and released the mouse over the backdrop, the drawer closed and the selection was lost. Clicking outside the drawer normally still closed it as expected.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The dialog controller closed the drawer for any click whose target was outside the content element. Selecting text inside the drawer and releasing the mouse over the backdrop fires a `click` event on the backdrop, so the drawer treated that release as a click outside and closed, discarding the selection.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The dialog controller now records where the pointer press began. A click closes the drawer only when the press also started outside the content. Releasing the mouse over the backdrop after selecting text inside the drawer no longer triggers a close because the press started inside. Keyboard-triggered clicks, which have no tracked press, keep the previous behavior.
+
+    Upgrade to a build containing [Sure PR #4722](https://github.com/we-promise/sure/pull/4722). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
