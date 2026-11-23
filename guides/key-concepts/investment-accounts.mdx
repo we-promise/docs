@@ -397,6 +397,19 @@ Fees affect:
 - Realized gain and the investment sales report (disposal fees)
 - Tax reporting and record keeping
 
+## Trade API response fields
+
+The `GET /api/v1/trades` and `GET /api/v1/trades/{id}` endpoints return the following fields in addition to the core trade properties:
+
+| Field | Description |
+| --- | --- |
+| `fee` | The fee charged on the trade, formatted the same way as `price`. |
+| `fee_decimal` | The exact stored fee as an unrounded, locale-independent decimal string — the precise value used in cost basis calculations. |
+| `exchange_rate` | The rate to the account's currency stored on the trade (for example, one reported by the provider), or `null`. The cost basis uses it to convert `price` and `fee` from `currency`; the cash balance uses it to convert `amount` from `amount_currency`. `null` when none is stored or when both currencies are the account's. |
+| `amount_currency` | The currency of the trade's amount (the entry's currency). This can differ from `currency` (the trade's own currency) when an edit changed only the entry's currency. |
+
+These fields are present on all trade responses. `exchange_rate` and `amount_currency` together let you reproduce the currency conversion Sure applies when the trade involves a foreign currency. See the [OpenAPI spec](/openapi.yaml) for the complete schema.
+
 ### Available Activity Labels
 
 | Label | Description |

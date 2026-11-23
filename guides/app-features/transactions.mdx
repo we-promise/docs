@@ -435,6 +435,22 @@ Rules run automatically during account syncs. You can also apply rules manually 
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 
+## Transaction API response fields
+
+### Investment activity and provider fields
+
+These fields are `null` on most transactions. They are set on brokerage cash rows — such as dividends, interest, fees, and withholding tax — by the providers that record them.
+
+| Field | Description |
+| --- | --- |
+| `investment_activity_label` | The investment activity of the row, such as `Dividend`, `Interest`, or `Fee`. |
+| `provider_type` | The importing provider's own type string for the row — for example IBKR's `"Withholding Tax"`. Use it to distinguish rows that share a label. IBKR, Trading 212, Wise, Akahu, and Kraken store the provider's value here. For CoinSpot, Sure sets it from the kind of movement, such as `"receive"` or `"send"`. Only this named value is exposed; the provider's raw payload is not. |
+| `security_id` | The ID of the Sure security the row relates to (for example, the one that paid a dividend), or `null`. `GET /api/v1/securities/{id}` finds it only when one of your accounts holds or has traded that security; otherwise it returns 404. |
+| `exchange_rate` | The rate from the transaction's currency to the account's currency stored on the row, or `null` when none is stored or the transaction is already in the account's currency. |
+| `amount_currency` | The currency of the amount. On a transaction this is always the same as `currency`, which `exchange_rate` converts from. |
+
+These fields are included on `GET /api/v1/transactions` index and show responses, and on `POST`/`PATCH` create and update responses. See the [OpenAPI spec](/openapi.yaml) for the full schema.
+
 ## Transaction splits API
 
 The API exposes a nested resource for managing transaction splits programmatically:
