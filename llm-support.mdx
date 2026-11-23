@@ -192,6 +192,17 @@ OPENAI_URI_BASE=http://localhost:11434/v1
 OPENAI_MODEL=llama3.1:13b
 ```
 
+<Warning>
+Ollama caps each model's context at **4096 tokens by default** and silently truncates longer requests. Sure sends tool definitions with every request alongside instructions, history, and tool results. With the default 4096-token context, tool results can be cut off mid-turn, causing the assistant to report that it has no financial data even though `get_accounts` runs correctly.
+
+Set Ollama's context to at least `LLM_CONTEXT_WINDOW` plus headroom for tool definitions, tool results, and the reply. Because Sure uses Ollama's OpenAI-compatible endpoint (which cannot set `num_ctx` per request), apply the limit in one of two ways:
+
+- **Per model (Modelfile):** add `PARAMETER num_ctx 16384` to a Modelfile, run `ollama create my-model -f Modelfile`, and set `OPENAI_MODEL=my-model`.
+- **Server-wide default:** start `ollama serve` with `OLLAMA_CONTEXT_LENGTH=16384`.
+
+Raise both `OLLAMA_CONTEXT_LENGTH` (or `num_ctx`) and `LLM_CONTEXT_WINDOW` together if long chats or large batches come back truncated.
+</Warning>
+
 Install and run Ollama:
 
 ```bash
@@ -635,6 +646,8 @@ services:
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
+    environment:
+      - OLLAMA_CONTEXT_LENGTH=${OLLAMA_CONTEXT_LENGTH:-16384} # must cover LLM_CONTEXT_WINDOW plus tool definitions and the reply
     volumes:
       - ollama_data:/root/.ollama
     # Uncomment if you have an NVIDIA GPU
