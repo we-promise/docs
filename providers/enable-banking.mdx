@@ -145,6 +145,28 @@ OPBD and PRCD are period-boundary snapshots rather than live figures, so they ma
 
 If none of the recognised types are present, Sure falls back to the first balance the API returns.
 
+#### Pending adjustment for ITAV and XPCD balances
+
+Some banks (such as Revolut through Enable Banking) return only a pending-inclusive balance — `ITAV`/`interimAvailable` or `XPCD`/`expected` — with no booked balance in the same response. These figures already deduct card payments that have been authorized but not yet settled, so using them directly as the current anchor would cause earlier days in your balance history to appear low by the pending total.
+
+When Sure picks an `ITAV` or `XPCD` balance on an asset account, it adds back the eligible pending rows returned in the same sync to produce a posted-only anchor:
+
+- **ITAV/interimAvailable**: pending outflows are added back. Pending inflows are not counted because an available balance does not include money that has not arrived yet.
+- **XPCD/expected**: pending rows in both directions are reversed.
+- Unidentified card authorization holds (see [Card authorization holds](#card-authorization-holds)) are treated as outflows.
+- A pending row that also appears as booked in the same response is not counted.
+- Rows in a different currency than the balance are not counted.
+
+The result is that Sure's current balance for such an account shows the posted figure. Until the pending payments settle, this will differ from the balance shown in your bank app by the pending total. Once those payments post, the two figures will match.
+
+**When the adjustment does not apply:**
+
+- Booked balance types (`CLBD`, `ITBD`, `OPBD`, `PRCD`) are not adjusted.
+- Closing available balances (`CLAV`) are not adjusted.
+- Liability accounts and credit cards with **Balance is available credit** enabled are not adjusted.
+- When pending transaction sync is turned off, no pending rows are available, so no adjustment is made and the balance is stored as the bank reported it.
+- When the pending transaction fetch fails during a sync, Sure does not store a new balance anchor for that sync, so the previous anchor is kept rather than storing an unverified figure.
+
 #### Duplicate same-type balances
 
 Some banks report the same balance type more than once with different amounts — for example, two CLBD entries where one includes an arranged overdraft. When this happens, Sure resolves the conflict in stages, using the strongest available evidence first:
@@ -289,3 +311,4 @@ After upgrading to a build that includes [Sure PR #4304](https://github.com/we-p
 - Banks that use decoupled authentication (separate device approval) are not supported
 - Subject to Enable Banking API rate limits
 - Some banks may have additional authentication requirements
+- For accounts where only an `ITAV` or `XPCD` balance is available, Sure shows the posted balance. The balance will differ from your bank app by the pending total until those payments settle.
