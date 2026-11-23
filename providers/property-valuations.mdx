@@ -1,9 +1,9 @@
 ---
 title: Property valuations
-description: Automatically look up and refresh property values using RentCast, Realie, or Chimnie
+description: Automatically look up and refresh property values using RentCast, Realie, TerraScoutX, or Chimnie
 ---
 
-Sure can look up a property's estimated market value when you add a property account and refresh that estimate automatically on a recurring schedule. Three providers are supported: **RentCast** and **Realie** for US properties, and **Chimnie** for UK residential properties.
+Sure can look up a property's estimated market value when you add a property account and refresh that estimate automatically on a recurring schedule. Four providers are supported: **RentCast**, **Realie**, and **TerraScoutX** for US properties, and **Chimnie** for UK residential properties.
 
 ## How it works
 
@@ -22,7 +22,7 @@ After setup, Sure queues automatic valuation refreshes on the first of each mont
 Add the API key for the provider you want to use. You can do this in two ways:
 
 - **Settings UI** — go to **Settings → Self-Hosting** and enter the key in the provider's field
-- **Environment variable** — set `RENTCAST_API_KEY`, `REALIE_API_KEY`, or `CHIMNIE_API_KEY` in your environment
+- **Environment variable** — set `RENTCAST_API_KEY`, `REALIE_API_KEY`, `TERRASCOUTX_API_KEY`, or `CHIMNIE_API_KEY` in your environment
 
 Once a key is present, the provider appears as an option when you add a new property account.
 
@@ -63,6 +63,23 @@ Realie introduced a v3 response shape on 2026-08-19. The response shape is an ac
 
 Sure handles both shapes automatically. No configuration change is needed when your Realie account is on v3 or when you opt in later.
 
+### TerraScoutX
+
+[TerraScoutX](https://terrascoutx.com) is a US property data API that returns county assessor valuations — the assessed value from the county tax roll — rather than an automated market estimate. Values may lag market prices and can be significantly lower than market value in states that cap assessed values (such as California). Coverage varies by county. The free tier allows 2,000 requests per month.
+
+<Note>
+  TerraScoutX valuations reflect the county assessor's most recent roll value, not an automated market valuation. Use RentCast or Realie when you need an AVM-based estimate.
+</Note>
+
+| Setting | Value |
+|---|---|
+| Free tier cap | 2,000 requests/month |
+| Coverage | United States (varies by county) |
+| Valuation currency | USD |
+| Minimum automatic refresh interval | One day (the default job runs monthly) |
+| API key variable | `TERRASCOUTX_API_KEY` |
+| Monthly cap override | `TERRASCOUTX_MAX_REQUESTS_PER_MONTH` |
+
 ### Chimnie
 
 [Chimnie](https://chimnie.com) is a UK property valuation API. UPRN-based valuations are free and include an estimated value, value range, and confidence level. Sure caps requests at 1,000 per month by default.
@@ -101,6 +118,9 @@ RENTCAST_MAX_REQUESTS_PER_MONTH=500
 # Example: raise the Realie cap to 200 for a paid plan
 REALIE_MAX_REQUESTS_PER_MONTH=200
 
+# Example: raise the TerraScoutX cap above the default 2,000
+TERRASCOUTX_MAX_REQUESTS_PER_MONTH=5000
+
 # Example: raise the Chimnie cap above the default 1,000
 CHIMNIE_MAX_REQUESTS_PER_MONTH=2000
 ```
@@ -130,13 +150,13 @@ After linking, the Overview tab shows the last valuation date and a **Refresh va
 
 ## Adding a property using a valuation provider
 
-### US properties (RentCast or Realie)
+### US properties (RentCast, Realie, or TerraScoutX)
 
 1. Go to **Accounts → Add Account → Property**
-2. Select **Add via RentCast** or **Add via Realie** (these options appear only when the provider's API key is configured)
+2. Select **Add via RentCast**, **Add via Realie**, or **Add via TerraScoutX** (these options appear only when the provider's API key is configured)
 3. Enter the property name and its full US address
 4. Click **Look up property**
-5. Review what the provider found — the property type, estimated value, and other details are shown before anything is saved. If the address matched an area estimate rather than a specific record, a notice says so
+5. Review what the provider found — the property type, estimated value, and other details are shown before anything is saved. If the address matched an area estimate rather than a specific record, a notice says so. TerraScoutX shows the county assessor's roll value rather than an AVM estimate
 6. Click **Add property** to confirm, or **Back** to correct the address
 
 ### UK properties (Chimnie)
@@ -171,7 +191,7 @@ A **Refresh valuation** button on the property account bypasses the normal inter
 
 ## Troubleshooting
 
-**The valuation option is not showing when I add a property**: the provider's API key is not configured. Add the relevant key (`RENTCAST_API_KEY`, `REALIE_API_KEY`, or `CHIMNIE_API_KEY`) to your environment, or enter it in **Settings → Self-Hosting**.
+**The valuation option is not showing when I add a property**: the provider's API key is not configured. Add the relevant key (`RENTCAST_API_KEY`, `REALIE_API_KEY`, `TERRASCOUTX_API_KEY`, or `CHIMNIE_API_KEY`) to your environment, or enter it in **Settings → Self-Hosting**.
 
 **Chimnie sign-up was rejected**: check Chimnie’s current registration requirements or contact its support team.
 
