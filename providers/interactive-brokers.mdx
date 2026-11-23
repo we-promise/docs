@@ -11,11 +11,14 @@ See [Transaction history and import limits](/providers/transaction-history) for 
 
 Sure imports the following data from an IBKR Flex report:
 
-- Holdings with current prices and quantities
+- Holdings with current prices and quantities, for stocks, mutual funds, and bonds
 - Cost basis per position
-- Trades (with commissions folded into the trade fee), dividends, and cash deposits or withdrawals
+- Trades (with commissions folded into the trade fee), dividends, and cash deposits or withdrawals, for stocks, mutual funds, and bonds
+- Bond interest and withholding cash entries, associated with the bond's security
 
 Historical activity is limited to the date range configured in your Flex Query. Sure imports full current holdings plus up to the last 365 days of activity.
+
+Options, futures, T-bills, and short positions are not imported. Each sync logs one debug entry per skipped category to **Settings → Debug** so you can see what was left out.
 
 ## Setting up Interactive Brokers
 
@@ -44,11 +47,11 @@ Historical activity is limited to the date range configured in your Flex Query. 
 
 **Open Positions:**
 - Options: Summary
-- Fields: Asset Class, Conid, Cost Basis Price, Currency, FX Rate To Base, Mark Price, Quantity, Report Date, Security ID, Security ID Type, Side, Symbol
+- Fields: Asset Class, Conid, Cost Basis Price, Currency, FX Rate To Base, Mark Price, Multiplier (optional, used for bonds), Position Value, Quantity, Report Date, Security ID, Security ID Type, Side, Symbol
 
 **Trades:**
 - Options: Execution
-- Fields: Asset Class, Buy/Sell, Conid, Currency, FX Rate To Base, IB Commission, IB Commission Currency, Quantity, Symbol, Trade Date, Trade ID, TradePrice, Transaction ID
+- Fields: Asset Class, Buy/Sell, Conid, Currency, FX Rate To Base, IB Commission, IB Commission Currency, Proceeds, Quantity, Symbol, Trade Date, Trade ID, TradeMoney, TradePrice, Transaction ID
 
 5. Set the following query configuration options:
 
@@ -88,6 +91,20 @@ If IBKR delivers a statement with a date older than the most recent balance alre
 
 A balance write failure is logged to **Settings → Debug** against the connection so you can identify and diagnose it.
 
+## How bonds are imported
+
+IBKR quotes bonds as a percentage of face value (for example, 98.50 means 98.50% of par). Sure imports bond positions and trades in units of 100 face, so a 10,000 face position becomes a quantity of 100, keeping the quoted price as-is and preserving `quantity × price = position value`.
+
+Each bond is tracked under its own offline security with a ticker in the form `BOND:<IBKR symbol>:<conid>`. The contract ID (conid) keeps two bonds with the same symbol apart. Because the security is offline, Sure uses IBKR's reported prices and does not fetch market data for bonds from any price provider.
+
+Bond interest and withholding cash rows are matched to the bond's security using the conid, so they appear on the bond rather than on a generic cash security.
+
+A bond's price is derived from the row's reported value (`positionValue` for positions, `proceeds` or `tradeMoney` for trades) when available, so principal-adjusted bonds (index ratio, pool factor) are recorded at their actual value. When no value is present the quoted price is used as-is. If a row's derived price differs from IBKR's quoted price by more than 0.1%, Sure logs a debug entry to **Settings → Debug** so you can review it.
+
+## How funds are imported
+
+Mutual fund (`FUND`) positions and trades are imported the same way as stocks: the security is resolved by symbol, and the quantity and price are taken as-is from the Flex report.
+
 ## How commissions work
 
 When Sure imports a trade from IBKR, it records the commission as the trade's fee rather than as a separate transaction. The fee flows into the trade's cost basis and realized gain calculations, and its amount is included in the cash the trade moved.
@@ -105,6 +122,11 @@ If a commission was imported as a separate transaction before this change, Sure 
 
 - Historical activity is limited to the report window of your Flex Query. Sure imports up to 365 days of activity based on the query's configured period.
 - Only investment (brokerage) accounts are supported. Cash accounts and other account types are not imported from IBKR.
+- Options, futures, T-bills (`BILL`), and short positions are not imported. They are counted and logged to **Settings → Debug** each sync so you can see what was skipped.
+- Fund securities are resolved by symbol, the same way stocks are. A fund whose symbol matches a listed ticker may pick up that ticker's market prices.
+- Bond maturities and calls arrive as corporate actions, which are not parsed. A matured bond drops out of your holdings with no closing trade.
+- An account that completed its history backfill before this update will only have fund and bond trades for the current statement period going forward. Earlier windows are not fetched again.
+- Bond data is imported from IBKR's reported values. Sure has not been tested against all bond types, so edge cases (such as deeply principal-adjusted bonds or unusual multiplier configurations) may require manual review.
 
 ## Troubleshooting
 
