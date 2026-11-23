@@ -338,6 +338,15 @@ OAuth2 access tokens are used to authenticate API requests to the provider. The 
 
 Some providers issue refresh tokens for long-lived access. Configure the `offline_access` or equivalent scope to request refresh tokens.
 
+Token refresh requests and authorization code exchanges are serialized against password changes. When a user changes their password, Sure revokes all existing tokens. A concurrent refresh either completes before the password change and gets revoked, or waits and finds its credential already revoked. This means a successful refresh is never silently invalidated by a password change that ran at the same time.
+
+The following `invalid_grant` responses reflect this behavior:
+
+- A refresh token or authorization code that belongs to a **deactivated or deleted user** returns `invalid_grant`. Previously, the request could succeed.
+- A token that is deleted while the request is waiting on a lock returns `invalid_grant`. Previously, the request returned a 500 error.
+
+Client credentials and unknown grant types are not affected — they carry no user and are processed by Doorkeeper without a lock.
+
 ### Token expiration
 
 Access tokens typically expire after a short period (1 hour to 24 hours). The application handles token refresh automatically when refresh tokens are available.
