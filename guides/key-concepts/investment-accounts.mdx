@@ -493,6 +493,23 @@ Excluded entries, pending transactions, and valuation entries do not count in an
 
 Setting the correct activity label on an entry is the primary way you control how it affects your portfolio return figures. An unlabeled deposit transaction with no in-scope transfer counterpart is classified as an external inflow and excluded from the investment return; a dividend labelled as a contribution would be counted as a cash flow in rather than as income. Use the activity label selector in the entry detail view to correct misclassified entries.
 
+### How contributions and withdrawals are counted on the investment summary
+
+The contributions and withdrawals figures on the investment summary card reflect external cash flows — money that actually moved in or out of your investment accounts from an outside source. Buys, sells, reinvestments, sweeps, and exchanges are always internal and are never counted as contributions or withdrawals.
+
+A transaction counts as a contribution or withdrawal when it meets one of the following conditions:
+
+- It carries a `Contribution`, `Withdrawal`, or `Transfer` label.
+- It has a confirmed transfer link and the other leg of that transfer is outside your investment account scope (for example, a deposit from a bank account you hold in Sure).
+
+Pending transfer suggestions — auto-matched transactions that have not been confirmed yet — do not count as internal transfers. Each leg of an unconfirmed suggestion counts according to its own label until you confirm it.
+
+Unlabeled cash rows and rows labeled `Other` are not counted as contributions or withdrawals, regardless of their sign. Some providers record activity such as buys, sales, dividends, and interest as unlabeled or `Other` transactions; counting these by sign would misclassify that activity as external cash flows.
+
+Excluded entries and pending transactions are always left out, as they are for income. A transaction in a currency for which no exchange rate is available on its date is left out of both totals rather than counted at face value.
+
+If a transfer between two investment accounts in your scope is confirmed, both legs are internal and count on neither side — even if they are individually labeled `Contribution` or `Withdrawal`. Money moving between two of your own investment accounts is not an external flow.
+
 ## Portfolio returns: time-weighted vs. money-weighted
 
 Sure tracks two different return figures for your investments, because no single number answers every question about performance.
