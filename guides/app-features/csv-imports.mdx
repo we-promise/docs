@@ -84,6 +84,42 @@ The date format should match your import settings. Common formats include MM/DD/
 - Other Asset
 - Other Liability
 
+## Importing Mint transactions
+
+The Mint importer reads Mint CSV exports directly, with preset column mappings that match Mint's format.
+
+### CSV format
+
+| Column | Required | Description |
+|--------|----------|-------------|
+| Date | Yes | Transaction date (MM/DD/YYYY) |
+| Amount | Yes | Transaction amount (magnitude; sign is ignored) |
+| Account Name | Yes | Account the transaction belongs to |
+| Description | Yes | Transaction name |
+| Category | No | Mint category |
+| Labels | No | Pipe-separated tags (e.g. `Coffee\|Breakfast`) |
+| Currency | No | Currency code |
+| Notes | No | Additional notes |
+| Transaction Type | Yes | `debit` or `credit` — determines the direction |
+
+### How amounts and direction work
+
+The `Transaction Type` column controls whether a transaction is an expense or income. The importer reads the `Amount` column as a magnitude regardless of its sign.
+
+- A row with `Transaction Type` of `debit` is imported as a negative (expense) entry.
+- A row with `Transaction Type` of `credit` is imported as a positive (income) entry.
+- Currency-formatted amounts such as `$1,234.56` and amounts without a leading zero such as `.50` are parsed correctly.
+
+### Example CSV
+
+```csv
+Date,Amount,Account Name,Description,Category,Labels,Currency,Notes,Transaction Type
+01/01/2024,-8.55,Checking,Starbucks,Food & Drink,Coffee|Breakfast,USD,Morning coffee,debit
+04/15/2024,2000,Savings,Paycheck,Income,,USD,Bi-weekly salary,credit
+```
+
+In this example, the `-8.55` Starbucks row imports as an expense of $8.55 and the `2000` paycheck row imports as income of $2,000. The sign on `Amount` has no effect — only `Transaction Type` determines the direction.
+
 ## Importing transactions
 
 Transaction imports let you add historical transaction data to your accounts.
