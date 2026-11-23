@@ -343,6 +343,14 @@ The coalescing logic requires a shared cache store. Sure skips the Plaid refresh
 
 Without a shared cache, syncs still work but do not trigger a fresh pull from Plaid before fetching transactions.
 
+### Pagination recovery
+
+When Plaid updates transaction data between pages during a sync, it returns a `TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION` error. This was most commonly reported with PNC and Citibank.
+
+Sure now recovers automatically. When this error occurs, Sure discards all partial results accumulated so far and restarts the transaction pagination loop from the original cursor. It retries up to three times before propagating the error. Fetching 500 transactions per page (up from 100) also reduces the number of pages needed, lowering the chance of hitting a mid-pagination change.
+
+If all three restarts fail, Sure records the error in the sync log and the sync fails. The cursor is not advanced, so the next sync will retry from the same starting point.
+
 ## Reconnect status
 
 When Plaid requires you to re-authenticate (for example, after a password change), Sure marks the connection with a "requires update" warning. Clicking the **Update** button in **Settings > Providers** opens the Plaid Link re-authentication flow.
@@ -352,6 +360,12 @@ After you complete re-authentication, the warning is not cleared immediately. Su
 ## Troubleshooting
 
 If you run into Plaid errors that are not visible in Sure, check the Plaid Dashboard logs under **Developers > Logs**. These logs can show whether the issue is coming from Plaid Link configuration, product approval, institution support, or another Plaid-side validation error.
+
+### Sync fails repeatedly with a transaction pagination error
+
+If your Plaid sync fails and the error relates to transaction data changing during pagination (most commonly seen with PNC or Citibank), Sure automatically restarts the transaction fetch from the original cursor and retries up to three times. If all three attempts fail, Sure records the error and the sync stops without advancing the cursor.
+
+In most cases the automatic recovery succeeds without any action on your part. If syncs continue to fail after upgrading to a build containing the fix, try a manual sync from the account page — the retry logic runs on every sync attempt, so a later sync will often succeed once Plaid's data has stabilized.
 
 ### Investment account shows unexpected cash balance after a sync
 
