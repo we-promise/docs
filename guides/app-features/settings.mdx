@@ -85,6 +85,8 @@ You can move, disable, or delete these rules on the Rules page. The switches on 
 
 **Threshold** — the minimum confidence score (0.05–0.99) Bayes must reach before applying a category. Lower values can categorize more transactions but can also produce more mistakes. Higher values leave more transactions for your AI provider.
 
+**Fewest examples per category** — the minimum number of your transactions a category must have before the classifier can pick it (1–100, default 5). A category trained on very few transactions tends to score high on unfamiliar transactions because it has seen so little that any matching word looks significant. Raising this value stops the classifier from picking under-trained categories; those transactions are left for the rules below, such as an Auto-categorize rule. Lowering it toward 1 lets the classifier use newer or rarely-used categories sooner.
+
 **Lock the categories the classifier sets** — when enabled, the classifier locks categories it writes against automatic changes by other rules and syncs. AI categorization only fills uncategorized, unlocked transactions, so it leaves an existing Bayes category unchanged even when this lock option is off. A manually applied rule can override category locks when that action supports ignoring locks; the category classifier and merchant matcher themselves always respect locks.
 
 ### Merchant matcher settings
