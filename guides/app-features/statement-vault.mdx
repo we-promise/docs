@@ -60,7 +60,7 @@ PDF transaction imports use the Statement Vault as their storage layer, but acco
 
 When you upload a PDF through the import flow, Sure first stores it as an unmatched statement, then creates a PDF import and queues AI processing. The AI processing classifies the document and may extract transactions for bank or credit card statements. That AI extraction does not currently improve the account suggestion; the suggestion comes from the statement metadata matching described above.
 
-After transactions are extracted, the import still needs an account before it can be published. You can target any account — including provider-synced accounts — because Sure reconciles extracted transactions against what the account already holds before presenting them for review.
+After transactions are extracted, the import still needs an account before it can be published. You can target any account — including provider-synced accounts — because Sure reconciles extracted transactions against what the account already holds before presenting them for review. When using the `import_bank_statement` MCP tool, only accounts you have write access to appear in the account list and are accepted as targets.
 
 ### Reconciliation
 

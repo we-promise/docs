@@ -62,7 +62,7 @@ New rules are saved inactive; renaming an existing active rule can leave it acti
 
 | Tool | Description |
 | --- | --- |
-| `import_bank_statement` | Use AI extraction to import transactions from an already-uploaded bank-statement PDF; creates a transaction import and returns its ID and rows for review |
+| `import_bank_statement` | Use AI extraction to import transactions from an already-uploaded bank-statement PDF; creates a transaction import and returns its ID and rows for review. Only PDF imports you can view are accessible, and only accounts you can write to appear in the account list and are accepted as targets. |
 | `create_goal` | Create a savings goal linked to at least one eligible depository account, only after confirming key details with the user. The available-accounts list returned on failure includes how much each account has free to earmark and whether it is already claimed in full by another goal. Pass an `earmarks` map (account name → amount) to reserve a specific portion of an account rather than its whole balance — required when an account is already claimed in full. |
 | `create_tag` | Create a unique family tag |
 | `update_tag` | Update an existing tag's name or color |
@@ -79,7 +79,7 @@ New rules are saved inactive; renaming an existing active rule can leave it acti
 | `update_budget` | Update budget allocations for a month |
 | `set_opening_balance` | Set a manual account's opening balance and, optionally, the date it applies from. Returns whether the current balance will change as a result. Pass `dry_run: true` to preview the effect without writing. Accounts synced from a provider are refused. |
 
-`create_transaction` and `delete_transaction` write to the ledger. `delete_transaction` is permanent and irreversible. `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
+`create_transaction` and `delete_transaction` write to the ledger. `delete_transaction` is permanent and irreversible. `import_bank_statement` is not read-only. It requires a bank-statement PDF already uploaded to Sure and creates an import for review; it does not publish the import automatically. The tool only surfaces PDF imports you can view and accounts you can write to, so another family member's private statement is never accessible through it. Because MCP access is scoped to the Sure user who authorizes the client, tools can access that user's family data. Review tool calls whenever your client offers that option.
 
 `apply_rule` activates a rule and runs it against matching transactions, respecting rule order and attribute locks by default. Deactivating the rule does not undo earlier changes.
 
