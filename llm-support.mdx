@@ -367,6 +367,12 @@ Sure automatically routes chat requests to the OpenAI Responses API when using t
 | --- | --- | --- |
 | `OPENAI_SUPPORTS_RESPONSES_ENDPOINT` | Set to `true` to force the Responses API on a custom provider, or `false` to force the Chat Completions API on all providers | Auto-detected |
 
+### Token usage for incomplete and failed streamed responses
+
+When a streamed Responses API call ends with `response.incomplete` (for example, because it hit the `max_output_tokens` limit) or `response.failed`, OpenAI still bills the tokens consumed up to that point. Sure records those tokens and the estimated cost in the LLM usage log, so the **Settings → LLM Usage** screen reflects the actual cost of truncated or failed calls.
+
+A failed response that reports no usage data is still recorded with zero tokens. The call appears in the usage log with its error details regardless of whether usage data was present.
+
 ## AI cache management
 
 Sure caches AI-generated results (like auto-categorization and merchant detection) to avoid redundant API calls and costs.
