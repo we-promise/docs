@@ -52,9 +52,13 @@ Choose from the following types during setup:
 
 ### Historical data range
 
-The setup form accepts a historical start date, but the transaction importer at the [verified Sure commit](/providers/transaction-history) does not use the saved connection start date. A newly created provider account normally requests about seven days of transactions. Later syncs use a recent overlap rather than automatically recovering older history.
+The setup form accepts an optional "Import transactions from" date that controls how far back Sure fetches transaction history from Lunch Flow.
 
-This is a Sure integration limitation, not a statement about how much history Lunch Flow or your bank can provide. Selecting an earlier setup date does not currently guarantee that range will be fetched.
+- **Leave the field blank** — Sure imports everything Lunch Flow has for the account.
+- **Set an earlier date** — Sure fetches the missing period on the next sync, filling in history back to that date.
+- **Set a later date** — transactions already imported are not affected; only future syncs use the later cutoff as the floor.
+
+Once an account has been synced, subsequent syncs resume from a seven-day overlap before the last successful fetch, but never before the chosen start date. This ensures gaps are not introduced when a sync fails partway through.
 
 ## Features
 
