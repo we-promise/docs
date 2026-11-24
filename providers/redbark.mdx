@@ -66,6 +66,20 @@ Sure reads the batch limit of 100 account IDs per API call. If a multi-account b
 
 A failed `account-details` fetch does not replace the stored details snapshot. Non-authentication failures are logged and allow the sync to continue; authentication failures propagate and require reconnecting the connection.
 
+### Credit card APR
+
+For eligible linked credit card accounts whose APR is blank and not locked, Sure calls Redbark's `GET /v1/account-details` endpoint during sync and fills the APR from the reported purchase rates.
+
+What Sure does with the reported rate:
+
+- Sure reads the untiered `PURCHASE` entries in `lendingRates`. If those entries all agree on a single rate, Sure fills the APR with that value rounded to two decimal places.
+- If the entries report more than one distinct rate, Sure logs the conflict and records nothing.
+- A 0% purchase rate is treated as promotional and not recorded.
+- A value already on the card is never overwritten. This only fills a blank APR.
+- The annual fee is not filled. The published fee is the product's ceiling, not what your account is charged.
+
+Each card is tried at most once every seven days. A failed or empty fetch clears any previously stored payload so an older result can never fill the APR. Card warnings and fetch failures are logged once per window and are never a sync error.
+
 ### Pending transactions
 
 Only posted transactions are imported by default. To also import pending transactions, set this in your Sure environment:
