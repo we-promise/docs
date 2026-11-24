@@ -321,6 +321,24 @@ The application automatically validates:
 - The linking flow rolls back atomically: no identity record or audit entry is created for the rejected request, and the one-time linking code is restored.
 - Once a super admin reactivates the user from `/admin/users`, the user can restart the link from their identity provider without any manual cleanup.
 
+### Account creation fails silently after OIDC sign-in
+
+**Problem**: A new user completes sign-in with an identity provider but the account creation form fails without showing an error, or the form does not retain the name they entered.
+
+**Solution**:
+- This was a bug in earlier versions caused by cache-backed sessions storing OAuth callback data with symbol keys, which the account creation flow could not read.
+- Upgrade to the latest version. Account creation now reads provider, UID, and email correctly regardless of key format, and displays validation errors inline while preserving the submitted names.
+- If the error persists, check audit logs for a blocked identity entry for that user's provider UID. A super admin can review and remove identity blocks from `/admin/sso_identity_blocks`.
+
+### "Account already exists" error during OIDC account creation
+
+**Problem**: A user sees a "duplicate account" error when attempting to create an account via OIDC, rather than a database error message.
+
+**Solution**:
+- This message means an account or SSO identity with the same email or provider UID already exists.
+- If the user has an existing account, direct them to the account linking flow instead of account creation.
+- If the identity was created in error, a super admin can remove the duplicate from `/admin/users` before the user retries.
+
 ### Token expired errors
 
 **Problem**: Users are logged out frequently
