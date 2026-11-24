@@ -1233,6 +1233,12 @@ docker compose logs worker
 
 Look for connection timeouts or Redis communication failures. The `sure-worker` container requires Redis to process CSV imports.
 
+### MCP static token returns 401
+
+If a valid `MCP_API_TOKEN` is rejected with a 401 response, check the web logs for a warning that starts with `[MCP] MCP_USER_EMAIL does not match an active user`. This means the account identified by `MCP_USER_EMAIL` exists but is marked inactive. Sure rejects the token when the user is inactive, regardless of whether the token value is correct.
+
+Reactivate the account or point `MCP_USER_EMAIL` at a different user that is active.
+
 ## AI features, external assistant, and Pipelock
 
 Sure ships a separate compose file for AI-related features: `compose.example.ai.yml`. It adds:
@@ -1263,7 +1269,7 @@ The external assistant delegates chat to a remote AI agent instead of calling LL
 
 ```txt
 MCP_API_TOKEN=generate-a-random-token-here
-MCP_USER_EMAIL=your@email.com   # must match an existing Sure user
+MCP_USER_EMAIL=your@email.com   # must match an existing, active Sure user
 ```
 
 2. Set the external assistant connection:
