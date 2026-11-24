@@ -103,6 +103,8 @@ You can move, disable, or delete these rules on the Rules page. The switches on 
 
 **Exclude transfers** — enable this option to leave transfers and inter-account payments out of the category classifier’s training data. It is off by default. The merchant matcher excludes transfers independently of this setting.
 
+**Fewest examples per category** — a category is only used as a prediction once this many of your transactions carry it (1–100). A category with very few examples can still win unfamiliar transactions with a high score, so raising this floor prevents uncommon categories from being assigned prematurely.
+
 **Don't learn from Bayes' own guesses until confirmed** — prevents the classifier from training on its own unconfirmed output. A transaction is treated as confirmed when you change or lock its category. One left alone for the configured number of days counts as accepted.
 
 ### Auto-tune
