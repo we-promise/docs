@@ -397,6 +397,17 @@ Fees affect:
 - Realized gain and the investment sales report (disposal fees)
 - Tax reporting and record keeping
 
+### Trade fields in the API
+
+`GET /api/v1/trades` returns the following additional fields alongside each trade:
+
+| Field | Description |
+| --- | --- |
+| `fee` | The trade fee, formatted the same way as `price`. |
+| `fee_decimal` | The stored fee as an unrounded, locale-independent decimal string. Use this for precise calculations, following the same convention as `amount_decimal` on transactions. |
+| `exchange_rate` | The rate to the account's currency stored on the trade, or `null` when both the trade currency and amount currency match the account currency. This is the rate used for cost basis and cash balance conversions on foreign-currency trades. |
+| `amount_currency` | The currency of the trade's cash amount (`entry.currency`). This can differ from the security's `currency` if the trade was edited after import. |
+
 ### Available Activity Labels
 
 | Label | Description |
@@ -492,6 +503,12 @@ Activity labels map to flow classes as follows:
 Excluded entries, pending transactions, and valuation entries do not count in any class. Contribution and Withdrawal labels on trades use quantity direction; the linked-counterpart exception in the table applies to cash transactions. Attached transfer-fee transactions are classified as fees before their activity label is considered.
 
 Setting the correct activity label on an entry is the primary way you control how it affects your portfolio return figures. An unlabeled deposit transaction with no in-scope transfer counterpart is classified as an external inflow and excluded from the investment return; a dividend labelled as a contribution would be counted as a cash flow in rather than as income. Use the activity label selector in the entry detail view to correct misclassified entries.
+
+### Contributions and withdrawals on the investment summary
+
+The **Contributions** and **Withdrawals** totals on the investment summary card count actual cash flows into and out of your investment accounts — not trades. Only entries that record an external flow (Contribution, Withdrawal, Transfer to or from an account outside your investment accounts) are counted. Buys, sells, reinvestments, sweeps, and exchanges are excluded because they are movements within your portfolio rather than new money entering or leaving it.
+
+Transfers between two of your investment or crypto accounts are internal and not counted on either side. A confirmed transfer to an outside account — such as moving cash from a brokerage to your checking account — counts as a withdrawal. Pending (unconfirmed) transfer suggestions count based on their own activity labels, not as confirmed transfers.
 
 ## Portfolio returns: time-weighted vs. money-weighted
 
