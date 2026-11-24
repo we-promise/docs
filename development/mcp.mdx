@@ -145,6 +145,8 @@ The `initialize` response also includes a `sessionId` field. Sure records the se
 
 Self-hosted deployments can optionally support older clients that cannot complete the browser authorization flow. Set both `MCP_API_TOKEN` to a high-entropy secret and `MCP_USER_EMAIL` to an existing Sure user's email. The client sends the configured token as a bearer token, and the selected user's family data is exposed to the available MCP tools.
 
+The user identified by `MCP_USER_EMAIL` must be active. If the account has been deactivated, the token is rejected with a `401` response and a warning in the server log. This matches the behavior of Doorkeeper OAuth tokens, which also refuse inactive users.
+
 This is a compatibility fallback: Sure tries OAuth access-token authentication first. Prefer the connection flow in **Settings > MCP Server**, and protect, rotate, and avoid logging any fallback token.
 
 ## Optional Pipelock proxy

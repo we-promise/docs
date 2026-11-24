@@ -72,11 +72,25 @@ Real estate you own:
 | Investment Property | Rental or investment real estate |
 | Second Home | Vacation home |
 
-Property accounts can track additional details like address, area (square footage), and year built.
+Property accounts can track additional details like address, area (square footage), year built, purchase date, and notes.
 
 When adding a property, you can look up the estimated market value automatically using a valuation provider (RentCast, Realie, or Chimnie). The provider returns the property details and an estimated value which you review before the account is created. Sure then refreshes the value on a monthly schedule.
 
 If you added a property manually without a provider, you can link one later from the property's Overview tab, when you have write access, the full address is in the provider’s supported country, and the account currency matches. This later-linking option supports configured RentCast or Realie connections; Chimnie requires its identifier during property creation. See [property valuations](/providers/property-valuations) for setup and configuration details.
+
+### Tracking purchase costs with a cost tag
+
+You can assign a **cost tag** to a property to track associated purchase expenses such as notary fees, transfer taxes, and registration costs. Any transaction in your family carrying that tag is counted as a purchase cost for that property.
+
+When a cost tag is set, the property overview shows three additional cards:
+
+- **Purchase costs** — the sum of all tagged transactions, with a link to view them in the transactions list.
+- **Cost basis** — the purchase price plus the purchase costs.
+- **Gain after costs** — the market value compared against the cost basis.
+
+Tagged transactions are counted across all of your family's accounts, including closed ones, so a closed account that paid the fees does not erase them. Pending, excluded, and scheduled future-dated transactions are not counted, nor are transfers or loan payments.
+
+To set a cost tag, open the property's edit form and select a tag from the **Cost tag** picker. You can tag transactions using the transaction drawer, bulk edit, or a rule with the "set tags" action.
 
 ### Vehicle
 
