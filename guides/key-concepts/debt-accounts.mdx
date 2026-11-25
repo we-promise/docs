@@ -232,6 +232,16 @@ A variable-rate loan with no recorded rate changes runs at its base rate, just a
 > [!NOTE]
 > The monthly payment field on the loan overview is only shown for fixed-rate loans. For variable-rate loans, use the Schedule tab to see the current payment in force.
 
+#### Editing the rate schedule while a provider is syncing
+
+Sure serializes rate-schedule writes so that manual edits and provider syncs cannot overwrite each other. Each edit form captures a snapshot of the schedule at the moment the form was opened. When you save, Sure reconciles your changes against that snapshot and the schedule as it stands at save time:
+
+- A rate entry you deleted is removed only if the provider has not changed it since you opened the form. If the provider updated the rate on that date after you loaded the form, the provider's value is kept.
+- A rate entry you added or changed is always written, regardless of what the provider did in the meantime.
+- Rows the provider added while your form was open survive the save.
+
+If the form detects that the schedule snapshot it was built on is missing (for example, the form was opened before this change was deployed), the save is rejected with an error asking you to reload the page. Nothing is written in that case. After reloading, the form loads a fresh snapshot and your edits can be reapplied normally.
+
 ## Loan balance chart
 
 Loan accounts include a balance chart that shows three series together:

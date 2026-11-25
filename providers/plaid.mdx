@@ -255,6 +255,21 @@ Because `liabilities` is only requested when linking a liability account (credit
 
 Sure fetches liability details (minimum payment, next payment due date, APR) for all Plaid accounts with type `credit`, regardless of subtype. This covers both standard credit cards (`credit/credit card`) and PayPal Credit accounts (`credit/paypal`). For loan accounts, liabilities are fetched only for `mortgage` and `student` subtypes.
 
+### Variable loan rates
+
+For mortgage and student loan accounts linked through Plaid, Sure can record changes to a variable-rate loan's rate schedule when Plaid reports a new interest rate.
+
+What Sure does with the reported rate:
+
+- For a variable-rate loan with no recorded rate, Sure sets the reported rate as its base rate unless that field is locked.
+- If the rate has moved since the last sync, Sure adds a dated row to the variable rate schedule, keyed to the sync date, updating the loan's projection and repayment schedule going forward.
+- If the loan is marked fixed and the bank reports a different rate, Sure writes the new rate directly as the base rate.
+- If the loan's rate or schedule is locked, the locked value is preserved and a warning is logged.
+
+Sure skips the variable-rate update when the Plaid item requires re-authentication. A stale payload from a previous sync is not evidence the rate changed on the current sync date, so Sure does not add a dated row until authentication is restored and a fresh payload is fetched.
+
+Plaid rate-schedule writes run under the same lock as manual form edits. If a sync and a form save happen at the same time, one waits for the other to finish, and the sync reads the current schedule after acquiring the lock before deciding whether to record a change.
+
 Plaid reports an item's products across three lists: `available_products`, `billed_products`, and `consented_products`. Sure treats all three as supported when deciding whether to fetch transactions and investments. Products granted through `additional_consented_products` during the Link flow appear in `consented_products` until they are first billed — if Sure only checked the first two lists, those products would appear unsupported and their data would not be fetched.
 
 Liabilities are handled differently. Sure only calls `/liabilities/get` when `liabilities` appears in `billed_products` or `consented_products` and the item contains an eligible credit, mortgage, or student-loan account. `available_products` alone does not authorize the call. A Depository Link flow does not request liabilities consent, even if the same bank login also holds a credit card and the institution offers liabilities. This consent check avoids an unconsented call that could return `ADDITIONAL_CONSENT_REQUIRED` and fail the item sync.

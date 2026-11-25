@@ -62,6 +62,8 @@ What Sure does with the reported rate:
 
 The date recorded is the day Sure detected the change. Redbark's API does not carry an effective date for rate changes, so the recorded date reflects when the change was seen rather than when the bank applied it.
 
+Redbark rate-schedule writes run under the same lock as manual form edits. If a sync and a form save happen at the same time, one waits for the other to finish. The sync reads the schedule after acquiring the lock, so it judges whether the rate has changed against whatever the form just wrote rather than against an older snapshot.
+
 Sure reads the batch limit of 100 account IDs per API call. If a multi-account batch is rejected with a bad-request or not-found error, each account is retried individually so a single stale account does not block the others.
 
 A failed `account-details` fetch does not replace the stored details snapshot. Non-authentication failures are logged and allow the sync to continue; authentication failures propagate and require reconnecting the connection.
