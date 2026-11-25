@@ -219,6 +219,14 @@ If a position shows no price or an incorrect value:
 
 Earlier syncs classified Trade Republic cash-account deposits as funds movements (which appeared as transfers) or investment contributions. A sync resets those entries to standard transactions automatically, unless you edited them or they are part of a matched transfer. If any deposits still appear incorrectly after syncing, run a manual sync from **Settings > Providers > Trade Republic**.
 
+### Account shows the wrong currency
+
+If your Trade Republic cash or portfolio account shows a currency other than your broker's settlement currency (for example, EUR accounts displayed as SEK), a previous sync resolved the currency from your family settings instead of from Trade Republic.
+
+Run a manual sync from **Settings > Providers > Trade Republic**. Sure now reads the currency directly from Trade Republic's cash topic on every sync. Existing accounts and their transaction history relabel to the correct broker currency on the first sync after updating — no unlinking or reimporting is required.
+
+If the currency is still incorrect after syncing, click **Repair** in the data quality section of the Trade Republic panel.
+
 ### Balance does not match the Trade Republic app
 
 Sure uses the booked cash balance from Trade Republic, which matches the balance shown in the Trade Republic app. Funds reserved for open orders (such as pending limit orders) are not subtracted from this balance — those orders have not settled, so no matching transaction exists yet.
