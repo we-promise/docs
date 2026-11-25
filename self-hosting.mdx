@@ -626,6 +626,36 @@ docker compose ls
 
 Your app is now accessible at `http://localhost:3000`.
 
+### Query the running version
+
+`GET /api/v1/version` returns the running Sure version and build commit:
+
+```json
+{"version":"2026.11.2","commit_sha":"0123456789abcdef0123456789abcdef01234567"}
+```
+
+By default, an `X-Api-Key` or OAuth bearer token with `read` or `read_write` scope is required. The same information is visible in the signed-in user menu.
+
+```bash
+curl --fail --header "X-Api-Key: $SURE_API_KEY" "$SURE_URL/api/v1/version"
+```
+
+The version comes from Sure's internal version metadata, not a lookup of the latest GitHub release. In production, the commit comes from `BUILD_COMMIT_SHA` and is `null` if unavailable. Responses use `Cache-Control: private, no-store`.
+
+**Optional anonymous access**
+
+Set `PUBLIC_VERSION_ENDPOINT=true` in the web service's environment to allow unauthenticated queries:
+
+```txt
+PUBLIC_VERSION_ENDPOINT=true
+```
+
+Restart the web container after adding this variable. Setting it only in Compose's interpolation `.env` file is not enough — it must reach the container's environment. Only the exact value `true` enables anonymous access; any other value leaves authentication required. Supplied credentials are still validated in anonymous mode, so rate-limit checks and scope enforcement continue to apply when a key is provided.
+
+<Warning>
+  Exposing version and commit information makes deployment fingerprinting easier. Enable `PUBLIC_VERSION_ENDPOINT` only when that disclosure is acceptable for your deployment.
+</Warning>
+
 ## Updating
 
 In the current example Compose file, `SURE_IMAGE_TAG` in `.env` selects the Sure image version. The image entry reads:
