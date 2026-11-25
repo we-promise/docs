@@ -127,6 +127,14 @@ You can tune the throttle with these environment variables:
 | `TWELVE_DATA_MAX_REQUESTS_PER_MINUTE` | `7` | Maximum API credits consumed per minute |
 | `TWELVE_DATA_MIN_REQUEST_INTERVAL` | `1.0` | Minimum seconds between consecutive requests |
 
+#### Exchange rate cross-rate fallback
+
+When fetching historical exchange rates, Sure first calls the Twelve Data `time_series` endpoint (1 credit). Some currency pairs — such as KGS/EUR, KZT/EUR, and UZS/EUR — are not available via the direct `time_series` endpoint. Twelve Data rejects these pairs with an HTTP 400 or 404.
+
+When that happens, Sure automatically retries using the `time_series/cross` endpoint (5 credits), which serves cross rates for pairs that are unavailable directly. If the cross call also fails, that error is returned to the caller.
+
+Rate-limit errors (HTTP 429) are not caught by this fallback and always propagate.
+
 ### Tiingo
 
 Tiingo provides end-of-day and intraday price data for US and international equities.
