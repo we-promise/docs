@@ -200,6 +200,31 @@ Because the free tier has no historical endpoint, NGX holdings sync with today's
 
 See the [Mansa API provider page](/providers/mansa) for full setup instructions.
 
+## Exchange rate derivation for non-USD pairs
+
+Most exchange rate providers quote nearly every currency against USD but support far fewer direct crosses between two non-USD currencies. For example, Yahoo Finance has full history for KZT/USD and USD/RUB but no direct KZT/RUB quote at all.
+
+When Sure asks the configured provider for a pair and the provider returns no rates, and neither currency in the pair is USD, Sure attempts to derive the rate from the two USD legs: X→USD × USD→Y. The result is stored the same way a provider-supplied rate would be, and the inverse rate is backfilled as usual.
+
+Derivation runs in both lookup paths:
+
+- **On-demand lookups** — when converting a balance or entry in real time, Sure checks the same 5-day lookback window it uses for cached rates.
+- **Daily importer** — Sure derives the cross over the full range it asked the provider for, and carries a completed cross forward across gaps where one leg is missing.
+
+Derivation is skipped when:
+
+- One side of the pair is USD (the direct rate is used instead).
+- The provider is rate-limiting or rejecting requests — in that case the USD legs would fail the same way, so Sure does not add extra calls.
+- The provider has successfully quoted the pair directly before. Sure tracks this per pair so a temporary outage does not cause it to silently substitute a derived approximation for the provider's own rate. Once the outage clears, the direct rate resumes.
+
+When both legs succeed but the computed product rounds to zero (which can happen with very small-valued currencies), the derived rate is discarded rather than stored.
+
+Failed derivation attempts are cached for one hour per provider, pair, and date range to avoid repeating the extra leg requests on every sync. Provider-level failures (rate limit, authentication error) bypass this cache.
+
+<Note>
+Derivation is automatic and requires no configuration. It applies to all configured exchange rate providers. Each derivation is logged to the debug log under **Settings → Debug** in the `exchange_rates` category so you can verify which rates were derived.
+</Note>
+
 ## Price sync scope
 
 Sure only fetches prices for the date range each account actually needs for a given security. The range starts with the earliest trade or positive holding for that security. For provider-synced holdings, it can extend back to the account start date. Its end depends on whether you still hold the position:
