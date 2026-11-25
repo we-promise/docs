@@ -568,6 +568,10 @@ Exchange rates that are zero or negative are treated the same as missing. A bad 
 
 If a gain or cost basis figure is absent for a foreign-currency position, check that an exchange rate exists for the security's currency against your account's currency on the relevant date. You can add missing rates at **Settings → Exchange rates**.
 
+**Current market price in the trade and holding drawers:** When a security's listed currency differs from the trade's or holding's currency (for example, a USD-listed stock in a EUR account), the trade drawer and holding drawer convert the current market price into the trade's or holding's currency at the exchange rate for the quote's date. The converted price is shown as the primary figure, with the original quote alongside it for reference — for example, **€180.00 ($200.00)**. The unrealized gain is then computed in the trade's currency using the converted price.
+
+When no exchange rate is available for the quote's date, the original quote is shown without conversion and the unrealized gain is hidden. Sure does not fall back to a 1:1 rate — an unknown gain is shown rather than an incorrect one. Same-currency positions are unaffected by this conversion.
+
 Some data providers (such as IBKR via Flex reports) supply a trade-level exchange rate alongside each transaction. When this rate is present, Sure uses it for cost basis calculations and falls back to the exchange-rate table only if no trade-level rate was provided.
 
 ### Automatic exchange rate import for foreign-currency securities
