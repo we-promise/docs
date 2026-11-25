@@ -231,6 +231,32 @@ If an account holds transactions in a currency that has no exchange rate availab
 
   <Accordion title="How do I resolve the missing exchange rate?">
     Go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured. Twelve Data is the default. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once rates are fetched, the previously skipped entries will be included in the next balance calculation.
+
+    When a rate is stored for the first time — either by an import or by Sure fetching it on demand — Sure automatically queues a background sync for every account whose balance was affected by the missing rate. Manual accounts that would otherwise never re-sync are included. No manual action is required once the rate is available.
+  </Accordion>
+</AccordionGroup>
+
+## Account balance or net worth stays wrong after a missing exchange rate is added
+
+If you added a missing exchange rate (via **Settings → Exchange rates** or by configuring a rate provider) but your account balance, balance chart, or net worth still shows an incorrect value, the account may not have been re-synced after the rate arrived.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    When Sure calculates a balance and no exchange rate exists for a foreign-currency entry, it skips that entry rather than aborting. The balance is recorded without it. In earlier versions, nothing triggered a recalculation when the missing rate was stored later — so the balance, its chart, and your net worth stayed wrong until something else happened to sync the account. For manual accounts with no provider connection, that could be never.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When a new exchange rate is stored — either by the importer or by Sure fetching it on demand — Sure automatically finds every account whose balance was affected by the missing rate and queues a background sync for each one, starting from the earliest date that needed the rate. Accounts already mid-sync are flagged for a full resync once the current sync finishes. Manual accounts are included.
+
+    Queueing is best-effort: a failure to enqueue the sync job is logged to **Settings → Debug** under the `exchange_rates` category but does not prevent the rate from being saved.
+
+    Upgrade to a build containing [Sure PR #5129](https://github.com/we-promise/sure/pull/5129). No configuration change is required.
+  </Accordion>
+
+  <Accordion title="What if the balance is still wrong after upgrading?">
+    If the account was affected before you upgraded, the automatic rebuild will not run retroactively for that specific rate. Trigger a manual sync on the account from the account detail page to recalculate balances from the affected date.
+
+    To confirm which rates are missing, go to **Settings → Debug** and filter by the `sync` category. Look for `warn`-level entries from `Balance::SyncCache` that name the currency pair and date.
   </Accordion>
 </AccordionGroup>
 
