@@ -35,7 +35,7 @@ The current `Assistant.function_classes` registry exposes the following tools. T
 | `get_transactions` | Search transactions with optional filters and pagination; useful for finding transactions and calculating statistics for small groups of results |
 | `get_recurring_transactions` | Detected and manual recurring transactions (subscriptions, bills, salaries) with expected dates and per-currency totals |
 | `get_accounts` | List accounts with current and historical balances and account metadata |
-| `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; results are paginated |
+| `get_holdings` | Search Investment and Crypto account holdings, including portfolio, performance, and cost-basis data; returns the same rows the Holdings tab shows, so quantity and average cost match what you see in the UI; results are paginated |
 | `get_balance_sheet` | Retrieve balance-sheet and net-worth data with historical information |
 | `get_income_statement` | Retrieve income and expenses by category for a date range |
 | `get_budget` | Compare a monthly budget with spending by category, with an optional prior-month trend comparison |
