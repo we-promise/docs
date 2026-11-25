@@ -314,6 +314,12 @@ The affected Sure upload forms used native form submission. They now submit thro
 
 If you are on an older version and see a "We didn't receive your file. Please try uploading it again." alert on iOS, upgrade to the latest release and retry the upload.
 
+### CSV import fails with a malformed CSV error
+
+If a CSV file exported from Windows applications or certain bank portals uses Windows-style line endings (CRLF, `\r\n`) mixed with standard Unix line endings (LF, `\n`) — for example, a quoted multi-line header field followed by CRLF rows — Sure previously raised a parse error and refused to process the file.
+
+Sure now normalizes line endings before parsing, so files with mixed CRLF, LF, or CR-only endings import without errors. If you uploaded a file before this fix and it failed, re-upload the same file and it will process correctly.
+
 ### Import fails with date errors
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
