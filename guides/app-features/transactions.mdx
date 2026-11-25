@@ -218,9 +218,45 @@ This means a bulk edit applied to a mixed selection may update different fields 
 
 ## Group split transactions
 
-When a transaction is split into multiple entries, Sure can display the child entries grouped under their parent row with an indented layout. This applies to both the Transactions page and the Activity tab on individual account pages.
+When a transaction is split into multiple entries, Sure can display the child entries grouped under their parent row with an indented layout. This applies to both the Transactions page and the Activity tab on individual account pages. On mobile, split children are also grouped under their parent in the transaction list; the parent row shows a **Split** badge to indicate it has been split.
 
-To enable or disable this behavior, go to **Settings → Appearance** and toggle **Group split transactions**. When the toggle is on, split children appear indented under their parent in both views. When the toggle is off, split children appear as individual rows in the same position they would occupy by date.
+To enable or disable this behavior on the web, go to **Settings → Appearance** and toggle **Group split transactions**. When the toggle is on, split children appear indented under their parent in both views. When the toggle is off, split children appear as individual rows in the same position they would occupy by date.
+
+## Splitting transactions on mobile
+
+The mobile app supports viewing, creating, editing, and removing transaction splits.
+
+**Viewing a split on the transaction screen:**
+
+- A split parent lists its child entries (name, category, and amount) with **Edit split** and **Unsplit** actions. Selecting **Unsplit** asks for confirmation before removing the split.
+- A split child shows a "Part of split" indicator with the same actions. Its own fields are read-only because the API does not accept direct edits to split children; use **Edit split** to change the amounts or names.
+- Any other synced transaction shows a **Split transaction** action.
+
+When the app opens a transaction, it checks with the server whether the transaction is a split child. The form stays locked until the lookup completes. If the lookup fails, the form unlocks and offers a **Try again** option; the server still rejects edits to split children, so the lock is advisory.
+
+**Using the split editor:**
+
+The split editor lets you divide a transaction into named entries that sum to the original amount.
+
+- Add and remove rows (at least one row must remain).
+- Each row has a name, an amount, and an optional category.
+- A live **Remaining** indicator shows how much of the total is unassigned. The **Save** button is enabled only when the rows sum exactly to the original amount.
+- Amounts use the original transaction's sign convention: for an expense, enter positive amounts. Use a minus sign to mark a portion that goes in the opposite direction.
+- The editor uses exact decimal arithmetic (to four decimal places) so rounding errors do not prevent rows from balancing. Input precision follows the transaction's currency (for example, two decimal places for USD, zero for JPY).
+- Locale-formatted amounts are accepted as input (for example, `1 234,56` in Swedish locale).
+- When editing an existing split, the editor pre-fills each row from the stored amounts and carries each child's `excluded` flag through the update.
+
+**Deleting split transactions on mobile:**
+
+Swipe-to-delete and bulk delete check with the server before deleting. Split parents and split children cannot be deleted; the app shows an "Unsplit this transaction before deleting it" message. If the server check fails while the device is online, the delete is refused. Offline, the app only blocks deletes for splits already cached on the device; uncached split transactions can still be deleted while offline.
+
+**Calendar and totals:**
+
+Split parents are excluded from daily calendar totals. The children carry the amounts, so the same money is not counted twice.
+
+**Offline behavior:**
+
+Creating, editing, and removing splits require an internet connection. When offline, the split section on a transaction is read-only and the split editor cannot save. Cached split details remain visible.
 
 ### Duplicate a transaction
 
