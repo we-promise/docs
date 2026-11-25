@@ -435,6 +435,22 @@ Rules run automatically during account syncs. You can also apply rules manually 
 
 When you re-apply a single rule, Sure first runs all active rules above it in order before applying the selected rule. This means the result matches what the rule would produce during a full run — for example, a rename applied by a higher rule is visible to a categorization rule below it.
 
+## Splits and confirmed transfers
+
+A split child can become one leg of a confirmed transfer — through the match dialog, auto-match, the "set as transfer" rule, or the importer. When that happens, the split is protected:
+
+- **Unsplitting** the parent is blocked while any child is a confirmed transfer leg.
+- **Re-splitting** (replacing all children via `PATCH`) is blocked for the same reason.
+- **Deleting** the parent transaction is blocked while any child is a confirmed transfer leg.
+
+The split editor in the app shows the message "A part of this split is linked as a transfer. Remove that transfer before you edit or unsplit the split." Deleting the parent shows a matching message. Bulk delete skips any split whose child is a confirmed transfer leg and reports which ones were skipped.
+
+Pending auto-match suggestions do not block any of these operations — only confirmed transfers do.
+
+To edit or remove a protected split, unlink the transfer from either transaction in the transfer first, then proceed.
+
+**Editing split part fields:** Editing a split child's amount, currency, or kind is not supported. Either change would make the children's amounts stop summing to the parent. Notes can still be updated. The web form disables these fields and the API returns 422 when they are sent.
+
 ## Transaction splits API
 
 The API exposes a nested resource for managing transaction splits programmatically:
@@ -443,8 +459,10 @@ The API exposes a nested resource for managing transaction splits programmatical
 | --- | --- | --- |
 | `GET /api/v1/transactions/:transaction_id/split` | `read` | Return the child transactions of a split. Returns 404 when the transaction has not been split. |
 | `POST /api/v1/transactions/:transaction_id/split` | `read_write` | Split a transaction for the first time. Children must sum exactly to the parent amount. |
-| `PATCH /api/v1/transactions/:transaction_id/split` | `read_write` | Replace all children of an existing split. The previous children are deleted and the new ones are created. |
-| `DELETE /api/v1/transactions/:transaction_id/split` | `read_write` | Unsplit a transaction. The children are deleted and the parent is restored. |
+| `PATCH /api/v1/transactions/:transaction_id/split` | `read_write` | Replace all children of an existing split. The previous children are deleted and the new ones are created. Returns 422 when a child is a confirmed transfer leg. |
+| `DELETE /api/v1/transactions/:transaction_id/split` | `read_write` | Unsplit a transaction. The children are deleted and the parent is restored. Returns 422 when a child is a confirmed transfer leg. |
+
+Deleting the parent transaction via `DELETE /api/v1/transactions/:transaction_id` also returns 422 when the transaction is split and a child is a confirmed transfer leg.
 
 A split-child transaction ID resolves to its parent, so you can address either transaction to reach the split resource.
 
