@@ -35,6 +35,12 @@ If a provider reports prices for individual securities on different dates within
 
 For accounts that have no provider connection, Sure shows the most recent holding per security in the account's currency from your manually entered or calculated data. Holdings recorded in a different currency than the account's base currency are excluded from the current portfolio view.
 
+#### Gains/ROI chart and the provider snapshot
+
+The Gains/ROI view of your investment account's chart counts the same securities as the Holdings tab. For each date on the chart, a security contributes unrealized gain only if the account's most recent provider snapshot on or before that date holds it with a nonzero quantity. Securities the account has since moved off — for example, a position transferred to a different security record after a re-sync — do not carry forward in the chart.
+
+For accounts with no provider snapshot yet (such as manually managed accounts), the chart carries each security's latest holding row forward as before. This means the chart and the Holdings tab agree on which positions are active, so the totals you see in both views are consistent.
+
 #### How locks carry forward across syncs
 
 When a provider creates a new daily snapshot row for a holding you have previously locked — either a security remap lock or a cost basis lock — Sure copies those locks onto the new row automatically. This applies to all providers, including those that do not supply a per-holding unique identifier (such as Plaid, Indexa Capital, and SnapTrade securities). Without this carry-forward, a new sync would silently drop your manual corrections and replace them with the provider's values.
