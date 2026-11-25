@@ -1183,6 +1183,31 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Provider account setup could follow a crafted redirect after connecting a bank
+
+When completing a provider account setup flow (Akahu, CoinSpot, Fio, Kraken, Monobank, Questrade, Redbark, or Up Bank), Sure accepted a `return_to` parameter to redirect back to the page you came from after the flow finished. Each of those eight controllers contained its own copy of the safety check that validated this parameter. The copies had drifted slightly over time — in particular, one controller accepted lowercase percent-encoded path separators (`%2f`, `%5c`) that the others rejected.
+
+<AccordionGroup>
+  <Accordion title="What was affected?">
+    The eight provider controllers that accepted a `return_to` redirect parameter: Akahu, CoinSpot, Fio, Kraken, Monobank, Questrade, Redbark, and Up Bank.
+
+    CoinSpot's check matched only uppercase `%2F` and `%5C`, while the other seven also rejected their lowercase equivalents (`%2f`, `%5c`). A crafted link using the lowercase encoding could bypass CoinSpot's check.
+
+    A separate earlier issue (#5161) had already fixed a hostless redirect hole across these same flows; this change is a follow-up that consolidates the fix to prevent future drift.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The eight controllers now share a single `SafeReturnPath` concern. The shared check rejects absolute URLs, protocol-relative URLs (`//host`, `/\host`), backslashes, control characters, percent-encoded path separators in either case (`%2F`, `%2f`, `%5C`, `%5c`), paths that do not route, and a bare `/`.
+
+    Two behavior changes result from the consolidation:
+
+    - A bare `/` now falls back to the controller's default destination instead of redirecting to the dashboard. No link in the app sends `/` into these flows, so normal usage is unaffected.
+    - CoinSpot now rejects lowercase `%2f` and `%5c` encoded path separators, consistent with the other seven controllers.
+
+    Upgrade to a build containing [Sure PR #5343](https://github.com/we-promise/sure/pull/5343). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
