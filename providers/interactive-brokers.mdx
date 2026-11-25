@@ -15,7 +15,7 @@ Sure imports the following data from an IBKR Flex report:
 - Cost basis per position
 - Trades (with commissions folded into the trade fee), dividends, and cash deposits or withdrawals
 
-Historical activity is limited to the date range configured in your Flex Query. Sure imports full current holdings plus up to the last 365 days of activity.
+Historical activity is limited to the date range configured in your Flex Query. Sure imports full current holdings plus up to the last 365 days of activity. Activity older than the Flex Query's configured period is backfilled over subsequent syncs, up to four years back.
 
 ## Setting up Interactive Brokers
 
@@ -103,7 +103,7 @@ If a commission was imported as a separate transaction before this change, Sure 
 
 ## Limitations
 
-- Historical activity is limited to the report window of your Flex Query. Sure imports up to 365 days of activity based on the query's configured period.
+- Historical activity within the report window of your Flex Query is imported on the first sync. Activity older than the query's period is backfilled over subsequent syncs, up to four years back.
 - Only investment (brokerage) accounts are supported. Cash accounts and other account types are not imported from IBKR.
 
 ## Troubleshooting
