@@ -61,6 +61,23 @@ Yahoo Finance is the default provider and requires no API key. It offers broad g
 - **Coverage**: Global stocks, ETFs, mutual funds, indices, crypto
 - **API key**: Not required
 
+#### Request throttling
+
+Sure spaces Yahoo Finance requests using a shared budget in the cache (Redis in production). Every HTTP attempt — including retries — claims one fixed time slot of `YAHOO_FINANCE_MIN_REQUEST_INTERVAL` seconds. Because the budget lives in a shared cache rather than in memory, provider instances, Sidekiq workers, and web processes all draw from the same pool instead of pacing themselves independently.
+
+When all slots within the next `YAHOO_FINANCE_MAX_REQUEST_WAIT` seconds are already claimed, the request waits out the current window and then proceeds without claiming a slot. This bounds the maximum wait time at the cost of strict per-slot enforcement at the boundary: two requests straddling a window edge may be closer together than the configured interval.
+
+If the cache refuses a claim (for example, during a Redis outage), that individual request proceeds immediately without waiting. A cache outage adds at most one unpaced attempt per call but never blocks requests.
+
+You can tune the throttle with these environment variables:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `YAHOO_FINANCE_MIN_REQUEST_INTERVAL` | `0.5` | Minimum seconds between consecutive requests (also sets the shared slot width) |
+| `YAHOO_FINANCE_MAX_REQUEST_WAIT` | `30` | Maximum seconds a request queues waiting for a free slot |
+| `YAHOO_FINANCE_MAX_RETRIES` | `5` | Maximum number of retries per request |
+| `YAHOO_FINANCE_RETRY_INTERVAL` | `1.0` | Base retry interval in seconds |
+
 #### How price fetching works
 
 Sure fetches chart and price data from Yahoo Finance without sending authentication cookies or a crumb token. Yahoo rate-limits authenticated chart requests far more aggressively than anonymous ones, so skipping authentication reduces 429 rate-limit errors on price syncs.
