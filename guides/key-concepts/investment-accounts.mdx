@@ -615,6 +615,30 @@ This conversion is not available for wallet-type crypto accounts. Only exchange 
 
 Excluded transactions cannot be converted, including originals excluded by an earlier conversion. Re-including the original removes that exclusion, so avoid converting it again and creating a duplicate trade.
 
+## Data quality
+
+Sure checks your held positions for issues that could make portfolio figures unreliable. When it finds any, the portfolio view surfaces them so you can review or correct the affected holdings before trusting the numbers.
+
+The check covers four issue kinds, applied only to non-cash securities:
+
+| Issue | What it means |
+| --- | --- |
+| **Missing cost basis** | The holding has no stored cost basis and no trade history to compute one from. Unrealized gain cannot be calculated for this position. |
+| **Stale price** | No real (non-provisional) quote exists on or before today, or the most recent quote is more than 5 days old. The holding's current value may not reflect the market. |
+| **Provider issue** | The price provider for this security is reporting a problem. Prices may be missing or delayed until the provider recovers. |
+| **Negative position** | The holding's calculated quantity went below zero at some point — for example, after a sale that has no matching purchase, or after a purchase was deleted. Even if the quantity later recovered to a positive number, the flag stays until the underlying data is corrected. |
+
+The negative-position check applies only to manually managed investment accounts. Provider-synced accounts are excluded because a negative quantity from a provider represents a short position, not missing data.
+
+Issues are sorted by kind, then by ticker and account, so they appear in a consistent order between page loads.
+
+### Fixing data quality issues
+
+- **Missing cost basis** — set a cost basis manually from the holding drawer, or add the missing trades so Sure can compute one.
+- **Stale price** — run a manual sync if the account is provider-linked, or add a price manually at **Settings → Securities**.
+- **Provider issue** — check the provider's status on **Settings → Providers**. The flag clears once the provider returns to a healthy state.
+- **Negative position** — review your trade history for the affected security and account. Add any missing purchases, or remove duplicate sales, so the calculated quantity stays at zero or above on every day.
+
 ## Adding Investment Accounts
 
 1. Click **+ Add Account** on your dashboard
