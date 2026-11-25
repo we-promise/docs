@@ -204,10 +204,26 @@ Sure uses the **weighted-average cost** method to compute your cost basis from t
 - **Sells** relieve the position at the current average cost, leaving the per-share average unchanged for the shares that remain. A disposal fee does not affect the basis of the remaining shares.
 - **Full liquidation** resets the tracker completely. If you sell your entire position and buy again later, the new lot starts from a clean basis — the old (realized) lots do not carry over and corrupt the new position's cost basis.
 - **Outbound transfers** (shares moved to another account you own) are treated the same as sells: they relieve the running average so the transferred shares no longer affect the basis of any shares remaining in the account.
+- **Stock splits** are replayed at the open of each split's ex-date, scaling the share count and adjusting the per-share cost by the inverse ratio so the total cost basis stays the same.
 
 Price and fee conversions for foreign-currency trades use a rate carried by the trade when available, otherwise the rate for the trade's date. If the required conversion rate is unavailable, the calculated basis is unknown rather than using today's rate or treating the currencies as equal.
 
 This means `avg_cost` on a holding — shown in the holdings list, the holding drawer, and the API — reflects only the cost of the shares you currently hold, not an average across every purchase the account ever made for that security.
+
+#### Fallback calculation when no stored basis exists
+
+When a holding has no stored cost basis — no provider-supplied figure, no manual entry, and no pre-computed calculated value — Sure replays the security's full trade history through the same calculation engine the forward calculators use. This replay applies buys, sells, outbound transfers, and splits in chronological order, so the figure it produces always agrees with what the calculators would store.
+
+Before this fallback, a simpler average was used that ignored sells, splits, and closed transfers, which could produce a different number from what the calculators stored. The table below shows how the figures change for a few common scenarios:
+
+| Trade history (no stored basis) | Calculators store | Before | After |
+|---|---|---|---|
+| Buy 10 @ $100, sell 10, buy 10 @ $200 | $200 | $150 | $200 |
+| Buy 10 @ $100, sell 5, buy 5 @ $200 | $150 | $133.33 | $150 |
+| Transfer in 10, sell 10, buy 10 @ $200 | $200 | nil | $200 |
+| Buy 10 @ $100, 2-for-1 split, buy 10 @ $60 | $53.33 | $80 | $53.33 |
+
+Holdings with a stored cost basis (provider-supplied, manual, or pre-computed) are unaffected.
 
 ### Transfers and cost basis
 
@@ -215,7 +231,7 @@ When securities are transferred **into** an account, Sure cannot determine what 
 
 When securities are transferred **out** of an account, Sure does not touch the cost basis of the shares that remain. Those remaining shares came from real purchases this account recorded, and their cost basis is correct. You can set it manually if you need to record it explicitly.
 
-Once you sell all of the transferred shares and the position reaches zero, Sure releases the unknown mark. Any shares you buy after that point are treated as a fresh purchase with a known cost basis, so gains and losses calculate correctly from that repurchase forward.
+Once you sell all of the transferred shares and the position reaches zero, Sure releases the unknown mark. Any shares you buy after that point are treated as a fresh purchase with a known cost basis, so gains and losses calculate correctly from that repurchase forward. The release only happens when the position genuinely closes — if you hold additional shares from purchases made in this account alongside the transferred-in shares, the position stays unknown until all shares (purchased and transferred) are sold and the holding reaches zero.
 
 > [!NOTE]
 > Only a calculated cost basis is cleared on an inbound transfer. If you have set a manual cost basis, or your institution provided one, Sure keeps that value — it represents an explicit assertion about what the position cost, which the app respects.
@@ -549,6 +565,8 @@ Cost basis includes any purchase fee: if you bought 10 shares at $100 with a $5 
 Actual gains or losses from securities you've sold. These are what matter for taxes.
 
 Fees are included in the calculation on both sides: the purchase fee is part of your cost basis, and the sale fee is subtracted from your proceeds. For example, if you bought 10 shares at $100 with a $5 purchase fee and sold them at $110 with a $3 sale fee, your realized gain is `(10 × $110 − $3) − (10 × $100 + $5) = $1,097 − $1,005 = $92`.
+
+For a **closing sale** — a sale that empties a position that has no stored cost basis — Sure uses the average cost as it stood immediately before the sale rather than after it. This matters because the sale itself relieves the remaining shares, which would leave the post-sale holding with nothing to price against. By pricing the sale at the pre-sale average, Sure produces the correct gain even when the position reaches zero.
 
 The **Trend** indicator on each holding shows your unrealized gain or loss, calculated from your cost basis. If cost basis is unknown (no trades and no manual entry), the trend won't display.
 
