@@ -215,8 +215,16 @@ The daily importer also checks security details for all online securities, even 
 
 ## Price freshness
 
-When Sure cannot fetch a real price for a given date (for example, on weekends or market holidays when providers return no data), it carries the last known price forward to fill the gap. These gap-filled prices are marked as **provisional**.
+When Sure cannot fetch a real price for a given date (for example, on weekends or market holidays when providers return no data), it carries the last known price forward to fill the gap. These gap-filled prices are stored with a `carried_forward` flag.
 
-Provisional prices are automatically replaced the next time a sync runs and the provider returns a real value for that date. Sure re-checks provisional prices within a 7-day rolling window, so a Friday price carried forward over a weekend is corrected as soon as Monday's data is available.
+Recent carried-forward prices are also marked **provisional** and are automatically replaced the next time a sync runs and the provider returns a real value for that date. Sure re-checks provisional prices within a 7-day rolling window, so a Friday price carried forward over a weekend is corrected as soon as Monday's data is available.
 
-Prices older than 7 days that were gap-filled are kept as-is and are not re-fetched. Prices you edit manually are never marked provisional and are not overwritten by syncs.
+### Carried-forward tail refetch
+
+When a provider stops publishing new quotes for a security, its prices are filled by carrying the last real close forward indefinitely. If the provider later resumes quoting that security, the carried-forward run needs to be corrected — but the prices are older than the 7-day provisional window, so ordinary provisional refetching would not catch them.
+
+To handle this, Sure also refetches the **carried-forward tail**: the run of carried prices that follows the security's last known real quote. Any carried price within the last 30 days after the last real quote is re-asked on each import. When the provider returns a real close for one of those dates, that date and all subsequent carried prices update to follow it.
+
+A carried price that has a real quote after it is considered settled and is not asked for again on its own. Manual closes you have entered are preserved: a refetched tail uses the stored real quote as its anchor rather than overwriting it with a contradicting provider value.
+
+Prices you edit manually are never marked provisional or carried forward and are not overwritten by syncs.
