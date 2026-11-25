@@ -234,6 +234,22 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 </AccordionGroup>
 
+## Foreign-currency account balance stayed wrong after a missing exchange rate arrived
+
+When a foreign-currency entry could not be converted because no exchange rate existed for that date, the balance cache dropped the entry silently. If the rate was stored later — through a background import or a manual sync of an unrelated account — nothing triggered a recalculation, so the account balance, its chart, and your net worth could remain wrong indefinitely. For manual accounts with no scheduled syncs this condition could persist until a user-triggered sync.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    `Balance::SyncCache` drops entries it cannot convert to the account currency. When a missing rate was later stored by `ExchangeRate::Importer` or resolved by `ExchangeRate.find_or_fetch_rate`, those code paths only stored the rate — they did not rebuild balances for the accounts that had skipped entries because of it.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    When a new exchange rate is stored, Sure now identifies accounts that dropped entries because of that missing rate and queues a background sync for each one, starting from the earliest affected date. If an account is already syncing, the refresh is queued to run again after the current sync finishes. The rate write itself is never blocked if the queue is unavailable.
+
+    Upgrade to the latest release to get this fix. After upgrading, trigger a manual sync on any account you suspect was affected to recalculate its balances with the rates now on file.
+  </Accordion>
+</AccordionGroup>
+
 ## Dragging a section on the reports page activates mid-scroll on mobile
 
 On mobile, a brief pause while scrolling the reports page could accidentally activate drag mode on a reorderable section, visibly shifting the section and interrupting the scroll.

@@ -383,6 +383,14 @@ Entries imported before the `ProviderImportAdapter` was introduced were stored w
 
 This is now fixed. Sure looks up retracted transactions by `external_id` and source first, then falls back to `plaid_id` for older entries that predate the adapter. If you have transactions that should have been removed by a Plaid retraction, trigger a manual sync from the account page — Sure will process any pending removals during that sync.
 
+### Holdings tab and API show different average cost for the same position
+
+If the average cost basis shown in the Holdings tab differed from the value returned by `GET /api/v1/holdings` for a provider-linked investment account, the two were reading different rows.
+
+`GET /api/v1/holdings` previously took each security's newest row overall. On a Plaid account where the provider snapshots holdings before today, the newest row is a calculated row Sure writes for today — its cost basis averages only the imported trades. The Holdings tab read the provider row from the latest snapshot instead, so they diverged.
+
+Both now read from `Account#current_holdings`: for provider-linked accounts, that is the provider rows on the latest snapshot date; for other accounts, each security's latest row in the account's currency. The API and the tab now always read the same rows, so the figures match.
+
 ### Investment holdings not showing for accounts with no investment transactions
 
 If a Plaid investment account has holdings but you have never made any trades or investment transactions through that institution, the holdings may not have appeared even though the sync completed without errors.

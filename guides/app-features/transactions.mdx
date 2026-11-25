@@ -222,6 +222,14 @@ When a transaction is split into multiple entries, Sure can display the child en
 
 To enable or disable this behavior, go to **Settings → Appearance** and toggle **Group split transactions**. When the toggle is on, split children appear indented under their parent in both views. When the toggle is off, split children appear as individual rows in the same position they would occupy by date.
 
+### Splits and transfers
+
+A split part can be matched as one leg of a transfer — for example, when a loan payment is split so one part covers the principal and the other the fee, and the principal part is then matched against an entry on the loan account.
+
+If any part of a split is a confirmed transfer leg, Sure blocks unsplitting, re-splitting, and deleting the parent until that transfer is removed first. The split editor shows an error: "A part of this split is linked as a transfer. Remove that transfer before you edit or unsplit the split." The same message appears when you try to bulk-delete the parent.
+
+To proceed, open the transfer leg's detail drawer, remove the transfer link, and then edit or unsplit the parent.
+
 ### Duplicate a transaction
 
 When exactly one non-investment transaction is selected, a **Duplicate** action appears in the selection bar. Selecting it opens a pre-filled new transaction form with the same details as the original, so you can adjust and save a copy without re-entering all the fields.
