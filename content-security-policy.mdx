@@ -1,0 +1,52 @@
+---
+title: Content Security Policy
+description: How Sure's Content-Security-Policy and Permissions-Policy headers work, what they allow, and how to handle conflicts with proxies or CDN scripts.
+keywords: ['content security policy', 'CSP', 'permissions policy', 'self-hosting', 'security', 'headers']
+---
+
+Sure sends a `Content-Security-Policy` (CSP) header with every page response. The browser runs only the scripts that Sure itself renders, so injected markup cannot execute JavaScript. The policy is defined in `config/initializers/content_security_policy.rb`.
+
+## What the policy allows
+
+- Scripts, styles, fonts, and connections from Sure's own origin.
+- **Plaid Link** — the Plaid widget loads its script from `cdn.plaid.com` at runtime and opens an iframe from the same host. Both are allowlisted so bank connections keep working in every environment (sandbox, development, and production).
+- **PostHog** — only when analytics (`POSTHOG_KEY`) or the in-app feedback survey (`POSTHOG_FEEDBACK_ENABLED`) are active. The allowlist mirrors the same gate the views use. If `POSTHOG_HOST` contains a path (for example, a reverse proxy at `https://example.com/ingest`), only the origin is allowlisted so every path on that host works.
+- **Images** from any `https:` URL, `data:` URIs, and `blob:` URLs. The `blob:` source is required for the profile-picture upload preview. If you use `GENERIC_S3_ENDPOINT` with a plain `http://` address (for example, a local MinIO instance), that endpoint's origin is also allowed. When `GENERIC_S3_FORCE_PATH_STYLE` is not `true`, the bucket subdomain of that endpoint is allowed as well.
+
+The policy also sets two directives beyond the minimum:
+
+- `base-uri 'self'` — prevents an injected `<base href>` tag from silently redirecting every relative script and asset URL to an attacker origin.
+- `frame-ancestors 'self'` — the CSP replacement for `X-Frame-Options`; ensures Sure pages can only be framed by the same origin.
+
+Every `<script>` element rendered by Sure carries a per-request nonce. The nonce is derived from the session ID and is not predictable, so injected script tags without the nonce do not execute.
+
+## Report-only mode
+
+Set `CSP_REPORT_ONLY=true` to send the same policy as `Content-Security-Policy-Report-Only`. The browser logs violations in its developer console but blocks nothing. Restart the app after changing the variable.
+
+```txt
+CSP_REPORT_ONLY=true
+```
+
+Use this as a temporary escape hatch when you need time to identify what a proxy or CDN is injecting. While it is set, the policy no longer blocks injected scripts.
+
+## When something breaks
+
+Some proxies and CDNs inject scripts into every page. Sure's policy blocks those scripts because they do not carry its nonce. Known examples include Cloudflare Web Analytics, Rocket Loader, and the email-obfuscation feature in Scrape Shield. Turn those features off for your Sure host, or use `CSP_REPORT_ONLY=true` temporarily to identify the source.
+
+## Permissions Policy
+
+Sure also sends a `Permissions-Policy` header (and the legacy `Feature-Policy` header for older browsers) that disables browser features the app never uses:
+
+| Feature | Policy |
+| --- | --- |
+| `camera` | Disabled |
+| `microphone` | Disabled |
+| `geolocation` | Disabled |
+| `usb` | Disabled |
+| `payment` | Disabled |
+| `fullscreen` | Disabled |
+
+WebAuthn and passkeys (`publickey-credentials-get` and `publickey-credentials-create`) are not restricted. The Rails permissions policy API does not support those directives, so they are left at the browser default, which allows passkey login and registration to work normally.
+
+The policy is defined in `config/initializers/permissions_policy.rb`.
