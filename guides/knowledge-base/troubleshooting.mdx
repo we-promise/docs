@@ -3,6 +3,29 @@ title: "Troubleshooting"
 ---
 
 
+## Assistant reports different average cost than the Holdings tab
+
+When asking the assistant (or an MCP client using `get_holdings`) about the average cost of a position in a provider-linked account, the figure could differ from what the Holdings tab showed for the same position.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    `get_holdings` selected each security's newest holding row. On accounts linked to a provider that dates its snapshot before today, the newest row is a calculated row Sure writes for the current day. That row's cost basis averages only the imported trades, not the provider's snapshot. The Holdings tab reads the provider row from the latest snapshot date instead, so the two surfaces reported different average costs for the same position.
+
+    Positions closed by a newer zero-quantity row were also still returned by the tool, while the Holdings tab correctly excluded them.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    `get_holdings` now uses `Account#current_holdings` to select rows, the same source the Holdings tab uses:
+
+    - On provider-linked accounts, it reads the provider rows on the latest snapshot date.
+    - On manual accounts, it reads each security's latest row in the account's currency.
+
+    Positions whose latest row has zero quantity are dropped, matching the Holdings tab's behavior.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
