@@ -314,6 +314,10 @@ The affected Sure upload forms used native form submission. They now submit thro
 
 If you are on an older version and see a "We didn't receive your file. Please try uploading it again." alert on iOS, upgrade to the latest release and retry the upload.
 
+### CSV exported from Windows or older Mac apps shows garbled data or fails to parse
+
+CSV files produced on Windows use `\r\n` (CRLF) line endings; files from older Mac applications may use `\r` (CR) only. Sure normalizes line endings before parsing, so files with CRLF or CR line endings are handled the same as Unix `\n` files. If a CSV from another app produced empty rows or misaligned columns in earlier versions, re-importing the same file should now parse correctly.
+
 ### Import fails with date errors
 
 Check that your date format matches the setting you selected during import. The Balance Date column in account imports must use the same format as other date fields.
