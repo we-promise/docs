@@ -62,7 +62,7 @@ New rules are saved inactive; renaming an existing active rule can leave it acti
 
 | Tool | Description |
 | --- | --- |
-| `import_bank_statement` | Use AI extraction to import transactions from an already-uploaded bank-statement PDF; creates a transaction import and returns its ID and rows for review |
+| `import_bank_statement` | Use AI extraction to import transactions from an already-uploaded bank-statement PDF; creates a transaction import and returns its ID and rows for review. The PDF must have been uploaded to the Statement Vault and be viewable by the current user. If the statement exists but the user can only view it and not manage it, the tool returns a `statement_not_manageable` error rather than creating an import. |
 | `create_goal` | Create a savings goal linked to at least one eligible depository account, only after confirming key details with the user. The available-accounts list returned on failure includes how much each account has free to earmark and whether it is already claimed in full by another goal. Pass an `earmarks` map (account name → amount) to reserve a specific portion of an account rather than its whole balance — required when an account is already claimed in full. |
 | `create_tag` | Create a unique family tag |
 | `update_tag` | Update an existing tag's name or color |

@@ -54,6 +54,10 @@ From Settings -> Statement Vault, the inbox shows statements that are unmatched 
 
 Selecting the link action files the statement against that account. Rejecting the suggestion clears it and marks the statement as rejected. Rejected statements stay in the inbox so you can find and delete them — they are not re-suggested by routine metadata edits and their file hash still counts against duplicate detection until the statement is deleted.
 
+<Note>
+A statement that has an import attached to it cannot be deleted. Sure blocks the deletion to protect the import's data. Delete or revert the associated import first, then delete the statement.
+</Note>
+
 ## PDF imports and AI extraction
 
 PDF transaction imports use the Statement Vault as their storage layer, but account matching and AI extraction are separate steps.
