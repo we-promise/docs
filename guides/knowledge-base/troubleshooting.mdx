@@ -231,6 +231,8 @@ If an account holds transactions in a currency that has no exchange rate availab
 
   <Accordion title="How do I resolve the missing exchange rate?">
     Go to **Settings → Self-Hosting** and confirm an exchange rate provider is configured. Twelve Data is the default. After configuring or re-enabling a provider, trigger a manual sync on the affected account. Once rates are fetched, the previously skipped entries will be included in the next balance calculation.
+
+    If the missing pair is between two non-USD currencies — for example, KZT→RUB or GEL→RUB — Sure now derives the rate automatically from the two USD legs (X→USD × USD→Y) when the provider has no direct quote. No configuration is needed; the derivation runs during the same sync. See the [exchange rate derivation](/providers/market-data#exchange-rate-derivation-for-non-usd-pairs) section for details on when derivation applies and when it is skipped.
   </Accordion>
 </AccordionGroup>
 
