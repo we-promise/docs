@@ -139,6 +139,8 @@ If a merchant with the same name already exists in your family, that row is skip
 
 Imports are family-scoped, but imports attached to account statements also require permission to view the statement. Publishing an import (writing transactions into accounts) and reverting a published import (deleting those entries) each require **write access** — owner or full_control — to every pre-existing account the import targets. Accounts created by the import itself are excluded from this account-access check. Statement imports additionally require permission to manage the statement.
 
+Statement-backed imports are only visible to users who can view the underlying statement. The imports list, import detail, and import rows API endpoints return only imports that the requesting user can view — a statement-backed import made from a statement you cannot see is treated as not found and returns a 404 response.
+
 This covers:
 
 - The primary destination account selected during mapping
