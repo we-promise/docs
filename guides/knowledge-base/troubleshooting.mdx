@@ -958,6 +958,34 @@ Both bugs are fixed in the current release. UUID lookups are now case-normalized
 
 Upgrade to the latest release and re-run the export. No data migration or configuration change is required. If you previously imported an export that contained raw UUIDs instead of names in rule operand fields, update those rule conditions and actions manually after upgrading.
 
+## CSV exports open as formulas in spreadsheets, or names differ between CSV files after re-import
+
+When you open a Sure CSV export (categories, merchants, rules, transactions, or the reports transactions export) in a spreadsheet application, cell values that start with `=`, `+`, `-`, `@`, a tab, or a carriage return were previously interpreted as formulas. A category named `=Salary`, for example, would execute as a spreadsheet formula rather than display as text.
+
+A related gap caused inconsistency across files: rule operand names inside `rules.csv` were stored unescaped while the same names in `categories.csv`, `merchants.csv`, and `transactions.csv` were escaped. Re-importing such an export created a second record for each name that differed only by the leading apostrophe.
+
+<AccordionGroup>
+  <Accordion title="What caused these issues?">
+    Three separate gaps existed in the previous `CsvSanitizer` implementation:
+
+    - **Non-injective escaping** — `=x` and `'=x` both exported as `'=x`. Because imports never strip the leading apostrophe, two categories or merchants with those names would collapse into one on re-import, and the rule importer would replace the earlier rule with the later one.
+    - **Locale separator unquoted** — A cell containing a locale separator character (for example `Food;=1+1`) was written without enclosing quotes. A spreadsheet that uses that separator character would split the cell, leaving the formula-starting segment in an unquoted column.
+    - **Rule operand names unescaped** — The `conditions` and `actions` JSON inside `rules.csv` carried the raw category, merchant, and tag names. The other CSV files carried the escaped spelling. This meant re-importing `rules.csv` could create a second record named `'=x` when `=x` already existed.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The escaping is now injective: a value already starting with apostrophes before a trigger character gets one additional apostrophe prepended, so `=x` exports as `'=x` and `'=x` exports as `''=x`. Plain numbers and ordinary text are unchanged.
+
+    The data export and the reports transactions export now write every cell quoted (`force_quotes: true`), so a locale separator inside any value is always enclosed and never interpreted as a column boundary. Parsed values are identical to the unquoted form.
+
+    Rule operand names in `rules.csv` go through the same escape as names in the other CSV files, so each name is spelled consistently across every export file. `all.ndjson` and internal `value_ref` fields remain unescaped for lossless round-tripping.
+
+    Upgrade to the latest release and re-export. No configuration change is required.
+
+    **Known limits:** Full-width prefix characters and a leading space are not treated as formula triggers and are not escaped. A re-imported CSV that was exported with the new escaping retains a visible leading apostrophe in guarded values, because a CSV file cannot identify itself as a Sure export and imports never strip the guard character.
+  </Accordion>
+</AccordionGroup>
+
 ## Rule creation from modal fails with "must have at least one action"
 
 When creating a rule from the rule creation modal, saving the form could fail with a validation error saying the rule must have at least one action — even though you had added one. The re-rendered form also lost any dynamically added action or condition rows.
