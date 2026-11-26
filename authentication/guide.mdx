@@ -11,17 +11,21 @@ This guide covers all authentication features including OIDC, OAuth2, SAML 2.0, 
 
 ### Database-backed providers (recommended)
 
-Manage providers through the admin UI without server restarts:
+Manage providers through the admin UI:
 
 ```bash
 AUTH_PROVIDERS_SOURCE=db
 ```
 
 Benefits:
-- Changes take effect immediately
-- No server restarts required
+- OIDC provider changes take effect after the provider cache refreshes, without a server restart
 - Web-based configuration at `/admin/sso_providers`
 - Audit trail for all changes
+- Providers missing required credentials are automatically excluded from the login page
+
+<Note>
+Google, GitHub, and SAML strategies are registered at application startup. Adding, renaming, or changing their client settings requires a server restart before the new configuration takes effect.
+</Note>
 
 ### YAML-based providers (legacy)
 
@@ -594,9 +598,12 @@ Setting up or disabling two-factor authentication clears the recorded time step.
 
 ### Issuer validation
 
-- OIDC identities store the issuer claim from ID token
-- On subsequent logins, issuer is verified against configured provider
+- OIDC identities store the issuer claim from the ID token
+- On subsequent logins, the stored issuer is verified against the configured provider
 - Prevents issuer impersonation attacks
+- Disabled providers are rejected at the OAuth callback and account-creation handoff, not only at the login page
+- Web users whose stored issuer does not match are prompted to relink using their local password
+- Mobile and desktop clients receive `issuer_relink_required` when relinking is needed
 
 ### Admin access
 
