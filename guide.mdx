@@ -15,7 +15,22 @@ Once Sure is installed, navigate to [localhost:3000](http://localhost:3000). On 
 
 <img width="2508" height="1314" alt="Landing page on a fresh install" src="https://github.com/user-attachments/assets/2319dc87-5615-4473-bebc-8360dd983367" />
 
-Complete the setup screens to configure your login details, personal information, and preferences. When you reach the main dashboard showing "No accounts yet", you're ready to go.
+The setup flow has four steps:
+
+1. **Setup** — enter your name and household details.
+2. **Preferences** — choose your language, currency, and date format.
+3. **Tools/AI** — select the finance tools you've been using (Actual Budget, YNAB, Monarch Money, and 11 others, plus "Nothing yet" and "Other") and choose your AI preference:
+   - **No AI** (default) — the in-app assistant stays off.
+   - **Built-in AI** — turns on the in-app assistant using this instance's AI provider.
+   - **Bring your own AI agent** — keeps AI enabled so your own agent can interact with Sure via MCP or sure-cli. See **Settings → MCP** to connect.
+
+   For admin users, the Built-in AI and Bring your own AI agent choices also grant household-wide consent for background AI features such as automatic categorization. Guest accounts always have AI on and skip this question.
+
+   Your selections are saved to your profile and can be changed later in **Settings**.
+
+4. **Start** — begin your 45-day trial (hosted) or go straight to the dashboard (self-hosted). The old `/onboarding/goals` URL redirects to the new Tools/AI step.
+
+When you reach the main dashboard showing "No accounts yet", you're ready to go.
 
 <img width="2508" height="1314" alt="Blank home screen of Sure, with no accounts yet" src="https://github.com/user-attachments/assets/f06ba8e2-f188-4bf9-98a7-fdef724e9b5a" />
 
