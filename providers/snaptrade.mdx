@@ -75,8 +75,11 @@ Sure currently uses SnapTrade for:
 
 - **Investment** accounts
 - **Crypto** accounts
+- **Credit card** accounts (SnapTrade LOC category)
 
 Brokerage-specific account subtypes such as IRA, Roth IRA, 401(k), TFSA, RRSP, margin, cash, joint, and Cash Management Account (CMA) are mapped into Sure's investment account model automatically.
+
+Credit card accounts connected through SnapTrade sync balances and card activity. SnapTrade reports a card's outstanding balance as a negative number (debt from the account's perspective). Sure stores what is owed on a liability as a positive amount, so the balance is inverted on import. The same inversion applies to the cash balance field.
 
 ## Features
 
@@ -108,6 +111,8 @@ When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers th
 **Unit-dependent activities** (ADJUSTMENT, STOCK_MERGER, MERGER, CORP_ACTION): imported as trades when SnapTrade reports a non-zero share quantity, and as cash entries when the quantity is absent or zero. This lets zero-cash corporate actions (splits, mergers with no cash consideration) record correctly as unit-only trades while still capturing any cash component when it is present.
 
 **Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.
+
+**Credit card activities** (SnapTrade LOC accounts): POSDEBIT (purchase, outflow), POSCREDIT (refund, inflow), and PAYMENT (card payment, direction taken from SnapTrade's sign). SnapTrade reports these from the account's perspective, so Sure inverts the sign to match its own convention. PAYMENT transactions are imported with the `funds_movement` kind so they pair correctly with the bank-side leg rather than counting as income.
 
 ### Security row disambiguation
 
@@ -178,7 +183,7 @@ The task processes records in batches and prints a JSON summary of results when 
 
 ## Limitations
 
-- **Investment-focused**: SnapTrade is not the right provider for checking, savings, or credit card syncing
+- **Limited account scope**: SnapTrade is not the right provider for checking or savings account syncing
 - **Connection caps**: Free-tier SnapTrade accounts have limited brokerage connection slots
 - **Provider coverage**: Only brokerages supported by SnapTrade can be connected
 - **Beta maturity**: SnapTrade support in Sure is still marked beta in the app
@@ -209,6 +214,10 @@ SnapTrade deprecated the `/positions` endpoint for apps registered after their 2
 - Open **Manage Connections** in Sure and delete old brokerage connections you no longer use
 - Delete unused or stale brokerage connections first; the limit applies to brokerage connections, not registrations alone
 - Upgrade your SnapTrade plan if you need more simultaneous brokerage connections
+
+### Credit card balance history shows an unexpected jump after a sync
+
+Before the November 2026 fix, Sure stored a card's balance exactly as SnapTrade reported it — as a negative number. After upgrading, the first successful sync corrects historical readings for the account: each reading is inspected newest-first, and any reading whose sign disagrees with the balance the ledger derives from activity is flipped. The correction runs once per account and is tracked internally. If you see a one-time shift in the balance chart after syncing a linked credit card, this is the correction removing the previously inverted readings.
 
 ### Device code expires before confirmation
 
