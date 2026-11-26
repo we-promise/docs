@@ -127,6 +127,22 @@ The Uncategorized filter, the uncategorized badge count, and the Quick Categoriz
 
 Loan payment and investment contribution transfers are categorizable. For a matched transfer, assign the category, merchant, and tags on its outflow transaction. The inflow shows the outflow category read-only. An unmatched imported transfer leg remains editable.
 
+### Auto-categorization provenance
+
+When you open a transaction's detail drawer, the Overview section shows an **Auto-categorization** block whenever automatic categorization (AI or Bayes) has run on that transaction.
+
+The block displays:
+
+- A pill labelled by source: **AI**, **AI history**, **Bayes**, or **Bayes history**.
+- A sentence stating when the category was assigned and by which source — for example, "Assigned "Groceries" by AI 2 hours ago." or "Assigned by the local Bayes classifier."
+- If the category was later changed by a rule, manual edit, import, or a clear, the note "The category was changed afterwards." appears and the pill shows the history label (**AI history** or **Bayes history**).
+
+If the assigned category has since been deleted, the block degrades gracefully to "a category that no longer exists."
+
+No block is shown when no automatic enrichment exists for the transaction. The block updates in place after an in-drawer category change, so it always reflects the current state.
+
+The **AI** and **AI history** checkboxes in the transaction list filter use the same rule as the drawer, so the list filter and the drawer always agree on a transaction's status.
+
 ### Filter by AI categorization status
 
 The search popover on the Transactions page includes an **AI** filter group with two independent checkboxes:
