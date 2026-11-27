@@ -143,6 +143,23 @@ If SnapTrade reports an amount but no price, Sure derives the price from the rep
 
 When a trade cannot be imported — for example because SnapTrade omitted both quantity and amount — it is also recorded in the debug log with the reason, so support can identify the gap without requiring a full sync replay.
 
+### Wealthsimple card charge deduplication
+
+Wealthsimple sends some card charges to SnapTrade twice, under two different activity IDs. Sure detects and merges these duplicates before importing, so each charge appears only once in your transaction list.
+
+Two duplicate shapes are recognised:
+
+- A **pending copy** whose merchant name is truncated and padded with zeros and a short code (for example, `Example Airl00000005Ydmbv`), paired with the **posted copy** (`Example Airlines`) on the same day for the same amount.
+- An older **bare `CREDIT_CARD` row** paired with the same purchase re-sent in `CREDIT_CARD PURCHASE: <merchant>` format.
+
+The merge rules are conservative:
+
+- Two rows with identical merchant names, amounts, and dates are **not** merged — two parking charges or transit fares on the same day are treated as real separate charges.
+- A pending copy is matched only with a posted copy whose merchant name starts with the truncated prefix, not just any row that shares a prefix.
+- A bare row is matched only with a purchase for the same absolute amount on the same day, never with a refund or payment.
+- If one copy is already in your ledger, that copy is kept. Otherwise the posted or merchant-named copy is kept over the pending or bare copy.
+- Stored entries, manually edited entries, and transfer legs are never touched.
+
 ### Background activity import
 
 Fresh brokerage connections may take a little longer to finish importing activity history. Sure continues fetching account activity in the background after the initial connection when needed.
