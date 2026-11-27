@@ -556,6 +556,12 @@ Trades labeled **Transfer**, **Sweep In**, or **Sweep Out** are not counted as s
 
 Trades labeled **Exchange** are included in the report. For cash this label means a currency exchange, which is internal. For a security it covers a security-for-security exchange, which can dispose of an appreciated asset. Because the two cases are not distinguishable by label alone, and because a missing realized gain is harder to spot than an extra line, exchange trades on securities remain visible so you can review them.
 
+### Multi-currency investment flow totals
+
+The Investment Flows report shows total contributions and withdrawals across your investment and crypto accounts for a selected period. When those accounts are held in different currencies, Sure converts each entry into your family currency using the exchange rate stored for the entry's date before summing. This matches how transactions and investment statements handle multi-currency data.
+
+Entries whose currency has no stored exchange rate for that date are excluded from the total rather than counted at a 1:1 rate. If a contribution or withdrawal is missing from your totals, check that an exchange rate exists for the account's currency against your family currency on the relevant date. You can add missing rates at **Settings → Exchange rates**.
+
 ### Multi-currency gains and cost basis
 
 When a security is priced in a different currency from the one your account uses, Sure converts amounts into the account currency before calculating gains. There is no fallback to a nearby date and no default rate of 1.0 — if the rate for a given day is missing, Sure treats the figure as unknown rather than showing an incorrect one.
