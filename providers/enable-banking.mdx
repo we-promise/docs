@@ -141,7 +141,13 @@ When Enable Banking returns multiple balance types for an account, Sure picks th
 
 Available balances are last because some banks include an arranged overdraft facility in the available figure, which would overstate actual cash.
 
-OPBD and PRCD are period-boundary snapshots rather than live figures, so they may be up to a day old. To guard against this, Sure checks the optional `reference_date` field on each balance. If the same response contains a newer XPCD, CLAV, or ITAV balance with a strictly later `reference_date`, the fresher balance wins instead of the period-boundary one. When `reference_date` is absent on either side, the priority order applies unchanged.
+CLBD, OPBD, and PRCD are period-boundary snapshots rather than live figures, so they may be up to a day old. For example, Commerzbank DE reports a CLBD dated to the last closed business day while ITAV and XPCD already include the same day's bookings.
+
+To guard against stale period-boundary balances, Sure checks the optional `reference_date` field. If the same response contains a newer ITBD, XPCD, CLAV, or ITAV balance dated strictly later, the fresher balance wins instead of the period-boundary one. When a candidate balance has no `reference_date`, Sure falls back to its `last_change_date_time` field as the date to compare against. The stale period-boundary balance still needs its own `reference_date` for the guard to trigger. When no dates are available on either side, the priority order applies unchanged.
+
+When several fresher balances share the newest date, the one with the higher type priority wins rather than whichever the bank listed first. For example, ITBD beats XPCD, and XPCD beats CLAV or ITAV.
+
+For credit card accounts (not using "Balance is available credit"), available types (CLAV and ITAV) cannot replace a stale CLBD. ITBD and XPCD can still replace it. This is because available balances on a credit card report remaining credit rather than a posted balance.
 
 If none of the recognised types are present, Sure falls back to the first balance the API returns.
 
