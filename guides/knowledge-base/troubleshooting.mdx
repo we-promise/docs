@@ -234,6 +234,24 @@ If an account holds transactions in a currency that has no exchange rate availab
   </Accordion>
 </AccordionGroup>
 
+## Reports show amounts in the old currency after changing the family currency
+
+After changing your family's currency in settings, the YTD Reports page continued showing all amounts in the previous currency. The page appeared correct on the first visit after the change, but subsequent visits — or any visit during the cache rebuild cooldown — served the cached report built under the old currency.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The Reports page cache key included the family's settings digest, but the currency was not part of that digest. The cache layer detects a stale page and rebuilds it in the background after a cooldown, but the stale check compares only the version string — which did not change when the currency changed. The old-currency report was therefore served from cache until the background rebuild finished, and any visitor who arrived before the rebuild saw the wrong currency.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The family currency is now included in the settings digest that names the cached report page. Changing the currency produces a different cache key, so the next visit builds the report fresh under the new currency instead of serving the previous build.
+
+    Each family's cached report is rebuilt on its first visit after a deploy. Warmed pages and queued rebuilds recompute the same key at run time, so they cannot restore an old-currency body after the upgrade.
+
+    Upgrade to a build containing [Sure PR #5885](https://github.com/we-promise/sure/pull/5885). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Dragging a section on the reports page activates mid-scroll on mobile
 
 On mobile, a brief pause while scrolling the reports page could accidentally activate drag mode on a reorderable section, visibly shifting the section and interrupting the scroll.
