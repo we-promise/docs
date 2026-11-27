@@ -14,7 +14,7 @@ Insights appear in the dashboard feed.
 | Type | What it flags |
 |---|---|
 | `spending_anomaly` | A category's projected month-end spend deviates 25 %+ from the three-month average baseline (above or below). Projection uses the full calendar month length, not just elapsed days, so an on-pace category is never flagged as a shortfall. Only fires after 7 days into the month. |
-| `cash_flow_warning` | Projected cash balance may drop below a safe threshold within the next 30 days |
+| `cash_flow_warning` | Projected shared cash balance may drop below a safe threshold within the next 30 days. The projection combines your current depository balance with scheduled income and bill payments, using their effective due dates (the snoozed date when a bill has been snoozed). Income only counts when it lands in a shared, visible, family-currency depository account. Priority is `high` when the projected low point goes negative, `medium` otherwise. |
 | `net_worth_milestone` | Net worth has crossed a round-number milestone within the last 30 days |
 | `subscription_audit` | A recurring transaction has not appeared since its expected due date, by at least one full billing cycle |
 | `savings_rate_change` | Savings rate has shifted materially compared to recent months |
