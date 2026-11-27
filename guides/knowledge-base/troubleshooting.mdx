@@ -1183,6 +1183,36 @@ Sure caches AI-generated results to avoid redundant API calls and costs. Once a 
 
 </AccordionGroup>
 
+## Future-dated entries not synced when auto-sync is off and your time zone is west of UTC
+
+When both host-wide auto-sync and the family's auto-sync-on-login setting are disabled, Sure schedules a one-time fallback sync to run at midnight on the entry's date, in the family's time zone. Two bugs could prevent that sync from running.
+
+<AccordionGroup>
+  <Accordion title="What caused these issues?">
+    **Time zone mismatch**: the job scheduler judged "future" using `Date.current` in the application's zone (UTC), not the family's zone. For a family in a time zone west of UTC, an entry dated tomorrow in their zone was already "today" in UTC. The scheduler skipped it, and no fallback sync was ever queued.
+
+    **Deleted representative entry**: each batch of entries sharing the same account and date was keyed to one representative entry. If that entry was deleted before the job ran, Sure could not resolve it and skipped the sync for all other entries on that account and date.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The scheduler now judges "future" inside `Time.use_zone(family.resolved_time_zone)`, matching how the sync itself determines the entry's date. Entries that are still tomorrow in the family's zone are always scheduled, regardless of what date it is in the application's zone.
+
+    The job now stores the account ID alongside the entry ID. When the job runs, Sure syncs the entry's account as before. If the representative entry has since been deleted, Sure falls back to the account ID and syncs that account directly. Jobs queued before this fix continue to work because the account ID is optional.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="Which families are affected?">
+    Families that meet all of the following conditions:
+
+    - Auto-sync (`AUTO_SYNC_ENABLED`) is off or the family's auto-sync-on-login is disabled.
+    - The family's resolved time zone is west of UTC.
+    - One or more transactions are dated tomorrow in the family's local time.
+
+    Families that rely on the nightly scheduled sync or auto-sync-on-login are not affected because a regular sync picks up the entry once the date arrives.
+  </Accordion>
+</AccordionGroup>
+
 ## Drawer close button missing on mobile, or two Customize buttons visible on the dashboard
 
 On mobile, certain drawers (transactions, trades, transfers, holdings, and valuations) showed no close button because the responsive close button was configured to appear only at large screen widths. On the dashboard, the desktop Customize button appeared alongside the mobile button because `hidden` was not overriding the component's `inline-flex` display.
