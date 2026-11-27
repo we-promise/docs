@@ -688,6 +688,24 @@ After you delete an account, cash flow charts, income statements, and category s
   </Accordion>
 </AccordionGroup>
 
+## Reports show old currency amounts after changing the family currency
+
+After you change your family's currency in Settings, the Reports page may continue to display all amounts in the previous currency. The page rebuilds in the background, but the old-currency body can be served from cache until the rebuild finishes.
+
+<AccordionGroup>
+  <Accordion title="What causes this issue?">
+    The Reports page cache key did not include the family currency. When the currency changed, the cache version moved, but the page-level cache (`PageCache`) still served the previously stored body while marking it stale for a background rebuild. The rebuild ran after a cooldown, so every report view between the currency change and the rebuild completion returned old-currency amounts.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The family currency now joins the settings digest that names the cached report page. Changing the currency produces a different cache key, so the next visit builds the report fresh in the new currency instead of serving the old build.
+
+    The cache key changes once for every family on deploy, so each report view is rebuilt on its first visit after the deploy. Warmed pages and queued rebuilds recompute the same key at run time and cannot bring back an old-currency body.
+
+    Upgrade to a build containing [Sure PR #5885](https://github.com/we-promise/sure/pull/5885). No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Reports show stale data after merging or deleting a category
 
 When you merge categories or delete a category, dashboards and income statements could continue to display the deleted category until an unrelated transaction change occurred.
