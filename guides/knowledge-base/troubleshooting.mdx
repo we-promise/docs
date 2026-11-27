@@ -3,6 +3,32 @@ title: "Troubleshooting"
 ---
 
 
+## Salary or deposits on a bank account excluded from income after a sync
+
+If a paycheck or deposit on a chequing or savings account is missing from your income report after syncing with a provider such as Wealthsimple (via SnapTrade), one cause is the provider labeling those deposits as `CONTRIBUTION`. Earlier versions of Sure treated any `CONTRIBUTION` label as an investment contribution, regardless of account type, which excluded the transaction from income.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    Some providers — including Wealthsimple via SnapTrade — label every deposit on a cash or chequing account as `CONTRIBUTION`. Sure previously mapped that label to `investment_contribution` unconditionally, assigning the Investment Contributions category to the transaction. Because investment contributions are excluded from income reports, paychecks and other inflows on linked bank accounts were silently dropped from income totals.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    Sure now only classifies a `CONTRIBUTION` label as an investment contribution when the transaction is on an investment or crypto account. On all other account types — including chequing, savings, and other depository accounts — the label is recorded but the transaction keeps its standard kind with no automatic category assigned.
+
+    Transactions imported before this fix retain their stored kind. The change applies only to newly imported transactions.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="My past transactions are still wrong — how do I fix them?">
+    Transactions imported before this fix are not changed automatically. To correct them:
+
+    1. Go to **Transactions** and filter by account to find the affected deposits.
+    2. Open each transaction and change the category to the correct income category (or clear the Investment Contributions category).
+    3. If a transaction still shows an incorrect kind, you can re-enable sync for that transaction from its detail view to allow the adapter to re-import it.
+  </Accordion>
+</AccordionGroup>
+
 ## Sparklines not visible in the account sidebar
 
 Account trend sparklines — the small charts next to account groups and individual account rows in the sidebar — did not render in some versions. The charts appeared blank even though the sparkline data had loaded correctly.
