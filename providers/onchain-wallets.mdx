@@ -8,7 +8,7 @@ Sure can track wallets you hold the keys to — Bitcoin, six EVM networks, Solan
 See [Transaction history and import limits](/providers/transaction-history) for initial sync defaults, history limits, and options for older transactions.
 
 <Note>
-Cosmos Hub (ATOM) tracks balance only — spendable plus staked plus unbonding. Sure’s Cosmos integration does not request transaction history, so no transfers are imported.
+Cosmos Hub (ATOM) tracks balance only — spendable plus staked, unbonding, and unclaimed staking rewards. Sure’s Cosmos integration does not request transaction history, so no transfers are imported.
 </Note>
 
 ## What gets tracked
@@ -146,7 +146,7 @@ The native coin is never affected, and anything already tracked keeps syncing re
 
 **DeFi positions are not seen at all.** Staked ETH, liquidity-pool tokens, lending positions, and Solana stake accounts are invisible. A wallet holding most of its value in a staking or lending protocol will report a fraction of it.
 
-**Cosmos Hub records balance only, not transfers.** The balance includes spendable, delegated (staked), and unbonding ATOM. Sure’s Cosmos integration reads balance and staking endpoints without importing transfer history.
+**Cosmos Hub records balance only, not transfers.** The balance includes spendable, delegated (staked), unbonding ATOM, and unclaimed staking rewards. Sure’s Cosmos integration reads balance and staking endpoints without importing transfer history.
 
 **Bitcoin is one address at a time.** Extended keys (`xpub`, `ypub`, `zpub`) are not supported and are rejected as addresses. Most Bitcoin wallets are HD wallets where one extended key derives thousands of addresses — tracking a single address of such a wallet reports only that address's balance.
 
