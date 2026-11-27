@@ -516,6 +516,28 @@ When an investment account holds a large number of securities, opening the holdi
   </Accordion>
 </AccordionGroup>
 
+## Securities go offline with health_check_failed on Twelve Data, EODHD, or Tiingo
+
+Securities assigned to Twelve Data, EODHD, or Tiingo could be incorrectly marked offline with an `offline_reason` of `health_check_failed` even when price data was available. The issue was most visible early in the trading day, before the current day's close had been published by the provider.
+
+<AccordionGroup>
+  <Accordion title="What caused this issue?">
+    The security health checker ran one provider call per security to confirm that price data was reachable. It requested a close for today's date. Twelve Data rejects any single-day range that has no data yet and returns HTTP 400; EODHD and Tiingo return an empty result. Because no usable price came back, every check counted as a failure. After six consecutive failures the security was taken offline.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The health checker now requests a 10-day window ending today instead of a single-day lookup. A security is considered healthy if any close in that window has a price above zero. Provider errors, an empty window, and windows with only nil or zero prices still count as failures, so a security can still go offline when no data is genuinely available.
+
+    One provider call per check is made, the same as before.
+
+    Upgrade to the latest release to get this fix. No configuration change is required.
+  </Accordion>
+
+  <Accordion title="How do I bring an affected security back online?">
+    Go to **Settings -> Self-Hosting** and open the **Securities** tab. Find the security and click **Re-enable**. The next health check will use the 10-day window and mark it healthy if a recent price is found.
+  </Accordion>
+</AccordionGroup>
+
 ## Rule prompt disappears after changing category from the transaction drawer
 
 In older versions, changing a transaction's category from the transaction detail drawer did not show the "create a rule?" prompt. The prompt was delivered while the drawer was still open, which placed it behind the drawer in the browser's rendering stack where it could not be seen or clicked. A sync completing shortly after then refreshed the page and removed it entirely.

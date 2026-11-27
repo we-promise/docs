@@ -220,3 +220,15 @@ When Sure cannot fetch a real price for a given date (for example, on weekends o
 Provisional prices are automatically replaced the next time a sync runs and the provider returns a real value for that date. Sure re-checks provisional prices within a 7-day rolling window, so a Friday price carried forward over a weekend is corrected as soon as Monday's data is available.
 
 Prices older than 7 days that were gap-filled are kept as-is and are not re-fetched. Prices you edit manually are never marked provisional and are not overwritten by syncs.
+
+## Security health checks
+
+Sure runs periodic health checks on active securities to confirm that the assigned provider can still return price data. A security that fails six consecutive checks is marked offline with `offline_reason: health_check_failed` and skipped by the daily price importer until it is re-enabled.
+
+Each check makes one provider call. Sure requests a 10-day window ending today and considers the security healthy if the window contains at least one close with a price above zero. Requesting a range instead of a single day avoids false failures on providers such as Twelve Data, EODHD, and Tiingo, which reject or return empty results for today's date before the market close is published.
+
+A provider error, an empty window, or a window containing only nil or zero prices still counts as a failure.
+
+Health checks run daily in batches. A security that has never been checked is prioritized regardless of batch size; already-checked securities are processed in order of oldest check first, up to a daily limit.
+
+If a security is taken offline by a health check and you believe the data is available, go to **Settings -> Self-Hosting** and open the **Securities** tab. Use **Re-enable** to restore the security. The next health check will re-evaluate it using the 10-day window.
