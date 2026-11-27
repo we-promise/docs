@@ -607,6 +607,32 @@ When a user has access to many accounts (through family sharing or account group
   </Accordion>
 </AccordionGroup>
 
+## Transaction appears in the list but is missing from budget and report totals
+
+If a transaction shows up in the account activity list and appears as included, but its amount is not counted in budgets or report totals, the transaction may have an invalid exclusion value stored in the database. A blank form submission or a direct API call with an empty string for `excluded` could store NULL instead of `false`. Sure's transaction list treated NULL as "not excluded," but most budget and report queries filtered on `excluded = false`, so a NULL row dropped out of those results silently.
+
+<AccordionGroup>
+  <Accordion title="How do I know if this affects my instance?">
+    The symptom is a transaction that:
+
+    - Appears in the account activity list
+    - Shows no "excluded" badge (indicating it looks included)
+    - Is absent from budget actuals or report spending and income totals for the period it falls in
+
+    This was most reproducible by sending a `PATCH /transactions/:id` request with `entry[excluded]=""`, or by calling `Entry#update!(excluded: "")` directly.
+  </Accordion>
+
+  <Accordion title="How was it fixed?">
+    The `Entry` model now normalizes blank and nil values for `excluded` to `false` before saving, so a blank form submission no longer stores NULL. Two database migrations backfill any existing NULL rows to `false` and add a NOT NULL constraint on the column.
+
+    The backfill sets each changed row's `updated_at` so report caches refresh and the corrected rows are counted immediately.
+
+    After upgrading, only installs with existing NULL rows see a data change — those transactions start appearing in budget and report totals, matching what the transaction list already showed. Installs with no NULL rows are unaffected.
+
+    Upgrade to a build containing [Sure PR #5853](https://github.com/we-promise/sure/pull/5853). As of November 28, 2026, the fix is on `main`. No configuration change is required.
+  </Accordion>
+</AccordionGroup>
+
 ## Transactions disappear from income, spending, or budgets after a provider sync
 
 If one or more transactions vanish from your income, spending, or budget totals after a sync — without being deleted — one possible cause in older versions is a provider removing a transaction that was part of a confirmed transfer.
