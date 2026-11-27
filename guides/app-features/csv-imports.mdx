@@ -203,6 +203,14 @@ QIF files can contain split transactions — single entries that are broken into
 
 Split categories are shown separately on the Select step so you can choose which ones to include. If the split amounts do not sum to the parent total, Sure skips the split lines and imports the transaction as a single entry.
 
+### Opening balances on liability accounts
+
+QIF files sign money owed on a liability (credit card, loan, or other liability) as a negative number, the same way they sign other transactions. Sure stores a liability's balance as the amount owed, so Sure negates the opening balance when the target account is a liability.
+
+For example, a credit card with 500 owed that you imported into a CCard account will show a balance of 500 (amount owed), not −500. A loan paid off in full will show 0.
+
+Asset accounts (Depository, Investment, Other Asset) are not affected — their opening balances are stored with the sign from the file.
+
 ### Multi-account QIF files
 
 A QIF file exported from Quicken can contain multiple accounts in a single file (identified by `!Account` sections). When Sure detects account metadata in the file:
