@@ -561,6 +561,23 @@ POSTHOG_FEEDBACK_ENABLED=true
 
 When `POSTHOG_FEEDBACK_ENABLED` is `true` and `POSTHOG_KEY` is set, Sure emits one `web_ui_served_daily` event per user per calendar day. The event carries a daily pseudonym derived from the user ID and the current date — no account ID or persistent person profile is created. It also includes the `sure_version`, whether the user has preview features enabled, and the client IP for GeoIP enrichment. The pseudonym rotates every day, so the event counts daily active web users without linking activity across days. A shared Redis cache prevents duplicate events from parallel sessions or tab reloads; cache loss can allow a repeat event for the same user on the same day.
 
+### Error monitoring (Sentry)
+
+Sure sends errors to Sentry when `SENTRY_DSN` is set. Set it in your `.env` file:
+
+```txt
+SENTRY_DSN=your-sentry-dsn
+```
+
+Sentry only activates in the `production` environment. When `SENTRY_DSN` is not set, no Sentry initialization occurs.
+
+**What gets reported:**
+
+- Unhandled exceptions from web requests and background jobs — these were already captured before this change.
+- Handled errors reported through `Rails.error` (for example, Financekit batch failures, bill history backfill errors, and `Money` currency mismatches). These appear in Sentry at **warning** level, tagged `handled: true`.
+
+Sentry deduplicates exceptions: if a job or request already raised an exception that Sentry captured, the `Rails.error` subscriber skips it. `Money` currency mismatch events are reported roughly once per call site per worker process, so they will not flood your project.
+
 ## Running the application
 
 ### Start the application
