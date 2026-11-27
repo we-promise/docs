@@ -107,7 +107,11 @@ When SnapTrade supplies an `option_symbol` object with a ticker, Sure prefers th
 
 **Unit-dependent activities** (ADJUSTMENT, STOCK_MERGER, MERGER, CORP_ACTION): imported as trades when SnapTrade reports a non-zero share quantity, and as cash entries when the quantity is absent or zero. This lets zero-cash corporate actions (splits, mergers with no cash consideration) record correctly as unit-only trades while still capturing any cash component when it is present.
 
-**Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, OTHER.
+**Cash activities**: DIVIDEND, DIV, CONTRIBUTION, WITHDRAWAL, TRANSFER, TRANSFER_IN/OUT, INTERNAL_CASH_TRANSFER_IN/OUT, INTEREST, FEE, TAX, CASH, REBATE, RETURN_OF_CAPITAL, DISTRIBUTION, SUBSTITUTE_DIVIDEND, JOURNAL, REIMBURSEMENT, PROMOTION, OTHER.
+
+REIMBURSEMENT and PROMOTION are stored as cash inflows (a positive amount from the provider becomes income, a negative amount becomes an outflow). These cover cashback paid into an account, fee refunds, and promotional bonuses.
+
+A CONTRIBUTION activity is classified as an investment contribution only on investment and crypto accounts. On a depository account — such as a Wealthsimple chequing account — a CONTRIBUTION label is preserved on the transaction but the transaction keeps its standard kind with no automatic Investment Contributions category. This prevents salary or other inflows on a linked cash account from being excluded from income reports.
 
 ### Security row disambiguation
 
