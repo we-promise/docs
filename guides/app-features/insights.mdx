@@ -18,7 +18,7 @@ Insights appear in the dashboard feed.
 | `net_worth_milestone` | Net worth has crossed a round-number milestone within the last 30 days |
 | `subscription_audit` | A recurring transaction has not appeared since its expected due date, by at least one full billing cycle |
 | `savings_rate_change` | Savings rate has shifted materially compared to recent months |
-| `idle_cash` | A cash account has a large balance that has been untouched for 60+ days |
+| `idle_cash` | A cash account has a large balance with no real transactions in the last 60 days. Scheduled (future-dated) entries do not count as activity. |
 | `budget_at_risk` | Budget categories are near or over their monthly limit |
 | `budget_on_track` | All budget categories are on track (shown after the month is at least half over) |
 | `maintained_goal_depleted` | A reserve goal has fallen below its target balance |
@@ -55,6 +55,8 @@ The Insights button is only shown when preview features are enabled for your acc
 The insights feed is shared across the whole family. An insight that names a specific account — such as an idle cash nudge — appears in the feed only while every active family member can access that account. If account sharing is revoked, a member joins the family, or the account is hidden or deleted, the insight is hidden on the next feed read if the visibility condition no longer holds. Restoring access can make it visible again if it is still active or read, rather than dismissed or expired.
 
 The idle cash generator only considers accounts every active member can see. A private account is excluded when another active family member lacks access. In a family with only one active member, an account owned by that member can qualify without a share.
+
+Activity is determined by real entries only: a scheduled entry dated in the future does not count. An account with only a future-dated planned transaction is treated as idle if it has had no actual transactions in the last 60 days.
 
 ## Dashboard feed
 
