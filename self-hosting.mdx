@@ -641,6 +641,14 @@ If your existing `compose.yml` hardcodes an image tag, `SURE_IMAGE_TAG` has no e
 - `stable` — latest stable release (default)
 - `latest` — latest alpha release
 
+Release candidates (tagged `YYYY.M.D-rc.N`) are not promoted to either `latest` or `stable`. They publish only a version-specific Docker tag such as `2026.11.30-rc.1`. To run a release candidate, pin `SURE_IMAGE_TAG` to the full RC tag:
+
+```txt
+SURE_IMAGE_TAG=2026.11.30-rc.1
+```
+
+RC builds use the same Render deployment path as alpha releases and are marked as GitHub prereleases. They are intended for testing before a stable release, not for production installs that follow a floating channel.
+
 You can also pin to a specific version from the [packages page](https://github.com/we-promise/sure/pkgs/container/sure).
 
 ### Update to the latest version
