@@ -136,6 +136,16 @@ The application supports multiple authentication methods:
 - `client_secret_post` (default): Send credentials in request body
 - `client_secret_basic`: Send credentials in Authorization header
 
+### PKCE enforcement
+
+PKCE is enforced for all public clients. Every client registered through `POST /register` is public. A code exchange with a wrong `code_verifier` returns `invalid_grant`; a missing verifier returns `invalid_request`. Neither issues an access token.
+
+If you self-host, run the database migration that adds the `code_challenge` and `code_challenge_method` columns to `oauth_access_grants` before deploying. The migration must ship with the application update — deploying without it causes `server_error` at `/oauth/authorize` for every registered client. The migration adds two nullable columns and needs no backfill.
+
+### Refresh token rotation
+
+After a token refresh, the replaced access token and replaced refresh token remain usable for one additional rotation window. This limits exposure from a leaked token without breaking clients that redeem a refresh token before the previous access token expires. The limitation comes from Doorkeeper 5.9.10; retiring the replaced token entirely is a planned follow-up.
+
 ## SAML 2.0 configuration
 
 ### Service Provider metadata
