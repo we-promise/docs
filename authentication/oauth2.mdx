@@ -422,7 +422,9 @@ The application supports multiple token endpoint authentication methods:
 
 ### PKCE support
 
-Proof Key for Code Exchange (PKCE) is automatically enabled for enhanced security on supported providers.
+Proof Key for Code Exchange (PKCE) is enforced for all public clients using the authorization-code flow. Every client registered via `POST /register` is a public client. The server rejects authorization-code exchanges with a mismatched `code_verifier` (`invalid_grant`) and refuses exchanges that omit a required verifier altogether (`invalid_request`). The S256 challenge method is the only supported method, as advertised in the OAuth server metadata at `code_challenge_methods_supported`.
+
+If you self-host, the database migration that adds the `code_challenge` and `code_challenge_method` columns to `oauth_access_grants` must run before deploying the application. Without it, the server returns `server_error` at `/oauth/authorize` for every public client. The migration adds two nullable columns and requires no backfill; any pending authorization codes that predate the migration simply need the client to sign in again.
 
 ## Next steps
 
